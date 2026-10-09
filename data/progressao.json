@@ -1,0 +1,94 @@
+{
+  "_fonte": "Página de Level Up da ficha oficial de Daggerheart + seção 'Leveling Up' do SRD. Conferir quantidade de slots com a ficha impressa antes de considerar definitivo.",
+  "nivel_maximo": 10,
+  "limite_pv": 12,
+  "limite_estresse": 12,
+  "tiers": {
+    "1": {
+      "niveis": [
+        1
+      ]
+    },
+    "2": {
+      "niveis": [
+        2,
+        3,
+        4
+      ]
+    },
+    "3": {
+      "niveis": [
+        5,
+        6,
+        7
+      ]
+    },
+    "4": {
+      "niveis": [
+        8,
+        9,
+        10
+      ]
+    }
+  },
+  "conquistas_de_tier": {
+    "2": {
+      "nova_experiencia": true,
+      "proficiencia": 1,
+      "limpar_marcas_tracos": false
+    },
+    "5": {
+      "nova_experiencia": true,
+      "proficiencia": 1,
+      "limpar_marcas_tracos": true
+    },
+    "8": {
+      "nova_experiencia": true,
+      "proficiencia": 1,
+      "limpar_marcas_tracos": true
+    }
+  },
+  "avancos_por_nivel": 2,
+  "opcoes": {
+    "2": {
+      "TRACOS": 3,
+      "PV": 2,
+      "ESTRESSE": 2,
+      "EXPERIENCIAS": 1,
+      "CARTA_DOMINIO": 1,
+      "EVASAO": 1
+    },
+    "3": {
+      "TRACOS": 3,
+      "PV": 2,
+      "ESTRESSE": 2,
+      "EXPERIENCIAS": 1,
+      "CARTA_DOMINIO": 1,
+      "EVASAO": 1,
+      "SUBCLASSE": 1,
+      "PROFICIENCIA": 1,
+      "MULTICLASSE": 1
+    },
+    "4": {
+      "TRACOS": 3,
+      "PV": 2,
+      "ESTRESSE": 2,
+      "EXPERIENCIAS": 1,
+      "CARTA_DOMINIO": 1,
+      "EVASAO": 1,
+      "SUBCLASSE": 1,
+      "PROFICIENCIA": 1,
+      "MULTICLASSE": 1
+    }
+  },
+  "opcoes_que_custam_dois_avancos": [
+    "PROFICIENCIA",
+    "MULTICLASSE"
+  ],
+  "nivel_maximo_carta_extra_por_tier": {
+    "2": 4,
+    "3": 7,
+    "4": 10
+  },
+  "_opcoes_significado": "Número de vezes que cada opção pode ser marcada dentro daquele tier (equivale aos quadradinhos da ficha). PROFICIENCIA e MULTICLASSE consomem os dois avanços do nível."
+}
