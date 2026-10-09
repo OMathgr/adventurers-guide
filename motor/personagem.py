@@ -165,13 +165,14 @@ class Personagem:
         vai acontecer automaticamente (conquistas de tier), para o
         jogador planejar.
         """
-        conquistas = self.bib.progressao["conquistas_de_tier"]
+        bib = self.bib
+        conquistas = bib.progressao["conquistas_de_tier"]
         eventos = [{
             "nivel": 1, "tier": 1, "status": "feito", "titulo": "Criação",
-            "itens": [f"Classe: {self.criacao.classe}",
-                      f"Subclasse: {self.criacao.subclasse}",
+            "itens": [f"Classe: {self._nome_classe(self.criacao.classe)}",
+                      f"Subclasse: {self._nome(bib.subclasses, self.criacao.subclasse)}",
                       *(f"Experiência: {e} +2" for e in self.criacao.experiencias),
-                      *(f"Carta: {c}" for c in self.criacao.cartas)],
+                      *(f"Carta: {self._nome(bib.cartas, c)}" for c in self.criacao.cartas)],
         }]
         feitos = {s.nivel: s for s in self.historico}
         for nivel in range(2, self.bib.progressao["nivel_maximo"] + 1):
@@ -186,9 +187,11 @@ class Personagem:
                     itens.append(f"Nova Experiência: {subida.nova_experiencia} +2")
                 itens += [self._descrever(e) for e in subida.escolhas]
                 itens.append("Limiares de dano +1")
-                itens.append(f"Carta: {subida.carta}")
+                itens.append(f"Carta: {self._nome(bib.cartas, subida.carta)}")
                 if subida.troca_carta:
-                    itens.append(f"Troca: {subida.troca_carta[0]} → {subida.troca_carta[1]}")
+                    antiga, nova = subida.troca_carta
+                    itens.append(f"Troca: {self._nome(bib.cartas, antiga)}"
+                                 f" → {self._nome(bib.cartas, nova)}")
             else:
                 itens += ["Escolher 2 avanços", "Limiares de dano +1", "Escolher 1 carta de domínio"]
             eventos.append({
@@ -383,16 +386,28 @@ class Personagem:
             raise RegraViolada(f"{rotulo} não encontrada: {chave}")
         return colecao[chave]
 
-    @staticmethod
-    def _descrever(e: Escolha) -> str:
+    def _nome(self, colecao: dict, chave: str) -> str:
+        """Nome de exibição de um conteúdo do SRD a partir do id.
+
+        Os ids do histórico já foram validados por _criar/_aplicar.
+        """
+        return colecao[chave].nome
+
+    def _nome_classe(self, chave: str) -> str:
+        # O SRD guarda "BARD" e as subclasses comparam por esse valor,
+        # então só formatamos na exibição.
+        return self._nome(self.bib.classes, chave).title()
+
+    def _descrever(self, e: Escolha) -> str:
         detalhe = ""
         if e.tracos:
             detalhe = " (" + ", ".join(t.name.title() for t in e.tracos) + ")"
         elif e.experiencias:
             detalhe = " (" + ", ".join(e.experiencias) + ")"
         elif e.carta:
-            detalhe = f" ({e.carta})"
+            detalhe = f" ({self._nome(self.bib.cartas, e.carta)})"
         elif e.classe:
-            detalhe = f" ({e.classe} / {e.dominio})"
+            detalhe = (f" ({self._nome_classe(e.classe)} / {e.dominio.title()}"
+                       f" / {self._nome(self.bib.subclasses, e.subclasse)})")
         origem = f" [tier {e.tier}]" if e.tier else ""
         return f"Avanço: {e.opcao.value}{detalhe}{origem}"

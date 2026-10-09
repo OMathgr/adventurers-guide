@@ -132,3 +132,16 @@ def test_linha_do_tempo(bardo):
     assert len(tempo) == 10
     assert [e["status"] for e in tempo[:3]] == ["feito", "feito", "futuro"]
     assert any("Conquista de tier" in i for i in tempo[4]["itens"])  # nível 5
+
+
+def test_linha_do_tempo_mostra_nomes_e_nao_ids(bardo):
+    bardo.subir_de_nivel(nivel_simples(2, "core_domain_card_tell_no_lies", "X"))
+    tempo = bardo.linha_do_tempo()
+    criacao, nivel2 = tempo[0]["itens"], tempo[1]["itens"]
+    assert "Classe: Bard" in criacao
+    assert "Subclasse: Troubadour" in criacao
+    assert "Carta: Inspirational Words" in criacao
+    assert "Carta: Book of Ava" in criacao
+    assert "Carta: Tell No Lies" in nivel2
+    todos = [i for e in tempo for i in e["itens"]]
+    assert not any("core_" in i for i in todos)
