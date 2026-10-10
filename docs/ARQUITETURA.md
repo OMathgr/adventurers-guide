@@ -42,6 +42,24 @@ Restrições checadas:
 - cartas do domínio da multiclasse têm nível ≤ metade do seu nível;
 - PV e Estresse no máximo 12.
 
+## Equipamento (estado atual, fora do histórico)
+
+Arma e armadura mudam durante o jogo, não ao subir de nível. Por isso o
+`Personagem` guarda um `Equipamento` (principal, secundária, armadura) à parte
+do histórico. `ficha()` refaz o histórico e, no fim, aplica o equipamento
+atual (`_vestir`). Consequência: `ficha(ate_nivel=3)` mostra o nível 3 com o
+equipamento de hoje.
+
+- `equipar(...)` define o conjunto completo e valida tudo antes de trocar.
+- Sem armadura: limiar maior = nível, grave = 2 × nível, pontuação 0.
+- Com armadura: limiares base da armadura + nível.
+- Dano: número de dados = Proficiência (`2d8+1`).
+- Arma de duas mãos impede secundária; arma mágica exige subclasse com
+  traço de conjuração (inclusive a da multiclasse).
+
+No banco, o equipamento vira colunas (ou tabela) do `personagem`, não de
+`subida_de_nivel`.
+
 ## Pendências conhecidas
 
 - **Conferir `progressao.json` com a ficha oficial impressa** (número de
@@ -49,5 +67,9 @@ Restrições checadas:
   compêndio do SRD, mas vale a checagem manual.
 - Existe um SRD 2.0 (agosto/2026) com classes novas. Os JSON atuais são do 1.0.
   Como o motor só fala com a `Biblioteca`, a troca fica isolada em `srd.py`.
-- Armas, armaduras e inventário ainda não entram no cálculo da ficha.
+- Características de armas e armaduras (ex.: Flexible +1 Evasão, Heavy −1
+  Evasão, Reliable +1 no ataque) só existem como texto no SRD e ainda não têm
+  efeito. Ideia: um mapa nosso em `data/` de nome da característica → efeito.
+- Inventário (itens, ouro, consumíveis) ainda não existe.
+- Desfazer o nível da multiclasse não revalida uma arma mágica já equipada.
 - Ancestralidade mista e regras de companheiro do Ranger Beastbound.

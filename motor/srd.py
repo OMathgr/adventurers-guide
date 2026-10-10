@@ -58,6 +58,44 @@ class CartaDeDominio:
     custo_recall: int
 
 
+class CategoriaArma(str, Enum):
+    PRIMARIA_FISICA = "PRIMARY_PHYSICAL"
+    PRIMARIA_MAGICA = "PRIMARY_MAGIC"
+    SECUNDARIA = "SECONDARY"
+
+
+@dataclass(frozen=True)
+class Arma:
+    id: str
+    nome: str
+    categoria: CategoriaArma
+    tier: int
+    traco: Traco
+    alcance: str
+    dado: str               # ex.: "d8"
+    modificador_dano: int
+    tipo_dano: str          # PHYSICAL ou MAGICAL
+    duas_maos: bool
+
+    @property
+    def primaria(self) -> bool:
+        return self.categoria is not CategoriaArma.SECUNDARIA
+
+    @property
+    def magica(self) -> bool:
+        return self.categoria is CategoriaArma.PRIMARIA_MAGICA
+
+
+@dataclass(frozen=True)
+class Armadura:
+    id: str
+    nome: str
+    tier: int
+    limiar_maior: int       # valores base; a ficha soma o nível
+    limiar_grave: int
+    pontuacao: int
+
+
 @dataclass(frozen=True)
 class Ancestralidade:
     id: str
@@ -112,6 +150,32 @@ class Biblioteca:
         self.comunidades = {
             c["id"]: Comunidade(c["id"], _texto(c["name"]))
             for c in self._ler(srd / "communities.json")
+        }
+        self.armas = {
+            a["id"]: Arma(
+                id=a["id"],
+                nome=_texto(a["name"]),
+                categoria=CategoriaArma(a["type"]),
+                tier=a["tier"],
+                traco=Traco(a["trait"]),
+                alcance=a["range"],
+                dado=a["damage"]["dice"].lower(),
+                modificador_dano=a["damage"].get("modifier", 0),
+                tipo_dano=a["damage"]["type"],
+                duas_maos=a["burden"] == "TWO_HANDED",
+            )
+            for a in self._ler(srd / "weapons.json")
+        }
+        self.armaduras = {
+            a["id"]: Armadura(
+                id=a["id"],
+                nome=_texto(a["name"]),
+                tier=a["tier"],
+                limiar_maior=a["baseMajorThreshold"],
+                limiar_grave=a["baseSevereThreshold"],
+                pontuacao=a["baseScore"],
+            )
+            for a in self._ler(srd / "armors.json")
         }
         self.progressao = self._ler(pasta / "progressao.json")
 

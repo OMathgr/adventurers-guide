@@ -15,7 +15,7 @@ import copy
 from dataclasses import dataclass, field
 from enum import Enum
 
-from .srd import Biblioteca, Traco
+from .srd import Arma, Biblioteca, Traco
 
 DISTRIBUICAO_TRACOS = sorted([2, 1, 1, 0, 0, -1])
 ESTAGIOS_SUBCLASSE = ["fundacao", "especializacao", "maestria"]
@@ -76,7 +76,26 @@ class SubidaDeNivel:
     troca_carta: tuple[str, str] | None = None   # (carta antiga, carta nova)
 
 
+@dataclass(frozen=True)
+class Equipamento:
+    """O que o personagem está usando AGORA. Não faz parte do histórico:
+    trocar de arma acontece durante o jogo, não ao subir de nível."""
+
+    principal: str | None = None
+    secundaria: str | None = None
+    armadura: str | None = None
+
+
 # --- Saída: a ficha calculada ----------------------------------------------
+
+@dataclass
+class Ataque:
+    arma: str        # nome de exibição
+    traco: Traco     # traço usado na rolagem de ataque
+    bonus: int       # valor atual desse traço
+    alcance: str
+    dano: str        # ex.: "2d8+1" (número de dados = Proficiência)
+    tipo_dano: str
 
 @dataclass
 class Ficha:
@@ -101,11 +120,11 @@ class Ficha:
     slots_usados: dict[tuple[int, str], int] = field(default_factory=dict)
     subclasse_bloqueada_tiers: set[int] = field(default_factory=set)
     multiclasse_bloqueada: bool = False
-
-    @property
-    def bonus_limiares(self) -> int:
-        """Somado aos limiares base da armadura (a regra soma o nível)."""
-        return self.nivel
+    # preenchidos por _vestir a partir do equipamento atual
+    limiar_maior: int = 0
+    limiar_grave: int = 0
+    pontuacao_armadura: int = 0
+    ataques: list[Ataque] = field(default_factory=list)
 
 
 class Personagem:
@@ -113,23 +132,39 @@ class Personagem:
         self.bib = biblioteca
         self.criacao = criacao
         self.historico: list[SubidaDeNivel] = []
+        self.equipamento = Equipamento()
         self._ficha_inicial = self._criar(criacao)
 
     # --- API pública -------------------------------------------------------
 
     def ficha(self, ate_nivel: int | None = None) -> Ficha:
+        """Refaz o histórico e aplica o equipamento ATUAL por cima.
+
+        Por isso ficha(ate_nivel=3) mostra o nível 3 com o equipamento de hoje.
+        """
         ficha = copy.deepcopy(self._ficha_inicial)
         for subida in self.historico:
             if ate_nivel is not None and subida.nivel > ate_nivel:
                 break
             ficha = self._aplicar(ficha, subida)
-        return ficha
+        return self._vestir(ficha, self.equipamento)
 
     def subir_de_nivel(self, subida: SubidaDeNivel) -> Ficha:
         """Valida e registra o nível. Se algo for inválido, nada muda."""
         nova = self._aplicar(self.ficha(), subida)
         self.historico.append(subida)
-        return nova
+        return self._vestir(nova, self.equipamento)
+
+    def equipar(self, principal: str | None = None, secundaria: str | None = None,
+                armadura: str | None = None) -> Ficha:
+        """Define o equipamento completo; o que não for passado fica vazio.
+
+        Tudo é validado antes de trocar, então um erro não muda nada.
+        """
+        novo = Equipamento(principal, secundaria, armadura)
+        self._validar_equipamento(self.ficha(), novo)
+        self.equipamento = novo
+        return self.ficha()
 
     def desfazer_ultimo_nivel(self) -> None:
         if not self.historico:
@@ -271,7 +306,7 @@ class Personagem:
         for escolha in s.escolhas:
             self._aplicar_escolha(f, escolha, tier, s.nivel)
 
-        # Passo 3: limiares de dano sobem junto com o nível (ver bonus_limiares)
+        # Passo 3: limiares de dano sobem junto com o nível (ver _vestir)
         f.nivel = s.nivel
 
         # Passo 4: carta de domínio
@@ -367,6 +402,55 @@ class Personagem:
         nivel_antiga = self.bib.cartas[antiga].nivel
         self._validar_nova_carta(f, nova, nivel_antiga, f.nivel)
         f.cartas[f.cartas.index(antiga)] = nova
+
+    # --- Equipamento ---------------------------------------------------------
+
+    def _validar_equipamento(self, f: Ficha, eq: Equipamento):
+        bib = self.bib
+        principal = secundaria = None
+        if eq.principal:
+            principal = self._exigir(bib.armas, eq.principal, "Arma")
+            if not principal.primaria:
+                raise RegraViolada(f"{principal.nome} é uma arma secundária.")
+            if principal.magica and not self._conjura(f):
+                raise RegraViolada(f"{principal.nome} é mágica e exige um traço de conjuração.")
+        if eq.secundaria:
+            secundaria = self._exigir(bib.armas, eq.secundaria, "Arma")
+            if secundaria.primaria:
+                raise RegraViolada(f"{secundaria.nome} é uma arma principal.")
+            if principal and principal.duas_maos:
+                raise RegraViolada(f"{principal.nome} usa as duas mãos; não sobra mão para a secundária.")
+        if eq.armadura:
+            self._exigir(bib.armaduras, eq.armadura, "Armadura")
+
+    def _conjura(self, f: Ficha) -> bool:
+        """Alguma subclasse do personagem (inclusive da multiclasse) tem traço de conjuração."""
+        subclasses = [f.subclasse]
+        if f.multiclasse:
+            subclasses.append(f.multiclasse["subclasse"])
+        return any(self.bib.subclasses[s].traco_conjuracao for s in subclasses)
+
+    def _vestir(self, f: Ficha, eq: Equipamento) -> Ficha:
+        """Preenche limiares, armadura e ataques. O equipamento já foi validado em equipar()."""
+        if eq.armadura:
+            armadura = self.bib.armaduras[eq.armadura]
+            f.limiar_maior = armadura.limiar_maior + f.nivel
+            f.limiar_grave = armadura.limiar_grave + f.nivel
+            f.pontuacao_armadura = armadura.pontuacao
+        else:
+            # regra do SRD para quem está sem armadura
+            f.limiar_maior, f.limiar_grave, f.pontuacao_armadura = f.nivel, 2 * f.nivel, 0
+        f.ataques = [self._ataque(f, self.bib.armas[a])
+                     for a in (eq.principal, eq.secundaria) if a]
+        return f
+
+    @staticmethod
+    def _ataque(f: Ficha, arma: Arma) -> Ataque:
+        dano = f"{f.proficiencia}{arma.dado}"
+        if arma.modificador_dano:
+            dano += f"+{arma.modificador_dano}"
+        return Ataque(arma=arma.nome, traco=arma.traco, bonus=f.tracos[arma.traco],
+                      alcance=arma.alcance, dano=dano, tipo_dano=arma.tipo_dano)
 
     # --- utilitários ---------------------------------------------------------
 

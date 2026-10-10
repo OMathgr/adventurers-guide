@@ -23,7 +23,7 @@ def test_nivel_2_completo(bardo):
         carta="core_domain_card_tell_no_lies",
         nova_experiencia="Ladino de palco",
     ))
-    assert f.nivel == 2 and f.proficiencia == 2 and f.bonus_limiares == 2
+    assert f.nivel == 2 and f.proficiencia == 2 and f.limiar_maior == 2
     assert f.tracos[Traco.PRESENCA] == 3
     assert f.experiencias == {"Diplomata": 3, "Cantora de taverna": 3, "Ladino de palco": 2}
     assert Traco.PRESENCA in f.tracos_marcados
