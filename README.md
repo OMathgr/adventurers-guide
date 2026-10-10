@@ -2,16 +2,20 @@
 
 Software para ajudar grupos a jogar RPG. Começa com as regras de **Daggerheart**.
 
-Hoje tem duas camadas:
+Hoje tem três camadas:
 
 - **Motor de regras** (`motor/`, Python puro): cria personagens, valida cada
   subida de nível, calcula a ficha, a linha do tempo e o estado de jogo.
 - **API** (`api/`, FastAPI + SQLAlchemy): expõe o motor por HTTP e salva os
   personagens no banco (SQLite local; PostgreSQL trocando a `DATABASE_URL`).
+- **Interface web** (`web/`, React + TypeScript + Vite): construtor de
+  personagem com visão de ficha e visão de linha do tempo.
 
 Tem cadastro e login (e-mail e senha, token JWT) e mesas: entrada por
 código de convite, jogadores e mestres, e o mestre vê as fichas e aplica
-dano e condições nos personagens da mesa. Ainda não tem interface.
+dano e condições nos personagens da mesa. A interface web já cobre o
+construtor (criar, ficha, linha do tempo, subir de nível); sessão de jogo e
+mesas na interface vêm a seguir.
 
 ## Como rodar
 
@@ -24,6 +28,11 @@ python exemplo.py                # cria uma personagem e mostra a ficha (só o m
 
 alembic upgrade head             # cria/atualiza o banco (adventurers.db)
 uvicorn api.main:app --reload    # API em http://127.0.0.1:8000 (docs em /docs)
+
+cd web                           # interface (precisa do Node.js 20+)
+npm install
+npm run dev                      # http://localhost:5173 (usa a API acima)
+npm test
 ```
 
 Na página `/docs`, cadastre-se em `POST /auth/cadastro` e use o botão
@@ -56,6 +65,7 @@ api/
   esquemas.py     # ficha de saída e corpos das ações
   db.py           # conexão (DATABASE_URL)
 migrations/       # migrações do banco (Alembic)
+web/              # interface React (ver web/README.md)
 data/
   srd/              # classes, subclasses, cartas... (SRD 1.0, JSON da comunidade)
   progressao.json   # tiers, conquistas e opções de avanço (feito por nós)
@@ -68,7 +78,7 @@ docs/ARQUITETURA.md
 
 1. ~~Motor de regras~~
 2. ~~API (FastAPI) + banco: personagens salvos, usuários e login, mesas e papéis~~
-3. Interface web do construtor: visão ficha + visão linha do tempo
+3. Interface web: ~~construtor (ficha + linha do tempo)~~, sessão de jogo e mesas (próximo)
 4. Workspace da mesa (mapa mental com visibilidade por papel)
 5. Colaboração em tempo real
 6. App mobile

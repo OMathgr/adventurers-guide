@@ -11,7 +11,8 @@ from motor import CartaDeDominio, Criacao, Personagem, RegraViolada, SubidaDeNiv
 from .. import repositorio
 from ..autenticacao import Acesso, acesso
 from ..esquemas import (EquipamentoEntrada, FichaSaida, OpcoesDeCarta, PersonagemCriado,
-                        PersonagemResumo, RecuperarCarta, VinculoMesa, ficha_saida)
+                        PersonagemResumo, ProximoNivelSaida, RecuperarCarta, VinculoMesa,
+                        ficha_saida)
 from ..mesas import membro
 
 rotas = APIRouter(prefix="/personagens", tags=["Personagens"])
@@ -64,6 +65,14 @@ def linha_do_tempo(personagem_id: str, a: Acesso = Depends(acesso)) -> list[dict
 def opcoes(personagem_id: str, a: Acesso = Depends(acesso)) -> list[dict]:
     """Avanços que ainda podem ser marcados no próximo nível."""
     return repositorio.carregar(a.banco, a.usuario_id, personagem_id).opcoes_disponiveis()
+
+
+@rotas.get("/{personagem_id}/proximo-nivel", response_model=ProximoNivelSaida | None)
+def proximo_nivel(personagem_id: str, a: Acesso = Depends(acesso)):
+    """O que o próximo nível pede (null no nível máximo): conquista de tier,
+    avanços disponíveis, traços marcados e treinos do companheiro."""
+    proximo = repositorio.carregar(a.banco, a.usuario_id, personagem_id).proximo_nivel()
+    return None if proximo is None else ProximoNivelSaida.model_validate(proximo, from_attributes=True)
 
 
 @rotas.post("/{personagem_id}/cartas/opcoes", response_model=list[CartaDeDominio])

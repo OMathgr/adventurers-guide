@@ -121,3 +121,9 @@ def test_beastbound_com_companheiro(cliente):
     comp = cliente.get(f"/personagens/{rid}").json()["companheiro"]
     assert (comp["dado"], comp["dano"]) == ("d8", "2d8")
     assert comp["experiencias"]["Uivar"] == 2
+
+
+def test_proximo_nivel(cliente, bardo_id):
+    p = cliente.get(f"/personagens/{bardo_id}/proximo-nivel").json()
+    assert (p["nivel"], p["nova_experiencia"], p["avancos"], p["treinos"]) == (2, True, 2, 0)
+    assert {"tier": 2, "opcao": "PV", "restantes": 2, "custo": 1} in p["opcoes"]

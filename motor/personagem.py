@@ -111,6 +111,20 @@ class Ataque:
 
 
 @dataclass
+class ProximoNivel:
+    nivel: int
+    tier: int
+    nova_experiencia: bool             # conquista de tier (níveis 2, 5, 8)
+    limpa_marcas_tracos: bool          # níveis 5 e 8
+    experiencia_companheiro: bool      # o companheiro também ganha uma
+    avancos: int                       # quantos avanços escolher (custo total)
+    opcoes: list[dict]                 # avanços disponíveis (ver opcoes_disponiveis)
+    tracos_marcados: list[Traco]       # não podem subir de novo neste nível
+    treinos: int                       # treinos do companheiro exigidos
+    treinos_extra_com_subclasse: int   # a mais se marcar SUBCLASSE (Expert/Advanced Training)
+
+
+@dataclass
 class Conjuracao:
     subclasse: str   # nome de exibição da subclasse que dá o traço
     traco: Traco     # traço de conjuração da subclasse
@@ -328,6 +342,34 @@ class Personagem:
         if no_lugar_de is not None:
             self.cofre.append(no_lugar_de)
         return custo
+
+    def proximo_nivel(self) -> ProximoNivel | None:
+        """O que o próximo nível pede, para a interface montar o assistente
+        sem repetir as regras. None no nível máximo."""
+        f = self._ficha_base()
+        proximo = f.nivel + 1
+        if proximo > self.bib.progressao["nivel_maximo"]:
+            return None
+        conquista = self.bib.progressao["conquistas_de_tier"].get(str(proximo))
+        regras = self.bib.companheiro
+        tem_companheiro = f.companheiro is not None
+        extra = 0
+        indice = ESTAGIOS_SUBCLASSE.index(f.estagio_subclasse)
+        if f.subclasse == regras["subclasse"] and indice < len(ESTAGIOS_SUBCLASSE) - 1:
+            extra = regras["treinos_extras_por_estagio"][ESTAGIOS_SUBCLASSE[indice + 1]]
+        limpa = bool(conquista and conquista["limpar_marcas_tracos"])
+        return ProximoNivel(
+            nivel=proximo, tier=self.bib.tier_do_nivel(proximo),
+            nova_experiencia=bool(conquista),
+            limpa_marcas_tracos=limpa,
+            experiencia_companheiro=bool(conquista and tem_companheiro),
+            avancos=self.bib.progressao["avancos_por_nivel"],
+            opcoes=self.opcoes_disponiveis(),
+            # a conquista dos níveis 5 e 8 limpa as marcas antes das escolhas
+            tracos_marcados=[] if limpa else sorted(f.tracos_marcados, key=list(Traco).index),
+            treinos=1 if tem_companheiro else 0,
+            treinos_extra_com_subclasse=extra,
+        )
 
     def opcoes_disponiveis(self) -> list[dict]:
         """Avanços que ainda podem ser marcados no PRÓXIMO nível."""

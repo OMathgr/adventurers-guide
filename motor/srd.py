@@ -230,6 +230,7 @@ class CartaDeDominio:
     nivel: int
     tipo: str
     custo_recall: int
+    texto: str = ""   # o que a carta faz (só para exibição)
 
 
 class CategoriaArma(str, Enum):
@@ -319,6 +320,7 @@ class Biblioteca:
                 nivel=c["level"],
                 tipo=c["type"],
                 custo_recall=c["recallCost"],
+                texto="\n\n".join(_paragrafos(f["description"]) for f in c.get("features", [])),
             )
             for c in self._ler(srd / "domain-cards.json")
         }

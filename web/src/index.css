@@ -1,0 +1,73 @@
+@import "tailwindcss";
+
+/*
+  Identidade visual: azul-escuro (Medo) como base e laranja (Esperança) como
+  destaque. As cores são variáveis CSS; o Tailwind as expõe como classes
+  (bg-fundo, text-esperanca, border-borda...). Tema escuro é o padrão; o claro
+  é ativado por data-tema="claro" no <html>.
+*/
+:root {
+  --fundo: #0b1426;
+  --superficie: #12203b;
+  --superficie-2: #1a2c50;
+  --borda: #2a3f6b;
+  --texto: #e8edf7;
+  --texto-suave: #9fb0d0;
+  --esperanca: #f39237;
+  --esperanca-forte: #ffad5c;
+  --sobre-esperanca: #1a0f04;
+  --medo: #5b7fd6;
+  --perigo: #ef6461;
+  --sucesso: #4fbf8b;
+  color-scheme: dark;
+}
+
+:root[data-tema="claro"] {
+  --fundo: #f3f5fa;
+  --superficie: #ffffff;
+  --superficie-2: #e8edf7;
+  --borda: #c9d3e6;
+  --texto: #0f1b33;
+  --texto-suave: #4a5a7a;
+  --esperanca: #d9701a;
+  --esperanca-forte: #b85a0e;
+  --sobre-esperanca: #ffffff;
+  --medo: #1f3a7a;
+  --perigo: #c93b38;
+  --sucesso: #23875a;
+  color-scheme: light;
+}
+
+@theme inline {
+  --color-fundo: var(--fundo);
+  --color-superficie: var(--superficie);
+  --color-superficie-2: var(--superficie-2);
+  --color-borda: var(--borda);
+  --color-texto: var(--texto);
+  --color-texto-suave: var(--texto-suave);
+  --color-esperanca: var(--esperanca);
+  --color-esperanca-forte: var(--esperanca-forte);
+  --color-sobre-esperanca: var(--sobre-esperanca);
+  --color-medo: var(--medo);
+  --color-perigo: var(--perigo);
+  --color-sucesso: var(--sucesso);
+  --font-titulo: "Cinzel", Georgia, serif;
+  --font-sans: "Inter", system-ui, sans-serif;
+}
+
+@layer base {
+  html {
+    background: var(--fundo);
+    color: var(--texto);
+  }
+  body {
+    @apply min-h-screen font-sans antialiased;
+  }
+  h1, h2, h3 {
+    @apply font-titulo tracking-wide;
+  }
+  :focus-visible {
+    outline: 2px solid var(--esperanca);
+    outline-offset: 2px;
+  }
+}

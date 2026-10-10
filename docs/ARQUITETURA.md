@@ -315,6 +315,36 @@ verem as fichas uns dos outros, controle de concorrência entre duas edições
 simultâneas do mesmo personagem (ex.: mestre aplica dano enquanto o jogador
 descansa), atualização em tempo real.
 
+## Interface web (fase 3, `web/`)
+
+React 19 + TypeScript + Vite, Tailwind CSS v4, React Router e React Query.
+
+- **Regras ficam no motor.** A tela guia (ex.: só libera "Continuar" quando
+  os traços estão distribuídos) mas quem decide é a API; a mensagem de
+  `RegraViolada` aparece para o jogador. O que o assistente de level up
+  precisa saber vem de `GET /personagens/{id}/proximo-nivel`
+  (`Personagem.proximo_nivel()`): conquista de tier, avanços disponíveis,
+  traços marcados e quantos treinos o companheiro exige.
+- **Tipos gerados da API:** `npm run api:tipos` exporta o OpenAPI do FastAPI
+  (`api/exportar_openapi.py`) e gera `web/src/api/esquema.d.ts`. Front e back
+  não divergem em silêncio: mudou a API, o `tsc` aponta onde.
+- **Dados:** React Query com uma chave por recurso; mutações invalidam o
+  personagem para ficha e linha do tempo se atualizarem. O catálogo do SRD
+  fica em cache longo e serve para trocar ids da ficha por nomes.
+- **Login:** token no `localStorage`; 401 com token desloga e volta para
+  /entrar.
+- **Desenvolvimento:** o Vite encaminha `/api/*` para o FastAPI (sem CORS).
+- **Visual:** azul-escuro (Medo) como base e laranja (Esperança) como
+  destaque, tema escuro padrão e claro opcional, tudo em variáveis CSS.
+
+Telas: entrar/cadastro, lista de personagens, criação passo a passo (classe,
+subclasse + companheiro, herança com ancestralidade mista, traços,
+Experiências, cartas, revisão), personagem (abas Ficha e Linha do tempo,
+excluir, desfazer último nível) e subir de nível passo a passo.
+
+Ainda não na interface: estado de sessão (marcar PV/Estresse, descansos),
+equipamento, cofre de cartas e mesas (a API já tem tudo isso).
+
 ## Pendências conhecidas
 
 - `progressao.json` conferido (2026-10-09) com o SRD e a ficha oficial.

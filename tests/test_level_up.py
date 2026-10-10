@@ -142,3 +142,24 @@ def test_linha_do_tempo_mostra_nomes_e_nao_ids(bardo):
     assert "Carta: Tell No Lies" in nivel2
     todos = [i for e in tempo for i in e["itens"]]
     assert not any("core_" in i for i in todos)
+
+
+def test_proximo_nivel_no_nivel_1(bardo):
+    p = bardo.proximo_nivel()
+    assert (p.nivel, p.tier, p.nova_experiencia, p.limpa_marcas_tracos) == (2, 2, True, False)
+    assert (p.avancos, p.treinos, p.treinos_extra_com_subclasse) == (2, 0, 0)
+    assert {"tier": 2, "opcao": Opcao.PV, "restantes": 2, "custo": 1} in p.opcoes
+
+
+def test_proximo_nivel_mostra_tracos_marcados(bardo):
+    bardo.subir_de_nivel(SubidaDeNivel(
+        2, [Escolha(Opcao.TRACOS, tracos=(Traco.PRESENCA, Traco.AGILIDADE)), Escolha(Opcao.PV)],
+        "core_domain_card_tell_no_lies", nova_experiencia="X"))
+    p = bardo.proximo_nivel()
+    assert p.nivel == 3 and p.nova_experiencia is False
+    assert p.tracos_marcados == [Traco.AGILIDADE, Traco.PRESENCA]   # na ordem dos traços
+
+
+def test_proximo_nivel_5_limpa_as_marcas(bardo_nivel_4):
+    p = bardo_nivel_4.proximo_nivel()
+    assert (p.nivel, p.limpa_marcas_tracos, p.tracos_marcados) == (5, True, [])

@@ -10,8 +10,9 @@ Fase 1 (motor de regras em Python puro, `motor/`) e fase 2 (API FastAPI em
 `api/`) concluídas. A API usa SQLite local (PostgreSQL depois, só trocando
 `DATABASE_URL`) e tem personagens salvos, cadastro e login (JWT) e mesas
 (convite por código, jogador/mestre, permissões dos mestres definidas pelo
-criador; o mestre só lê fichas e aplica dano e condições). Próxima: fase 3,
-interface web. Leia `docs/ARQUITETURA.md` antes de mudar a modelagem. O
+criador; o mestre só lê fichas e aplica dano e condições). Fase 3 em
+andamento: interface React em `web/` (construtor pronto; sessão e mesas na
+interface a seguir). Leia `docs/ARQUITETURA.md` antes de mudar a modelagem. O
 personagem é guardado como criação + histórico de subidas de nível; a ficha
 é sempre recalculada.
 
@@ -22,6 +23,11 @@ personagem é guardado como criação + histórico de subidas de nível; a ficha
   `.venv\Scripts\python -m pytest` antes de concluir (as dependências da API
   estão no `.venv`).
 - Mudou `api/tabelas.py`? Gere a migração: `alembic revision --autogenerate -m "..."`.
+- Front (`web/`): textos em português, regras só no motor (a tela guia e
+  mostra o erro da API). Mudou a API? `npm run api:tipos` regenera
+  `web/src/api/esquema.d.ts`. Antes de concluir: `npm test` e `npm run build`
+  dentro de `web/`. Cores: azul-escuro (Medo) e laranja (Esperança), via
+  variáveis em `web/src/index.css`.
 - Conteúdo de jogo só do SRD (licença DPCGL). Nada do livro completo.
 - Dados ficam em `data/`; o motor só acessa dados pela `Biblioteca` (`motor/srd.py`).
 

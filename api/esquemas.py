@@ -9,7 +9,7 @@ from typing import Literal, get_type_hints
 
 from pydantic import BaseModel, Field, create_model
 
-from motor import Escolha, Ficha, Movimento, ResultadoDano, ResultadoMovimento, TipoDano
+from motor import Escolha, Ficha, Movimento, Opcao, Traco, ResultadoDano, ResultadoMovimento, TipoDano
 
 # Campos de controle interno do motor, que não interessam a quem usa a API
 # (e um deles tem tupla como chave, o que nem cabe em JSON).
@@ -23,6 +23,28 @@ FichaSaida = create_model(
 
 def ficha_saida(ficha: Ficha) -> BaseModel:
     return FichaSaida.model_validate(ficha, from_attributes=True)
+
+
+class OpcaoAvanco(BaseModel):
+    tier: int
+    opcao: Opcao
+    restantes: int
+    custo: int
+
+
+class ProximoNivelSaida(BaseModel):
+    """O que o próximo nível pede (motor.ProximoNivel com as opções tipadas)."""
+
+    nivel: int
+    tier: int
+    nova_experiencia: bool
+    limpa_marcas_tracos: bool
+    experiencia_companheiro: bool
+    avancos: int
+    opcoes: list[OpcaoAvanco]
+    tracos_marcados: list[Traco]
+    treinos: int
+    treinos_extra_com_subclasse: int
 
 
 class PersonagemCriado(BaseModel):

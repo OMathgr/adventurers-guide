@@ -1,0 +1,38 @@
+// Apelidos curtos para os tipos gerados da API (src/api/esquema.d.ts).
+// Não edite esquema.d.ts à mão: rode `npm run api:tipos` depois de mudar a API.
+import type { components } from './esquema'
+
+type S = components['schemas']
+
+export type Ficha = S['Ficha']
+export type Criacao = S['Criacao']
+export type Companheiro = S['Companheiro']
+export type SubidaDeNivel = S['SubidaDeNivel']
+export type Escolha = S['Escolha']
+export type Treino = S['Treino']
+export type OpcaoTreino = S['OpcaoTreino']
+export type AlvoFeroz = S['AlvoFeroz']
+export type Opcao = S['Opcao']
+export type Traco = S['Traco']
+export type TipoDano = S['TipoDano']
+export type ProximoNivel = S['ProximoNivelSaida']
+export type OpcaoAvanco = S['OpcaoAvanco']
+export type PersonagemResumo = S['PersonagemResumo']
+export type PersonagemCriado = S['PersonagemCriado']
+export type Classe = S['Classe']
+export type Subclasse = S['Subclasse']
+export type Ancestralidade = S['Ancestralidade']
+export type Comunidade = S['Comunidade']
+export type CartaDeDominio = S['CartaDeDominio']
+export type Caracteristica = S['Caracteristica']
+export type Ataque = S['Ataque']
+export type Usuario = S['Usuario']
+export type Token = S['Token']
+
+export type EventoLinhaDoTempo = {
+  nivel: number
+  tier: number
+  status: 'feito' | 'futuro'
+  titulo: string
+  itens: string[]
+}
