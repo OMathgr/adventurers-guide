@@ -3,6 +3,9 @@ __pycache__/
 .venv/
 .pytest_cache/
 
+# banco SQLite local de desenvolvimento
+*.db
+
 # Claude Code: configurações e permissões ficam só nesta máquina
 # (o CLAUDE.md, na raiz, é do projeto e vai para o git)
 .claude/

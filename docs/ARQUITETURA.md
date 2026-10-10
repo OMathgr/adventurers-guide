@@ -19,8 +19,9 @@ Por que isso importa para o produto:
 | Desfazer uma escolha errada | `desfazer_ultimo_nivel()` |
 | Impedir build inválida | cada nível é validado contra a ficha anterior |
 
-No banco de dados (fase 2), isso vira duas tabelas: `personagem` (com a
-criação) e `subida_de_nivel` (uma linha por nível, com as escolhas em JSON).
+No banco de dados (fase 2), isso vira duas tabelas: `personagens` (com a
+criação) e `subidas_de_nivel` (uma linha por nível, com as escolhas em JSON).
+Ver "API e banco" no fim deste documento.
 
 ## Regras de level up implementadas
 
@@ -229,6 +230,43 @@ traço (ex.: Guerreiro) não gera entrada.
 Bônus = traço de conjuração já com modificadores de equipamento (ex.: Gilded
 +1 Presença) + bônus "to Spellcast Rolls" (Channeling). É calculado em
 `_vestir`, porque depende dos traços modificados.
+
+## API e banco (fase 2, `api/`)
+
+O motor continua puro; a API só o chama. Camadas:
+
+```
+HTTP ─► rotas (api/rotas) ─► repositorio ─► motor.Personagem
+                                  │
+                                  └─► tabelas (SQLAlchemy) ─► SQLite / PostgreSQL
+```
+
+- **Formato:** criação e level up entram como os próprios dataclasses do
+  motor (`Criacao`, `SubidaDeNivel`), validados pelo pydantic. O mesmo
+  formato vai para o banco (JSON), sem uma segunda cópia dos modelos.
+  A ficha sai pelo `FichaSaida`, gerado a partir de `Ficha` sem os campos de
+  controle interno.
+- **Tabelas:** `personagens` (criação, equipamento, cofre e sessão em JSON) e
+  `subidas_de_nivel` (uma linha por nível). A ficha nunca é salva.
+- **Carregar** refaz o personagem pelo motor (criação, cada nível em ordem,
+  estado atual por cima), revalidando tudo. **Salvar** grava o estado atual e
+  sincroniza as linhas de nível com o histórico.
+- **Cada requisição** é carregar → ação do motor → salvar. Se o motor
+  recusar (`RegraViolada`), nada é salvo e a resposta é 422 com
+  `"tipo": "regra"`. JSON mal formado também é 422, mas sem `tipo`.
+- **Estado para persistir:** `Personagem.estado()` / `restaurar_estado()` e
+  `Sessao.estado()` / `restaurar()`, no próprio motor, ao lado dos campos.
+- **Banco:** URL em `DATABASE_URL` (padrão: `sqlite:///./adventurers.db`).
+  Migrações com Alembic; `tests/api/test_migracoes.py` falha se
+  `api/tabelas.py` mudar sem migração.
+
+Rotas: `/srd/*` (catálogo), `/personagens` (criar, listar, ficha, apagar,
+linha do tempo, opções, cartas, níveis, equipamento, cofre) e
+`/personagens/{id}/sessao/*` (dano, PV, Estresse, Esperança, armadura,
+descanso, companheiro, regras). Documentação interativa em `/docs`.
+
+Ainda não: usuários e login (todo personagem é visível para qualquer um),
+mesas e papéis, controle de concorrência entre duas edições simultâneas.
 
 ## Pendências conhecidas
 

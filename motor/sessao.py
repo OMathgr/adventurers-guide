@@ -422,6 +422,35 @@ class Sessao:
         else:
             notas.append(f"Bonded: {comp.nome} rolou {dados}, sem 6")
 
+    # --- Persistência -------------------------------------------------------------------
+
+    def estado(self) -> dict:
+        """Tudo o que precisa ser salvo, só com tipos simples (vira JSON)."""
+        return {
+            "pv_marcados": self.pv_marcados,
+            "estresse_marcado": self.estresse_marcado,
+            "esperanca": self.esperanca,
+            "armadura_marcada": self.armadura_marcada,
+            "dano_massivo": self.dano_massivo,
+            "descansos_curtos_seguidos": self.descansos_curtos_seguidos,
+            "companheiro_estresse": self.companheiro_estresse,
+            "companheiro_fora": self.companheiro_fora,
+            "usados_no_descanso": sorted(f"{type(e).__name__}:{e.value}"
+                                         for e in self.usados_no_descanso),
+        }
+
+    def restaurar(self, estado: dict):
+        tipos = {"Efeito": Efeito, "OpcaoTreino": OpcaoTreino}
+        for campo in ("pv_marcados", "estresse_marcado", "esperanca", "armadura_marcada",
+                      "dano_massivo", "descansos_curtos_seguidos", "companheiro_estresse",
+                      "companheiro_fora"):
+            setattr(self, campo, estado[campo])
+        self.usados_no_descanso = set()
+        for item in estado["usados_no_descanso"]:
+            tipo, valor = item.split(":", 1)
+            self.usados_no_descanso.add(tipos[tipo](valor))
+        self.ajustar()
+
     # --- Ajuste quando os máximos caem ----------------------------------------------
 
     def ajustar(self):

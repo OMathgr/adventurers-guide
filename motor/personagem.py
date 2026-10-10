@@ -12,6 +12,7 @@ Isso dá de graça:
 """
 
 import copy
+import dataclasses
 from dataclasses import dataclass, field
 from enum import Enum
 
@@ -234,6 +235,22 @@ class Personagem:
         self.equipamento = novo
         self.sessao.ajustar()   # armadura nova pode ter menos espaços
         return self.ficha()
+
+    def estado(self) -> dict:
+        """Estado atual (fora do histórico) em tipos simples, para salvar."""
+        return {
+            "equipamento": dataclasses.asdict(self.equipamento),
+            "cofre": list(self.cofre),
+            "sessao": self.sessao.estado(),
+        }
+
+    def restaurar_estado(self, estado: dict):
+        """Inverso de estado(). O equipamento passa por equipar(), então
+        continua valendo a validação (ex.: arma mágica, Pompous)."""
+        self.equipar(**estado["equipamento"])
+        self.cofre = list(estado["cofre"])
+        self._ajustar_cofre()
+        self.sessao.restaurar(estado["sessao"])
 
     def desfazer_ultimo_nivel(self) -> None:
         if not self.historico:
