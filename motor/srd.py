@@ -49,6 +49,7 @@ class Alvo(str, Enum):
     LIMIAR_GRAVE = "LIMIAR_GRAVE"
     ATAQUE = "ATAQUE"   # só nas rolagens de ataque da própria arma
     DANO = "DANO"       # só nas rolagens de dano da própria arma
+    CONJURACAO = "CONJURACAO"   # rolagens de conjuração
 
 
 class Referencia(str, Enum):
@@ -91,6 +92,7 @@ ALVOS_SRD: dict[str, tuple[Alvo | Traco, ...]] = {
     "Armor Score": (Alvo.PONTUACAO_ARMADURA,),
     "Severe damage threshold": (Alvo.LIMIAR_GRAVE,),
     "attack rolls": (Alvo.ATAQUE,),
+    "Spellcast Rolls": (Alvo.CONJURACAO,),
     "all character traits": tuple(Traco),
     "all character traits and Evasion": (*Traco, Alvo.EVASAO),
     **{nome: (t,) for nome, t in TRACOS_SRD.items()},
@@ -150,7 +152,7 @@ class Subclasse:
     id: str
     nome: str
     classe: str  # nome da classe em maiúsculas, ex.: "BARD"
-    traco_conjuracao: str | None
+    traco_conjuracao: Traco | None   # None = subclasse não conjura
 
 
 @dataclass(frozen=True)
@@ -235,7 +237,7 @@ class Biblioteca:
                 id=s["id"],
                 nome=_texto(s["name"]),
                 classe=s["class"],
-                traco_conjuracao=s.get("spellcastTrait"),
+                traco_conjuracao=Traco(s["spellcastTrait"]) if s.get("spellcastTrait") else None,
             )
             for s in self._ler(srd / "subclasses.json")
         }

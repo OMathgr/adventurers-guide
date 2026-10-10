@@ -1,6 +1,6 @@
 import pytest
 
-from motor import Criacao, Escolha, Opcao, Personagem, RegraViolada, SubidaDeNivel, Traco
+from motor import Escolha, Opcao, RegraViolada, SubidaDeNivel, Traco
 
 
 def subir_para_nivel_2(personagem):
@@ -9,23 +9,6 @@ def subir_para_nivel_2(personagem):
         escolhas=[Escolha(Opcao.EVASAO), Escolha(Opcao.PV)],
         carta="core_domain_card_tell_no_lies",
         nova_experiencia="Viajante",
-    ))
-
-
-@pytest.fixture
-def guerreiro(bib):
-    return Personagem(bib, Criacao(
-        nome="Bruna",
-        classe="core_class_warrior",
-        subclasse="core_subclass_call_of_the_brave",
-        ancestralidade="core_ancestry_clank",
-        comunidade="core_community_highborne",
-        tracos={
-            Traco.FORCA: 2, Traco.AGILIDADE: 1, Traco.INSTINTO: 1,
-            Traco.ACUIDADE: 0, Traco.PRESENCA: 0, Traco.CONHECIMENTO: -1,
-        },
-        experiencias=["Soldada", "Ferreira"],
-        cartas=["core_domain_card_get_back_up", "core_domain_card_whirlwind"],
     ))
 
 

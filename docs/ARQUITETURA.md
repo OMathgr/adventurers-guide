@@ -84,6 +84,17 @@ Armadura, limiar grave, ataque, traços). Os valores vêm do próprio SRD, entã
   O traço é checado com todo o equipamento aplicado.
 - Versatile fica só como texto: escolher o perfil alternativo é decisão de mesa.
 
+## Rolagem de conjuração
+
+`Ficha.conjuracoes` traz uma `Conjuracao` por subclasse que conjura: a
+principal e, se houver, a da multiclasse (o SRD define o traço de conjuração
+na subclasse, e cada subclasse pode usar um traço diferente). Subclasse sem
+traço (ex.: Guerreiro) não gera entrada.
+
+Bônus = traço de conjuração já com modificadores de equipamento (ex.: Gilded
++1 Presença) + bônus "to Spellcast Rolls" (Channeling). É calculado em
+`_vestir`, porque depende dos traços modificados.
+
 ## Pendências conhecidas
 
 - **Conferir `progressao.json` com a ficha oficial impressa** (número de
@@ -91,8 +102,6 @@ Armadura, limiar grave, ataque, traços). Os valores vêm do próprio SRD, entã
   compêndio do SRD, mas vale a checagem manual.
 - Existe um SRD 2.0 (agosto/2026) com classes novas. Os JSON atuais são do 1.0.
   Como o motor só fala com a `Biblioteca`, a troca fica isolada em `srd.py`.
-- Channeling (+1 em conjuração) ainda é só texto: a ficha não tem rolagem
-  de conjuração.
 - Inventário (itens, ouro, consumíveis) ainda não existe.
 - Desfazer o nível da multiclasse não revalida uma arma mágica já equipada.
 - Ancestralidade mista e regras de companheiro do Ranger Beastbound.

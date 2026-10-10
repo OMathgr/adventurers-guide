@@ -16,7 +16,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 
 from .srd import (Alvo, Arma, Biblioteca, Caracteristica, Modificador, Referencia,
-                  Traco)
+                  Subclasse, Traco)
 
 DISTRIBUICAO_TRACOS = sorted([2, 1, 1, 0, 0, -1])
 ESTAGIOS_SUBCLASSE = ["fundacao", "especializacao", "maestria"]
@@ -101,6 +101,13 @@ class Ataque:
 
 
 @dataclass
+class Conjuracao:
+    subclasse: str   # nome de exibição da subclasse que dá o traço
+    traco: Traco     # traço de conjuração da subclasse
+    bonus: int       # traço (já com modificadores) + bônus de equipamento
+
+
+@dataclass
 class Ficha:
     nome: str
     nivel: int
@@ -131,6 +138,8 @@ class Ficha:
     armadura: str | None = None   # nome de exibição
     caracteristicas_armadura: list[Caracteristica] = field(default_factory=list)
     ataques: list[Ataque] = field(default_factory=list)
+    # uma por subclasse que conjura (a principal e, se houver, a da multiclasse)
+    conjuracoes: list[Conjuracao] = field(default_factory=list)
 
 
 class Personagem:
@@ -445,12 +454,16 @@ class Personagem:
         if eq.armadura:
             self._exigir(bib.armaduras, eq.armadura, "Armadura")
 
+    def _subclasses(self, f: Ficha) -> list[Subclasse]:
+        """A subclasse principal e, se houver, a da multiclasse."""
+        ids = [f.subclasse]
+        if f.multiclasse:
+            ids.append(f.multiclasse["subclasse"])
+        return [self.bib.subclasses[s] for s in ids]
+
     def _conjura(self, f: Ficha) -> bool:
         """Alguma subclasse do personagem (inclusive da multiclasse) tem traço de conjuração."""
-        subclasses = [f.subclasse]
-        if f.multiclasse:
-            subclasses.append(f.multiclasse["subclasse"])
-        return any(self.bib.subclasses[s].traco_conjuracao for s in subclasses)
+        return any(s.traco_conjuracao for s in self._subclasses(f))
 
     def _vestir(self, f: Ficha, eq: Equipamento) -> Ficha:
         """Aplica o equipamento sobre uma ficha base (que é alterada).
@@ -474,12 +487,15 @@ class Personagem:
             f.limiar_maior, f.limiar_grave, f.pontuacao_armadura = f.nivel, 2 * f.nivel, 0
 
         pecas = [*armas, armadura] if armadura else armas
-        for peca in pecas:
-            for c in peca.caracteristicas:
-                for m in c.modificadores:
-                    self._modificar(f, m)
+        mods = [m for peca in pecas for c in peca.caracteristicas for m in c.modificadores]
+        for m in mods:
+            self._modificar(f, m)
 
         f.ataques = [self._ataque(f, arma) for arma in armas]
+        bonus_conjuracao = sum(self._valor(f, m) for m in mods if m.alvo is Alvo.CONJURACAO)
+        f.conjuracoes = [Conjuracao(sub.nome, sub.traco_conjuracao,
+                                    f.tracos[sub.traco_conjuracao] + bonus_conjuracao)
+                         for sub in self._subclasses(f) if sub.traco_conjuracao]
         return f
 
     @staticmethod
@@ -492,7 +508,8 @@ class Personagem:
             f.pontuacao_armadura += m.valor
         elif m.alvo is Alvo.LIMIAR_GRAVE:
             f.limiar_grave += m.valor
-        # Alvo.ATAQUE e Alvo.DANO valem só para a própria arma: tratados em _ataque
+        # Alvo.ATAQUE e Alvo.DANO valem só para a própria arma (_ataque);
+        # Alvo.CONJURACAO é somado nas conjurações, no fim de _vestir
 
     @staticmethod
     def _valor(f: Ficha, m: Modificador) -> int:

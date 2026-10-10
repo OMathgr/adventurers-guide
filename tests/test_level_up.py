@@ -73,17 +73,9 @@ def test_traco_marcado_nao_sobe_de_novo(bardo):
             carta="core_domain_card_troublemaker"))
 
 
-def _ate_nivel_4(bardo):
-    bardo.subir_de_nivel(nivel_simples(2, "core_domain_card_tell_no_lies", "X"))
-    bardo.subir_de_nivel(SubidaDeNivel(3, [Escolha(Opcao.ESTRESSE), Escolha(Opcao.PV)],
-                                       "core_domain_card_troublemaker"))
-    bardo.subir_de_nivel(SubidaDeNivel(4, [Escolha(Opcao.ESTRESSE),
-                                           Escolha(Opcao.TRACOS, tracos=(Traco.FORCA, Traco.INSTINTO))],
-                                       "core_domain_card_invisibility"))
 
-
-def test_nivel_5_limpa_marcas_e_permite_subclasse(bardo):
-    _ate_nivel_4(bardo)
+def test_nivel_5_limpa_marcas_e_permite_subclasse(bardo_nivel_4):
+    bardo = bardo_nivel_4
     f = bardo.subir_de_nivel(SubidaDeNivel(
         5, [Escolha(Opcao.SUBCLASSE), Escolha(Opcao.TRACOS, tracos=(Traco.FORCA, Traco.PRESENCA))],
         "core_domain_card_hypnotic_shimmer", nova_experiencia="Y"))
@@ -95,8 +87,8 @@ def test_nivel_5_limpa_marcas_e_permite_subclasse(bardo):
                    for o in bardo.opcoes_disponiveis())
 
 
-def test_multiclasse(bardo):
-    _ate_nivel_4(bardo)
+def test_multiclasse(bardo_nivel_4):
+    bardo = bardo_nivel_4
     f = bardo.subir_de_nivel(SubidaDeNivel(
         5, [Escolha(Opcao.MULTICLASSE, classe="core_class_warrior", dominio="BLADE",
                     subclasse="core_subclass_call_of_the_brave")],
@@ -109,8 +101,8 @@ def test_multiclasse(bardo):
     assert (4, Opcao.MULTICLASSE) not in opcoes
 
 
-def test_carta_multiclasse_limitada_a_metade_do_nivel(bardo):
-    _ate_nivel_4(bardo)
+def test_carta_multiclasse_limitada_a_metade_do_nivel(bardo_nivel_4):
+    bardo = bardo_nivel_4
     with pytest.raises(RegraViolada, match="não está disponível"):
         bardo.subir_de_nivel(SubidaDeNivel(
             5, [Escolha(Opcao.MULTICLASSE, classe="core_class_warrior", dominio="BLADE",
@@ -119,8 +111,8 @@ def test_carta_multiclasse_limitada_a_metade_do_nivel(bardo):
             nova_experiencia="Y"))
 
 
-def test_desfazer_e_ficha_em_nivel_passado(bardo):
-    _ate_nivel_4(bardo)
+def test_desfazer_e_ficha_em_nivel_passado(bardo_nivel_4):
+    bardo = bardo_nivel_4
     assert bardo.ficha(ate_nivel=2).nivel == 2
     bardo.desfazer_ultimo_nivel()
     assert bardo.ficha().nivel == 3

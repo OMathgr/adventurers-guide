@@ -33,7 +33,6 @@ def test_parte_condicional_vira_so_texto():
 CONHECIDOS_SO_TEXTO = {
     "primary weapon damage within Melee range",               # Double Duty
     "primary weapon damage to targets within Melee range",    # Paired
-    "Spellcast Rolls",                                        # Channeling
 }
 
 
