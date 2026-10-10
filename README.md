@@ -21,7 +21,9 @@ python exemplo.py                # cria uma personagem e mostra a ficha
 ```
 motor/
   srd.py          # lê o conteúdo do SRD (JSON) e transforma em objetos
-  personagem.py   # criação, level up, validações e linha do tempo
+  personagem.py   # criação, level up, equipamento, cartas, ficha e linha do tempo
+  sessao.py       # estado de jogo: PV, Estresse, Esperança, armadura, dano e descansos
+  erros.py        # RegraViolada
 data/
   srd/            # classes, subclasses, cartas... (SRD 1.0, JSON da comunidade)
   progressao.json # tiers, conquistas e opções de avanço (feito por nós)

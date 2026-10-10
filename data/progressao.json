@@ -4,6 +4,7 @@
   "limite_pv": 12,
   "limite_estresse": 12,
   "limite_loadout": 5,
+  "limite_esperanca": 6,
   "tiers": {
     "1": {
       "niveis": [

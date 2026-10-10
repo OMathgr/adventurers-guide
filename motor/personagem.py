@@ -15,15 +15,13 @@ import copy
 from dataclasses import dataclass, field
 from enum import Enum
 
+from .erros import RegraViolada
+from .sessao import Sessao
 from .srd import (Alvo, Arma, Biblioteca, Caracteristica, CartaDeDominio, Modificador,
                   Referencia, Subclasse, Traco)
 
 DISTRIBUICAO_TRACOS = sorted([2, 1, 1, 0, 0, -1])
 ESTAGIOS_SUBCLASSE = ["fundacao", "especializacao", "maestria"]
-
-
-class RegraViolada(Exception):
-    """Uma escolha do jogador não é permitida pelas regras."""
 
 
 class Opcao(str, Enum):
@@ -143,6 +141,10 @@ class Ficha:
     # `cartas` (acima) tem todas; aqui elas estão divididas entre ativas e cofre
     cartas_ativas: list[str] = field(default_factory=list)   # loadout
     cartas_cofre: list[str] = field(default_factory=list)    # vault
+    # estado de sessão (marcas atuais); `esperanca` acima é a Esperança atual
+    pv_marcados: int = 0
+    estresse_marcado: int = 0
+    armadura_marcada: int = 0
 
 
 class Personagem:
@@ -155,17 +157,25 @@ class Personagem:
         # Toda carta que o personagem tem e não está aqui está no loadout.
         self.cofre: list[str] = []
         self._ficha_inicial = self._criar(criacao)
+        self.sessao = Sessao(self, esperanca=self._ficha_inicial.esperanca)
 
     # --- API pública -------------------------------------------------------
 
     def ficha(self, ate_nivel: int | None = None) -> Ficha:
-        """Refaz o histórico e aplica o estado ATUAL (equipamento e cofre) por cima.
+        """Refaz o histórico e aplica o estado ATUAL (equipamento, cofre e
+        sessão) por cima.
 
         Por isso ficha(ate_nivel=3) mostra o nível 3 com o equipamento de hoje.
         """
         f = self._vestir(self._ficha_base(ate_nivel), self.equipamento)
         f.cartas_cofre = [c for c in f.cartas if c in self.cofre]
         f.cartas_ativas = [c for c in f.cartas if c not in self.cofre]
+        s = self.sessao
+        # min(): numa ficha de nível passado os máximos podem ser menores
+        f.pv_marcados = min(s.pv_marcados, f.pv_max)
+        f.estresse_marcado = min(s.estresse_marcado, f.estresse_max)
+        f.armadura_marcada = min(s.armadura_marcada, f.pontuacao_armadura)
+        f.esperanca = s.esperanca
         return f
 
     def subir_de_nivel(self, subida: SubidaDeNivel) -> Ficha:
@@ -194,6 +204,7 @@ class Personagem:
         self._validar_equipamento(base, novo)
         self._validar_requisitos(self._vestir(base, novo), novo)
         self.equipamento = novo
+        self.sessao.ajustar()   # armadura nova pode ter menos espaços
         return self.ficha()
 
     def desfazer_ultimo_nivel(self) -> None:
@@ -201,6 +212,7 @@ class Personagem:
             raise RegraViolada("Não há nível para desfazer.")
         self.historico.pop()
         self._ajustar_cofre()
+        self.sessao.ajustar()   # PV/Estresse máximos podem ter caído
 
     # --- Cartas: o que dá para escolher no próximo nível ---------------------
 
@@ -249,11 +261,12 @@ class Personagem:
 
     def recuperar_carta(self, carta: str, no_lugar_de: str | None = None,
                         em_descanso: bool = False) -> int:
-        """Traz uma carta do cofre para o loadout e devolve o custo em Estresse.
+        """Traz uma carta do cofre para o loadout, marcando o Estresse do custo.
 
         Fora de um descanso, custa o Recall Cost da carta; no descanso é grátis.
-        Com o loadout cheio, informe em `no_lugar_de` a carta que vai para o cofre.
-        O motor ainda não controla Estresse marcado: quem chama aplica o custo.
+        Sem Estresse livre suficiente, a troca é recusada (é um custo, não um
+        Estresse imposto). Com o loadout cheio, informe em `no_lugar_de` a
+        carta que vai para o cofre. Devolve o Estresse marcado.
         """
         if carta not in self.cofre:
             raise RegraViolada(f"{self._nome(self.bib.cartas, carta)} não está no cofre.")
@@ -262,10 +275,12 @@ class Personagem:
             raise RegraViolada("A carta que sai precisa estar no loadout.")
         if no_lugar_de is None and len(ativas) >= self._limite_loadout:
             raise RegraViolada(f"Loadout cheio ({self._limite_loadout}): escolha uma carta para guardar.")
+        custo = 0 if em_descanso else self.bib.cartas[carta].custo_recall
+        self.sessao.pagar_estresse(custo)   # recusa antes de mexer no cofre
         self.cofre.remove(carta)
         if no_lugar_de is not None:
             self.cofre.append(no_lugar_de)
-        return 0 if em_descanso else self.bib.cartas[carta].custo_recall
+        return custo
 
     def opcoes_disponiveis(self) -> list[dict]:
         """Avanços que ainda podem ser marcados no PRÓXIMO nível."""

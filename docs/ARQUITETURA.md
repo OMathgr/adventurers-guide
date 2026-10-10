@@ -112,10 +112,34 @@ loadout. A ficha mostra `cartas_ativas` e `cartas_cofre`.
 - Limite do loadout em `progressao.json` (`limite_loadout`: 5).
 - Carta nova entra no loadout; se ele estiver cheio, vai para o cofre.
 - Troca de uma carta que estava no cofre: a nova fica no cofre.
-- `guardar_carta` é grátis. `recuperar_carta` devolve o custo em Estresse
-  (Recall Cost; 0 em descanso). Com o loadout cheio, exige `no_lugar_de`.
-- O motor ainda não controla Estresse marcado: quem chama aplica o custo.
+- `guardar_carta` é grátis. `recuperar_carta` marca o Recall Cost em
+  Estresse (0 em descanso) e é recusada sem Estresse livre suficiente.
+  Com o loadout cheio, exige `no_lugar_de`.
 - Desfazer um nível tira do cofre as cartas que deixaram de existir.
+
+## Estado de sessão (`motor/sessao.py`)
+
+PV, Estresse, Esperança e espaços de armadura marcados: estado atual, fora do
+histórico, em `personagem.sessao`. Os máximos vêm sempre da ficha calculada,
+então level up e troca de armadura refletem sozinhos. Quando um máximo cai
+(trocar para armadura menor, desfazer nível), `Sessao.ajustar()` corta o
+excesso. A ficha mostra `pv_marcados`, `estresse_marcado`,
+`armadura_marcada` e `esperanca` (atual).
+
+- **Dano:** abaixo do limiar maior = 1 PV, a partir dele = 2, a partir do
+  grave = 3. Regra opcional `dano_massivo` (desligada): ≥ 2× grave = 4.
+  `usar_armadura` marca um espaço e reduz um nível de gravidade.
+  Marcar o último PV deixa `caido` (movimentos de morte ficam para a mesa).
+- **Estresse imposto** (`marcar_estresse`) sem espaço vira PV (regra do SRD).
+  **Estresse como custo** (`pagar_estresse`) exige espaço livre.
+- **Esperança:** limite 6 (`limite_esperanca` em `progressao.json`).
+- **Descansos:** dois movimentos (pode repetir). No curto, recuperar rola
+  1d4 + tier; no longo, limpa tudo. Preparar = +1 Esperança (+2 em grupo).
+  Projeto só no longo. O motor rola o d4, mas aceita o valor informado.
+
+Ainda não aplicado: características que dependem de marcar espaços ou
+Estresse (Fortified, Painful, Hopeful, Reinforced, Resilient etc.), limite
+de descansos curtos seguidos e cuidar de aliados num descanso.
 
 ## Rolagem de conjuração
 
