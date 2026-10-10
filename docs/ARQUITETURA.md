@@ -137,8 +137,33 @@ excesso. A ficha mostra `pv_marcados`, `estresse_marcado`,
   1d4 + tier; no longo, limpa tudo. Preparar = +1 Esperança (+2 em grupo).
   Projeto só no longo. O motor rola o d4, mas aceita o valor informado.
 
-Ainda não aplicado: características que dependem de marcar espaços ou
-Estresse (Fortified, Painful, Hopeful, Reinforced, Resilient etc.), limite
+### Características com regra própria (`Efeito`)
+
+Não cabem em "+N to X": mudam como dano, armadura ou descanso funcionam.
+São reconhecidas pelo **nome** no SRD (`_EFEITOS_SRD` em `srd.py`) e ficam em
+`Caracteristica.efeito`. `test_todo_efeito_existe_no_srd` avisa se um nome
+sumir. A sessão consulta `personagem.efeitos_ativos()` (todas as peças
+equipadas, porque Healing é de arma).
+
+| SRD | Regra no motor |
+|---|---|
+| Fortified | espaço de armadura reduz dois níveis |
+| Painful (armadura) | todo espaço marcado marca 1 Estresse (imposto) |
+| Resilient | antes do último espaço, d6; 6 = reduz sem marcar |
+| Reinforced | com todos os espaços marcados, limiares +2 (a partir do dano seguinte) |
+| Hopeful | `gastar_esperanca(n, com_armadura=k)` |
+| Impenetrable | `receber_dano(..., evitar_queda=True)`: 1x por descanso, Estresse no lugar do último PV |
+| Warded | dano mágico reduzido pela Pontuação de Armadura |
+| Physical / Magic | armadura não reduz dano mágico / físico |
+| Healing (arma) | limpa 1 PV em todo descanso |
+
+Warded, Physical e Magic precisam do `tipo` do dano em `receber_dano`.
+Todo espaço marcado passa por `_marcar_espaco`, para o Painful valer também
+em `marcar_armadura` (Shifting, Timeslowing, Deflecting: efeito resolvido na
+mesa) e no Hopeful.
+
+Ainda não aplicado: Painful de arma e características que dependem de
+ataque, aliados ou adversários (Sheltering, Burning, Lifestealing...), limite
 de descansos curtos seguidos e cuidar de aliados num descanso.
 
 ## Rolagem de conjuração

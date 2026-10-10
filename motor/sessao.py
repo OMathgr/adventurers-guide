@@ -10,11 +10,12 @@ reflete aqui.
 from __future__ import annotations
 
 import random
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum
 from typing import TYPE_CHECKING
 
 from .erros import RegraViolada
+from .srd import Efeito, TipoDano
 
 if TYPE_CHECKING:
     from .personagem import Personagem
@@ -51,11 +52,15 @@ _RECUPERACAO = {
 
 @dataclass
 class ResultadoDano:
-    dano: int
+    dano: int                    # depois de reduções (ex.: Warded)
     gravidade: Gravidade         # antes da armadura
-    pv_marcados: int             # depois da armadura
-    usou_armadura: bool
+    pv_marcados: int             # o que de fato foi marcado
+    usou_armadura: bool          # a armadura reduziu a gravidade
     caiu: bool                   # marcou o último PV: hora do movimento de morte
+    espacos_marcados: int = 0    # 0 se Resilient evitou marcar
+    estresse_marcado: int = 0    # Painful / Impenetrable
+    rolagem_d6: int | None = None   # Resilient
+    notas: list[str] = field(default_factory=list)   # características que agiram
 
 
 @dataclass
@@ -63,6 +68,7 @@ class ResultadoMovimento:
     movimento: Movimento
     rolagem: int | None          # d4 rolado (só no descanso curto)
     recuperado: int              # PV/Estresse/armadura limpos ou Esperança ganha
+    fonte: str | None = None     # característica que gerou (ex.: "Healing")
 
 
 class Sessao:
@@ -76,6 +82,8 @@ class Sessao:
         self.rng = rng or random.Random()
         # Regra opcional do SRD; no futuro vem da configuração da mesa.
         self.dano_massivo = False
+        # Efeitos de "uma vez por descanso" já usados (ex.: Impenetrable)
+        self.usados_no_descanso: set[Efeito] = set()
 
     # --- Dano e PV --------------------------------------------------------------
 
@@ -91,21 +99,69 @@ class Sessao:
             return Gravidade.MAIOR
         return Gravidade.MENOR
 
-    def receber_dano(self, dano: int, usar_armadura: bool = False) -> ResultadoDano:
-        """Marca PV conforme os limiares.
+    def receber_dano(self, dano: int, usar_armadura: bool = False,
+                     tipo: TipoDano | None = None, evitar_queda: bool = False,
+                     rolagem_d6: int | None = None) -> ResultadoDano:
+        """Marca PV conforme os limiares, aplicando as características equipadas.
 
-        Com `usar_armadura`, marca um espaço de armadura e reduz a gravidade
-        em um nível (um espaço por dano). Sem espaço livre, não reduz.
+        - `usar_armadura`: marca um espaço e reduz a gravidade em um nível
+          (dois com Fortified). Sem espaço livre, não reduz.
+        - `tipo`: físico ou mágico. Necessário para Warded, Magic e Physical;
+          se omitido, essas regras não se aplicam.
+        - `evitar_queda`: com Impenetrable (1x por descanso), marca Estresse no
+          lugar do último PV.
+        - `rolagem_d6`: o d6 do Resilient, se rolado na mesa (senão o motor rola).
+
+        A gravidade é medida antes de marcar o espaço; por isso o +2 do
+        Reinforced vale a partir do dano seguinte.
         """
+        efeitos = self.personagem.efeitos_ativos()
+        f = self._ficha()
+        if rolagem_d6 is not None and not 1 <= rolagem_d6 <= 6:
+            raise RegraViolada(f"Rolagem de d6 inválida: {rolagem_d6}.")
+        if usar_armadura and tipo is TipoDano.MAGICO and Efeito.SO_FISICO in efeitos:
+            raise RegraViolada("Sua armadura (Physical) não reduz dano mágico.")
+        if usar_armadura and tipo is TipoDano.FISICO and Efeito.SO_MAGICO in efeitos:
+            raise RegraViolada("Sua armadura (Magic) não reduz dano físico.")
+
+        notas: list[str] = []
+        estresse_antes = self.estresse_marcado
+        if tipo is TipoDano.MAGICO and Efeito.PROTEGIDA in efeitos and f.pontuacao_armadura:
+            reduzido = min(dano, f.pontuacao_armadura)
+            dano -= reduzido
+            notas.append(f"Warded: dano mágico reduzido em {reduzido}")
+
         gravidade = self.gravidade(dano)
         pv = int(gravidade)
         usou = False
+        espacos = 0
+        d6 = None
         if usar_armadura and pv > 0 and self.armadura_livre > 0:
-            self.armadura_marcada += 1
-            pv -= 1
             usou = True
+            if Efeito.RESILIENTE in efeitos and self.armadura_livre == 1:
+                d6 = rolagem_d6 or self.rng.randint(1, 6)
+                if d6 == 6:
+                    notas.append("Resilient: tirou 6 e reduziu sem marcar o último espaço")
+            if d6 != 6:
+                self._marcar_espaco(efeitos, notas)
+                espacos = 1
+            reducao = 2 if Efeito.FORTIFICADA in efeitos else 1
+            if reducao == 2:
+                notas.append("Fortified: reduziu dois níveis")
+            pv = max(pv - reducao, 0)
+
+        if (evitar_queda and pv > 0 and Efeito.IMPENETRAVEL in efeitos
+                and Efeito.IMPENETRAVEL not in self.usados_no_descanso
+                and self.pv_marcados + pv >= self._ficha().pv_max
+                and self.estresse_livre > 0):
+            pv -= 1
+            self.estresse_marcado += 1
+            self.usados_no_descanso.add(Efeito.IMPENETRAVEL)
+            notas.append("Impenetrable: marcou Estresse no lugar do último PV")
+
         self.marcar_pv(pv)
-        return ResultadoDano(dano, gravidade, pv, usou, self.caido)
+        return ResultadoDano(dano, gravidade, pv, usou, self.caido, espacos,
+                             self.estresse_marcado - estresse_antes, d6, notas)
 
     def marcar_pv(self, quantidade: int = 1):
         self._exigir_positivo(quantidade)
@@ -137,7 +193,7 @@ class Sessao:
         """Estresse como custo de uma ação: só se houver espaço livre."""
         if quantidade > self.estresse_livre:
             raise RegraViolada(f"Estresse insuficiente: custa {quantidade}, "
-                         f"você tem {self.estresse_livre} livre.")
+                               f"você tem {self.estresse_livre} livre.")
         self.estresse_marcado += quantidade
 
     def limpar_estresse(self, quantidade: int = 1):
@@ -154,17 +210,49 @@ class Sessao:
         self._exigir_positivo(quantidade)
         self.esperanca = min(self.esperanca + quantidade, self._limite_esperanca)
 
-    def gastar_esperanca(self, quantidade: int = 1):
+    def gastar_esperanca(self, quantidade: int = 1, com_armadura: int = 0):
+        """Gasta Esperança. Com Hopeful, `com_armadura` dessas Esperanças são
+        pagas marcando espaços de armadura no lugar."""
         self._exigir_positivo(quantidade)
-        if quantidade > self.esperanca:
-            raise RegraViolada(f"Esperança insuficiente: custa {quantidade}, você tem {self.esperanca}.")
-        self.esperanca -= quantidade
+        self._exigir_positivo(com_armadura)
+        efeitos = self.personagem.efeitos_ativos()
+        if com_armadura:
+            if Efeito.ESPERANCOSA not in efeitos:
+                raise RegraViolada("Só uma armadura com Hopeful troca Esperança por espaço de armadura.")
+            if com_armadura > quantidade:
+                raise RegraViolada("Não dá para pagar com armadura mais do que o custo.")
+            if com_armadura > self.armadura_livre:
+                raise RegraViolada(f"Espaços de armadura insuficientes: {self.armadura_livre} livre(s).")
+        if quantidade - com_armadura > self.esperanca:
+            raise RegraViolada(f"Esperança insuficiente: custa {quantidade - com_armadura}, "
+                               f"você tem {self.esperanca}.")
+        self.esperanca -= quantidade - com_armadura
+        for _ in range(com_armadura):
+            self._marcar_espaco(efeitos, [])
 
     # --- Armadura ----------------------------------------------------------------
 
     @property
     def armadura_livre(self) -> int:
         return self._ficha().pontuacao_armadura - self.armadura_marcada
+
+    def marcar_armadura(self, quantidade: int = 1) -> list[str]:
+        """Marca espaços de armadura por uma característica ativada na mesa
+        (ex.: Shifting, Timeslowing, Deflecting). Devolve as notas (ex.: Painful)."""
+        self._exigir_positivo(quantidade)
+        if quantidade > self.armadura_livre:
+            raise RegraViolada(f"Espaços de armadura insuficientes: {self.armadura_livre} livre(s).")
+        efeitos, notas = self.personagem.efeitos_ativos(), []
+        for _ in range(quantidade):
+            self._marcar_espaco(efeitos, notas)
+        return notas
+
+    def _marcar_espaco(self, efeitos: set[Efeito], notas: list[str]):
+        """Todo espaço marcado passa por aqui, para o Painful valer sempre."""
+        self.armadura_marcada += 1
+        if Efeito.DOLOROSA in efeitos:
+            self.marcar_estresse(1)   # "must mark": imposto, transborda para PV
+            notas.append("Painful: marcou 1 Estresse")
 
     # --- Descansos -----------------------------------------------------------------
 
@@ -211,6 +299,13 @@ class Sessao:
             else:   # PROJETO: narrativo
                 rolagem, quanto = None, 0
             resultados.append(ResultadoMovimento(movimento, rolagem, quanto))
+
+        # Healing: "during downtime, automatically clear a Hit Point"
+        if Efeito.CURA in self.personagem.efeitos_ativos():
+            curado = min(1, self.pv_marcados)
+            self.pv_marcados -= curado
+            resultados.append(ResultadoMovimento(Movimento.CUIDAR_FERIDAS, None, curado, fonte="Healing"))
+        self.usados_no_descanso.clear()   # Impenetrable volta a valer
         return resultados
 
     # --- Ajuste quando os máximos caem ----------------------------------------------

@@ -17,8 +17,8 @@ from enum import Enum
 
 from .erros import RegraViolada
 from .sessao import Sessao
-from .srd import (Alvo, Arma, Biblioteca, Caracteristica, CartaDeDominio, Modificador,
-                  Referencia, Subclasse, Traco)
+from .srd import (Alvo, Arma, Armadura, Biblioteca, Caracteristica, CartaDeDominio, Efeito,
+                  Modificador, Referencia, Subclasse, TipoDano, Traco)
 
 DISTRIBUICAO_TRACOS = sorted([2, 1, 1, 0, 0, -1])
 ESTAGIOS_SUBCLASSE = ["fundacao", "especializacao", "maestria"]
@@ -94,7 +94,7 @@ class Ataque:
     bonus: int       # traço (já com modificadores) + bônus de ataque da arma
     alcance: str
     dano: str        # ex.: "2d8+1" (número de dados = Proficiência)
-    tipo_dano: str
+    tipo_dano: TipoDano
     caracteristicas: list[Caracteristica] = field(default_factory=list)
 
 
@@ -176,6 +176,11 @@ class Personagem:
         f.estresse_marcado = min(s.estresse_marcado, f.estresse_max)
         f.armadura_marcada = min(s.armadura_marcada, f.pontuacao_armadura)
         f.esperanca = s.esperanca
+        # Reinforced: com o último espaço marcado, limiares +2 até limpar um espaço
+        if (Efeito.REFORCADA in self.efeitos_ativos()
+                and 0 < f.pontuacao_armadura <= f.armadura_marcada):
+            f.limiar_maior += 2
+            f.limiar_grave += 2
         return f
 
     def subir_de_nivel(self, subida: SubidaDeNivel) -> Ficha:
@@ -628,8 +633,7 @@ class Personagem:
             # regra do SRD para quem está sem armadura
             f.limiar_maior, f.limiar_grave, f.pontuacao_armadura = f.nivel, 2 * f.nivel, 0
 
-        pecas = [*armas, armadura] if armadura else armas
-        mods = [m for peca in pecas for c in peca.caracteristicas for m in c.modificadores]
+        mods = [m for peca in self._pecas(eq) for c in peca.caracteristicas for m in c.modificadores]
         for m in mods:
             self._modificar(f, m)
 
@@ -675,13 +679,21 @@ class Personagem:
                       alcance=arma.alcance, dano=dano, tipo_dano=arma.tipo_dano,
                       caracteristicas=list(arma.caracteristicas))
 
+    def _pecas(self, eq: Equipamento) -> list[Arma | Armadura]:
+        """Armas e armadura do equipamento, como objetos da Biblioteca."""
+        pecas: list[Arma | Armadura] = [self.bib.armas[a] for a in (eq.principal, eq.secundaria) if a]
+        if eq.armadura:
+            pecas.append(self.bib.armaduras[eq.armadura])
+        return pecas
+
+    def efeitos_ativos(self) -> set[Efeito]:
+        """Regras especiais (Fortified, Healing...) das peças equipadas agora."""
+        return {c.efeito for p in self._pecas(self.equipamento) for c in p.caracteristicas if c.efeito}
+
     def _validar_requisitos(self, f: Ficha, eq: Equipamento):
         """`f` já vestida com `eq`: o requisito vale para o traço como ele fica
         com todo o equipamento (ex.: uma peça que dá +1 Presença conta)."""
-        pecas = [self.bib.armas[a] for a in (eq.principal, eq.secundaria) if a]
-        if eq.armadura:
-            pecas.append(self.bib.armaduras[eq.armadura])
-        for peca in pecas:
+        for peca in self._pecas(eq):
             for c in peca.caracteristicas:
                 for r in c.requisitos:
                     if f.tracos[r.traco] > r.maximo:

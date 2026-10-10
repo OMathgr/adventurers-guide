@@ -5,6 +5,8 @@ Assim, se um dia trocarmos JSON por banco de dados (ou pelo SRD 2.0),
 só este arquivo muda.
 """
 
+from __future__ import annotations
+
 import json
 import re
 from dataclasses import dataclass
@@ -81,6 +83,55 @@ class Caracteristica:
     descricao: str
     modificadores: tuple[Modificador, ...] = ()   # vazio = só texto
     requisitos: tuple[Requisito, ...] = ()
+    efeito: Efeito | None = None                  # regra especial aplicada na sessão
+
+
+class TipoDano(str, Enum):
+    FISICO = "PHYSICAL"
+    MAGICO = "MAGICAL"
+    FISICO_OU_MAGICO = "PHYSICAL_OR_MAGICAL"   # só em armas (Otherworldly): quem ataca escolhe
+
+
+class Efeito(str, Enum):
+    """Características com regra própria no estado de sessão (dano/descanso).
+
+    Não cabem em "+N to X": mudam COMO o dano, a armadura ou o descanso
+    funcionam. O nome no SRD está no comentário.
+    """
+
+    FORTIFICADA = "FORTIFICADA"    # Fortified: espaço de armadura reduz 2 níveis
+    DOLOROSA = "DOLOROSA"          # Painful (armadura): marcar espaço marca Estresse
+    ESPERANCOSA = "ESPERANCOSA"    # Hopeful: pagar Esperança com espaço de armadura
+    REFORCADA = "REFORCADA"        # Reinforced: limiares +2 com todos os espaços marcados
+    RESILIENTE = "RESILIENTE"      # Resilient: d6 antes do último espaço; 6 = reduz sem marcar
+    IMPENETRAVEL = "IMPENETRAVEL"  # Impenetrable: 1x por descanso, Estresse no lugar do último PV
+    SO_FISICO = "SO_FISICO"        # Physical: armadura não reduz dano mágico
+    SO_MAGICO = "SO_MAGICO"        # Magic: armadura não reduz dano físico
+    PROTEGIDA = "PROTEGIDA"        # Warded: dano mágico reduzido pela Pontuação de Armadura
+    CURA = "CURA"                  # Healing: limpa 1 PV em todo descanso
+
+
+_EFEITOS_SRD = {
+    "Fortified": Efeito.FORTIFICADA,
+    "Painful": Efeito.DOLOROSA,
+    "Hopeful": Efeito.ESPERANCOSA,
+    "Reinforced": Efeito.REFORCADA,
+    "Resilient": Efeito.RESILIENTE,
+    "Impenetrable": Efeito.IMPENETRAVEL,
+    "Physical": Efeito.SO_FISICO,
+    "Magic": Efeito.SO_MAGICO,
+    "Warded": Efeito.PROTEGIDA,
+    "Healing": Efeito.CURA,
+}
+
+
+def _efeito(nome: str, descricao: str) -> Efeito | None:
+    efeito = _EFEITOS_SRD.get(nome)
+    # Painful tem duas versões: a de arma ("successful attack") depende de
+    # ataque, que o motor não modela; só a de armadura vira regra.
+    if efeito is Efeito.DOLOROSA and "Armor Slot" not in descricao:
+        return None
+    return efeito
 
 
 # Como o SRD escreve cada alvo em "+N to <alvo>". Alvos fora desta tabela
@@ -133,8 +184,9 @@ def _caracteristicas(item: dict) -> tuple[Caracteristica, ...]:
     resultado = []
     for c in item.get("features", []):
         descricao = _paragrafos(c["description"])
-        resultado.append(Caracteristica(_texto(c["name"]), descricao,
-                                        _modificadores(descricao), _requisitos(descricao)))
+        nome = _texto(c["name"])
+        resultado.append(Caracteristica(nome, descricao, _modificadores(descricao),
+                                        _requisitos(descricao), _efeito(nome, descricao)))
     return tuple(resultado)
 
 
@@ -181,7 +233,7 @@ class Arma:
     alcance: str
     dado: str               # ex.: "d8"
     modificador_dano: int
-    tipo_dano: str          # PHYSICAL ou MAGICAL
+    tipo_dano: TipoDano
     duas_maos: bool
     caracteristicas: tuple[Caracteristica, ...] = ()
 
@@ -270,7 +322,7 @@ class Biblioteca:
                 alcance=a["range"],
                 dado=a["damage"]["dice"].lower(),
                 modificador_dano=a["damage"].get("modifier", 0),
-                tipo_dano=a["damage"]["type"],
+                tipo_dano=TipoDano(a["damage"]["type"]),
                 duas_maos=a["burden"] == "TWO_HANDED",
                 caracteristicas=_caracteristicas(a),
             )
