@@ -132,6 +132,16 @@ def test_descanso_longo_limpa_tudo(bardo_de_couro):
     assert (sessao.armadura_marcada, sessao.esperanca) == (0, 4)
 
 
+def test_tres_descansos_curtos_seguidos_exigem_um_longo(bardo):
+    sessao = bardo.sessao
+    for _ in range(3):
+        sessao.descanso_curto([Movimento.PREPARAR, Movimento.PREPARAR])
+    with pytest.raises(RegraViolada, match="longo"):
+        sessao.descanso_curto([Movimento.PREPARAR, Movimento.PREPARAR])
+    sessao.descanso_longo([Movimento.PREPARAR, Movimento.PREPARAR])
+    sessao.descanso_curto([Movimento.PREPARAR, Movimento.PREPARAR])
+
+
 def test_regras_do_descanso(bardo):
     sessao = bardo.sessao
     with pytest.raises(RegraViolada, match="dois"):

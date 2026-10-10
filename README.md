@@ -23,10 +23,12 @@ motor/
   srd.py          # lê o conteúdo do SRD (JSON) e transforma em objetos
   personagem.py   # criação, level up, equipamento, cartas, ficha e linha do tempo
   sessao.py       # estado de jogo: PV, Estresse, Esperança, armadura, dano e descansos
+  companheiro.py  # companheiro do Ranger Beastbound: ficha e treinos
   erros.py        # RegraViolada
 data/
-  srd/            # classes, subclasses, cartas... (SRD 1.0, JSON da comunidade)
-  progressao.json # tiers, conquistas e opções de avanço (feito por nós)
+  srd/              # classes, subclasses, cartas... (SRD 1.0, JSON da comunidade)
+  progressao.json   # tiers, conquistas e opções de avanço (feito por nós)
+  companheiro.json  # ficha do Ranger Companion (feito por nós)
 tests/            # um teste para cada regra
 docs/ARQUITETURA.md
 ```

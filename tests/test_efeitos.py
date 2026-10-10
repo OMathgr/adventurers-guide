@@ -14,8 +14,8 @@ def armadura(bardo, nome):
 
 def test_todo_efeito_existe_no_srd(bib):
     """Os efeitos são reconhecidos pelo nome; se o SRD mudar um nome, este teste avisa."""
-    pecas = [*bib.armas.values(), *bib.armaduras.values()]
-    encontrados = {c.efeito for p in pecas for c in p.caracteristicas if c.efeito}
+    fontes = [*bib.armas.values(), *bib.armaduras.values(), *bib.ancestralidades.values()]
+    encontrados = {c.efeito for p in fontes for c in p.caracteristicas if c.efeito}
     assert encontrados == set(Efeito)
 
 

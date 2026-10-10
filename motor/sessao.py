@@ -14,6 +14,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import TYPE_CHECKING
 
+from .companheiro import OpcaoTreino
 from .erros import RegraViolada
 from .srd import Efeito, TipoDano
 
@@ -82,8 +83,12 @@ class Sessao:
         self.rng = rng or random.Random()
         # Regra opcional do SRD; no futuro vem da configuração da mesa.
         self.dano_massivo = False
-        # Efeitos de "uma vez por descanso" já usados (ex.: Impenetrable)
-        self.usados_no_descanso: set[Efeito] = set()
+        # Efeitos de "uma vez por descanso" já usados (Impenetrable, Creature Comfort)
+        self.usados_no_descanso: set[Enum] = set()
+        self.descansos_curtos_seguidos = 0
+        # companheiro do Beastbound
+        self.companheiro_estresse = 0
+        self.companheiro_fora = False
 
     # --- Dano e PV --------------------------------------------------------------
 
@@ -101,7 +106,8 @@ class Sessao:
 
     def receber_dano(self, dano: int, usar_armadura: bool = False,
                      tipo: TipoDano | None = None, evitar_queda: bool = False,
-                     rolagem_d6: int | None = None) -> ResultadoDano:
+                     rolagem_d6: int | None = None,
+                     rolagens_vinculo: list[int] | None = None) -> ResultadoDano:
         """Marca PV conforme os limiares, aplicando as características equipadas.
 
         - `usar_armadura`: marca um espaço e reduz a gravidade em um nível
@@ -111,6 +117,7 @@ class Sessao:
         - `evitar_queda`: com Impenetrable (1x por descanso), marca Estresse no
           lugar do último PV.
         - `rolagem_d6`: o d6 do Resilient, se rolado na mesa (senão o motor rola).
+        - `rolagens_vinculo`: os d6 do Bonded (companheiro), se rolados na mesa.
 
         A gravidade é medida antes de marcar o espaço; por isso o +2 do
         Reinforced vale a partir do dano seguinte.
@@ -160,6 +167,8 @@ class Sessao:
             notas.append("Impenetrable: marcou Estresse no lugar do último PV")
 
         self.marcar_pv(pv)
+        if pv > 0 and self.caido:
+            self._vinculo(notas, rolagens_vinculo)
         return ResultadoDano(dano, gravidade, pv, usou, self.caido, espacos,
                              self.estresse_marcado - estresse_antes, d6, notas)
 
@@ -257,41 +266,78 @@ class Sessao:
     # --- Descansos -----------------------------------------------------------------
 
     def descanso_curto(self, movimentos: list[Movimento],
-                       rolagens: list[int | None] | None = None) -> list[ResultadoMovimento]:
-        """Dois movimentos (pode repetir). Recuperações rolam 1d4 + tier.
+                       rolagens: list[int | None] | None = None,
+                       movimento_longo: int | None = None) -> list[ResultadoMovimento]:
+        """Dois movimentos (pode repetir; três com Celestial Trance).
+        Recuperações rolam 1d4 + tier.
 
-        `rolagens` permite informar o d4 de cada movimento (None = o motor rola).
+        - `rolagens`: o d4 de cada movimento, se rolado na mesa (None = o motor rola).
+        - `movimento_longo`: com Efficient (Clank), o índice do movimento que
+          vale como movimento de descanso longo.
+
+        Regra do SRD: depois de três descansos curtos seguidos, o próximo
+        precisa ser longo.
         """
-        if Movimento.PROJETO in movimentos:
+        limite = self.personagem.bib.progressao["descansos_curtos_seguidos"]
+        if self.descansos_curtos_seguidos >= limite:
+            raise RegraViolada(f"Depois de {limite} descansos curtos seguidos, o próximo precisa ser longo.")
+        longos = set()
+        if movimento_longo is not None:
+            if Efeito.EFICIENTE not in self.personagem.efeitos_ativos():
+                raise RegraViolada("Só Efficient (Clank) troca um movimento curto por um longo.")
+            if not 0 <= movimento_longo < len(movimentos):
+                raise RegraViolada("Índice de movimento inválido.")
+            longos.add(movimento_longo)
+        if any(m is Movimento.PROJETO and i not in longos for i, m in enumerate(movimentos)):
             raise RegraViolada("Trabalhar num projeto só no descanso longo.")
-        return self._descansar(movimentos, rolagens, longo=False)
+        resultados = self._descansar(movimentos, rolagens, longos)
+        self.descansos_curtos_seguidos += 1
+        return resultados
 
     def descanso_longo(self, movimentos: list[Movimento]) -> list[ResultadoMovimento]:
-        """Dois movimentos (pode repetir). Recuperações limpam tudo."""
-        return self._descansar(movimentos, None, longo=True)
+        """Dois movimentos (pode repetir; três com Celestial Trance).
+        Recuperações limpam tudo. O companheiro fora de cena volta."""
+        self._validar_movimentos(movimentos, None)
+        if self.companheiro_fora:
+            # volta no início do descanso longo, com 1 Estresse limpo
+            self.companheiro_fora = False
+            self.companheiro_estresse = max(self.companheiro_estresse - 1, 0)
+        resultados = self._descansar(movimentos, None, set(range(len(movimentos))))
+        self.descansos_curtos_seguidos = 0
+        return resultados
 
-    def _descansar(self, movimentos, rolagens, longo: bool) -> list[ResultadoMovimento]:
-        if len(movimentos) != 2:
-            raise RegraViolada("Escolha dois movimentos de descanso.")
-        rolagens = list(rolagens) if rolagens is not None else [None, None]
+    def _validar_movimentos(self, movimentos, rolagens) -> list[int | None]:
+        maximo = 3 if Efeito.TRANSE in self.personagem.efeitos_ativos() else 2
+        if not 2 <= len(movimentos) <= maximo:
+            raise RegraViolada("Escolha dois movimentos de descanso"
+                               + (" (ou três, com Celestial Trance)." if maximo == 3 else "."))
+        rolagens = list(rolagens) if rolagens is not None else [None] * len(movimentos)
         if len(rolagens) != len(movimentos):
             raise RegraViolada("Informe uma rolagem (ou None) para cada movimento.")
         for r in rolagens:
             if r is not None and not 1 <= r <= 4:
                 raise RegraViolada(f"Rolagem de d4 inválida: {r}.")
+        return rolagens
 
+    def _descansar(self, movimentos, rolagens, longos: set[int]) -> list[ResultadoMovimento]:
+        """`longos`: índices dos movimentos feitos na versão de descanso longo."""
+        rolagens = self._validar_movimentos(movimentos, rolagens)
         tier = self.personagem.bib.tier_do_nivel(self._ficha().nivel)
         resultados = []
-        for movimento, rolagem in zip(movimentos, rolagens):
+        for i, (movimento, rolagem) in enumerate(zip(movimentos, rolagens)):
             if movimento in _RECUPERACAO:
                 campo = _RECUPERACAO[movimento]
                 marcados = getattr(self, campo)
-                if longo:
-                    rolagem, quanto = None, marcados
+                if i in longos:
+                    rolagem, potencial = None, None   # limpa tudo
                 else:
                     rolagem = rolagem or self.rng.randint(1, 4)
-                    quanto = min(rolagem + tier, marcados)
+                    potencial = rolagem + tier
+                quanto = marcados if potencial is None else min(potencial, marcados)
                 setattr(self, campo, marcados - quanto)
+                if movimento is Movimento.ALIVIAR_ESTRESSE:
+                    # o companheiro limpa o mesmo número de Estresse
+                    self._companheiro_limpa(self.companheiro_estresse if potencial is None else potencial)
             elif movimento in (Movimento.PREPARAR, Movimento.PREPARAR_EM_GRUPO):
                 antes = self.esperanca
                 self.ganhar_esperanca(2 if movimento is Movimento.PREPARAR_EM_GRUPO else 1)
@@ -305,8 +351,76 @@ class Sessao:
             curado = min(1, self.pv_marcados)
             self.pv_marcados -= curado
             resultados.append(ResultadoMovimento(Movimento.CUIDAR_FERIDAS, None, curado, fonte="Healing"))
-        self.usados_no_descanso.clear()   # Impenetrable volta a valer
+        self.usados_no_descanso.clear()   # Impenetrable, Creature Comfort voltam a valer
         return resultados
+
+    # --- Companheiro (Beastbound) ------------------------------------------------------
+
+    def companheiro_recebe_dano(self, usar_armadura: bool = False) -> bool:
+        """Qualquer dano no companheiro marca 1 Estresse dele. Com Armored,
+        você pode marcar um espaço da SUA armadura no lugar.
+        No último Estresse ele sai de cena até o próximo descanso longo.
+        Devolve se ele saiu de cena."""
+        comp = self._companheiro_presente()
+        if usar_armadura:
+            if not comp.tem(OpcaoTreino.BLINDADO):
+                raise RegraViolada("Só com o treino Armored o companheiro usa sua armadura.")
+            if self.armadura_livre <= 0:
+                raise RegraViolada("Sem espaço de armadura livre.")
+            self._marcar_espaco(self.personagem.efeitos_ativos(), [])
+            return False
+        self.companheiro_estresse = min(self.companheiro_estresse + 1, comp.estresse_max)
+        if self.companheiro_estresse >= comp.estresse_max:
+            self.companheiro_fora = True
+        return self.companheiro_fora
+
+    def conforto_do_companheiro(self, ganhar_esperanca: bool):
+        """Creature Comfort: 1x por descanso, num momento tranquilo, você ganha
+        uma Esperança OU vocês dois limpam um Estresse."""
+        comp = self._companheiro_presente()
+        if not comp.tem(OpcaoTreino.CONFORTO):
+            raise RegraViolada("Seu companheiro não tem o treino Creature Comfort.")
+        if OpcaoTreino.CONFORTO in self.usados_no_descanso:
+            raise RegraViolada("Creature Comfort já foi usado neste descanso.")
+        if ganhar_esperanca:
+            self.ganhar_esperanca(1)
+        else:
+            self.limpar_estresse(1)
+            self._companheiro_limpa(1)
+        self.usados_no_descanso.add(OpcaoTreino.CONFORTO)
+
+    def _companheiro_limpa(self, quantidade: int):
+        if self._ficha().companheiro and not self.companheiro_fora:
+            self.companheiro_estresse = max(self.companheiro_estresse - quantidade, 0)
+
+    def _companheiro_presente(self):
+        comp = self._ficha().companheiro
+        if comp is None:
+            raise RegraViolada("Você não tem companheiro.")
+        if self.companheiro_fora:
+            raise RegraViolada(f"{comp.nome} está fora de cena até o próximo descanso longo.")
+        return comp
+
+    def _vinculo(self, notas: list[str], rolagens: list[int] | None):
+        """Bonded: ao marcar seu último PV, o companheiro corre até você. Rola
+        um d6 por Estresse livre dele e marca todos; com algum 6, você limpa
+        o último PV e volta à cena."""
+        comp = self._ficha().companheiro
+        if not (comp and comp.tem(OpcaoTreino.VINCULO) and not self.companheiro_fora):
+            return
+        livres = comp.estresse_max - self.companheiro_estresse
+        if livres <= 0:
+            return
+        dados = list(rolagens) if rolagens is not None else [self.rng.randint(1, 6) for _ in range(livres)]
+        if len(dados) != livres or any(not 1 <= d <= 6 for d in dados):
+            raise RegraViolada(f"Bonded: informe {livres} rolagens de d6.")
+        self.companheiro_estresse = comp.estresse_max
+        self.companheiro_fora = True
+        if 6 in dados:
+            self.pv_marcados -= 1
+            notas.append(f"Bonded: {comp.nome} rolou {dados} e te levantou")
+        else:
+            notas.append(f"Bonded: {comp.nome} rolou {dados}, sem 6")
 
     # --- Ajuste quando os máximos caem ----------------------------------------------
 
@@ -317,6 +431,11 @@ class Sessao:
         self.pv_marcados = min(self.pv_marcados, f.pv_max)
         self.estresse_marcado = min(self.estresse_marcado, f.estresse_max)
         self.armadura_marcada = min(self.armadura_marcada, f.pontuacao_armadura)
+        self.esperanca = min(self.esperanca, f.esperanca_max)
+        if f.companheiro is None:
+            self.companheiro_estresse, self.companheiro_fora = 0, False
+        else:
+            self.companheiro_estresse = min(self.companheiro_estresse, f.companheiro.estresse_max)
 
     # --- utilitários ----------------------------------------------------------------
 
@@ -325,7 +444,7 @@ class Sessao:
 
     @property
     def _limite_esperanca(self) -> int:
-        return self.personagem.bib.progressao["limite_esperanca"]
+        return self._ficha().esperanca_max   # 6, ou 7 com Light in the Dark
 
     @staticmethod
     def _exigir_positivo(quantidade: int):

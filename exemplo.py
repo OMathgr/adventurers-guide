@@ -17,6 +17,7 @@ lira = Personagem(bib, Criacao(
             Traco.ACUIDADE: 0, Traco.INSTINTO: 0, Traco.FORCA: -1},
     experiencias=["Diplomata", "Cantora de taverna"],
     cartas=["core_domain_card_inspirational_words", "core_domain_card_book_of_ava"],
+    experiencia_proposito="Diplomata",   # Purposeful Design (Clank): +1 nesta Experiência
 ))
 
 print("Opções para o nível 2:")

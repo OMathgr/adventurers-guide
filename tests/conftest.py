@@ -14,7 +14,7 @@ def criacao_bardo():
         nome="Lira",
         classe="core_class_bard",
         subclasse="core_subclass_troubadour",
-        ancestralidade="core_ancestry_clank",
+        ancestralidade="core_ancestry_faun",   # sem efeito numérico
         comunidade="core_community_highborne",
         tracos={
             Traco.PRESENCA: 2, Traco.AGILIDADE: 1, Traco.CONHECIMENTO: 1,
@@ -49,7 +49,7 @@ def guerreiro(bib):
         nome="Bruna",
         classe="core_class_warrior",
         subclasse="core_subclass_call_of_the_brave",
-        ancestralidade="core_ancestry_clank",
+        ancestralidade="core_ancestry_faun",   # sem efeito numérico
         comunidade="core_community_highborne",
         tracos={
             Traco.FORCA: 2, Traco.AGILIDADE: 1, Traco.INSTINTO: 1,

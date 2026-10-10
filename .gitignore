@@ -3,6 +3,6 @@ __pycache__/
 .venv/
 .pytest_cache/
 
-# Claude Code: configurações pessoais desta máquina
-# (CLAUDE.md e .claude/settings.json são do projeto e vão para o git)
-.claude/settings.local.json
+# Claude Code: configurações e permissões ficam só nesta máquina
+# (o CLAUDE.md, na raiz, é do projeto e vai para o git)
+.claude/

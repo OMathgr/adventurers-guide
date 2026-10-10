@@ -137,6 +137,9 @@ excesso. A ficha mostra `pv_marcados`, `estresse_marcado`,
 - **Descansos:** dois movimentos (pode repetir). No curto, recuperar rola
   1d4 + tier; no longo, limpa tudo. Preparar = +1 Esperança (+2 em grupo).
   Projeto só no longo. O motor rola o d4, mas aceita o valor informado.
+- **Limite:** depois de 3 descansos curtos seguidos, o próximo precisa ser
+  longo (`descansos_curtos_seguidos` em `progressao.json`). O SRD fala do
+  grupo; o motor controla por personagem.
 
 ### Características com regra própria (`Efeito`)
 
@@ -164,8 +167,57 @@ em `marcar_armadura` (Shifting, Timeslowing, Deflecting: efeito resolvido na
 mesa) e no Hopeful.
 
 Ainda não aplicado: Painful de arma e características que dependem de
-ataque, aliados ou adversários (Sheltering, Burning, Lifestealing...), limite
-de descansos curtos seguidos e cuidar de aliados num descanso.
+ataque, aliados ou adversários (Sheltering, Burning, Lifestealing...) e
+cuidar de aliados num descanso.
+
+## Ancestralidade
+
+`Ancestralidade.caracteristicas` tem as duas características na ordem do
+SRD. Na **ancestralidade mista**, a 1ª vem de `Criacao.ancestralidade` e a 2ª
+de `Criacao.segunda_ancestralidade` (o SRD proíbe duas primeiras ou duas
+segundas; para a combinação inversa, troca-se as duas de lugar). A ficha
+mostra `caracteristicas_ancestralidade`.
+
+Características com efeito no motor (também via `Efeito`):
+
+| SRD | Efeito |
+|---|---|
+| Endurance (Giant) | +1 PV na criação |
+| High Stamina (Human) | +1 Estresse na criação |
+| Nimble (Simiah) | +1 Evasão na criação |
+| Purposeful Design (Clank) | +1 na Experiência de `experiencia_proposito` |
+| Shell (Galapa) | limiares + Proficiência (em `_vestir`) |
+| Efficient (Clank) | `descanso_curto(..., movimento_longo=i)` |
+| Celestial Trance (Elf) | 3 movimentos de descanso em vez de 2 |
+
+As demais são situacionais (rerrolagens, reações, voo...) e ficam como texto.
+
+## Companheiro do Beastbound (`motor/companheiro.py`)
+
+O companheiro evolui com o personagem, então os treinos fazem parte do
+**histórico** (`SubidaDeNivel.treinos`) e a ficha dele (`Ficha.companheiro`)
+é recalculada no replay. Os números da ficha "Ranger Companion" ficam em
+`data/companheiro.json`: Evasão 10, 3 Estresse, dano d6 corpo a corpo, duas
+Experiências +2 e os quadradinhos de cada treino.
+
+- Ganha-se o companheiro na criação (`Criacao.companheiro`) ou ao
+  multiclassear para o Beastbound (`Escolha.companheiro`).
+- Um treino por nível em que já se tinha o companheiro (o ganho por
+  multiclasse só treina a partir do nível seguinte), +1 ao pegar a
+  especialização (Expert Training) e +2 na maestria (Advanced Training).
+- Nos níveis 2, 5 e 8 o companheiro também ganha uma Experiência
+  (`SubidaDeNivel.experiencia_companheiro`).
+- Treinos: Intelligent, Vicious, Resilient e Aware mudam a ficha dele;
+  Light in the Dark dá +1 de Esperança máxima ao personagem.
+- Sessão: qualquer dano marca 1 Estresse dele (Armored: um espaço da sua
+  armadura no lugar); no último Estresse ele sai de cena até o próximo
+  descanso longo, quando volta com 1 Estresse limpo. Aliviar Estresse num
+  descanso alivia o dele também. Creature Comfort 1x por descanso. Bonded:
+  ao marcar seu último PV, rola d6 por Estresse livre dele; com um 6, você
+  limpa o último PV.
+
+Fora do motor: Battle-Bonded e Loyal Friend (dependem de posição na cena) e
+a rolagem de comando (é a Rolagem de Conjuração do personagem).
 
 ## Rolagem de conjuração
 
@@ -190,4 +242,3 @@ Bônus = traço de conjuração já com modificadores de equipamento (ex.: Gilde
   Como o motor só fala com a `Biblioteca`, a troca fica isolada em `srd.py`.
 - Inventário (itens, ouro, consumíveis) ainda não existe.
 - Desfazer o nível da multiclasse não revalida uma arma mágica já equipada.
-- Ancestralidade mista e regras de companheiro do Ranger Beastbound.

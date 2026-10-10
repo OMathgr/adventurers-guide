@@ -1,0 +1,26 @@
+{
+  "_fonte": "Ficha 'Ranger Companion' (Character Sheets and Guides, Darrington Press, maio/2025) + subclasse Beastbound do SRD. Conferido em 2026-10-10.",
+  "subclasse": "core_subclass_beastbound",
+  "evasao_inicial": 10,
+  "estresse_inicial": 3,
+  "experiencias_iniciais": 2,
+  "valor_experiencia": 2,
+  "dados": ["d6", "d8", "d10", "d12"],
+  "alcances": ["MELEE", "VERY_CLOSE", "CLOSE", "FAR", "VERY_FAR"],
+  "treinos": {
+    "INTELIGENTE": 3,
+    "LUZ_NA_ESCURIDAO": 1,
+    "CONFORTO": 1,
+    "BLINDADO": 1,
+    "FEROZ": 3,
+    "RESILIENTE": 3,
+    "VINCULO": 1,
+    "ATENTO": 3
+  },
+  "_treinos_significado": "Quadradinhos de cada opção de Training na ficha do companheiro.",
+  "treinos_extras_por_estagio": {
+    "especializacao": 1,
+    "maestria": 2
+  },
+  "_treinos_extras_significado": "Expert Training (especialização) e Advanced Training (maestria): opções extras no nível em que a carta é pega."
+}

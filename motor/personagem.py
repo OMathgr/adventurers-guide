@@ -15,6 +15,8 @@ import copy
 from dataclasses import dataclass, field
 from enum import Enum
 
+from .companheiro import (Companheiro, FichaCompanheiro, OpcaoTreino, Treino,
+                          aplicar_treino, criar_companheiro, nova_experiencia)
 from .erros import RegraViolada
 from .sessao import Sessao
 from .srd import (Alvo, Arma, Armadura, Biblioteca, Caracteristica, CartaDeDominio, Efeito,
@@ -50,6 +52,11 @@ class Criacao:
     experiencias: list[str]
     cartas: list[str]
     nome: str = ""
+    # Ancestralidade mista: a 1ª característica vem de `ancestralidade` e a
+    # 2ª de `segunda_ancestralidade` (SRD: nunca duas primeiras ou duas segundas).
+    segunda_ancestralidade: str | None = None
+    experiencia_proposito: str | None = None   # Purposeful Design (Clank): qual Experiência ganha +1
+    companheiro: Companheiro | None = None     # obrigatório para o Beastbound
 
 
 @dataclass
@@ -64,6 +71,7 @@ class Escolha:
     classe: str | None = None      # usado por MULTICLASSE
     dominio: str | None = None     # usado por MULTICLASSE
     subclasse: str | None = None   # usado por MULTICLASSE
+    companheiro: Companheiro | None = None   # MULTICLASSE para o Beastbound
 
 
 @dataclass
@@ -73,6 +81,9 @@ class SubidaDeNivel:
     carta: str                                   # passo 4: nova carta de domínio
     nova_experiencia: str | None = None          # só nos níveis 2, 5 e 8
     troca_carta: tuple[str, str] | None = None   # (carta antiga, carta nova)
+    # Beastbound: um treino por nível (+1 na especialização, +2 na maestria)
+    treinos: list[Treino] = field(default_factory=list)
+    experiencia_companheiro: str | None = None   # nos níveis 2, 5 e 8, se tiver companheiro
 
 
 @dataclass(frozen=True)
@@ -145,6 +156,10 @@ class Ficha:
     pv_marcados: int = 0
     estresse_marcado: int = 0
     armadura_marcada: int = 0
+    esperanca_max: int = 6
+    segunda_ancestralidade: str | None = None
+    caracteristicas_ancestralidade: list[Caracteristica] = field(default_factory=list)
+    companheiro: FichaCompanheiro | None = None
 
 
 class Personagem:
@@ -181,6 +196,14 @@ class Personagem:
                 and 0 < f.pontuacao_armadura <= f.armadura_marcada):
             f.limiar_maior += 2
             f.limiar_grave += 2
+        f.esperanca_max = self.bib.progressao["limite_esperanca"]
+        if f.companheiro:
+            c = f.companheiro
+            if c.tem(OpcaoTreino.LUZ_NA_ESCURIDAO):
+                f.esperanca_max += 1   # Light in the Dark: espaço de Esperança extra
+            c.dano = f"{f.proficiencia}{c.dado}"   # usa a sua Proficiência
+            c.estresse_marcado = min(s.companheiro_estresse, c.estresse_max)
+            c.fora_de_cena = s.companheiro_fora
         return f
 
     def subir_de_nivel(self, subida: SubidaDeNivel) -> Ficha:
@@ -337,6 +360,9 @@ class Personagem:
                 if subida.nova_experiencia:
                     itens.append(f"Nova Experiência: {subida.nova_experiencia} +2")
                 itens += [self._descrever(e) for e in subida.escolhas]
+                if subida.experiencia_companheiro:
+                    itens.append(f"Companheiro: nova Experiência {subida.experiencia_companheiro} +2")
+                itens += [self._descrever_treino(t) for t in subida.treinos]
                 itens.append("Limiares de dano +1")
                 itens.append(f"Carta: {self._nome(bib.cartas, subida.carta)}")
                 if subida.troca_carta:
@@ -376,7 +402,7 @@ class Personagem:
         subclasse = self._exigir(bib.subclasses, c.subclasse, "Subclasse")
         if subclasse.classe != classe.nome:
             raise RegraViolada(f"{subclasse.nome} não é subclasse de {classe.nome}.")
-        self._exigir(bib.ancestralidades, c.ancestralidade, "Ancestralidade")
+        caracteristicas_anc = self._caracteristicas_ancestralidade(c)
         self._exigir(bib.comunidades, c.comunidade, "Comunidade")
 
         if set(c.tracos) != set(Traco):
@@ -395,14 +421,62 @@ class Personagem:
             if carta.nivel != 1 or carta.dominio not in classe.dominios:
                 raise RegraViolada(f"{carta.nome} precisa ser de nível 1 e dos domínios da classe.")
 
-        return Ficha(
+        f = Ficha(
             nome=c.nome, nivel=1, classe=classe.id, subclasse=subclasse.id,
             estagio_subclasse="fundacao", ancestralidade=c.ancestralidade,
             comunidade=c.comunidade, tracos=dict(c.tracos),
             evasao=classe.evasao_inicial, pv_max=classe.pv_iniciais,
             estresse_max=6, esperanca=2, proficiencia=1,
             experiencias={n: 2 for n in nomes}, cartas=list(c.cartas),
+            segunda_ancestralidade=c.segunda_ancestralidade,
+            caracteristicas_ancestralidade=caracteristicas_anc,
         )
+        self._aplicar_ancestralidade(f, c)
+        f.companheiro = self._ganhar_companheiro(subclasse, c.companheiro)
+        return f
+
+    def _caracteristicas_ancestralidade(self, c: Criacao) -> list[Caracteristica]:
+        """As duas características de ancestralidade do personagem.
+
+        Mista: a 1ª da `ancestralidade` e a 2ª da `segunda_ancestralidade`.
+        Isso já garante a regra do SRD (uma primeira e uma segunda); para
+        a combinação inversa, basta trocar as duas de lugar.
+        """
+        primeira = self._exigir(self.bib.ancestralidades, c.ancestralidade, "Ancestralidade")
+        if c.segunda_ancestralidade is None:
+            return list(primeira.caracteristicas)
+        segunda = self._exigir(self.bib.ancestralidades, c.segunda_ancestralidade, "Ancestralidade")
+        if segunda.id == primeira.id:
+            raise RegraViolada("Na ancestralidade mista, escolha duas ancestralidades diferentes.")
+        return [primeira.caracteristicas[0], segunda.caracteristicas[1]]
+
+    @staticmethod
+    def _aplicar_ancestralidade(f: Ficha, c: Criacao):
+        """Características de ancestralidade que mudam números na criação."""
+        efeitos = {x.efeito for x in f.caracteristicas_ancestralidade}
+        if Efeito.VIGOR in efeitos:
+            f.pv_max += 1
+        if Efeito.FOLEGO in efeitos:
+            f.estresse_max += 1
+        if Efeito.AGIL in efeitos:
+            f.evasao += 1
+        if Efeito.PROPOSITO in efeitos:
+            if c.experiencia_proposito not in f.experiencias:
+                raise RegraViolada("Purposeful Design: escolha uma das suas Experiências para ganhar +1.")
+            f.experiencias[c.experiencia_proposito] += 1
+        elif c.experiencia_proposito is not None:
+            raise RegraViolada("Só Purposeful Design (Clank) dá +1 numa Experiência na criação.")
+
+    def _ganhar_companheiro(self, sub: Subclasse, dados: Companheiro | None) -> FichaCompanheiro | None:
+        """Beastbound exige os dados do companheiro; outras subclasses não aceitam."""
+        regras = self.bib.companheiro
+        if sub.id == regras["subclasse"]:
+            if dados is None:
+                raise RegraViolada(f"{sub.nome} vem com um companheiro: informe nome e Experiências.")
+            return criar_companheiro(regras, dados)
+        if dados is not None:
+            raise RegraViolada(f"{sub.nome} não tem companheiro.")
+        return None
 
     # --- Level up ----------------------------------------------------------
 
@@ -415,6 +489,9 @@ class Personagem:
         if s.nivel > prog["nivel_maximo"]:
             raise RegraViolada("Nível máximo atingido.")
         tier = self.bib.tier_do_nivel(s.nivel)
+        # companheiro ganho NESTE nível (multiclasse) só evolui a partir do próximo
+        tinha_companheiro = f.companheiro is not None
+        estagio_antes = f.estagio_subclasse
 
         # Passo 1: conquistas de tier
         conquista = prog["conquistas_de_tier"].get(str(s.nivel))
@@ -428,8 +505,12 @@ class Personagem:
             f.proficiencia += conquista["proficiencia"]
             if conquista["limpar_marcas_tracos"]:
                 f.tracos_marcados.clear()
+            if tinha_companheiro:
+                nova_experiencia(self.bib.companheiro, f.companheiro, s.experiencia_companheiro)
         elif s.nova_experiencia:
             raise RegraViolada(f"O nível {s.nivel} não dá nova Experiência.")
+        if s.experiencia_companheiro and not (conquista and tinha_companheiro):
+            raise RegraViolada("O companheiro só ganha Experiência junto com você (níveis 2, 5 e 8).")
 
         # Passo 2: avanços
         custo_total = sum(self._custo(e.opcao) for e in s.escolhas)
@@ -437,6 +518,7 @@ class Personagem:
             raise RegraViolada("Escolha exatamente 2 avanços (Proficiência e Multiclasse valem por 2).")
         for escolha in s.escolhas:
             self._aplicar_escolha(f, escolha, tier, s.nivel)
+        self._treinar_companheiro(f, s, tinha_companheiro, estagio_antes)
 
         # Passo 3: limiares de dano sobem junto com o nível (ver _vestir)
         f.nivel = s.nivel
@@ -511,9 +593,26 @@ class Personagem:
         sub = self._exigir(self.bib.subclasses, e.subclasse, "Subclasse")
         if sub.classe != classe.nome:
             raise RegraViolada(f"{sub.nome} não é subclasse de {classe.nome}.")
+        companheiro = self._ganhar_companheiro(sub, e.companheiro)
         f.multiclasse = {"classe": classe.id, "dominio": e.dominio, "subclasse": sub.id}
         f.multiclasse_bloqueada = True             # risca as outras multiclasses
         f.subclasse_bloqueada_tiers.add(tier)      # risca a subclasse deste tier
+        if companheiro:
+            f.companheiro = companheiro
+
+    def _treinar_companheiro(self, f: Ficha, s: SubidaDeNivel, tinha_companheiro: bool,
+                             estagio_antes: str):
+        """Beastbound: um treino por nível em que já se tinha o companheiro,
+        mais 1 ao pegar a especialização (Expert Training) e 2 na maestria
+        (Advanced Training) da subclasse principal."""
+        regras = self.bib.companheiro
+        exigidos = 1 if tinha_companheiro else 0
+        if f.subclasse == regras["subclasse"] and f.estagio_subclasse != estagio_antes:
+            exigidos += regras["treinos_extras_por_estagio"][f.estagio_subclasse]
+        if len(s.treinos) != exigidos:
+            raise RegraViolada(f"Escolha {exigidos} treino(s) para o companheiro neste nível.")
+        for t in s.treinos:
+            aplicar_treino(regras, f.companheiro, t)
 
     @property
     def _limite_loadout(self) -> int:
@@ -633,6 +732,10 @@ class Personagem:
         else:
             # regra do SRD para quem está sem armadura
             f.limiar_maior, f.limiar_grave, f.pontuacao_armadura = f.nivel, 2 * f.nivel, 0
+        if any(c.efeito is Efeito.CASCO for c in f.caracteristicas_ancestralidade):
+            # Shell (Galapa): limiares + Proficiência
+            f.limiar_maior += f.proficiencia
+            f.limiar_grave += f.proficiencia
 
         mods = [m for peca in self._pecas(eq) for c in peca.caracteristicas for m in c.modificadores]
         for m in mods:
@@ -688,8 +791,11 @@ class Personagem:
         return pecas
 
     def efeitos_ativos(self) -> set[Efeito]:
-        """Regras especiais (Fortified, Healing...) das peças equipadas agora."""
-        return {c.efeito for p in self._pecas(self.equipamento) for c in p.caracteristicas if c.efeito}
+        """Regras especiais em vigor: das peças equipadas agora (Fortified,
+        Healing...) e da ancestralidade (Efficient, Celestial Trance...)."""
+        caracteristicas = [c for p in self._pecas(self.equipamento) for c in p.caracteristicas]
+        caracteristicas += self._ficha_inicial.caracteristicas_ancestralidade
+        return {c.efeito for c in caracteristicas if c.efeito}
 
     def _validar_requisitos(self, f: Ficha, eq: Equipamento):
         """`f` já vestida com `eq`: o requisito vale para o traço como ele fica
@@ -731,6 +837,11 @@ class Personagem:
         # O SRD guarda "BARD" e as subclasses comparam por esse valor,
         # então só formatamos na exibição.
         return self._nome(self.bib.classes, chave).title()
+
+    @staticmethod
+    def _descrever_treino(t: Treino) -> str:
+        detalhe = f" ({t.experiencia})" if t.experiencia else f" ({t.alvo.value})" if t.alvo else ""
+        return f"Treino do companheiro: {t.opcao.value}{detalhe}"
 
     def _descrever(self, e: Escolha) -> str:
         detalhe = ""

@@ -109,6 +109,14 @@ class Efeito(str, Enum):
     SO_MAGICO = "SO_MAGICO"        # Magic: armadura não reduz dano físico
     PROTEGIDA = "PROTEGIDA"        # Warded: dano mágico reduzido pela Pontuação de Armadura
     CURA = "CURA"                  # Healing: limpa 1 PV em todo descanso
+    # ancestralidades
+    VIGOR = "VIGOR"                # Endurance (Giant): +1 PV na criação
+    FOLEGO = "FOLEGO"              # High Stamina (Human): +1 Estresse na criação
+    AGIL = "AGIL"                  # Nimble (Simiah): +1 Evasão na criação
+    PROPOSITO = "PROPOSITO"        # Purposeful Design (Clank): +1 numa Experiência na criação
+    CASCO = "CASCO"                # Shell (Galapa): limiares + Proficiência
+    EFICIENTE = "EFICIENTE"        # Efficient (Clank): no descanso curto, um movimento de longo
+    TRANSE = "TRANSE"              # Celestial Trance (Elf): um movimento de descanso a mais
 
 
 _EFEITOS_SRD = {
@@ -122,6 +130,13 @@ _EFEITOS_SRD = {
     "Magic": Efeito.SO_MAGICO,
     "Warded": Efeito.PROTEGIDA,
     "Healing": Efeito.CURA,
+    "Endurance": Efeito.VIGOR,
+    "High Stamina": Efeito.FOLEGO,
+    "Nimble": Efeito.AGIL,
+    "Purposeful Design": Efeito.PROPOSITO,
+    "Shell": Efeito.CASCO,
+    "Efficient": Efeito.EFICIENTE,
+    "Celestial Trance": Efeito.TRANSE,
 }
 
 
@@ -261,6 +276,9 @@ class Armadura:
 class Ancestralidade:
     id: str
     nome: str
+    # Sempre duas, na ordem do SRD. A ordem importa na ancestralidade mista:
+    # pega-se a primeira de uma e a segunda de outra.
+    caracteristicas: tuple[Caracteristica, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -305,7 +323,7 @@ class Biblioteca:
             for c in self._ler(srd / "domain-cards.json")
         }
         self.ancestralidades = {
-            a["id"]: Ancestralidade(a["id"], _texto(a["name"]))
+            a["id"]: Ancestralidade(a["id"], _texto(a["name"]), _caracteristicas(a))
             for a in self._ler(srd / "ancestries.json")
         }
         self.comunidades = {
@@ -341,6 +359,7 @@ class Biblioteca:
             for a in self._ler(srd / "armors.json")
         }
         self.progressao = self._ler(pasta / "progressao.json")
+        self.companheiro = self._ler(pasta / "companheiro.json")   # ficha do Ranger Companion
 
     @staticmethod
     def _ler(caminho: Path):
