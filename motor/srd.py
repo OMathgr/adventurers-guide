@@ -6,6 +6,7 @@ só este arquivo muda.
 """
 
 import json
+import re
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
@@ -29,6 +30,69 @@ def _texto(valor):
     if isinstance(valor, dict):
         return valor.get("en-US", "")
     return valor
+
+
+def _paragrafos(descricao: list) -> str:
+    return " ".join(_texto(p["paragraph"]) for p in descricao if "paragraph" in p)
+
+
+class Alvo(str, Enum):
+    """O que um modificador fixo de equipamento altera (além dos traços)."""
+
+    EVASAO = "EVASAO"
+    PONTUACAO_ARMADURA = "PONTUACAO_ARMADURA"
+    LIMIAR_GRAVE = "LIMIAR_GRAVE"
+    ATAQUE = "ATAQUE"   # só nas rolagens de ataque da própria arma
+
+
+@dataclass(frozen=True)
+class Modificador:
+    alvo: Alvo | Traco
+    valor: int
+
+
+@dataclass(frozen=True)
+class Caracteristica:
+    nome: str
+    descricao: str
+    modificadores: tuple[Modificador, ...] = ()   # vazio = só texto
+
+
+# Como o SRD escreve cada alvo em "+N to <alvo>". Alvos fora desta tabela
+# (ex.: "primary weapon damage within Melee range") são condicionais e ficam
+# só como texto na ficha.
+ALVOS_SRD: dict[str, tuple[Alvo | Traco, ...]] = {
+    "Evasion": (Alvo.EVASAO,),
+    "Armor Score": (Alvo.PONTUACAO_ARMADURA,),
+    "Severe damage threshold": (Alvo.LIMIAR_GRAVE,),
+    "attack rolls": (Alvo.ATAQUE,),
+    "all character traits": tuple(Traco),
+    "all character traits and Evasion": (*Traco, Alvo.EVASAO),
+    **{t.value.title(): (t,) for t in Traco},   # "Agility", "Finesse"...
+}
+_BONUS_FIXO = re.compile(r"\s*([+-]\d+) to (.+?)\.?\s*")
+
+
+def _modificadores(texto: str) -> tuple[Modificador, ...]:
+    """Extrai os bônus fixos de um texto como "-2 to Evasion; -1 to Agility".
+
+    Cada trecho separado por ";" é analisado sozinho, então em
+    "-1 to Agility; on a successful attack..." só a primeira parte vira número.
+    """
+    mods = []
+    for trecho in texto.split(";"):
+        m = _BONUS_FIXO.fullmatch(trecho)
+        if m and m.group(2) in ALVOS_SRD:
+            mods += [Modificador(alvo, int(m.group(1))) for alvo in ALVOS_SRD[m.group(2)]]
+    return tuple(mods)
+
+
+def _caracteristicas(item: dict) -> tuple[Caracteristica, ...]:
+    resultado = []
+    for c in item.get("features", []):
+        descricao = _paragrafos(c["description"])
+        resultado.append(Caracteristica(_texto(c["name"]), descricao, _modificadores(descricao)))
+    return tuple(resultado)
 
 
 @dataclass(frozen=True)
@@ -76,6 +140,7 @@ class Arma:
     modificador_dano: int
     tipo_dano: str          # PHYSICAL ou MAGICAL
     duas_maos: bool
+    caracteristicas: tuple[Caracteristica, ...] = ()
 
     @property
     def primaria(self) -> bool:
@@ -94,6 +159,7 @@ class Armadura:
     limiar_maior: int       # valores base; a ficha soma o nível
     limiar_grave: int
     pontuacao: int
+    caracteristicas: tuple[Caracteristica, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -163,6 +229,7 @@ class Biblioteca:
                 modificador_dano=a["damage"].get("modifier", 0),
                 tipo_dano=a["damage"]["type"],
                 duas_maos=a["burden"] == "TWO_HANDED",
+                caracteristicas=_caracteristicas(a),
             )
             for a in self._ler(srd / "weapons.json")
         }
@@ -174,6 +241,7 @@ class Biblioteca:
                 limiar_maior=a["baseMajorThreshold"],
                 limiar_grave=a["baseSevereThreshold"],
                 pontuacao=a["baseScore"],
+                caracteristicas=_caracteristicas(a),
             )
             for a in self._ler(srd / "armors.json")
         }

@@ -60,6 +60,23 @@ equipamento de hoje.
 No banco, o equipamento vira colunas (ou tabela) do `personagem`, não de
 `subida_de_nivel`.
 
+### Características de armas e armaduras
+
+O SRD só traz texto. A `Biblioteca` extrai os **bônus fixos** dele
+(`_modificadores` em `srd.py`): cada trecho separado por `;` no formato
+`+N to <alvo>`, com `<alvo>` na tabela `ALVOS_SRD` (Evasão, Pontuação de
+Armadura, limiar grave, ataque, traços). Os valores vêm do próprio SRD, então
+"Barrier" +2 a +5 funciona sem tabela feita à mão.
+
+- Bônus fixos de todas as peças alteram a ficha (uma arma Heavy também tira
+  Evasão). "+N to attack rolls" vale só para a própria arma.
+- O resto (condicionais, ativadas) aparece como texto em
+  `Ataque.caracteristicas` e `Ficha.caracteristicas_armadura`.
+- Level up e validações partem de `_ficha_base()` (sem equipamento) para os
+  modificadores não acumularem a cada nível.
+- `test_todo_bonus_fixo_do_srd_e_reconhecido` falha se aparecer um
+  `+N to <alvo>` desconhecido (ex.: no SRD 2.0), em vez de ignorá-lo.
+
 ## Pendências conhecidas
 
 - **Conferir `progressao.json` com a ficha oficial impressa** (número de
@@ -67,9 +84,10 @@ No banco, o equipamento vira colunas (ou tabela) do `personagem`, não de
   compêndio do SRD, mas vale a checagem manual.
 - Existe um SRD 2.0 (agosto/2026) com classes novas. Os JSON atuais são do 1.0.
   Como o motor só fala com a `Biblioteca`, a troca fica isolada em `srd.py`.
-- Características de armas e armaduras (ex.: Flexible +1 Evasão, Heavy −1
-  Evasão, Reliable +1 no ataque) só existem como texto no SRD e ainda não têm
-  efeito. Ideia: um mapa nosso em `data/` de nome da característica → efeito.
+- Características que ainda são só texto mas poderiam ter efeito:
+  Versatile (perfil de ataque alternativo), Bonded/Sharpwing (dano + nível /
+  Agilidade), Pompous (exige Presença ≤ 0 para usar), Channeling (+1
+  conjuração; a ficha ainda não tem rolagem de conjuração).
 - Inventário (itens, ouro, consumíveis) ainda não existe.
 - Desfazer o nível da multiclasse não revalida uma arma mágica já equipada.
 - Ancestralidade mista e regras de companheiro do Ranger Beastbound.
