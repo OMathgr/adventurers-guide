@@ -34,7 +34,7 @@ lira.subir_de_nivel(SubidaDeNivel(
 f = lira.ficha()
 print(f"\n{f.nome} — nível {f.nivel} | Evasão {f.evasao} | PV {f.pv_max} | "
       f"Estresse {f.estresse_max} | Proficiência {f.proficiencia}")
-print("Traços:", {t.name.title(): v for t, v in f.tracos.items()})
+print("Traços:", {t.rotulo: v for t, v in f.tracos.items()})
 print("Experiências:", f.experiencias)
 
 print("\nLinha do tempo:")

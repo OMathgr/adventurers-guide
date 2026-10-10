@@ -15,7 +15,8 @@ import copy
 from dataclasses import dataclass, field
 from enum import Enum
 
-from .srd import Alvo, Arma, Biblioteca, Caracteristica, Modificador, Traco
+from .srd import (Alvo, Arma, Biblioteca, Caracteristica, Modificador, Referencia,
+                  Traco)
 
 DISTRIBUICAO_TRACOS = sorted([2, 1, 1, 0, 0, -1])
 ESTAGIOS_SUBCLASSE = ["fundacao", "especializacao", "maestria"]
@@ -151,9 +152,11 @@ class Personagem:
 
     def subir_de_nivel(self, subida: SubidaDeNivel) -> Ficha:
         """Valida e registra o nível. Se algo for inválido, nada muda."""
-        nova = self._aplicar(self._ficha_base(), subida)
+        nova = self._vestir(self._aplicar(self._ficha_base(), subida), self.equipamento)
+        # ex.: subir a Presença com uma arma Pompous equipada
+        self._validar_requisitos(nova, self.equipamento)
         self.historico.append(subida)
-        return self._vestir(nova, self.equipamento)
+        return nova
 
     def equipar(self, principal: str | None = None, secundaria: str | None = None,
                 armadura: str | None = None) -> Ficha:
@@ -162,9 +165,12 @@ class Personagem:
         Tudo é validado antes de trocar, então um erro não muda nada.
         """
         novo = Equipamento(principal, secundaria, armadura)
-        self._validar_equipamento(self._ficha_base(), novo)
+        base = self._ficha_base()
+        self._validar_equipamento(base, novo)
+        vestida = self._vestir(base, novo)
+        self._validar_requisitos(vestida, novo)
         self.equipamento = novo
-        return self.ficha()
+        return vestida
 
     def desfazer_ultimo_nivel(self) -> None:
         if not self.historico:
@@ -486,19 +492,43 @@ class Personagem:
             f.pontuacao_armadura += m.valor
         elif m.alvo is Alvo.LIMIAR_GRAVE:
             f.limiar_grave += m.valor
-        # Alvo.ATAQUE vale só para a própria arma: tratado em _ataque
+        # Alvo.ATAQUE e Alvo.DANO valem só para a própria arma: tratados em _ataque
 
     @staticmethod
-    def _ataque(f: Ficha, arma: Arma) -> Ataque:
+    def _valor(f: Ficha, m: Modificador) -> int:
+        """Valor do modificador nesta ficha (resolve "igual ao seu nível/traço")."""
+        if m.igual_a is Referencia.NIVEL:
+            return f.nivel
+        if isinstance(m.igual_a, Traco):
+            return f.tracos[m.igual_a]
+        return m.valor
+
+    def _ataque(self, f: Ficha, arma: Arma) -> Ataque:
+        mods = [m for c in arma.caracteristicas for m in c.modificadores]
+        bonus_ataque = sum(self._valor(f, m) for m in mods if m.alvo is Alvo.ATAQUE)
+        bonus_dano = arma.modificador_dano + sum(
+            self._valor(f, m) for m in mods if m.alvo is Alvo.DANO)
         dano = f"{f.proficiencia}{arma.dado}"
-        if arma.modificador_dano:
-            dano += f"+{arma.modificador_dano}"
-        bonus_arma = sum(m.valor for c in arma.caracteristicas
-                         for m in c.modificadores if m.alvo is Alvo.ATAQUE)
+        if bonus_dano:
+            dano += f"{bonus_dano:+d}"   # "+5" ou "-1"
         return Ataque(arma=arma.nome, traco=arma.traco,
-                      bonus=f.tracos[arma.traco] + bonus_arma,
+                      bonus=f.tracos[arma.traco] + bonus_ataque,
                       alcance=arma.alcance, dano=dano, tipo_dano=arma.tipo_dano,
                       caracteristicas=list(arma.caracteristicas))
+
+    def _validar_requisitos(self, f: Ficha, eq: Equipamento):
+        """`f` já vestida com `eq`: o requisito vale para o traço como ele fica
+        com todo o equipamento (ex.: uma peça que dá +1 Presença conta)."""
+        pecas = [self.bib.armas[a] for a in (eq.principal, eq.secundaria) if a]
+        if eq.armadura:
+            pecas.append(self.bib.armaduras[eq.armadura])
+        for peca in pecas:
+            for c in peca.caracteristicas:
+                for r in c.requisitos:
+                    if f.tracos[r.traco] > r.maximo:
+                        raise RegraViolada(
+                            f"{peca.nome} exige {r.traco.rotulo} {r.maximo} ou menos "
+                            f"(você tem {f.tracos[r.traco]}).")
 
     # --- utilitários ---------------------------------------------------------
 
@@ -533,7 +563,7 @@ class Personagem:
     def _descrever(self, e: Escolha) -> str:
         detalhe = ""
         if e.tracos:
-            detalhe = " (" + ", ".join(t.name.title() for t in e.tracos) + ")"
+            detalhe = " (" + ", ".join(t.rotulo for t in e.tracos) + ")"
         elif e.experiencias:
             detalhe = " (" + ", ".join(e.experiencias) + ")"
         elif e.carta:

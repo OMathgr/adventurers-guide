@@ -76,6 +76,13 @@ Armadura, limiar grave, ataque, traços). Os valores vêm do próprio SRD, entã
   modificadores não acumularem a cada nível.
 - `test_todo_bonus_fixo_do_srd_e_reconhecido` falha se aparecer um
   `+N to <alvo>` desconhecido (ex.: no SRD 2.0), em vez de ignorá-lo.
+- Bônus "igual ao seu X" (Bonded = nível, Sharpwing = Agilidade) viram um
+  `Modificador` com `igual_a`; o valor é lido da ficha na hora, já com
+  penalidades de equipamento. Valem só para o dano da própria arma.
+- Requisitos de uso (Pompous: Presença ≤ 0) bloqueiam `equipar()` e também
+  `subir_de_nivel()` se o nível quebrar o requisito de uma peça equipada.
+  O traço é checado com todo o equipamento aplicado.
+- Versatile fica só como texto: escolher o perfil alternativo é decisão de mesa.
 
 ## Pendências conhecidas
 
@@ -84,10 +91,8 @@ Armadura, limiar grave, ataque, traços). Os valores vêm do próprio SRD, entã
   compêndio do SRD, mas vale a checagem manual.
 - Existe um SRD 2.0 (agosto/2026) com classes novas. Os JSON atuais são do 1.0.
   Como o motor só fala com a `Biblioteca`, a troca fica isolada em `srd.py`.
-- Características que ainda são só texto mas poderiam ter efeito:
-  Versatile (perfil de ataque alternativo), Bonded/Sharpwing (dano + nível /
-  Agilidade), Pompous (exige Presença ≤ 0 para usar), Channeling (+1
-  conjuração; a ficha ainda não tem rolagem de conjuração).
+- Channeling (+1 em conjuração) ainda é só texto: a ficha não tem rolagem
+  de conjuração.
 - Inventário (itens, ouro, consumíveis) ainda não existe.
 - Desfazer o nível da multiclasse não revalida uma arma mágica já equipada.
 - Ancestralidade mista e regras de companheiro do Ranger Beastbound.

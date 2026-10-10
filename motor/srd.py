@@ -24,6 +24,11 @@ class Traco(str, Enum):
     PRESENCA = "PRESENCE"
     CONHECIMENTO = "KNOWLEDGE"
 
+    @property
+    def rotulo(self) -> str:
+        """Nome para exibição, com acentos (o nome do membro não pode ter)."""
+        return {"FORCA": "Força", "PRESENCA": "Presença"}.get(self.name, self.name.title())
+
 
 def _texto(valor):
     """O SRD guarda textos como {"en-US": "..."}; pegamos o inglês por enquanto."""
@@ -43,12 +48,30 @@ class Alvo(str, Enum):
     PONTUACAO_ARMADURA = "PONTUACAO_ARMADURA"
     LIMIAR_GRAVE = "LIMIAR_GRAVE"
     ATAQUE = "ATAQUE"   # só nas rolagens de ataque da própria arma
+    DANO = "DANO"       # só nas rolagens de dano da própria arma
+
+
+class Referencia(str, Enum):
+    """Valores da ficha que um bônus pode copiar (além dos traços)."""
+
+    NIVEL = "NIVEL"
 
 
 @dataclass(frozen=True)
 class Modificador:
     alvo: Alvo | Traco
-    valor: int
+    valor: int = 0
+    # Se preenchido, o bônus é "igual ao seu X" e o valor sai da ficha na hora
+    # (ex.: Bonded = nível, Sharpwing = Agilidade); `valor` é ignorado.
+    igual_a: Traco | Referencia | None = None
+
+
+@dataclass(frozen=True)
+class Requisito:
+    """Condição para poder usar a peça, ex.: Pompous (Presença <= 0)."""
+
+    traco: Traco
+    maximo: int
 
 
 @dataclass(frozen=True)
@@ -56,11 +79,13 @@ class Caracteristica:
     nome: str
     descricao: str
     modificadores: tuple[Modificador, ...] = ()   # vazio = só texto
+    requisitos: tuple[Requisito, ...] = ()
 
 
 # Como o SRD escreve cada alvo em "+N to <alvo>". Alvos fora desta tabela
 # (ex.: "primary weapon damage within Melee range") são condicionais e ficam
 # só como texto na ficha.
+TRACOS_SRD = {t.value.title(): t for t in Traco}   # "Agility" -> Traco.AGILIDADE
 ALVOS_SRD: dict[str, tuple[Alvo | Traco, ...]] = {
     "Evasion": (Alvo.EVASAO,),
     "Armor Score": (Alvo.PONTUACAO_ARMADURA,),
@@ -68,9 +93,14 @@ ALVOS_SRD: dict[str, tuple[Alvo | Traco, ...]] = {
     "attack rolls": (Alvo.ATAQUE,),
     "all character traits": tuple(Traco),
     "all character traits and Evasion": (*Traco, Alvo.EVASAO),
-    **{t.value.title(): (t,) for t in Traco},   # "Agility", "Finesse"...
+    **{nome: (t,) for nome, t in TRACOS_SRD.items()},
 }
+REFERENCIAS_SRD: dict[str, Traco | Referencia] = {"level": Referencia.NIVEL, **TRACOS_SRD}
+
 _BONUS_FIXO = re.compile(r"\s*([+-]\d+) to (.+?)\.?\s*")
+_BONUS_DANO_IGUAL = re.compile(r"\s*Gain a bonus to your damage rolls equal to your (\w+)\.?\s*")
+_REQUISITO_MAXIMO = re.compile(
+    r"\s*You must have an? (\w+) of ([+-]?\d+) or lower to use this weapon\.?\s*")
 
 
 def _modificadores(texto: str) -> tuple[Modificador, ...]:
@@ -81,17 +111,28 @@ def _modificadores(texto: str) -> tuple[Modificador, ...]:
     """
     mods = []
     for trecho in texto.split(";"):
-        m = _BONUS_FIXO.fullmatch(trecho)
-        if m and m.group(2) in ALVOS_SRD:
-            mods += [Modificador(alvo, int(m.group(1))) for alvo in ALVOS_SRD[m.group(2)]]
+        if m := _BONUS_FIXO.fullmatch(trecho):
+            if m.group(2) in ALVOS_SRD:
+                mods += [Modificador(alvo, int(m.group(1))) for alvo in ALVOS_SRD[m.group(2)]]
+        elif m := _BONUS_DANO_IGUAL.fullmatch(trecho):
+            if m.group(1) in REFERENCIAS_SRD:
+                mods.append(Modificador(Alvo.DANO, igual_a=REFERENCIAS_SRD[m.group(1)]))
     return tuple(mods)
+
+
+def _requisitos(texto: str) -> tuple[Requisito, ...]:
+    m = _REQUISITO_MAXIMO.fullmatch(texto)
+    if m and m.group(1) in TRACOS_SRD:
+        return (Requisito(TRACOS_SRD[m.group(1)], int(m.group(2))),)
+    return ()
 
 
 def _caracteristicas(item: dict) -> tuple[Caracteristica, ...]:
     resultado = []
     for c in item.get("features", []):
         descricao = _paragrafos(c["description"])
-        resultado.append(Caracteristica(_texto(c["name"]), descricao, _modificadores(descricao)))
+        resultado.append(Caracteristica(_texto(c["name"]), descricao,
+                                        _modificadores(descricao), _requisitos(descricao)))
     return tuple(resultado)
 
 

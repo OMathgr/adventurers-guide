@@ -1,7 +1,11 @@
+import dataclasses
 import re
 
-from motor import Alvo, Escolha, Modificador, Opcao, SubidaDeNivel, Traco
-from motor.srd import ALVOS_SRD, _modificadores
+import pytest
+
+from motor import (Alvo, Escolha, Modificador, Opcao, Personagem, Referencia, RegraViolada,
+                   Requisito, SubidaDeNivel, Traco)
+from motor.srd import ALVOS_SRD, _modificadores, _requisitos
 
 # Bardo base (conftest): Evasão 10, Agilidade 1, Acuidade 0, Força -1.
 
@@ -107,3 +111,84 @@ def test_modificadores_nao_acumulam_ao_subir_de_nivel(bardo):
     assert f.evasao == 10 + 1 - 2
     assert f.tracos[Traco.AGILIDADE] == 1 + 1 - 1
     assert bardo.ficha() == f
+
+
+# --- Bônus de dano "igual ao seu X" (Bonded, Sharpwing) ---------------------
+
+def subida_nivel_2(*tracos):
+    return SubidaDeNivel(
+        nivel=2,
+        escolhas=[Escolha(Opcao.EVASAO), Escolha(Opcao.TRACOS, tracos=tracos)],
+        carta="core_domain_card_tell_no_lies",
+        nova_experiencia="Viajante",
+    )
+
+
+def test_le_bonus_de_dano_igual_a():
+    assert _modificadores("Gain a bonus to your damage rolls equal to your level.") == (
+        Modificador(Alvo.DANO, igual_a=Referencia.NIVEL),)
+    assert _modificadores("Gain a bonus to your damage rolls equal to your Agility.") == (
+        Modificador(Alvo.DANO, igual_a=Traco.AGILIDADE),)
+
+
+def test_sharpwing_soma_agilidade_atual_ao_dano(bardo):
+    bardo.equipar(principal="core_weapon_flickerfly_blade")   # d8+5, Sharpwing
+    assert bardo.ficha().ataques[0].dano == "1d8+6"           # Agilidade 1
+    bardo.subir_de_nivel(subida_nivel_2(Traco.AGILIDADE, Traco.FORCA))
+    assert bardo.ficha().ataques[0].dano == "2d8+7"           # Agilidade 2, Proficiência 2
+
+
+def test_sharpwing_usa_agilidade_com_penalidade_de_armadura(bardo):
+    bardo.equipar(principal="core_weapon_flickerfly_blade", armadura="core_armor_full_plate_armor")
+    assert bardo.ficha().ataques[0].dano == "1d8+5"           # Agilidade 1 - 1
+
+
+def test_bonded_soma_nivel_ao_dano(bardo):
+    bardo.equipar(principal="core_weapon_fusion_gloves")      # d6+9, Bonded
+    assert bardo.ficha().ataques[0].dano == "1d6+10"
+    bardo.subir_de_nivel(subida_nivel_2(Traco.AGILIDADE, Traco.FORCA))
+    assert bardo.ficha().ataques[0].dano == "2d6+11"
+
+
+# --- Requisito de uso (Pompous) ------------------------------------------------
+
+@pytest.fixture
+def bardo_humilde(bib, criacao_bardo):
+    """Bardo com Presença 0, que pode usar a Ego Blade (Pompous)."""
+    tracos = {**criacao_bardo.tracos, Traco.PRESENCA: 0, Traco.ACUIDADE: 2}
+    return Personagem(bib, dataclasses.replace(criacao_bardo, tracos=tracos))
+
+
+def test_le_requisito():
+    assert _requisitos("You must have a Presence of 0 or lower to use this weapon.") == (
+        Requisito(Traco.PRESENCA, 0),)
+
+
+def test_pompous_bloqueia_presenca_alta(bardo):
+    with pytest.raises(RegraViolada, match="Presença 0 ou menos"):
+        bardo.equipar(principal="core_weapon_ego_blade")          # Presença 2
+    assert bardo.equipamento.principal is None
+
+
+def test_pompous_permite_presenca_baixa(bardo_humilde):
+    bardo_humilde.equipar(principal="core_weapon_ego_blade")
+    assert bardo_humilde.ficha().ataques[0].arma == "Ego Blade"
+
+
+def test_subir_presenca_com_pompous_equipada_e_bloqueado(bardo_humilde):
+    bardo_humilde.equipar(principal="core_weapon_ego_blade")
+    with pytest.raises(RegraViolada, match="Ego Blade"):
+        bardo_humilde.subir_de_nivel(subida_nivel_2(Traco.PRESENCA, Traco.AGILIDADE))
+    assert bardo_humilde.historico == []
+    # subir outros traços continua permitido
+    bardo_humilde.subir_de_nivel(subida_nivel_2(Traco.AGILIDADE, Traco.FORCA))
+
+
+# --- Versatile -------------------------------------------------------------------
+
+def test_versatile_fica_so_como_texto(bardo):
+    bardo.equipar(principal="core_weapon_scepter")
+    versatile = bardo.ficha().ataques[0].caracteristicas[0]
+    assert versatile.nome == "Versatile"
+    assert versatile.modificadores == () and versatile.requisitos == ()
+    assert "Presence, Melee, d8" in versatile.descricao
