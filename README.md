@@ -9,7 +9,8 @@ Hoje tem duas camadas:
 - **API** (`api/`, FastAPI + SQLAlchemy): expõe o motor por HTTP e salva os
   personagens no banco (SQLite local; PostgreSQL trocando a `DATABASE_URL`).
 
-Ainda não tem usuários, mesas nem interface.
+Tem cadastro e login (e-mail e senha, token JWT); cada usuário vê só os
+seus personagens. Ainda não tem mesas nem interface.
 
 ## Como rodar
 
@@ -23,6 +24,12 @@ python exemplo.py                # cria uma personagem e mostra a ficha (só o m
 alembic upgrade head             # cria/atualiza o banco (adventurers.db)
 uvicorn api.main:app --reload    # API em http://127.0.0.1:8000 (docs em /docs)
 ```
+
+Na página `/docs`, cadastre-se em `POST /auth/cadastro` e use o botão
+**Authorize** (e-mail no campo `username`) para testar as rotas protegidas.
+
+Em produção, defina `JWT_SECRET` (chave longa e aleatória). Sem ela, a API
+gera uma chave temporária e os logins caem a cada reinício.
 
 Para usar PostgreSQL: instale um driver (ex.: `pip install "psycopg[binary]"`),
 defina `DATABASE_URL=postgresql+psycopg://usuario:senha@servidor/adventurers`
@@ -39,7 +46,9 @@ motor/
   erros.py        # RegraViolada
 api/
   main.py         # aplicação FastAPI e tratamento de erros
-  rotas/          # srd (catálogo), personagens (construtor), sessao (jogo)
+  rotas/          # auth (conta), srd (catálogo), personagens (construtor), sessao (jogo)
+  seguranca.py    # hash de senha (Argon2) e tokens JWT
+  autenticacao.py # dependência usuario_atual (quem está logado)
   repositorio.py  # Personagem <-> banco (carregar refaz o personagem pelo motor)
   tabelas.py      # tabelas SQLAlchemy
   esquemas.py     # ficha de saída e corpos das ações
@@ -56,7 +65,7 @@ docs/ARQUITETURA.md
 ## Roadmap
 
 1. ~~Motor de regras~~
-2. API (FastAPI) + banco: ~~personagens salvos~~ (agora), usuários, mesas, papéis
+2. API (FastAPI) + banco: ~~personagens salvos~~, ~~usuários e login~~, mesas e papéis (próximo)
 3. Interface web do construtor: visão ficha + visão linha do tempo
 4. Workspace da mesa (mapa mental com visibilidade por papel)
 5. Colaboração em tempo real

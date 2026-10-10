@@ -8,8 +8,8 @@ e construtor de personagem com visão de ficha e visão de linha do tempo.
 ## Estado atual
 Fase 1 (motor de regras em Python puro, `motor/`) concluída. Fase 2 em
 andamento: API FastAPI em `api/`, com SQLite local (PostgreSQL depois, só
-trocando `DATABASE_URL`). Já salva personagens; usuários, login e mesas vêm
-a seguir. Leia `docs/ARQUITETURA.md` antes de mudar a modelagem. O personagem
+trocando `DATABASE_URL`). Já tem personagens salvos, cadastro e login (JWT,
+cada usuário vê só os seus personagens); mesas e papéis vêm a seguir. Leia `docs/ARQUITETURA.md` antes de mudar a modelagem. O personagem
 é guardado como criação + histórico de subidas de nível; a ficha é sempre
 recalculada.
 

@@ -5,12 +5,12 @@ from sqlalchemy.pool import StaticPool
 
 from api.db import Base, criar_engine, sessao_do_banco
 from api.main import app
-from dados_api import BARDO
+from dados_api import BARDO, entrar  # noqa: F401
 
 
 @pytest.fixture
-def cliente():
-    """API com um banco SQLite em memória novo para cada teste."""
+def anonimo():
+    """Cliente sem login, com um banco SQLite em memória novo para cada teste."""
     engine = criar_engine("sqlite://", poolclass=StaticPool)
     Base.metadata.create_all(engine)
     fabrica = sessionmaker(bind=engine, expire_on_commit=False)
@@ -24,6 +24,13 @@ def cliente():
         yield c
     app.dependency_overrides.clear()
     engine.dispose()
+
+
+@pytest.fixture
+def cliente(anonimo):
+    """Cliente logado como ana@exemplo.com (a maioria dos testes usa este)."""
+    anonimo.headers.update(entrar(anonimo, "ana@exemplo.com"))
+    return anonimo
 
 
 @pytest.fixture

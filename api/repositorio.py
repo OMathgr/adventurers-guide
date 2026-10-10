@@ -3,6 +3,9 @@
 Carregar = refazer o personagem pelo motor: criação, cada subida de nível
 em ordem (revalidando tudo) e o estado atual por cima. Assim o banco nunca
 guarda uma ficha que o motor não aceitaria.
+
+Toda função recebe o `dono_id`: personagem de outro usuário se comporta como
+inexistente (NaoEncontrado), para não revelar que ele existe.
 """
 
 import uuid
@@ -35,17 +38,17 @@ def para_json(criacao_ou_subida) -> dict:
     return adaptador.dump_python(criacao_ou_subida, mode="json")
 
 
-def criar(banco: Session, criacao: Criacao) -> tuple[str, Personagem]:
+def criar(banco: Session, dono_id: str, criacao: Criacao) -> tuple[str, Personagem]:
     personagem = Personagem(biblioteca(), criacao)   # valida a criação
-    linha = PersonagemTabela(id=str(uuid.uuid4()), nome=criacao.nome,
+    linha = PersonagemTabela(id=str(uuid.uuid4()), dono_id=dono_id, nome=criacao.nome,
                              criacao=para_json(criacao), **personagem.estado())
     banco.add(linha)
     banco.commit()
     return linha.id, personagem
 
 
-def carregar(banco: Session, personagem_id: str) -> Personagem:
-    linha = _linha(banco, personagem_id)
+def carregar(banco: Session, dono_id: str, personagem_id: str) -> Personagem:
+    linha = _linha(banco, dono_id, personagem_id)
     personagem = Personagem(biblioteca(), _CRIACAO.validate_python(linha.criacao))
     for subida in linha.subidas:
         personagem.subir_de_nivel(_SUBIDA.validate_python(subida.dados))
@@ -54,9 +57,9 @@ def carregar(banco: Session, personagem_id: str) -> Personagem:
     return personagem
 
 
-def salvar(banco: Session, personagem_id: str, personagem: Personagem):
+def salvar(banco: Session, dono_id: str, personagem_id: str, personagem: Personagem):
     """Grava o estado atual e sincroniza as subidas de nível com o histórico."""
-    linha = _linha(banco, personagem_id)
+    linha = _linha(banco, dono_id, personagem_id)
     estado = personagem.estado()
     linha.equipamento, linha.cofre, linha.sessao = (
         estado["equipamento"], estado["cofre"], estado["sessao"])
@@ -74,17 +77,19 @@ def salvar(banco: Session, personagem_id: str, personagem: Personagem):
     banco.commit()
 
 
-def listar(banco: Session) -> list[PersonagemTabela]:
-    return list(banco.scalars(select(PersonagemTabela).order_by(PersonagemTabela.criado_em)))
+def listar(banco: Session, dono_id: str) -> list[PersonagemTabela]:
+    consulta = (select(PersonagemTabela).where(PersonagemTabela.dono_id == dono_id)
+                .order_by(PersonagemTabela.criado_em))
+    return list(banco.scalars(consulta))
 
 
-def apagar(banco: Session, personagem_id: str):
-    banco.delete(_linha(banco, personagem_id))
+def apagar(banco: Session, dono_id: str, personagem_id: str):
+    banco.delete(_linha(banco, dono_id, personagem_id))
     banco.commit()
 
 
-def _linha(banco: Session, personagem_id: str) -> PersonagemTabela:
+def _linha(banco: Session, dono_id: str, personagem_id: str) -> PersonagemTabela:
     linha = banco.get(PersonagemTabela, personagem_id)
-    if linha is None:
+    if linha is None or linha.dono_id != dono_id:
         raise NaoEncontrado(f"Personagem {personagem_id} não encontrado.")
     return linha

@@ -10,13 +10,14 @@ from fastapi.responses import JSONResponse
 from motor import RegraViolada
 
 from .repositorio import NaoEncontrado
-from .rotas import personagens, sessao, srd
+from .rotas import auth, personagens, sessao, srd
 
 app = FastAPI(
     title="Adventurer's Guide",
     description="Construtor de personagem e estado de jogo de Daggerheart (SRD 1.0).",
     version="0.2.0",
 )
+app.include_router(auth.rotas)
 app.include_router(srd.rotas)
 app.include_router(personagens.rotas)
 app.include_router(sessao.rotas)

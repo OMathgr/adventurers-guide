@@ -260,13 +260,31 @@ HTTP ─► rotas (api/rotas) ─► repositorio ─► motor.Personagem
   Migrações com Alembic; `tests/api/test_migracoes.py` falha se
   `api/tabelas.py` mudar sem migração.
 
-Rotas: `/srd/*` (catálogo), `/personagens` (criar, listar, ficha, apagar,
-linha do tempo, opções, cartas, níveis, equipamento, cofre) e
-`/personagens/{id}/sessao/*` (dano, PV, Estresse, Esperança, armadura,
-descanso, companheiro, regras). Documentação interativa em `/docs`.
+Rotas: `/auth/*` (cadastro, login, conta), `/srd/*` (catálogo, público),
+`/personagens` (criar, listar, ficha, apagar, linha do tempo, opções,
+cartas, níveis, equipamento, cofre) e `/personagens/{id}/sessao/*` (dano,
+PV, Estresse, Esperança, armadura, descanso, companheiro, regras).
+Documentação interativa em `/docs`.
 
-Ainda não: usuários e login (todo personagem é visível para qualquer um),
-mesas e papéis, controle de concorrência entre duas edições simultâneas.
+### Usuários e login
+
+- Tabela `usuarios` (e-mail único, sempre minúsculo; senha só como hash
+  Argon2). `personagens.dono_id` aponta para o dono; apagar a conta apaga os
+  personagens dela.
+- Login (`POST /auth/login`, formulário OAuth2: e-mail em `username`) devolve
+  um JWT HS256 com o id do usuário e validade (`JWT_EXPIRA_MINUTOS`, padrão 60).
+  A chave vem de `JWT_SECRET`; sem ela, uma chave temporária é gerada.
+- Rotas de personagem usam a dependência `acesso` (banco + usuário logado).
+  O repositório filtra tudo pelo dono: personagem de outro usuário responde
+  404, igual a um inexistente, para não revelar que existe.
+- Login errado responde a mesma mensagem para e-mail inexistente e senha
+  errada.
+- `Base.metadata` tem convenção de nomes para índices e restrições (o
+  Alembic precisa deles para alterar tabelas no SQLite).
+
+Ainda não: renovação de token (refresh) e "esqueci minha senha", mesas e
+papéis (o mestre ver os personagens da mesa), controle de concorrência
+entre duas edições simultâneas do mesmo personagem.
 
 ## Pendências conhecidas
 

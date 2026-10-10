@@ -1,4 +1,6 @@
-"""Corpos de requisição usados nos testes da API."""
+"""Corpos de requisição e atalhos usados nos testes da API."""
+
+from fastapi.testclient import TestClient
 
 BARDO = {
     "nome": "Lira",
@@ -18,3 +20,11 @@ NIVEL_2 = {
     "carta": "core_domain_card_tell_no_lies",
     "nova_experiencia": "Viajante",
 }
+
+
+def entrar(cliente: TestClient, email: str, senha: str = "senha-forte-123", nome: str = "Ana") -> dict:
+    """Cadastra (se preciso) e faz login; devolve o cabeçalho de autorização."""
+    cliente.post("/auth/cadastro", json={"email": email, "nome": nome, "senha": senha})
+    resposta = cliente.post("/auth/login", data={"username": email, "password": senha})
+    assert resposta.status_code == 200, resposta.text
+    return {"Authorization": f"Bearer {resposta.json()['access_token']}"}

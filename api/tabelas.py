@@ -17,10 +17,24 @@ def _agora() -> datetime:
     return datetime.now(timezone.utc)
 
 
+class UsuarioTabela(Base):
+    __tablename__ = "usuarios"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    email: Mapped[str] = mapped_column(String(254), unique=True, index=True)   # sempre minúsculo
+    nome: Mapped[str] = mapped_column(String(120))
+    senha_hash: Mapped[str] = mapped_column(String(255))
+    criado_em: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_agora)
+
+    personagens: Mapped[list["PersonagemTabela"]] = relationship(
+        back_populates="dono", cascade="all, delete-orphan", passive_deletes=True)
+
+
 class PersonagemTabela(Base):
     __tablename__ = "personagens"
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    dono_id: Mapped[str] = mapped_column(ForeignKey("usuarios.id", ondelete="CASCADE"), index=True)
     nome: Mapped[str] = mapped_column(String(120), default="")
     criacao: Mapped[dict] = mapped_column(JSON)          # motor.Criacao
     equipamento: Mapped[dict] = mapped_column(JSON)      # motor.Equipamento
@@ -30,6 +44,7 @@ class PersonagemTabela(Base):
     atualizado_em: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_agora,
                                                     onupdate=_agora)
 
+    dono: Mapped[UsuarioTabela] = relationship(back_populates="personagens")
     subidas: Mapped[list["SubidaTabela"]] = relationship(
         back_populates="personagem", order_by="SubidaTabela.nivel",
         cascade="all, delete-orphan", passive_deletes=True)
