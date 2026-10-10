@@ -3,6 +3,7 @@
   "nivel_maximo": 10,
   "limite_pv": 12,
   "limite_estresse": 12,
+  "limite_loadout": 5,
   "tiers": {
     "1": {
       "niveis": [

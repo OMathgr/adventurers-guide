@@ -15,8 +15,8 @@ import copy
 from dataclasses import dataclass, field
 from enum import Enum
 
-from .srd import (Alvo, Arma, Biblioteca, Caracteristica, Modificador, Referencia,
-                  Subclasse, Traco)
+from .srd import (Alvo, Arma, Biblioteca, Caracteristica, CartaDeDominio, Modificador,
+                  Referencia, Subclasse, Traco)
 
 DISTRIBUICAO_TRACOS = sorted([2, 1, 1, 0, 0, -1])
 ESTAGIOS_SUBCLASSE = ["fundacao", "especializacao", "maestria"]
@@ -140,6 +140,9 @@ class Ficha:
     ataques: list[Ataque] = field(default_factory=list)
     # uma por subclasse que conjura (a principal e, se houver, a da multiclasse)
     conjuracoes: list[Conjuracao] = field(default_factory=list)
+    # `cartas` (acima) tem todas; aqui elas estão divididas entre ativas e cofre
+    cartas_ativas: list[str] = field(default_factory=list)   # loadout
+    cartas_cofre: list[str] = field(default_factory=list)    # vault
 
 
 class Personagem:
@@ -148,24 +151,37 @@ class Personagem:
         self.criacao = criacao
         self.historico: list[SubidaDeNivel] = []
         self.equipamento = Equipamento()
+        # Cartas guardadas no cofre (estado atual, como o equipamento).
+        # Toda carta que o personagem tem e não está aqui está no loadout.
+        self.cofre: list[str] = []
         self._ficha_inicial = self._criar(criacao)
 
     # --- API pública -------------------------------------------------------
 
     def ficha(self, ate_nivel: int | None = None) -> Ficha:
-        """Refaz o histórico e aplica o equipamento ATUAL por cima.
+        """Refaz o histórico e aplica o estado ATUAL (equipamento e cofre) por cima.
 
         Por isso ficha(ate_nivel=3) mostra o nível 3 com o equipamento de hoje.
         """
-        return self._vestir(self._ficha_base(ate_nivel), self.equipamento)
+        f = self._vestir(self._ficha_base(ate_nivel), self.equipamento)
+        f.cartas_cofre = [c for c in f.cartas if c in self.cofre]
+        f.cartas_ativas = [c for c in f.cartas if c not in self.cofre]
+        return f
 
     def subir_de_nivel(self, subida: SubidaDeNivel) -> Ficha:
-        """Valida e registra o nível. Se algo for inválido, nada muda."""
+        """Valida e registra o nível. Se algo for inválido, nada muda.
+
+        Cartas novas vão para o loadout; se ele estiver cheio, para o cofre.
+        """
         nova = self._vestir(self._aplicar(self._ficha_base(), subida), self.equipamento)
         # ex.: subir a Presença com uma arma Pompous equipada
         self._validar_requisitos(nova, self.equipamento)
         self.historico.append(subida)
-        return nova
+        if subida.troca_carta and subida.troca_carta[0] in self.cofre:
+            antiga, nova_carta = subida.troca_carta   # a nova ocupa o lugar da antiga
+            self.cofre[self.cofre.index(antiga)] = nova_carta
+        self._ajustar_cofre()
+        return self.ficha()
 
     def equipar(self, principal: str | None = None, secundaria: str | None = None,
                 armadura: str | None = None) -> Ficha:
@@ -176,15 +192,80 @@ class Personagem:
         novo = Equipamento(principal, secundaria, armadura)
         base = self._ficha_base()
         self._validar_equipamento(base, novo)
-        vestida = self._vestir(base, novo)
-        self._validar_requisitos(vestida, novo)
+        self._validar_requisitos(self._vestir(base, novo), novo)
         self.equipamento = novo
-        return vestida
+        return self.ficha()
 
     def desfazer_ultimo_nivel(self) -> None:
         if not self.historico:
             raise RegraViolada("Não há nível para desfazer.")
         self.historico.pop()
+        self._ajustar_cofre()
+
+    # --- Cartas: o que dá para escolher no próximo nível ---------------------
+
+    def cartas_para_nivel(self, escolhas: list[Escolha] = ()) -> list[CartaDeDominio]:
+        """Opções para a carta obrigatória do próximo nível (passo 4).
+
+        Passe os avanços já marcados neste nível em `escolhas`: uma multiclasse
+        libera o domínio novo e a carta do avanço CARTA_DOMINIO sai da lista.
+        """
+        f, proximo = self._ficha_com_escolhas(escolhas)
+        return self._listar_cartas(f, proximo, proximo)
+
+    def cartas_para_avanco(self, tier: int | None = None) -> list[CartaDeDominio]:
+        """Opções para o avanço CARTA_DOMINIO do próximo nível.
+
+        `tier` é o tier do quadradinho usado (padrão: o do próximo nível); ele
+        define o nível máximo da carta (4, 7 ou 10).
+        """
+        f, proximo = self._ficha_com_escolhas(())
+        tier = tier or self.bib.tier_do_nivel(proximo)
+        return self._listar_cartas(f, self._limite_carta_extra(tier, proximo), proximo)
+
+    def cartas_para_troca(self, antiga: str, escolhas: list[Escolha] = (),
+                          carta_do_nivel: str | None = None) -> list[CartaDeDominio]:
+        """Opções para trocar `antiga` no próximo nível (nível igual ou menor que ela).
+
+        `carta_do_nivel` é a carta já escolhida no passo 4, que sai da lista.
+        """
+        f, proximo = self._ficha_com_escolhas(escolhas)
+        if antiga not in f.cartas:
+            raise RegraViolada("Você só pode trocar uma carta que já tem.")
+        if carta_do_nivel:
+            f.cartas.append(carta_do_nivel)
+        return self._listar_cartas(f, self.bib.cartas[antiga].nivel, proximo)
+
+    # --- Cartas: loadout e cofre -----------------------------------------------
+
+    def guardar_carta(self, carta: str) -> Ficha:
+        """Move uma carta do loadout para o cofre (sem custo)."""
+        if carta not in self._ficha_base().cartas:
+            raise RegraViolada("Você só pode guardar uma carta que tem.")
+        if carta in self.cofre:
+            raise RegraViolada(f"{self._nome(self.bib.cartas, carta)} já está no cofre.")
+        self.cofre.append(carta)
+        return self.ficha()
+
+    def recuperar_carta(self, carta: str, no_lugar_de: str | None = None,
+                        em_descanso: bool = False) -> int:
+        """Traz uma carta do cofre para o loadout e devolve o custo em Estresse.
+
+        Fora de um descanso, custa o Recall Cost da carta; no descanso é grátis.
+        Com o loadout cheio, informe em `no_lugar_de` a carta que vai para o cofre.
+        O motor ainda não controla Estresse marcado: quem chama aplica o custo.
+        """
+        if carta not in self.cofre:
+            raise RegraViolada(f"{self._nome(self.bib.cartas, carta)} não está no cofre.")
+        ativas = [c for c in self._ficha_base().cartas if c not in self.cofre]
+        if no_lugar_de is not None and no_lugar_de not in ativas:
+            raise RegraViolada("A carta que sai precisa estar no loadout.")
+        if no_lugar_de is None and len(ativas) >= self._limite_loadout:
+            raise RegraViolada(f"Loadout cheio ({self._limite_loadout}): escolha uma carta para guardar.")
+        self.cofre.remove(carta)
+        if no_lugar_de is not None:
+            self.cofre.append(no_lugar_de)
+        return 0 if em_descanso else self.bib.cartas[carta].custo_recall
 
     def opcoes_disponiveis(self) -> list[dict]:
         """Avanços que ainda podem ser marcados no PRÓXIMO nível."""
@@ -383,8 +464,7 @@ class Personagem:
             for x in e.experiencias:
                 f.experiencias[x] += 1
         elif o is Opcao.CARTA_DOMINIO:
-            limite = min(nivel, self.bib.progressao["nivel_maximo_carta_extra_por_tier"][str(tier)])
-            self._validar_nova_carta(f, e.carta, limite, nivel)
+            self._validar_nova_carta(f, e.carta, self._limite_carta_extra(tier, nivel), nivel)
             f.cartas.append(e.carta)
         elif o is Opcao.EVASAO:
             f.evasao += 1
@@ -415,17 +495,64 @@ class Personagem:
         f.multiclasse_bloqueada = True             # risca as outras multiclasses
         f.subclasse_bloqueada_tiers.add(tier)      # risca a subclasse deste tier
 
+    @property
+    def _limite_loadout(self) -> int:
+        return self.bib.progressao["limite_loadout"]
+
+    def _ajustar_cofre(self):
+        """Mantém o cofre coerente depois que o histórico muda.
+
+        Tira do cofre cartas que o personagem não tem mais (ex.: nível
+        desfeito) e, se o loadout passar do limite, manda para o cofre as
+        cartas ativas mais recentes (é assim que uma carta nova "cai" no cofre).
+        """
+        cartas = self._ficha_base().cartas
+        self.cofre = [c for c in self.cofre if c in cartas]
+        ativas = [c for c in cartas if c not in self.cofre]
+        while len(ativas) > self._limite_loadout:
+            self.cofre.append(ativas.pop())
+
+    def _carta_permitida(self, f: Ficha, carta: CartaDeDominio, nivel_maximo: int,
+                         nivel: int) -> bool:
+        """Regra única de acesso a cartas, usada na validação E nas listagens."""
+        if carta.dominio in self.bib.classes[f.classe].dominios and carta.nivel <= nivel_maximo:
+            return True
+        # domínio da multiclasse: no máximo metade do nível
+        return bool(f.multiclasse and carta.dominio == f.multiclasse["dominio"]
+                    and carta.nivel <= min(nivel_maximo, nivel // 2))
+
     def _validar_nova_carta(self, f: Ficha, carta_id, nivel_maximo: int, nivel: int):
         carta = self._exigir(self.bib.cartas, carta_id, "Carta")
         if carta_id in f.cartas:
             raise RegraViolada(f"Você já tem {carta.nome}.")
-        dominios = self.bib.classes[f.classe].dominios
-        if carta.dominio in dominios and carta.nivel <= nivel_maximo:
-            return
-        if (f.multiclasse and carta.dominio == f.multiclasse["dominio"]
-                and carta.nivel <= min(nivel_maximo, nivel // 2)):
-            return
-        raise RegraViolada(f"{carta.nome} (nível {carta.nivel}, {carta.dominio}) não está disponível.")
+        if not self._carta_permitida(f, carta, nivel_maximo, nivel):
+            raise RegraViolada(f"{carta.nome} (nível {carta.nivel}, {carta.dominio}) não está disponível.")
+
+    def _listar_cartas(self, f: Ficha, nivel_maximo: int, nivel: int) -> list[CartaDeDominio]:
+        return sorted(
+            (c for c in self.bib.cartas.values()
+             if c.id not in f.cartas and self._carta_permitida(f, c, nivel_maximo, nivel)),
+            key=lambda c: (c.nivel, c.dominio, c.nome),
+        )
+
+    def _limite_carta_extra(self, tier: int, nivel: int) -> int:
+        return min(nivel, self.bib.progressao["nivel_maximo_carta_extra_por_tier"][str(tier)])
+
+    def _ficha_com_escolhas(self, escolhas) -> tuple[Ficha, int]:
+        """Ficha base com os avanços do PRÓXIMO nível já aplicados.
+
+        Serve para as listagens enxergarem o que o jogador já marcou neste
+        nível: uma multiclasse recém-escolhida libera o domínio novo, e a carta
+        pega pelo avanço CARTA_DOMINIO some da lista do passo 4.
+        """
+        f = self._ficha_base()
+        proximo = f.nivel + 1
+        if proximo > self.bib.progressao["nivel_maximo"]:
+            raise RegraViolada("Nível máximo atingido.")
+        tier = self.bib.tier_do_nivel(proximo)
+        for e in escolhas:
+            self._aplicar_escolha(f, e, tier, proximo)
+        return f, proximo
 
     def _trocar_carta(self, f: Ficha, antiga: str, nova: str):
         if antiga not in f.cartas:

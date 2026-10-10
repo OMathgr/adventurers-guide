@@ -84,6 +84,39 @@ Armadura, limiar grave, ataque, traços). Os valores vêm do próprio SRD, entã
   O traço é checado com todo o equipamento aplicado.
 - Versatile fica só como texto: escolher o perfil alternativo é decisão de mesa.
 
+## Cartas de domínio
+
+### O que dá para escolher
+
+Uma única regra de acesso (`_carta_permitida`) serve à validação e às
+listagens, então a interface nunca oferece uma carta que o motor recusaria
+(há um teste que confere isso carta por carta).
+
+| Método | Para quê | Nível máximo da carta |
+|---|---|---|
+| `cartas_para_nivel(escolhas)` | carta obrigatória do passo 4 | nível do personagem |
+| `cartas_para_avanco(tier)` | avanço CARTA_DOMINIO | nível, limitado a 4/7/10 pelo tier do quadradinho |
+| `cartas_para_troca(antiga, ...)` | troca opcional do passo 4 | nível da carta antiga |
+
+Domínio da multiclasse: no máximo metade do nível. As listagens recebem os
+avanços já marcados no nível (`escolhas`), para que uma multiclasse recém-
+escolhida libere o domínio novo e a carta do avanço saia da lista do passo 4.
+Marcando CARTA_DOMINIO, o nível rende duas cartas (avanço + passo 4).
+
+### Loadout e cofre (estado atual, fora do histórico)
+
+Como o equipamento, mudar o que está ativo acontece em jogo. O `Personagem`
+guarda só `cofre` (vault); toda carta que ele tem e não está no cofre está no
+loadout. A ficha mostra `cartas_ativas` e `cartas_cofre`.
+
+- Limite do loadout em `progressao.json` (`limite_loadout`: 5).
+- Carta nova entra no loadout; se ele estiver cheio, vai para o cofre.
+- Troca de uma carta que estava no cofre: a nova fica no cofre.
+- `guardar_carta` é grátis. `recuperar_carta` devolve o custo em Estresse
+  (Recall Cost; 0 em descanso). Com o loadout cheio, exige `no_lugar_de`.
+- O motor ainda não controla Estresse marcado: quem chama aplica o custo.
+- Desfazer um nível tira do cofre as cartas que deixaram de existir.
+
 ## Rolagem de conjuração
 
 `Ficha.conjuracoes` traz uma `Conjuracao` por subclasse que conjura: a
