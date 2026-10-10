@@ -92,7 +92,7 @@ def test_multiclasse(bardo_nivel_4):
     f = bardo.subir_de_nivel(SubidaDeNivel(
         5, [Escolha(Opcao.MULTICLASSE, classe="core_class_warrior", dominio="BLADE",
                     subclasse="core_subclass_call_of_the_brave")],
-        carta="core_domain_card_get_back_up",  # BLADE nível 1 <= 5 // 2
+        carta="core_domain_card_get_back_up",  # BLADE nível 1 <= metade de 5
         nova_experiencia="Y"))
     assert f.multiclasse["dominio"] == "BLADE"
     assert "core_domain_card_get_back_up" in f.cartas
@@ -101,14 +101,19 @@ def test_multiclasse(bardo_nivel_4):
     assert (4, Opcao.MULTICLASSE) not in opcoes
 
 
+def _multiclasse_guerreiro_nivel_5(carta):
+    return SubidaDeNivel(
+        5, [Escolha(Opcao.MULTICLASSE, classe="core_class_warrior", dominio="BLADE",
+                    subclasse="core_subclass_call_of_the_brave")],
+        carta=carta, nova_experiencia="Y")
+
+
 def test_carta_multiclasse_limitada_a_metade_do_nivel(bardo_nivel_4):
-    bardo = bardo_nivel_4
+    # SRD: "half your level or lower (rounded up)". No nível 5: até nível 3.
     with pytest.raises(RegraViolada, match="não está disponível"):
-        bardo.subir_de_nivel(SubidaDeNivel(
-            5, [Escolha(Opcao.MULTICLASSE, classe="core_class_warrior", dominio="BLADE",
-                        subclasse="core_subclass_call_of_the_brave")],
-            carta="core_domain_card_scramble",  # BLADE nível 3 > 5 // 2
-            nova_experiencia="Y"))
+        bardo_nivel_4.subir_de_nivel(_multiclasse_guerreiro_nivel_5("core_domain_card_deadly_focus"))  # 4
+    f = bardo_nivel_4.subir_de_nivel(_multiclasse_guerreiro_nivel_5("core_domain_card_scramble"))     # 3
+    assert "core_domain_card_scramble" in f.cartas
 
 
 def test_desfazer_e_ficha_em_nivel_passado(bardo_nivel_4):

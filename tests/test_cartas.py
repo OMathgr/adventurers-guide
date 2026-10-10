@@ -52,7 +52,7 @@ def test_multiclasse_marcada_no_nivel_libera_dominio_novo(bardo_nivel_4):
     com = bardo_nivel_4.cartas_para_nivel([MULTICLASSE_MAGO])
     assert not any(c.dominio == "SPLENDOR" for c in sem)
     esplendor = [c for c in com if c.dominio == "SPLENDOR"]
-    assert esplendor and all(c.nivel <= 5 // 2 for c in esplendor)
+    assert esplendor and max(c.nivel for c in esplendor) == 3   # metade de 5, arredondada para cima
 
 
 def test_carta_do_avanco_sai_da_lista_do_passo_4(bardo):

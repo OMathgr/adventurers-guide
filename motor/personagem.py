@@ -537,9 +537,10 @@ class Personagem:
         """Regra única de acesso a cartas, usada na validação E nas listagens."""
         if carta.dominio in self.bib.classes[f.classe].dominios and carta.nivel <= nivel_maximo:
             return True
-        # domínio da multiclasse: no máximo metade do nível
+        # domínio da multiclasse: "half your level or lower (rounded up)"
+        metade = (nivel + 1) // 2
         return bool(f.multiclasse and carta.dominio == f.multiclasse["dominio"]
-                    and carta.nivel <= min(nivel_maximo, nivel // 2))
+                    and carta.nivel <= min(nivel_maximo, metade))
 
     def _validar_nova_carta(self, f: Ficha, carta_id, nivel_maximo: int, nivel: int):
         carta = self._exigir(self.bib.cartas, carta_id, "Carta")

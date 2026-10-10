@@ -39,7 +39,8 @@ Restrições checadas:
 - traço marcado não sobe até a próxima conquista de tier;
 - pegar Subclasse risca a Multiclasse do mesmo tier;
 - Multiclasse risca a Subclasse do tier e todas as outras Multiclasses;
-- cartas do domínio da multiclasse têm nível ≤ metade do seu nível;
+- cartas do domínio da multiclasse têm nível ≤ metade do seu nível,
+  arredondada para cima (nível 5 → até nível 3);
 - PV e Estresse no máximo 12.
 
 ## Equipamento (estado atual, fora do histórico)
@@ -98,7 +99,7 @@ listagens, então a interface nunca oferece uma carta que o motor recusaria
 | `cartas_para_avanco(tier)` | avanço CARTA_DOMINIO | nível, limitado a 4/7/10 pelo tier do quadradinho |
 | `cartas_para_troca(antiga, ...)` | troca opcional do passo 4 | nível da carta antiga |
 
-Domínio da multiclasse: no máximo metade do nível. As listagens recebem os
+Domínio da multiclasse: no máximo metade do nível, arredondada para cima. As listagens recebem os
 avanços já marcados no nível (`escolhas`), para que uma multiclasse recém-
 escolhida libere o domínio novo e a carta do avanço saia da lista do passo 4.
 Marcando CARTA_DOMINIO, o nível rende duas cartas (avanço + passo 4).
@@ -179,9 +180,12 @@ Bônus = traço de conjuração já com modificadores de equipamento (ex.: Gilde
 
 ## Pendências conhecidas
 
-- **Conferir `progressao.json` com a ficha oficial impressa** (número de
-  quadradinhos por opção em cada tier). Os dados vieram da ficha e de um
-  compêndio do SRD, mas vale a checagem manual.
+- `progressao.json` conferido (2026-10-09) com o SRD e a ficha oficial.
+  Duas diferenças de redação entre as fontes; o motor segue o SRD:
+  - Multiclasse risca a subclasse **deste tier** (SRD). A ficha diz "an
+    unused 'Take an upgraded subclass card'" (qualquer tier).
+  - Avanços podem vir de **qualquer tier anterior** (SRD: "your tier or
+    below"). A ficha diz "any from the previous tier".
 - Existe um SRD 2.0 (agosto/2026) com classes novas. Os JSON atuais são do 1.0.
   Como o motor só fala com a `Biblioteca`, a troca fica isolada em `srd.py`.
 - Inventário (itens, ouro, consumíveis) ainda não existe.
