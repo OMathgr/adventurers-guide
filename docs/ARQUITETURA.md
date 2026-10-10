@@ -141,6 +141,11 @@ excesso. A ficha mostra `pv_marcados`, `estresse_marcado`,
 - **Limite:** depois de 3 descansos curtos seguidos, o próximo precisa ser
   longo (`descansos_curtos_seguidos` em `progressao.json`). O SRD fala do
   grupo; o motor controla por personagem.
+- **Condições:** `aplicar_condicao` / `remover_condicao`. As padrão do SRD
+  (Hidden, Restrained, Vulnerable) viram `Condicao.OCULTO/CONTIDO/VULNERAVEL`
+  (aceita o nome em inglês ou português); outros nomes ficam como condição de
+  característica, em texto. Duram até serem removidas. Os efeitos (vantagem,
+  desvantagem, não se mover) são resolvidos na mesa.
 
 ### Características com regra própria (`Efeito`)
 
@@ -282,9 +287,33 @@ Documentação interativa em `/docs`.
 - `Base.metadata` tem convenção de nomes para índices e restrições (o
   Alembic precisa deles para alterar tabelas no SQLite).
 
-Ainda não: renovação de token (refresh) e "esqueci minha senha", mesas e
-papéis (o mestre ver os personagens da mesa), controle de concorrência
-entre duas edições simultâneas do mesmo personagem.
+### Mesas (`api/mesas.py` e `api/rotas/mesas.py`)
+
+- Tabelas `mesas` (nome, criador, código de convite, permissões dos mestres
+  em JSON) e `membros_mesa` (papel `jogador` ou `mestre`).
+  `personagens.mesa_id`: **uma mesa por vez** (apagar a mesa só desvincula).
+- **Entrada:** pelo código de 8 caracteres exibido na mesa (sem 0/O/1/I/L);
+  o link do convite usa o mesmo código (`POST /mesas/entrar/{codigo}`). Entra
+  como jogador. O criador pode gerar um código novo, invalidando o antigo.
+- **Papéis:** o criador é mestre e é o único que administra (renomear,
+  apagar, mudar papéis, remover membros, novo código, permissões). Ele
+  escolhe quem é mestre e liga/desliga cada permissão **para todos os
+  mestres de uma vez**: `ver_fichas`, `aplicar_dano`, `aplicar_condicoes`.
+  O criador pode tudo, sempre.
+- **Mestre só lê e age em jogo:** vê a ficha, aplica dano e condições pelas
+  rotas `/mesas/{id}/personagens/{pid}/...`. As rotas de edição do
+  personagem continuam só do dono (para o mestre, o personagem "não existe"
+  ali: 404).
+- **Acesso:** quem não é membro recebe 404 na mesa; membro sem permissão,
+  403. Sair ou ser removido desvincula os personagens daquele jogador.
+- O repositório separa achar a linha (`linha_do_dono`, `linha_na_mesa`) de
+  montar/gravar o personagem (`montar`, `gravar`), para dono e mestre usarem
+  o mesmo caminho.
+
+Ainda não: renovação de token (refresh) e "esqueci minha senha", jogadores
+verem as fichas uns dos outros, controle de concorrência entre duas edições
+simultâneas do mesmo personagem (ex.: mestre aplica dano enquanto o jogador
+descansa), atualização em tempo real.
 
 ## Pendências conhecidas
 

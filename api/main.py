@@ -9,8 +9,9 @@ from fastapi.responses import JSONResponse
 
 from motor import RegraViolada
 
+from .mesas import SemPermissao
 from .repositorio import NaoEncontrado
-from .rotas import auth, personagens, sessao, srd
+from .rotas import auth, mesas, personagens, sessao, srd
 
 app = FastAPI(
     title="Adventurer's Guide",
@@ -21,6 +22,7 @@ app.include_router(auth.rotas)
 app.include_router(srd.rotas)
 app.include_router(personagens.rotas)
 app.include_router(sessao.rotas)
+app.include_router(mesas.rotas)
 
 
 @app.exception_handler(RegraViolada)
@@ -32,3 +34,8 @@ def regra_violada(_: Request, erro: RegraViolada):
 @app.exception_handler(NaoEncontrado)
 def nao_encontrado(_: Request, erro: NaoEncontrado):
     return JSONResponse(status_code=404, content={"detail": str(erro)})
+
+
+@app.exception_handler(SemPermissao)
+def sem_permissao(_: Request, erro: SemPermissao):
+    return JSONResponse(status_code=403, content={"detail": str(erro)})

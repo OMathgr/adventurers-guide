@@ -2,7 +2,8 @@ import random
 
 import pytest
 
-from motor import Escolha, Gravidade, Movimento, Opcao, RegraViolada, SubidaDeNivel
+from motor import (Condicao, Escolha, Gravidade, Movimento, Opcao, Personagem, RegraViolada,
+                   SubidaDeNivel)
 
 # Bardo nível 1: 5 PV, 6 Estresse, Esperança 2.
 # Com armadura de couro: limiares 7 / 14, Pontuação de Armadura 3.
@@ -130,6 +131,28 @@ def test_descanso_longo_limpa_tudo(bardo_de_couro):
     assert (sessao.pv_marcados, sessao.estresse_marcado, sessao.armadura_marcada) == (0, 0, 1)
     sessao.descanso_longo([Movimento.REPARAR_ARMADURA, Movimento.PREPARAR_EM_GRUPO])
     assert (sessao.armadura_marcada, sessao.esperanca) == (0, 4)
+
+
+def test_condicoes_padrao_e_de_caracteristica(bardo):
+    s = bardo.sessao
+    assert s.aplicar_condicao(Condicao.VULNERAVEL) == "VULNERAVEL"
+    assert s.aplicar_condicao("Hidden") == "OCULTO"          # nome do SRD
+    assert s.aplicar_condicao("contido") == "CONTIDO"        # nome em português
+    assert s.aplicar_condicao("Enfeitiçado") == "Enfeitiçado"   # de uma característica
+    assert bardo.ficha().condicoes == ["VULNERAVEL", "OCULTO", "CONTIDO", "Enfeitiçado"]
+    with pytest.raises(RegraViolada, match="já está"):
+        s.aplicar_condicao("vulnerable")
+    s.remover_condicao("hidden")
+    with pytest.raises(RegraViolada, match="não está"):
+        s.remover_condicao(Condicao.OCULTO)
+    assert bardo.ficha().condicoes == ["VULNERAVEL", "CONTIDO", "Enfeitiçado"]
+
+
+def test_condicoes_sobrevivem_a_salvar_e_restaurar(bib, criacao_bardo, bardo):
+    bardo.sessao.aplicar_condicao(Condicao.CONTIDO)
+    copia = Personagem(bib, criacao_bardo)
+    copia.restaurar_estado(bardo.estado())
+    assert copia.ficha().condicoes == ["CONTIDO"]
 
 
 def test_tres_descansos_curtos_seguidos_exigem_um_longo(bardo):

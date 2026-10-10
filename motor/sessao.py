@@ -32,6 +32,15 @@ class Gravidade(int, Enum):
     MASSIVO = 4    # regra opcional: a partir do dobro do limiar grave
 
 
+class Condicao(str, Enum):
+    """Condições padrão do SRD. Características podem criar outras
+    ("temporary conditions"); essas entram como texto livre."""
+
+    OCULTO = "OCULTO"          # Hidden: rolagens contra você têm desvantagem
+    CONTIDO = "CONTIDO"        # Restrained: não pode se mover
+    VULNERAVEL = "VULNERAVEL"  # Vulnerable: rolagens contra você têm vantagem
+
+
 class Movimento(str, Enum):
     """Movimentos de descanso (downtime). Cada descanso permite dois."""
 
@@ -89,6 +98,8 @@ class Sessao:
         # companheiro do Beastbound
         self.companheiro_estresse = 0
         self.companheiro_fora = False
+        # Condições atuais: as padrão (Condicao.value) e as de características (texto)
+        self.condicoes: list[str] = []
 
     # --- Dano e PV --------------------------------------------------------------
 
@@ -422,6 +433,24 @@ class Sessao:
         else:
             notas.append(f"Bonded: {comp.nome} rolou {dados}, sem 6")
 
+    # --- Condições -------------------------------------------------------------------
+
+    def aplicar_condicao(self, condicao: Condicao | str) -> str:
+        """Aplica uma condição. Nomes das padrão (Hidden/OCULTO...) viram o
+        valor do enum; outros nomes ficam como condição de característica.
+        Condições duram até serem removidas (o SRD não dá prazo fixo)."""
+        nome = _normalizar_condicao(condicao)
+        if nome in self.condicoes:
+            raise RegraViolada(f"O personagem já está com a condição {nome}.")
+        self.condicoes.append(nome)
+        return nome
+
+    def remover_condicao(self, condicao: Condicao | str):
+        nome = _normalizar_condicao(condicao)
+        if nome not in self.condicoes:
+            raise RegraViolada(f"O personagem não está com a condição {nome}.")
+        self.condicoes.remove(nome)
+
     # --- Persistência -------------------------------------------------------------------
 
     def estado(self) -> dict:
@@ -435,6 +464,7 @@ class Sessao:
             "descansos_curtos_seguidos": self.descansos_curtos_seguidos,
             "companheiro_estresse": self.companheiro_estresse,
             "companheiro_fora": self.companheiro_fora,
+            "condicoes": list(self.condicoes),
             "usados_no_descanso": sorted(f"{type(e).__name__}:{e.value}"
                                          for e in self.usados_no_descanso),
         }
@@ -445,6 +475,7 @@ class Sessao:
                       "dano_massivo", "descansos_curtos_seguidos", "companheiro_estresse",
                       "companheiro_fora"):
             setattr(self, campo, estado[campo])
+        self.condicoes = list(estado.get("condicoes", []))
         self.usados_no_descanso = set()
         for item in estado["usados_no_descanso"]:
             tipo, valor = item.split(":", 1)
@@ -480,3 +511,20 @@ class Sessao:
         if quantidade < 0:
             raise RegraViolada("Quantidade não pode ser negativa.")
 
+
+_NOMES_SRD = {"HIDDEN": Condicao.OCULTO, "RESTRAINED": Condicao.CONTIDO,
+              "VULNERABLE": Condicao.VULNERAVEL}
+
+
+def _normalizar_condicao(condicao: Condicao | str) -> str:
+    if isinstance(condicao, Condicao):
+        return condicao.value
+    nome = condicao.strip()
+    if not nome:
+        raise RegraViolada("Informe o nome da condição.")
+    chave = nome.upper()
+    if chave in Condicao.__members__:
+        return Condicao[chave].value
+    if chave in _NOMES_SRD:
+        return _NOMES_SRD[chave].value
+    return nome   # condição de característica: mantém como escrita

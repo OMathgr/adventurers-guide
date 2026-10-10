@@ -45,6 +45,17 @@ class PersonagemResumo(BaseModel):
     nome: str
     nivel: int
     classe: str
+    mesa_id: str | None = None
+
+
+class VinculoMesa(BaseModel):
+    mesa_id: str | None
+
+
+class CondicaoEntrada(BaseModel):
+    condicao: str = Field(min_length=1, max_length=60,
+                          description="OCULTO, CONTIDO, VULNERAVEL (ou Hidden...) ou o nome "
+                                      "de uma condição de característica")
 
 
 # --- Corpos das ações ------------------------------------------------------------------

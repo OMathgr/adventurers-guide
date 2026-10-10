@@ -48,7 +48,11 @@ def criar(banco: Session, dono_id: str, criacao: Criacao) -> tuple[str, Personag
 
 
 def carregar(banco: Session, dono_id: str, personagem_id: str) -> Personagem:
-    linha = _linha(banco, dono_id, personagem_id)
+    return montar(_linha(banco, dono_id, personagem_id))
+
+
+def montar(linha: PersonagemTabela) -> Personagem:
+    """Refaz o personagem de uma linha já autorizada (pelo dono ou pela mesa)."""
     personagem = Personagem(biblioteca(), _CRIACAO.validate_python(linha.criacao))
     for subida in linha.subidas:
         personagem.subir_de_nivel(_SUBIDA.validate_python(subida.dados))
@@ -58,8 +62,11 @@ def carregar(banco: Session, dono_id: str, personagem_id: str) -> Personagem:
 
 
 def salvar(banco: Session, dono_id: str, personagem_id: str, personagem: Personagem):
+    gravar(banco, _linha(banco, dono_id, personagem_id), personagem)
+
+
+def gravar(banco: Session, linha: PersonagemTabela, personagem: Personagem):
     """Grava o estado atual e sincroniza as subidas de nível com o histórico."""
-    linha = _linha(banco, dono_id, personagem_id)
     estado = personagem.estado()
     linha.equipamento, linha.cofre, linha.sessao = (
         estado["equipamento"], estado["cofre"], estado["sessao"])
@@ -86,6 +93,18 @@ def listar(banco: Session, dono_id: str) -> list[PersonagemTabela]:
 def apagar(banco: Session, dono_id: str, personagem_id: str):
     banco.delete(_linha(banco, dono_id, personagem_id))
     banco.commit()
+
+
+def linha_do_dono(banco: Session, dono_id: str, personagem_id: str) -> PersonagemTabela:
+    return _linha(banco, dono_id, personagem_id)
+
+
+def linha_na_mesa(banco: Session, mesa_id: str, personagem_id: str) -> PersonagemTabela:
+    """Para o mestre: o personagem precisa estar vinculado a esta mesa."""
+    linha = banco.get(PersonagemTabela, personagem_id)
+    if linha is None or linha.mesa_id != mesa_id:
+        raise NaoEncontrado(f"Personagem {personagem_id} não está nesta mesa.")
+    return linha
 
 
 def _linha(banco: Session, dono_id: str, personagem_id: str) -> PersonagemTabela:

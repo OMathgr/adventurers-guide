@@ -8,7 +8,7 @@ from fastapi import APIRouter, Depends
 from motor import Personagem, Sessao
 
 from ..autenticacao import Acesso, acesso
-from ..esquemas import (Conforto, Dano, DanoCompanheiro, DanoSaida, Descanso, DescansoSaida,
+from ..esquemas import (CondicaoEntrada, Conforto, Dano, DanoCompanheiro, DanoSaida, Descanso, DescansoSaida,
                         Estresse, FichaSaida, GastarEsperanca, Quantidade, RegrasDaMesa,
                         ficha_saida)
 from .personagens import executar
@@ -111,3 +111,13 @@ def regras_da_mesa(personagem_id: str, pedido: RegrasDaMesa,
                    a: Acesso = Depends(acesso)):
     """Regras opcionais. Hoje por personagem; depois virão da mesa."""
     return na_sessao(a, personagem_id, lambda s: setattr(s, "dano_massivo", pedido.dano_massivo))
+
+
+@rotas.post("/condicoes", response_model=FichaSaida)
+def aplicar_condicao(personagem_id: str, pedido: CondicaoEntrada, a: Acesso = Depends(acesso)):
+    return na_sessao(a, personagem_id, lambda s: s.aplicar_condicao(pedido.condicao))
+
+
+@rotas.delete("/condicoes/{condicao}", response_model=FichaSaida)
+def remover_condicao(personagem_id: str, condicao: str, a: Acesso = Depends(acesso)):
+    return na_sessao(a, personagem_id, lambda s: s.remover_condicao(condicao))

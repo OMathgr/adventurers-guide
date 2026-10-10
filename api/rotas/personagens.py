@@ -6,12 +6,13 @@ from typing import TypeVar
 
 from fastapi import APIRouter, Depends, Response
 
-from motor import CartaDeDominio, Criacao, Personagem, SubidaDeNivel
+from motor import CartaDeDominio, Criacao, Personagem, RegraViolada, SubidaDeNivel
 
 from .. import repositorio
 from ..autenticacao import Acesso, acesso
 from ..esquemas import (EquipamentoEntrada, FichaSaida, OpcoesDeCarta, PersonagemCriado,
-                        PersonagemResumo, RecuperarCarta, ficha_saida)
+                        PersonagemResumo, RecuperarCarta, VinculoMesa, ficha_saida)
+from ..mesas import membro
 
 rotas = APIRouter(prefix="/personagens", tags=["Personagens"])
 T = TypeVar("T")
@@ -36,7 +37,8 @@ def criar(criacao: Criacao, a: Acesso = Depends(acesso)):
 def listar(a: Acesso = Depends(acesso)):
     # resumo direto do banco, sem refazer cada personagem
     return [PersonagemResumo(id=p.id, nome=p.nome, nivel=1 + len(p.subidas),
-                             classe=p.criacao["classe"]) for p in repositorio.listar(a.banco, a.usuario_id)]
+                             classe=p.criacao["classe"], mesa_id=p.mesa_id)
+            for p in repositorio.listar(a.banco, a.usuario_id)]
 
 
 @rotas.get("/{personagem_id}", response_model=FichaSaida)
@@ -112,3 +114,21 @@ def recuperar_carta(personagem_id: str, carta: str, pedido: RecuperarCarta,
         p.recuperar_carta(carta, pedido.no_lugar_de, pedido.em_descanso)
         return p.ficha()
     return ficha_saida(executar(a, personagem_id, acao))
+
+
+# --- Mesa ----------------------------------------------------------------------------------
+
+@rotas.put("/{personagem_id}/mesa", response_model=PersonagemResumo)
+def vincular_mesa(personagem_id: str, pedido: VinculoMesa, a: Acesso = Depends(acesso)):
+    """Leva o personagem para uma mesa da qual você participa (`mesa_id`), ou
+    tira de qualquer mesa (`mesa_id: null`). Uma mesa por vez: para trocar,
+    desvincule antes."""
+    linha = repositorio.linha_do_dono(a.banco, a.usuario_id, personagem_id)
+    if pedido.mesa_id is not None:
+        membro(a.banco, pedido.mesa_id, a.usuario_id)   # precisa participar da mesa
+        if linha.mesa_id not in (None, pedido.mesa_id):
+            raise RegraViolada("O personagem já está em outra mesa; desvincule antes.")
+    linha.mesa_id = pedido.mesa_id
+    a.banco.commit()
+    return PersonagemResumo(id=linha.id, nome=linha.nome, nivel=1 + len(linha.subidas),
+                            classe=linha.criacao["classe"], mesa_id=linha.mesa_id)

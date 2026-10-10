@@ -6,12 +6,14 @@ workspace colaborativo estilo mapa mental (mestre vê informações confidenciai
 e construtor de personagem com visão de ficha e visão de linha do tempo.
 
 ## Estado atual
-Fase 1 (motor de regras em Python puro, `motor/`) concluída. Fase 2 em
-andamento: API FastAPI em `api/`, com SQLite local (PostgreSQL depois, só
-trocando `DATABASE_URL`). Já tem personagens salvos, cadastro e login (JWT,
-cada usuário vê só os seus personagens); mesas e papéis vêm a seguir. Leia `docs/ARQUITETURA.md` antes de mudar a modelagem. O personagem
-é guardado como criação + histórico de subidas de nível; a ficha é sempre
-recalculada.
+Fase 1 (motor de regras em Python puro, `motor/`) e fase 2 (API FastAPI em
+`api/`) concluídas. A API usa SQLite local (PostgreSQL depois, só trocando
+`DATABASE_URL`) e tem personagens salvos, cadastro e login (JWT) e mesas
+(convite por código, jogador/mestre, permissões dos mestres definidas pelo
+criador; o mestre só lê fichas e aplica dano e condições). Próxima: fase 3,
+interface web. Leia `docs/ARQUITETURA.md` antes de mudar a modelagem. O
+personagem é guardado como criação + histórico de subidas de nível; a ficha
+é sempre recalculada.
 
 ## Convenções
 - Python 3.10+, nomes do domínio em português (`Personagem`, `SubidaDeNivel`).

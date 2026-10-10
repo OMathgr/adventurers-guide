@@ -161,6 +161,7 @@ class Ficha:
     segunda_ancestralidade: str | None = None
     caracteristicas_ancestralidade: list[Caracteristica] = field(default_factory=list)
     companheiro: FichaCompanheiro | None = None
+    condicoes: list[str] = field(default_factory=list)   # estado de sessão
 
 
 class Personagem:
@@ -192,6 +193,7 @@ class Personagem:
         f.estresse_marcado = min(s.estresse_marcado, f.estresse_max)
         f.armadura_marcada = min(s.armadura_marcada, f.pontuacao_armadura)
         f.esperanca = s.esperanca
+        f.condicoes = list(s.condicoes)
         # Reinforced: com o último espaço marcado, limiares +2 até limpar um espaço
         if (Efeito.REFORCADA in self.efeitos_ativos()
                 and 0 < f.pontuacao_armadura <= f.armadura_marcada):

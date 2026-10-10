@@ -30,11 +30,43 @@ class UsuarioTabela(Base):
         back_populates="dono", cascade="all, delete-orphan", passive_deletes=True)
 
 
+class MesaTabela(Base):
+    __tablename__ = "mesas"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    nome: Mapped[str] = mapped_column(String(120))
+    criador_id: Mapped[str] = mapped_column(ForeignKey("usuarios.id", ondelete="CASCADE"), index=True)
+    codigo_convite: Mapped[str] = mapped_column(String(16), unique=True, index=True)
+    # o que TODOS os mestres podem fazer (o criador pode tudo): {"ver_fichas": true, ...}
+    permissoes_mestres: Mapped[dict] = mapped_column(JSON)
+    criado_em: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_agora)
+
+    membros: Mapped[list["MembroTabela"]] = relationship(
+        back_populates="mesa", cascade="all, delete-orphan", passive_deletes=True)
+    personagens: Mapped[list["PersonagemTabela"]] = relationship(back_populates="mesa")
+
+
+class MembroTabela(Base):
+    __tablename__ = "membros_mesa"
+
+    mesa_id: Mapped[str] = mapped_column(ForeignKey("mesas.id", ondelete="CASCADE"), primary_key=True)
+    usuario_id: Mapped[str] = mapped_column(ForeignKey("usuarios.id", ondelete="CASCADE"),
+                                            primary_key=True, index=True)
+    papel: Mapped[str] = mapped_column(String(16))   # "jogador" ou "mestre"
+    entrou_em: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_agora)
+
+    mesa: Mapped[MesaTabela] = relationship(back_populates="membros")
+    usuario: Mapped[UsuarioTabela] = relationship()
+
+
 class PersonagemTabela(Base):
     __tablename__ = "personagens"
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True)
     dono_id: Mapped[str] = mapped_column(ForeignKey("usuarios.id", ondelete="CASCADE"), index=True)
+    # uma mesa por vez; apagar a mesa só desvincula o personagem
+    mesa_id: Mapped[str | None] = mapped_column(ForeignKey("mesas.id", ondelete="SET NULL"),
+                                                index=True, nullable=True)
     nome: Mapped[str] = mapped_column(String(120), default="")
     criacao: Mapped[dict] = mapped_column(JSON)          # motor.Criacao
     equipamento: Mapped[dict] = mapped_column(JSON)      # motor.Equipamento
@@ -45,6 +77,7 @@ class PersonagemTabela(Base):
                                                     onupdate=_agora)
 
     dono: Mapped[UsuarioTabela] = relationship(back_populates="personagens")
+    mesa: Mapped[MesaTabela | None] = relationship(back_populates="personagens")
     subidas: Mapped[list["SubidaTabela"]] = relationship(
         back_populates="personagem", order_by="SubidaTabela.nivel",
         cascade="all, delete-orphan", passive_deletes=True)

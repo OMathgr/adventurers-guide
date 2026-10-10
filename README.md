@@ -9,8 +9,9 @@ Hoje tem duas camadas:
 - **API** (`api/`, FastAPI + SQLAlchemy): expõe o motor por HTTP e salva os
   personagens no banco (SQLite local; PostgreSQL trocando a `DATABASE_URL`).
 
-Tem cadastro e login (e-mail e senha, token JWT); cada usuário vê só os
-seus personagens. Ainda não tem mesas nem interface.
+Tem cadastro e login (e-mail e senha, token JWT) e mesas: entrada por
+código de convite, jogadores e mestres, e o mestre vê as fichas e aplica
+dano e condições nos personagens da mesa. Ainda não tem interface.
 
 ## Como rodar
 
@@ -46,7 +47,8 @@ motor/
   erros.py        # RegraViolada
 api/
   main.py         # aplicação FastAPI e tratamento de erros
-  rotas/          # auth (conta), srd (catálogo), personagens (construtor), sessao (jogo)
+  rotas/          # auth, srd (catálogo), personagens (construtor), sessao (jogo), mesas
+  mesas.py        # papéis e permissões das mesas
   seguranca.py    # hash de senha (Argon2) e tokens JWT
   autenticacao.py # dependência usuario_atual (quem está logado)
   repositorio.py  # Personagem <-> banco (carregar refaz o personagem pelo motor)
@@ -65,7 +67,7 @@ docs/ARQUITETURA.md
 ## Roadmap
 
 1. ~~Motor de regras~~
-2. API (FastAPI) + banco: ~~personagens salvos~~, ~~usuários e login~~, mesas e papéis (próximo)
+2. ~~API (FastAPI) + banco: personagens salvos, usuários e login, mesas e papéis~~
 3. Interface web do construtor: visão ficha + visão linha do tempo
 4. Workspace da mesa (mapa mental com visibilidade por papel)
 5. Colaboração em tempo real

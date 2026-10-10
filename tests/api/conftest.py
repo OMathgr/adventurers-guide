@@ -8,6 +8,17 @@ from api.main import app
 from dados_api import BARDO, entrar  # noqa: F401
 
 
+@pytest.fixture(autouse=True)
+def argon2_rapido(monkeypatch):
+    """Argon2 é lento de propósito; nos testes usamos parâmetros mínimos
+    (continua sendo Argon2, só mais barato). Produção não é afetada."""
+    from pwdlib import PasswordHash
+    from pwdlib.hashers.argon2 import Argon2Hasher
+    import api.seguranca
+    monkeypatch.setattr(api.seguranca, "_hash", PasswordHash(
+        (Argon2Hasher(time_cost=1, memory_cost=1024, parallelism=1),)))
+
+
 @pytest.fixture
 def anonimo():
     """Cliente sem login, com um banco SQLite em memória novo para cada teste."""

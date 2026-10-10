@@ -27,7 +27,7 @@ def test_personagem_inexistente(cliente):
 
 def test_listar(cliente, bardo_id):
     assert cliente.get("/personagens").json() == [
-        {"id": bardo_id, "nome": "Lira", "nivel": 1, "classe": "core_class_bard"}]
+        {"id": bardo_id, "nome": "Lira", "nivel": 1, "classe": "core_class_bard", "mesa_id": None}]
 
 
 def test_subir_de_nivel_persiste(cliente, bardo_id):
