@@ -2033,6 +2033,8 @@ export interface components {
             treinos?: components["schemas"]["Treino"][];
             /** Experiencia Companheiro */
             experiencia_companheiro?: string | null;
+            /** Para Reserva */
+            para_reserva?: string[];
         };
         /**
          * TipoAdversario

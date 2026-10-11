@@ -12,7 +12,7 @@ import type {
   AlvoFeroz, Escolha, Ficha, Opcao, OpcaoTreino, ProximoNivel, QuadroDeAvanco, Traco, Treino,
 } from '../api/tipos'
 import { useNomeDominio, useNomes } from '../lib/nomes'
-import { type AvancoMarcado, custoTotal, podeMarcar, treinosExigidos } from '../lib/regras'
+import { type AvancoMarcado, custoTotal, LIMITE_MAO, podeMarcar, treinosExigidos } from '../lib/regras'
 import { NOME_ALVO_FEROZ, NOME_OPCAO, NOME_TRACO, NOME_TREINO, TRACOS } from '../lib/rotulos'
 import QuadroAvanco, { type Interacao } from './QuadroAvanco'
 import { Aviso, Botao, Campo, Carregando, Escolhivel, Original, Selo } from './ui'
@@ -92,7 +92,9 @@ export default function EscolhaDeNivel({ id, ficha, proximo, quadros, aoConcluir
   const proximaChave = useRef(0)
   const [carta, setCarta] = useState<string>()
   const [troca, setTroca] = useState<{ antiga?: string; nova?: string } | null>(null)
+  const [paraReserva, setParaReserva] = useState<string[]>([])
   const subir = useSubirDeNivel(id)
+  const nomes = useNomes(ficha)
 
   const nTreinos = treinosExigidos(proximo, marcados)
   // a quantidade de treinos depende dos avanços (subclasse dá treino extra)
@@ -139,8 +141,15 @@ export default function EscolhaDeNivel({ id, ficha, proximo, quadros, aoConcluir
   const mudarDetalhe = (chave: string, parcial: Partial<Detalhe>) =>
     setDetalhes((d) => ({ ...d, [chave]: { ...(d[chave] ?? DETALHE_VAZIO), ...parcial } }))
 
+  // mão cheia: cartas antigas podem ir para a reserva sem custo para as novas entrarem
+  const cartasNovas = 1 + marcados.filter((m) => m.opcao === 'CARTA_DOMINIO').length
+  const excesso = ficha.cartas_ativas.length + cartasNovas - LIMITE_MAO
+  const maxReserva = Math.max(0, Math.min(excesso, cartasNovas))
+  const reservaValida = paraReserva.filter((c) => c !== troca?.antiga).slice(0, maxReserva)
+
   function confirmar() {
     subir.mutate({
+      para_reserva: reservaValida,
       nivel: proximo.nivel,
       escolhas,
       carta: carta!,
@@ -240,6 +249,28 @@ export default function EscolhaDeNivel({ id, ficha, proximo, quadros, aoConcluir
         )}
       </Secao>
 
+      {maxReserva > 0 && (
+        <Secao titulo="Mão cheia">
+          <p className="text-sm text-texto-suave">
+            A mão comporta {LIMITE_MAO} cartas. Escolha até {maxReserva} da mão para ir para a reserva sem
+            custo e deixar {maxReserva > 1 ? 'as novas' : 'a nova'} na mão. Sem escolher, a carta nova vai
+            para a reserva.
+          </p>
+          <div className="space-y-1">
+            {ficha.cartas_ativas.filter((c) => c !== troca?.antiga).map((c) => {
+              const marcada = reservaValida.includes(c)
+              return (
+                <label key={c} className="flex items-center gap-2 text-sm">
+                  <input type="checkbox" checked={marcada} disabled={!marcada && reservaValida.length >= maxReserva}
+                    onChange={() => setParaReserva(marcada ? reservaValida.filter((x) => x !== c) : [...reservaValida, c])} />
+                  {nomes.carta(c)?.nome ?? c}
+                </label>
+              )
+            })}
+          </div>
+        </Secao>
+      )}
+
       <div className="space-y-2 border-t border-borda pt-4">
         <p className="text-sm text-texto-suave">Os limiares de dano sobem +1 automaticamente.</p>
         <Aviso erro={subir.error} />
@@ -321,6 +352,8 @@ function Multiclasse({ ficha, detalhe, mudar }: { ficha: Ficha; detalhe: Detalhe
   const classes = useClasses()
   const subclasses = useSubclasses(detalhe.classe)
   const classe = classes.data?.find((c) => c.id === detalhe.classe)
+  // o domínio da multiclasse tem de ser novo (o motor recusa um que você já tem)
+  const jaTenho: string[] = classes.data?.find((c) => c.id === ficha.classe)?.dominios ?? []
   const dominio = useNomeDominio()
   const seletor = 'w-full rounded-lg border border-borda bg-fundo px-3 py-2 text-sm'
   return (
@@ -336,7 +369,11 @@ function Multiclasse({ ficha, detalhe, mudar }: { ficha: Ficha; detalhe: Detalhe
           <select value={detalhe.dominio ?? ''} aria-label="Domínio" className={seletor}
             onChange={(e) => mudar({ dominio: e.target.value })}>
             <option value="">Domínio</option>
-            {classe.dominios.map((d) => <option key={d} value={d}>{dominio(d)}</option>)}
+            {classe.dominios.map((d) => (
+              <option key={d} value={d} disabled={jaTenho.includes(d)}>
+                {dominio(d)}{jaTenho.includes(d) && ' (você já tem)'}
+              </option>
+            ))}
           </select>
           <select value={detalhe.subclasse ?? ''} aria-label="Subclasse" className={seletor}
             onChange={(e) => mudar({ subclasse: e.target.value })}>

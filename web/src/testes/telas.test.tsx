@@ -8,6 +8,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { EventoLinhaDoTempo, Ficha, OpcaoNoQuadro, ProximoNivel, QuadroDeAvanco } from '../api/tipos'
 import { ProvedorAutenticacao } from '../auth/Autenticacao'
 import LinhaDoTempo from '../componentes/LinhaDoTempo'
+import MaoEReserva from '../componentes/MaoEReserva'
 import QuadroAvanco from '../componentes/QuadroAvanco'
 import { Espacos } from '../componentes/ui'
 import { Entrar } from '../paginas/Acesso'
@@ -63,15 +64,28 @@ describe('Linha do tempo', () => {
     { nivel: 3, tier: 2, status: 'futuro', titulo: 'Nível 3', itens: [], quadros: [quadroTier2('antes')] },
     { nivel: 4, tier: 2, status: 'futuro', titulo: 'Nível 4', itens: ['Escolher 2 avanços'], quadros: [quadroTier2('antes')] },
   ]
-  const ficha = { nome: 'Lia', experiencias: { Diplomata: 2 }, cartas: [], companheiro: null } as unknown as Ficha
+  const fichaCom = (ativas: string[]) => ({
+    nome: 'Lia', experiencias: { Diplomata: 2 }, cartas: ativas, cartas_ativas: ativas, cartas_cofre: [],
+    companheiro: null,
+  }) as unknown as Ficha
+  const ficha = fichaCom([])
 
-  function montarLinha(desfazer = vi.fn()) {
+  function montarLinha(desfazer = vi.fn(), f = ficha) {
     const fetch = vi.fn(async (url: string) => new Response(
       JSON.stringify(url.endsWith('/proximo-nivel') ? PROXIMO : []), { status: 200 }))
     vi.stubGlobal('fetch', fetch)
-    montar(<LinhaDoTempo eventos={eventos} personagemId="p1" ficha={ficha} aoDesfazer={desfazer} desfazendo={false} />)
+    montar(<LinhaDoTempo eventos={eventos} personagemId="p1" ficha={f} aoDesfazer={desfazer} desfazendo={false} />)
     return fetch
   }
+
+  it('com a mão cheia, oferece mandar uma carta antiga para a reserva', async () => {
+    montarLinha(vi.fn(), fichaCom(['c1', 'c2', 'c3', 'c4', 'c5']))
+    expect(await screen.findByText('Mão cheia')).toBeInTheDocument()
+    const c1 = screen.getByRole('checkbox', { name: 'c1' })
+    await userEvent.click(c1)
+    expect(c1).toBeChecked()
+    expect(screen.getByRole('checkbox', { name: 'c2' })).toBeDisabled()   // só 1 carta nova neste nível
+  })
 
   it('mostra a caixa do patamar em cada nível e desfazer só no último feito', async () => {
     const desfazer = vi.fn()
@@ -99,6 +113,26 @@ describe('Linha do tempo', () => {
     expect(screen.getByRole('button', { name: 'Confirmar nível 3' })).toBeDisabled()
     await userEvent.click(pv)
     expect(screen.getByText('Avanços (1/2)')).toBeInTheDocument()
+  })
+})
+
+describe('Mão e reserva', () => {
+  it('com a mão cheia, trazer da reserva pede qual carta sai', async () => {
+    const fetch = vi.fn(async (url: string) =>
+      new Response(JSON.stringify(url.includes('/srd/') ? [] : {}), { status: 200 }))
+    vi.stubGlobal('fetch', fetch)
+    const ativas = ['a1', 'a2', 'a3', 'a4', 'a5']
+    const f = { cartas: [...ativas, 'r1'], cartas_ativas: ativas, cartas_cofre: ['r1'] } as unknown as Ficha
+    montar(<MaoEReserva ficha={f} personagemId="p1" />)
+    expect(screen.getByText('Cartas de domínio: mão (5/5)')).toBeInTheDocument()
+    await userEvent.click(screen.getByText('r1'))
+    const trazer = screen.getByRole('button', { name: 'Trazer para a mão' })
+    expect(trazer).toBeDisabled()
+    await userEvent.selectOptions(screen.getByLabelText('Carta que vai para a reserva'), 'a2')
+    await userEvent.click(trazer)
+    expect(fetch).toHaveBeenCalledWith('/api/personagens/p1/cartas/r1/recuperar', expect.objectContaining({
+      body: JSON.stringify({ no_lugar_de: 'a2', em_descanso: true }),
+    }))
   })
 })
 

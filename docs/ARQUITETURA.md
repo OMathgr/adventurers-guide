@@ -105,19 +105,32 @@ avanços já marcados no nível (`escolhas`), para que uma multiclasse recém-
 escolhida libere o domínio novo e a carta do avanço saia da lista do passo 4.
 Marcando CARTA_DOMINIO, o nível rende duas cartas (avanço + passo 4).
 
-### Loadout e cofre (estado atual, fora do histórico)
+### Mão e reserva (estado atual, fora do histórico)
 
-Como o equipamento, mudar o que está ativo acontece em jogo. O `Personagem`
-guarda só `cofre` (vault); toda carta que ele tem e não está no cofre está no
-loadout. A ficha mostra `cartas_ativas` e `cartas_cofre`.
+Termos do livro: **mão** (loadout, até 5 cartas ativas) e **reserva** (vault).
+No código continuam `cofre`, `cartas_ativas` e `cartas_cofre`. Como o
+equipamento, mudar o que está ativo acontece em jogo. O `Personagem` guarda
+só `cofre`; toda carta que ele tem e não está no cofre está na mão.
 
-- Limite do loadout em `progressao.json` (`limite_loadout`: 5).
-- Carta nova entra no loadout; se ele estiver cheio, vai para o cofre.
-- Troca de uma carta que estava no cofre: a nova fica no cofre.
-- `guardar_carta` é grátis. `recuperar_carta` marca o Recall Cost em
-  Estresse (0 em descanso) e é recusada sem Estresse livre suficiente.
-  Com o loadout cheio, exige `no_lugar_de`.
-- Desfazer um nível tira do cofre as cartas que deixaram de existir.
+- Limite da mão em `progressao.json` (`limite_loadout`: 5).
+- Carta nova entra na mão; se ela estiver cheia, vai para a reserva, a menos
+  que `SubidaDeNivel.para_reserva` mande cartas antigas no lugar ("Trocando
+  ao Subir de Nível": sem custo). Valida só o que depende do histórico (a
+  carta é sua, continua com você, no máximo uma por carta nova), porque ao
+  recarregar o histórico é refeito com uma reserva que pode diferir da real.
+  Desfazer o nível devolve essas cartas para a mão.
+- Troca de uma carta que estava na reserva: a nova fica na reserva.
+- `guardar_carta` é grátis. `recuperar_carta` marca o custo de troca em PF
+  (0 em descanso) e é recusada sem PF livre suficiente. Com a mão cheia,
+  exige `no_lugar_de`.
+- Desfazer um nível tira da reserva as cartas que deixaram de existir.
+- Interface: `MaoEReserva` na ficha (mandar para a reserva, trazer no
+  descanso ou agora) e a seção "Mão cheia" ao subir de nível.
+
+Multiclasse: o domínio escolhido tem de ser novo ("ao qual você ainda não tem
+acesso"); a tela desabilita os que você já tem. Se a nova subclasse conjura,
+a ficha lista as duas conjurações (`conjuracoes`): o livro deixa escolher
+qual usar **a cada teste**, então não há escolha fixa a guardar.
 
 ## Estado de sessão (`motor/sessao.py`)
 
@@ -395,7 +408,7 @@ inimigo). A ficha do inimigo segue o bloco do SRD; textos com `**negrito**`,
 `_itálico_` e listas são lidos por `web/src/lib/texto.ts` (sem HTML cru).
 
 Ainda não na interface: estado de sessão (marcar PV/Estresse, descansos),
-equipamento, cofre de cartas e as ações do mestre sobre os personagens
+equipamento e as ações do mestre sobre os personagens
 (a API já tem tudo isso).
 
 ## Tradução pt-BR (`data/traducoes/pt-BR/`)
@@ -435,7 +448,7 @@ Glossário (alinhado à edição brasileira quando conhecida):
 | Spellcast Roll | teste de Conjuração | | Tier | patamar |
 | Melee / Very Close / Close | corpo a corpo / muito próximo / próximo | | Far / Very Far | distante / muito distante |
 | Duality Dice / Hope Die | Dados de Dualidade / Dado de Esperança | | GM | mestre |
-| loadout / vault | cartas ativas / cofre | | Recall Cost | custo de recuperação |
+| loadout / vault | mão / reserva | | Recall Cost | custo de troca |
 | Hidden / Restrained / Vulnerable | Oculto / Contido / Vulnerável | | Death Move | Movimento de Morte |
 | tokens | marcadores | | Countdown | Contagem Regressiva |
 | spotlight | pôr em destaque | | PCs | PJs |

@@ -53,7 +53,7 @@
   },
   "core_domain_card_shrug_it_off": {
     "nome": "Nem Sentiu",
-    "texto": "Quando for sofrer dano, você pode marcar 1 PF para reduzir a gravidade do dano em um limiar. Ao fazer isso, role um d6. Com resultado 3 ou menor, coloque esta carta no seu cofre."
+    "texto": "Quando for sofrer dano, você pode marcar 1 PF para reduzir a gravidade do dano em um limiar. Ao fazer isso, role um d6. Com resultado 3 ou menor, coloque esta carta na sua reserva."
   },
   "core_domain_card_valor_touched": {
     "nome": "Tocado pelo Valor",
@@ -77,7 +77,7 @@
   },
   "core_domain_card_unbreakable": {
     "nome": "Inquebrável",
-    "texto": "Quando marcar seu último Ponto de Vida, em vez de fazer um Movimento de Morte, você pode rolar um d6 e limpar um número de Pontos de Vida igual ao resultado. Depois, coloque esta carta no seu cofre."
+    "texto": "Quando marcar seu último Ponto de Vida, em vez de fazer um Movimento de Morte, você pode rolar um d6 e limpar um número de Pontos de Vida igual ao resultado. Depois, coloque esta carta na sua reserva."
   },
   "core_domain_card_unyielding_armor": {
     "nome": "Armadura Inabalável",

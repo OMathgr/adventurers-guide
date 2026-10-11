@@ -122,6 +122,26 @@ export function useDesfazerNivel(id: string) {
   })
 }
 
+/** Manda uma carta da mão para a reserva (sem custo). */
+export function useGuardarCarta(id: string) {
+  const invalidar = useInvalidarPersonagem()
+  return useMutation({
+    mutationFn: (carta: string) => chamar<Ficha>(`/personagens/${id}/cartas/${carta}/guardar`, { metodo: 'POST' }),
+    onSuccess: () => invalidar(id),
+  })
+}
+
+/** Traz uma carta da reserva para a mão: grátis no descanso, senão marca o custo de troca em PF. */
+export function useRecuperarCarta(id: string) {
+  const invalidar = useInvalidarPersonagem()
+  return useMutation({
+    mutationFn: ({ carta, noLugarDe, emDescanso }: { carta: string; noLugarDe?: string; emDescanso: boolean }) =>
+      chamar<Ficha>(`/personagens/${id}/cartas/${carta}/recuperar`,
+        { corpo: { no_lugar_de: noLugarDe ?? null, em_descanso: emDescanso } }),
+    onSuccess: () => invalidar(id),
+  })
+}
+
 /** Leva o personagem para a mesa (ou tira, com `mesaId: null`). */
 export function useVincularMesa() {
   const cliente = useQueryClient()

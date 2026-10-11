@@ -111,7 +111,7 @@ def test_guardar_e_recuperar_carta(bib, bardo):
 
 def test_recuperar_com_loadout_cheio_exige_troca(bardo_nivel_4):
     bardo_nivel_4.subir_de_nivel(subida_5("core_domain_card_hypnotic_shimmer"))
-    with pytest.raises(RegraViolada, match="cheio"):
+    with pytest.raises(RegraViolada, match="Mão cheia"):
         bardo_nivel_4.recuperar_carta("core_domain_card_hypnotic_shimmer")
     bardo_nivel_4.recuperar_carta("core_domain_card_hypnotic_shimmer", no_lugar_de=PALAVRAS)
     f = bardo_nivel_4.ficha()
@@ -143,3 +143,46 @@ def test_troca_de_carta_guardada_mantem_no_cofre(bardo):
     f = bardo.subir_de_nivel(subida_2("core_domain_card_tell_no_lies",
                                       troca=(PALAVRAS, "core_domain_card_book_of_illiat")))
     assert f.cartas_cofre == ["core_domain_card_book_of_illiat"]
+
+
+# --- Mão cheia ao subir de nível ("Trocando ao Subir de Nível") ----------------------
+
+SHIMMER = "core_domain_card_hypnotic_shimmer"
+
+
+def _subida_5_reserva(*para_reserva):
+    s = subida_5(SHIMMER)
+    s.para_reserva = list(para_reserva)
+    return s
+
+
+def test_mao_cheia_carta_antiga_vai_para_a_reserva_sem_custo(bardo_nivel_4):
+    f = bardo_nivel_4.subir_de_nivel(_subida_5_reserva(PALAVRAS))
+    assert f.cartas_cofre == [PALAVRAS]
+    assert SHIMMER in f.cartas_ativas and len(f.cartas_ativas) == 5
+    assert f.estresse_marcado == 0
+
+
+def test_para_reserva_so_cartas_que_ja_tinha_e_no_maximo_as_novas(bardo_nivel_4):
+    with pytest.raises(RegraViolada, match="já tinha"):
+        bardo_nivel_4.subir_de_nivel(_subida_5_reserva(SHIMMER))            # a nova
+    with pytest.raises(RegraViolada, match="no máximo 1"):
+        bardo_nivel_4.subir_de_nivel(_subida_5_reserva(PALAVRAS, LIVRO))   # ganha só 1 carta
+    assert bardo_nivel_4.historico[-1].nivel == 4                         # nada mudou
+
+
+def test_desfazer_devolve_a_carta_para_a_mao(bardo_nivel_4):
+    bardo_nivel_4.subir_de_nivel(_subida_5_reserva(PALAVRAS))
+    bardo_nivel_4.desfazer_ultimo_nivel()
+    f = bardo_nivel_4.ficha()
+    assert f.cartas_cofre == [] and PALAVRAS in f.cartas_ativas
+
+
+def test_multiclasse_exige_dominio_novo(bardo_nivel_4):
+    # Bardo já tem Códice; Mago é Códice + Esplendor: só Esplendor vale
+    codice = Escolha(Opcao.MULTICLASSE, classe="core_class_wizard", dominio="CODEX",
+                     subclasse="core_subclass_school_of_knowledge")
+    with pytest.raises(RegraViolada, match="já tem acesso"):
+        bardo_nivel_4.subir_de_nivel(SubidaDeNivel(5, [codice], SHIMMER, nova_experiencia="Y"))
+    f = bardo_nivel_4.subir_de_nivel(SubidaDeNivel(5, [MULTICLASSE_MAGO], SHIMMER, nova_experiencia="Y"))
+    assert f.multiclasse["dominio"] == "SPLENDOR"

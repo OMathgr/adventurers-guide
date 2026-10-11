@@ -81,6 +81,6 @@
   },
   "core_domain_card_resurrection": {
     "nome": "Ressurreição",
-    "texto": "Faça um teste de Conjuração (20). Com sucesso, restaure com força total uma criatura morta há no máximo 100 anos. Depois, role um d6. Com resultado 5 ou menor, coloque esta carta no seu cofre permanentemente.\nSe falhar, você não pode lançar Ressurreição de novo por uma semana."
+    "texto": "Faça um teste de Conjuração (20). Com sucesso, restaure com força total uma criatura morta há no máximo 100 anos. Depois, role um d6. Com resultado 5 ou menor, coloque esta carta na sua reserva permanentemente.\nSe falhar, você não pode lançar Ressurreição de novo por uma semana."
   }
 }

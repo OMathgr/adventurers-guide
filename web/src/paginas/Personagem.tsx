@@ -70,7 +70,7 @@ export default function Personagem() {
         {aba('tempo', 'Linha do tempo')}
       </div>
 
-      {visao === 'ficha' && <FichaVisao ficha={f} />}
+      {visao === 'ficha' && <FichaVisao ficha={f} personagemId={id} />}
       {visao === 'tempo' && (tempo.isPending ? <Carregando /> : tempo.data && (
         <LinhaDoTempo eventos={tempo.data} personagemId={id} ficha={f}
           aoDesfazer={() => desfazer.mutate()} desfazendo={desfazer.isPending} />

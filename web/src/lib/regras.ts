@@ -23,6 +23,9 @@ export function distribuicaoCompleta(dist: Distribuicao): boolean {
   return TRACOS.every((t) => dist[t] !== undefined) && valoresRestantes(dist).length === 0
 }
 
+/** Cartas de domínio ativas ao mesmo tempo ("Mão e Reserva"); o motor tem o mesmo número em progressao.json. */
+export const LIMITE_MAO = 5
+
 /** Avanço escolhido na tela: a opção da API + uma chave para a lista. */
 export type AvancoMarcado = OpcaoAvanco & { chave: string }
 

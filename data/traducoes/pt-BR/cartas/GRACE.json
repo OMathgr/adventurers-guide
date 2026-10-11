@@ -69,18 +69,18 @@
   },
   "core_domain_card_copycat": {
     "nome": "Imitador",
-    "texto": "Uma vez por descanso longo, esta carta pode imitar as habilidades de outra carta de domínio de nível 8 ou menor que esteja entre as cartas ativas de outro jogador. Gaste Esperança igual à metade do nível da carta para ter acesso à habilidade. Dura até o seu próximo descanso ou até o jogador colocar a carta no cofre."
+    "texto": "Uma vez por descanso longo, esta carta pode imitar as habilidades de outra carta de domínio de nível 8 ou menor que esteja entre as cartas ativas de outro jogador. Gaste Esperança igual à metade do nível da carta para ter acesso à habilidade. Dura até o seu próximo descanso ou até o jogador colocar a carta na reserva."
   },
   "core_domain_card_master_of_the_craft": {
     "nome": "Mestre do Ofício",
-    "texto": "Ganhe um bônus permanente de +2 em duas das suas Experiências ou de +3 em uma delas. Depois, coloque esta carta no seu cofre permanentemente."
+    "texto": "Ganhe um bônus permanente de +2 em duas das suas Experiências ou de +3 em uma delas. Depois, coloque esta carta na sua reserva permanentemente."
   },
   "core_domain_card_encore": {
     "nome": "Bis",
-    "texto": "Quando um aliado em alcance próximo causar dano a um adversário, você pode fazer um teste de Conjuração contra o mesmo alvo. Com sucesso, você causa ao alvo o mesmo dano que o aliado causou. Se o seu teste de Conjuração tiver sucesso com Medo, coloque esta carta no seu cofre."
+    "texto": "Quando um aliado em alcance próximo causar dano a um adversário, você pode fazer um teste de Conjuração contra o mesmo alvo. Com sucesso, você causa ao alvo o mesmo dano que o aliado causou. Se o seu teste de Conjuração tiver sucesso com Medo, coloque esta carta na sua reserva."
   },
   "core_domain_card_notorious": {
     "nome": "Notório",
-    "texto": "As pessoas sabem quem você é e o que você fez, e te tratam diferente por isso. Quando usar sua fama para conseguir o que quer, você pode marcar 1 PF antes de rolar para ganhar +10 no resultado. Sua comida e bebida são sempre de graça aonde você for, e todo o resto que você compra custa um saco de ouro a menos (no mínimo um punhado).\nEsta carta não conta para o limite de 5 cartas de domínio ativas e não pode ser colocada no cofre."
+    "texto": "As pessoas sabem quem você é e o que você fez, e te tratam diferente por isso. Quando usar sua fama para conseguir o que quer, você pode marcar 1 PF antes de rolar para ganhar +10 no resultado. Sua comida e bebida são sempre de graça aonde você for, e todo o resto que você compra custa um saco de ouro a menos (no mínimo um punhado).\nEsta carta não conta para o limite de 5 cartas de domínio ativas e não pode ser colocada na reserva."
   }
 }

@@ -41,7 +41,7 @@
   },
   "core_domain_card_vitality": {
     "nome": "Vitalidade",
-    "texto": "Quando escolher esta carta, ganhe permanentemente dois dos benefícios a seguir:\n• Um espaço de Fadiga\n• Um espaço de Ponto de Vida\n• +2 nos seus limiares de dano\nDepois, coloque esta carta no seu cofre permanentemente."
+    "texto": "Quando escolher esta carta, ganhe permanentemente dois dos benefícios a seguir:\n• Um espaço de Fadiga\n• Um espaço de Ponto de Vida\n• +2 nos seus limiares de dano\nDepois, coloque esta carta na sua reserva permanentemente."
   },
   "core_domain_card_battle_hardened": {
     "nome": "Calejado pela Batalha",

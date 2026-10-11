@@ -98,6 +98,9 @@ class SubidaDeNivel:
     # Beastbound: um treino por nível (+1 na especialização, +2 na maestria)
     treinos: list[Treino] = field(default_factory=list)
     experiencia_companheiro: str | None = None   # nos níveis 2, 5 e 8, se tiver companheiro
+    # Mão cheia ao ganhar carta: cartas que já tinha e vão para a reserva sem
+    # custo, para as novas entrarem na mão ("Trocando ao Subir de Nível").
+    para_reserva: list[str] = field(default_factory=list)
 
 
 @dataclass(frozen=True)
@@ -241,17 +244,36 @@ class Personagem:
     def subir_de_nivel(self, subida: SubidaDeNivel) -> Ficha:
         """Valida e registra o nível. Se algo for inválido, nada muda.
 
-        Cartas novas vão para o loadout; se ele estiver cheio, para o cofre.
+        Cartas novas vão para a mão; se ela estiver cheia, para a reserva, a
+        menos que `para_reserva` mande cartas antigas no lugar delas.
         """
         nova = self._vestir(self._aplicar(self._ficha_base(), subida), self.equipamento)
         # ex.: subir a Presença com uma arma Pompous equipada
         self._validar_requisitos(nova, self.equipamento)
+        self._validar_para_reserva(subida, cartas_antes=self._ficha_base().cartas, cartas_depois=nova.cartas)
         self.historico.append(subida)
         if subida.troca_carta and subida.troca_carta[0] in self.cofre:
             antiga, nova_carta = subida.troca_carta   # a nova ocupa o lugar da antiga
             self.cofre[self.cofre.index(antiga)] = nova_carta
+        # sem custo; já estar na reserva não é erro (ao recarregar, o histórico
+        # é refeito com uma reserva que pode diferir da real, restaurada depois)
+        self.cofre += [c for c in subida.para_reserva if c not in self.cofre]
         self._ajustar_cofre()
         return self.ficha()
+
+    def _validar_para_reserva(self, subida: SubidaDeNivel, cartas_antes: list[str], cartas_depois: list[str]):
+        if not subida.para_reserva:
+            return
+        if len(set(subida.para_reserva)) != len(subida.para_reserva):
+            raise RegraViolada("Escolha cartas diferentes para mandar para a reserva.")
+        novas = len(cartas_depois) - len(cartas_antes)
+        if len(subida.para_reserva) > novas:
+            raise RegraViolada(f"Neste nível você ganha {novas} carta(s): mande no máximo "
+                               f"{novas} para a reserva.")
+        saindo = subida.troca_carta[0] if subida.troca_carta else None
+        for c in subida.para_reserva:
+            if c not in cartas_antes or c == saindo:
+                raise RegraViolada("Só vão para a reserva cartas que você já tinha e que continuam com você.")
 
     def equipar(self, principal: str | None = None, secundaria: str | None = None,
                 armadura: str | None = None) -> Ficha:
@@ -286,7 +308,9 @@ class Personagem:
     def desfazer_ultimo_nivel(self) -> None:
         if not self.historico:
             raise RegraViolada("Não há nível para desfazer.")
-        self.historico.pop()
+        desfeita = self.historico.pop()
+        # o que foi para a reserva por causa deste nível volta para a mão
+        self.cofre = [c for c in self.cofre if c not in desfeita.para_reserva]
         self._ajustar_cofre()
         self.sessao.ajustar()   # PV/Estresse máximos podem ter caído
 
@@ -331,7 +355,7 @@ class Personagem:
         if carta not in self._ficha_base().cartas:
             raise RegraViolada("Você só pode guardar uma carta que tem.")
         if carta in self.cofre:
-            raise RegraViolada(f"{self._nome(self.bib.cartas, carta)} já está no cofre.")
+            raise RegraViolada(f"{self._nome(self.bib.cartas, carta)} já está na reserva.")
         self.cofre.append(carta)
         return self.ficha()
 
@@ -345,12 +369,12 @@ class Personagem:
         carta que vai para o cofre. Devolve o Estresse marcado.
         """
         if carta not in self.cofre:
-            raise RegraViolada(f"{self._nome(self.bib.cartas, carta)} não está no cofre.")
+            raise RegraViolada(f"{self._nome(self.bib.cartas, carta)} não está na reserva.")
         ativas = [c for c in self._ficha_base().cartas if c not in self.cofre]
         if no_lugar_de is not None and no_lugar_de not in ativas:
-            raise RegraViolada("A carta que sai precisa estar no loadout.")
+            raise RegraViolada("A carta que sai precisa estar na mão.")
         if no_lugar_de is None and len(ativas) >= self._limite_loadout:
-            raise RegraViolada(f"Loadout cheio ({self._limite_loadout}): escolha uma carta para guardar.")
+            raise RegraViolada(f"Mão cheia ({self._limite_loadout} cartas): escolha uma para ir para a reserva.")
         custo = 0 if em_descanso else self.bib.cartas[carta].custo_recall
         self.sessao.pagar_estresse(custo)   # recusa antes de mexer no cofre
         self.cofre.remove(carta)
@@ -708,6 +732,10 @@ class Personagem:
             raise RegraViolada("Escolha uma classe diferente da sua.")
         if e.dominio not in classe.dominios:
             raise RegraViolada(f"{e.dominio} não é domínio de {classe.nome}.")
+        if e.dominio in self.bib.classes[f.classe].dominios:
+            # "Escolha um domínio da sua nova classe ao qual você ainda não tem acesso."
+            raise RegraViolada(f"Você já tem acesso a {self.bib.nome_dominio(e.dominio)}: "
+                               f"escolha um domínio novo de {classe.nome}.")
         sub = self._exigir(self.bib.subclasses, e.subclasse, "Subclasse")
         if sub.classe != classe.codigo:
             raise RegraViolada(f"{sub.nome} não é subclasse de {classe.nome}.")

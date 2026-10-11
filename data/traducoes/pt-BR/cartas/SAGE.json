@@ -69,7 +69,7 @@
   },
   "core_domain_card_fane_of_the_wilds": {
     "nome": "Santuário Selvagem",
-    "texto": "Depois de um descanso longo, coloque nesta carta um número de marcadores igual ao de cartas do domínio Sábio que você tem (ativas e no cofre).\nQuando for fazer um teste de Conjuração, você pode gastar quantos marcadores quiser depois de rolar para ganhar +1 por marcador gasto.\nQuando tiver um sucesso crítico num teste de Conjuração de uma magia do domínio Sábio, ganhe um marcador.\nQuando fizer um descanso longo, remova todos os marcadores não gastos."
+    "texto": "Depois de um descanso longo, coloque nesta carta um número de marcadores igual ao de cartas do domínio Sábio que você tem (ativas e na reserva).\nQuando for fazer um teste de Conjuração, você pode gastar quantos marcadores quiser depois de rolar para ganhar +1 por marcador gasto.\nQuando tiver um sucesso crítico num teste de Conjuração de uma magia do domínio Sábio, ganhe um marcador.\nQuando fizer um descanso longo, remova todos os marcadores não gastos."
   },
   "core_domain_card_plant_dominion": {
     "nome": "Domínio das Plantas",

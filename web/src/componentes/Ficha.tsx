@@ -1,9 +1,9 @@
 // Visão "ficha": tudo o que o personagem é agora, como na ficha de papel.
 import type { Ficha } from '../api/tipos'
-import { useNomeDominio, useNomes } from '../lib/nomes'
 import {
   comSinal, condicao, NOME_ALCANCE, NOME_TIPO_DANO, NOME_TRACO, TRACOS, USO_TRACO,
 } from '../lib/rotulos'
+import MaoEReserva from './MaoEReserva'
 import { Cartao, Espacos, Esperanca, Original, Selo } from './ui'
 
 function Numero({ rotulo, valor, detalhe }: { rotulo: string; valor: string | number; detalhe?: string }) {
@@ -28,10 +28,8 @@ function ListaCaracteristicas({ lista }: { lista: { nome: string; descricao: str
   )
 }
 
-export default function FichaVisao({ ficha }: { ficha: Ficha }) {
-  const nomes = useNomes(ficha)
-  const dominio = useNomeDominio()
-
+/** `personagemId` liga as ações do dono (mão e reserva); sem ele, a ficha é só leitura. */
+export default function FichaVisao({ ficha, personagemId }: { ficha: Ficha; personagemId?: string }) {
   return (
     <div className="grid gap-4 lg:grid-cols-3">
       <Cartao titulo="Atributos" className="lg:col-span-2">
@@ -114,28 +112,12 @@ export default function FichaVisao({ ficha }: { ficha: Ficha }) {
           : <ul className="space-y-1 text-sm">{ficha.conjuracoes.map((c) => (
             <li key={c.subclasse} className="flex justify-between"><span>{c.subclasse} · {NOME_TRACO[c.traco]}</span>
               <b className="text-esperanca">{comSinal(c.bonus)}</b></li>))}</ul>}
+        {ficha.conjuracoes.length > 1 && (
+          <p className="mt-2 text-xs text-texto-suave">Com a multiclasse, escolha qual atributo usar a cada teste de conjuração.</p>
+        )}
       </Cartao>
 
-      <Cartao titulo={`Cartas de domínio (${ficha.cartas_ativas.length} ativas)`} className="lg:col-span-3">
-        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-          {[...ficha.cartas_ativas.map((id) => ({ id, cofre: false })), ...ficha.cartas_cofre.map((id) => ({ id, cofre: true }))]
-            .map(({ id, cofre }) => {
-              const carta = nomes.carta(id)
-              return (
-                <details key={id} className={`rounded-xl border border-borda bg-fundo/60 p-3 ${cofre ? 'opacity-60' : ''}`}>
-                  <summary className="cursor-pointer list-none">
-                    <span className="font-titulo">{carta?.nome ?? id}</span><Original nome={carta?.nome} original={carta?.nome_original} />
-                    <span className="mt-1 flex flex-wrap gap-1.5">
-                      {carta && <Selo>{dominio(carta.dominio)} · nível {carta.nivel}</Selo>}
-                      {cofre && <Selo>no cofre</Selo>}
-                    </span>
-                  </summary>
-                  {carta && <p className="mt-2 whitespace-pre-line text-sm text-texto-suave">{carta.texto}</p>}
-                </details>
-              )
-            })}
-        </div>
-      </Cartao>
+      <MaoEReserva ficha={ficha} personagemId={personagemId} />
 
       <Cartao titulo="Ancestralidade" className="lg:col-span-2">
         <ListaCaracteristicas lista={ficha.caracteristicas_ancestralidade} />

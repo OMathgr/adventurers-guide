@@ -21,7 +21,7 @@
   },
   "core_domain_card_counterspell": {
     "nome": "Contramágica",
-    "texto": "Você pode interromper um efeito mágico em andamento fazendo um teste de reação com o seu atributo de Conjuração. Com sucesso, o efeito para, as consequências são evitadas e esta carta vai para o seu cofre."
+    "texto": "Você pode interromper um efeito mágico em andamento fazendo um teste de reação com o seu atributo de Conjuração. Com sucesso, o efeito para, as consequências são evitadas e esta carta vai para a sua reserva."
   },
   "core_domain_card_flight": {
     "nome": "Voo",

@@ -57,7 +57,7 @@
   },
   "core_domain_card_codex_touched": {
     "nome": "Tocado pelo Códice",
-    "texto": "Quando 4 ou mais das cartas de domínio ativas forem do domínio Códice, ganhe os seguintes benefícios:\n• Você pode marcar 1 PF para somar sua Proficiência a um teste de Conjuração.\n• Uma vez por descanso, troque esta carta por qualquer carta do seu cofre sem pagar o custo de recuperação dela."
+    "texto": "Quando 4 ou mais das cartas de domínio ativas forem do domínio Códice, ganhe os seguintes benefícios:\n• Você pode marcar 1 PF para somar sua Proficiência a um teste de Conjuração.\n• Uma vez por descanso, troque esta carta por qualquer carta da sua reserva sem pagar o custo de troca dela."
   },
   "core_domain_card_book_of_vyola": {
     "nome": "Livro de Vyola",
