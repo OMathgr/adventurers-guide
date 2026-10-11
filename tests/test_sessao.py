@@ -190,7 +190,7 @@ def test_recuperar_carta_sem_estresse_livre_e_recusado(bib, bardo):
     custo = bib.cartas[PALAVRAS].custo_recall
     bardo.guardar_carta(PALAVRAS)
     bardo.sessao.marcar_estresse(6 - custo + 1)
-    with pytest.raises(RegraViolada, match="Estresse insuficiente"):
+    with pytest.raises(RegraViolada, match="Fadiga insuficiente"):
         bardo.recuperar_carta(PALAVRAS)
     assert bardo.ficha().cartas_cofre == [PALAVRAS]
     bardo.recuperar_carta(PALAVRAS, em_descanso=True)   # no descanso é grátis

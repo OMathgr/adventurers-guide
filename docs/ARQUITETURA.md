@@ -345,6 +345,43 @@ excluir, desfazer último nível) e subir de nível passo a passo.
 Ainda não na interface: estado de sessão (marcar PV/Estresse, descansos),
 equipamento, cofre de cartas e mesas (a API já tem tudo isso).
 
+## Tradução pt-BR (`data/traducoes/pt-BR/`)
+
+Tradução **não oficial** do SRD, feita pelo projeto. É só de exibição: o
+motor interpreta o texto em inglês do SRD (bônus "+1 to Evasion", nomes como
+"Fortified") ao carregar, e só depois a `Biblioteca(idioma="pt-BR")` troca
+nomes e textos. O inglês fica em `nome_original` (a interface mostra ao lado).
+A API usa pt-BR; o motor e os testes dele usam o inglês.
+
+- `herancas.json`: classes, subclasses, comunidades, domínios, ancestralidades
+  (com as duas características, na ordem do SRD).
+- `caracteristicas.json`: características de armas/armaduras, traduzidas pelo
+  **texto** em inglês (o mesmo nome/texto se repete em muitos itens).
+- `equipamento.json`: nomes de armas e armaduras com gênero; itens
+  `improved_/advanced_/legendary_` são compostos (Espada Larga + Aprimorada).
+- `cartas/<DOMINIO>.json`: nome e texto de cada carta (grimórios com o nome
+  de cada magia; listas com "•").
+- `tests/test_traducao.py` exige que nada fique sem tradução
+  (`Biblioteca.traducoes_faltando`) e que as regras sejam idênticas nos dois
+  idiomas.
+- `Classe.codigo` ("BARD") liga subclasse à classe; `Classe.nome` é só exibição.
+
+Glossário (alinhado à edição brasileira quando conhecida):
+
+| SRD | pt-BR | | SRD | pt-BR |
+|---|---|---|---|---|
+| Hope / Fear | Esperança / Medo | | Stress | Fadiga (PF) |
+| Hit Points | Pontos de Vida (PV) | | Armor Slot / Score | espaço / Pontuação de Armadura |
+| Evasion | Evasão | | damage thresholds | limiares de dano |
+| Minor / Major / Severe | Menor / Maior / Grave | | Proficiency | Proficiência |
+| roll (action, reaction...) | teste (de ação, de reação...) | | damage roll | rolagem de dano |
+| Spellcast Roll | teste de Conjuração | | Tier | patamar |
+| Melee / Very Close / Close | corpo a corpo / muito próximo / próximo | | Far / Very Far | distante / muito distante |
+| Duality Dice / Hope Die | Dados de Dualidade / Dado de Esperança | | GM | mestre |
+| loadout / vault | cartas ativas / cofre | | Recall Cost | custo de recuperação |
+| Hidden / Restrained / Vulnerable | Oculto / Contido / Vulnerável | | Death Move | Movimento de Morte |
+| tokens | marcadores | | Countdown | Contagem Regressiva |
+
 ## Pendências conhecidas
 
 - `progressao.json` conferido (2026-10-09) com o SRD e a ficha oficial.

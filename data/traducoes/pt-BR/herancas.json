@@ -1,0 +1,292 @@
+{
+  "_aviso": "Tradução NÃO OFICIAL do Daggerheart SRD 1.0 para o português do Brasil, feita pelo projeto Adventurer's Guide. Glossário em docs/ARQUITETURA.md.",
+  "classes": {
+    "core_class_bard": "Bardo",
+    "core_class_druid": "Druida",
+    "core_class_guardian": "Guardião",
+    "core_class_ranger": "Patrulheiro",
+    "core_class_rogue": "Ladino",
+    "core_class_seraph": "Serafim",
+    "core_class_sorcerer": "Feiticeiro",
+    "core_class_warrior": "Guerreiro",
+    "core_class_wizard": "Mago"
+  },
+  "subclasses": {
+    "core_subclass_beastbound": "Vínculo Animal",
+    "core_subclass_call_of_the_brave": "Chamado dos Bravos",
+    "core_subclass_call_of_the_slayer": "Chamado do Matador",
+    "core_subclass_divine_wielder": "Portador Divino",
+    "core_subclass_elemental_origin": "Origem Elemental",
+    "core_subclass_nightwalker": "Andarilho da Noite",
+    "core_subclass_primal_origin": "Origem Primordial",
+    "core_subclass_school_of_knowledge": "Escola do Conhecimento",
+    "core_subclass_school_of_war": "Escola da Guerra",
+    "core_subclass_stalwart": "Inabalável",
+    "core_subclass_syndicate": "Sindicato",
+    "core_subclass_troubadour": "Trovador",
+    "core_subclass_vengeance": "Vingança",
+    "core_subclass_warden_of_renewal": "Guardião da Renovação",
+    "core_subclass_warden_of_the_elements": "Guardião dos Elementos",
+    "core_subclass_wayfinder": "Desbravador",
+    "core_subclass_winged_sentinel": "Sentinela Alada",
+    "core_subclass_wordsmith": "Mestre das Palavras"
+  },
+  "comunidades": {
+    "core_community_highborne": "Nobreza",
+    "core_community_loreborne": "Sabedoria",
+    "core_community_orderborne": "Ordem",
+    "core_community_ridgeborne": "Serra",
+    "core_community_seaborne": "Mar",
+    "core_community_slyborne": "Astúcia",
+    "core_community_underborne": "Subterrâneo",
+    "core_community_wanderborne": "Andança",
+    "core_community_wildborne": "Selva"
+  },
+  "dominios": {
+    "ARCANA": "Arcano",
+    "BLADE": "Lâmina",
+    "BONE": "Osso",
+    "CODEX": "Códice",
+    "GRACE": "Graça",
+    "MIDNIGHT": "Meia-Noite",
+    "SAGE": "Sábio",
+    "SPLENDOR": "Esplendor",
+    "VALOR": "Valor"
+  },
+  "ancestralidades": {
+    "core_ancestry_clank": {
+      "nome": "Autômato",
+      "caracteristicas": [
+        {
+          "nome": "Projeto com Propósito",
+          "descricao": "Decida quem te fez e com que propósito. Na criação do personagem, escolha uma das suas Experiências que melhor combine com esse propósito e ganhe um bônus permanente de +1 nela."
+        },
+        {
+          "nome": "Eficiente",
+          "descricao": "Quando fizer um descanso curto, você pode escolher um movimento de descanso longo no lugar de um movimento de descanso curto."
+        }
+      ]
+    },
+    "core_ancestry_drakona": {
+      "nome": "Dracônico",
+      "caracteristicas": [
+        {
+          "nome": "Escamas",
+          "descricao": "Suas escamas são uma proteção natural. Quando for sofrer dano Grave, você pode marcar 1 PF para marcar 1 Ponto de Vida a menos."
+        },
+        {
+          "nome": "Sopro Elemental",
+          "descricao": "Escolha um elemento para o seu sopro (como eletricidade, fogo ou gelo). Você pode usar esse sopro contra um alvo ou grupo de alvos em alcance muito próximo, tratando-o como uma arma de Instinto que causa d8 de dano mágico usando a sua Proficiência."
+        }
+      ]
+    },
+    "core_ancestry_dwarf": {
+      "nome": "Anão",
+      "caracteristicas": [
+        {
+          "nome": "Pele Grossa",
+          "descricao": "Quando sofrer dano Menor, você pode marcar 2 PF em vez de marcar um Ponto de Vida."
+        },
+        {
+          "nome": "Fortitude Ampliada",
+          "descricao": "Gaste 3 Esperança para reduzir à metade o dano físico que vai receber."
+        }
+      ]
+    },
+    "core_ancestry_elf": {
+      "nome": "Elfo",
+      "caracteristicas": [
+        {
+          "nome": "Reflexos Rápidos",
+          "descricao": "Marque 1 PF para ter vantagem num teste de reação."
+        },
+        {
+          "nome": "Transe Celestial",
+          "descricao": "Durante um descanso, você pode entrar em transe para escolher um movimento de descanso adicional."
+        }
+      ]
+    },
+    "core_ancestry_faerie": {
+      "nome": "Fada",
+      "caracteristicas": [
+        {
+          "nome": "Dobra-Sorte",
+          "descricao": "Uma vez por sessão, depois que você ou um aliado disposto em alcance próximo fizer um teste de ação, você pode gastar 3 Esperança para rolar de novo os Dados de Dualidade."
+        },
+        {
+          "nome": "Asas",
+          "descricao": "Você pode voar. Enquanto voa, você pode marcar 1 PF depois que um adversário fizer um ataque contra você para ganhar +2 de Evasão contra esse ataque."
+        }
+      ]
+    },
+    "core_ancestry_faun": {
+      "nome": "Fauno",
+      "caracteristicas": [
+        {
+          "nome": "Salto Caprino",
+          "descricao": "Você pode saltar para qualquer lugar em alcance próximo como se fosse seu movimento normal, pulando obstáculos, atravessando vãos ou escalando barreiras com facilidade."
+        },
+        {
+          "nome": "Coice",
+          "descricao": "Quando acertar um ataque contra um alvo em alcance corpo a corpo, você pode marcar 1 PF para se impulsionar com um coice nele, causando 2d6 de dano extra e empurrando você ou o alvo para alcance muito próximo."
+        }
+      ]
+    },
+    "core_ancestry_firbolg": {
+      "nome": "Firbolg",
+      "caracteristicas": [
+        {
+          "nome": "Investida",
+          "descricao": "Quando tiver sucesso num teste de Agilidade para se mover de alcance distante ou muito distante até corpo a corpo com um ou mais alvos, você pode marcar 1 PF para causar 1d12 de dano físico a todos os alvos em alcance corpo a corpo."
+        },
+        {
+          "nome": "Inabalável",
+          "descricao": "Quando for marcar 1 PF, role um d6. Com resultado 6, não o marque."
+        }
+      ]
+    },
+    "core_ancestry_fungril": {
+      "nome": "Fungril",
+      "caracteristicas": [
+        {
+          "nome": "Rede Fúngica",
+          "descricao": "Faça um teste de Instinto (12) para usar sua rede de micélio e falar com outros da sua ancestralidade. Com sucesso, vocês se comunicam a qualquer distância."
+        },
+        {
+          "nome": "Conexão com a Morte",
+          "descricao": "Enquanto toca um cadáver que morreu recentemente, você pode marcar 1 PF para extrair dele uma lembrança ligada a uma emoção ou sensação específica, à sua escolha."
+        }
+      ]
+    },
+    "core_ancestry_galapa": {
+      "nome": "Galápago",
+      "caracteristicas": [
+        {
+          "nome": "Casco",
+          "descricao": "Ganhe um bônus nos seus limiares de dano igual à sua Proficiência."
+        },
+        {
+          "nome": "Recolher",
+          "descricao": "Marque 1 PF para se recolher no casco. Enquanto estiver no casco, você tem resistência a dano físico, tem desvantagem em testes de ação e não pode se mover."
+        }
+      ]
+    },
+    "core_ancestry_giant": {
+      "nome": "Gigante",
+      "caracteristicas": [
+        {
+          "nome": "Resistência",
+          "descricao": "Ganhe um espaço de Ponto de Vida adicional na criação do personagem."
+        },
+        {
+          "nome": "Alcance",
+          "descricao": "Trate qualquer arma, habilidade, magia ou outra característica com alcance corpo a corpo como se tivesse alcance muito próximo."
+        }
+      ]
+    },
+    "core_ancestry_goblin": {
+      "nome": "Goblin",
+      "caracteristicas": [
+        {
+          "nome": "Passo Firme",
+          "descricao": "Você ignora desvantagem em testes de Agilidade."
+        },
+        {
+          "nome": "Sentido de Perigo",
+          "descricao": "Uma vez por descanso, marque 1 PF para obrigar um adversário a rolar de novo um ataque contra você ou um aliado em alcance muito próximo."
+        }
+      ]
+    },
+    "core_ancestry_halfling": {
+      "nome": "Halfling",
+      "caracteristicas": [
+        {
+          "nome": "Traz-Sorte",
+          "descricao": "No início de cada sessão, todos do seu grupo ganham 1 Esperança."
+        },
+        {
+          "nome": "Bússola Interior",
+          "descricao": "Quando tirar 1 no seu Dado de Esperança, você pode rolá-lo de novo."
+        }
+      ]
+    },
+    "core_ancestry_human": {
+      "nome": "Humano",
+      "caracteristicas": [
+        {
+          "nome": "Vigor",
+          "descricao": "Ganhe um espaço de Fadiga adicional na criação do personagem."
+        },
+        {
+          "nome": "Adaptabilidade",
+          "descricao": "Quando falhar num teste que usou uma das suas Experiências, você pode marcar 1 PF para rolar de novo."
+        }
+      ]
+    },
+    "core_ancestry_infernis": {
+      "nome": "Infernal",
+      "caracteristicas": [
+        {
+          "nome": "Destemido",
+          "descricao": "Quando um teste sair com Medo, você pode marcar 2 PF para transformá-lo num teste com Esperança."
+        },
+        {
+          "nome": "Semblante Temível",
+          "descricao": "Você tem vantagem em testes para intimidar criaturas hostis."
+        }
+      ]
+    },
+    "core_ancestry_katari": {
+      "nome": "Katari",
+      "caracteristicas": [
+        {
+          "nome": "Instintos Felinos",
+          "descricao": "Quando fizer um teste de Agilidade, você pode gastar 2 Esperança para rolar de novo o seu Dado de Esperança."
+        },
+        {
+          "nome": "Garras Retráteis",
+          "descricao": "Faça um teste de Agilidade para arranhar um alvo em alcance corpo a corpo. Com sucesso, ele fica temporariamente Vulnerável."
+        }
+      ]
+    },
+    "core_ancestry_orc": {
+      "nome": "Orc",
+      "caracteristicas": [
+        {
+          "nome": "Robusto",
+          "descricao": "Quando restar 1 Ponto de Vida, ataques contra você têm desvantagem."
+        },
+        {
+          "nome": "Presas",
+          "descricao": "Quando acertar um ataque contra um alvo em alcance corpo a corpo, você pode gastar 1 Esperança para cravar as presas no alvo, causando 1d6 de dano extra."
+        }
+      ]
+    },
+    "core_ancestry_ribbet": {
+      "nome": "Ribbet",
+      "caracteristicas": [
+        {
+          "nome": "Anfíbio",
+          "descricao": "Você respira e se move naturalmente debaixo d'água."
+        },
+        {
+          "nome": "Língua Longa",
+          "descricao": "Você pode usar sua língua longa para agarrar coisas em alcance próximo. Marque 1 PF para usar a língua como uma arma de Acuidade com alcance próximo que causa d12 de dano físico usando a sua Proficiência."
+        }
+      ]
+    },
+    "core_ancestry_simiah": {
+      "nome": "Símio",
+      "caracteristicas": [
+        {
+          "nome": "Escalador Nato",
+          "descricao": "Você tem vantagem em testes de Agilidade que envolvam equilíbrio e escalada."
+        },
+        {
+          "nome": "Ágil",
+          "descricao": "Ganhe um bônus permanente de +1 na sua Evasão na criação do personagem."
+        }
+      ]
+    }
+  }
+}

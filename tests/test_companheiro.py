@@ -162,7 +162,7 @@ def test_aliviar_estresse_tambem_alivia_o_companheiro(ranger):
 
 def test_armored_usa_a_sua_armadura(ranger):
     ranger.equipar(armadura="core_armor_leather_armor")
-    with pytest.raises(RegraViolada, match="Armored"):
+    with pytest.raises(RegraViolada, match="Blindado"):
         ranger.sessao.companheiro_recebe_dano(usar_armadura=True)
     subir(ranger, 2, Treino(OpcaoTreino.BLINDADO))
     ranger.sessao.companheiro_recebe_dano(usar_armadura=True)
@@ -187,7 +187,7 @@ def test_bonded_levanta_com_um_6(ranger):
     s = ranger.sessao
     s.marcar_pv(6)
     r = s.receber_dano(1, rolagens_vinculo=[2, 6, 1])
-    assert not r.caiu and "Bonded" in r.notas[-1]
+    assert not r.caiu and "Vínculo" in r.notas[-1]
     assert s.pv_marcados == 6 and s.companheiro_fora
 
 
@@ -203,7 +203,7 @@ def test_linha_do_tempo_mostra_treinos(ranger):
     subir(ranger, 2, Treino(OpcaoTreino.INTELIGENTE, experiencia="Farejar"))
     itens = ranger.linha_do_tempo()[1]["itens"]
     assert "Companheiro: nova Experiência Uivar +2" in itens
-    assert "Treino do companheiro: INTELIGENTE (Farejar)" in itens
+    assert "Treino do companheiro: Inteligente (Farejar)" in itens
 
 
 def test_sem_companheiro(bardo):

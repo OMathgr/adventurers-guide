@@ -2,14 +2,13 @@ import { Link } from 'react-router'
 
 import { useClasses, usePersonagens } from '../api/consultas'
 import { Aviso, Carregando } from '../componentes/ui'
-import { nomeClasse } from '../lib/rotulos'
 
 export default function Personagens() {
   const personagens = usePersonagens()
   const classes = useClasses()
   const nomeDaClasse = (id: string) => {
     const c = classes.data?.find((x) => x.id === id)
-    return c ? nomeClasse(c.nome) : ''
+    return c?.nome ?? ''
   }
 
   return (

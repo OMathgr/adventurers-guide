@@ -1,0 +1,86 @@
+{
+  "core_domain_card_book_of_ava": {
+    "nome": "Livro de Ava",
+    "texto": "Empurrão de Poder: Faça um teste de Conjuração contra um alvo em alcance corpo a corpo. Com sucesso, ele é arremessado para alcance distante e sofre d10+2 de dano mágico usando a sua Proficiência.\n\nArmadura de Tava: Gaste 1 Esperança para dar a um alvo que você possa tocar +1 na Pontuação de Armadura até o próximo descanso dele ou até você lançar Armadura de Tava de novo.\n\nEspinho de Gelo: Faça um teste de Conjuração (12) para invocar um grande espinho de gelo em alcance distante. Se usá-lo como arma, faça o teste de Conjuração contra a Dificuldade do alvo. Com sucesso, cause d6 de dano físico usando a sua Proficiência."
+  },
+  "core_domain_card_book_of_illiat": {
+    "nome": "Livro de Illiat",
+    "texto": "Sono: Faça um teste de Conjuração contra um alvo em alcance muito próximo. Com sucesso, ele fica Adormecido até sofrer dano ou até o mestre gastar 1 Medo no turno dele para encerrar a condição.\n\nRajada Arcana: Uma vez por descanso, gaste quantas Esperanças quiser e dispare projéteis mágicos que atingem um alvo à sua escolha em alcance próximo. Role um número de d6 igual à Esperança gasta e cause esse total de dano mágico ao alvo.\n\nTelepatia: Gaste 1 Esperança para abrir uma linha de comunicação mental com um alvo que você consiga ver. A conexão dura até o seu próximo descanso ou até você lançar Telepatia de novo."
+  },
+  "core_domain_card_book_of_tyfar": {
+    "nome": "Livro de Tyfar",
+    "texto": "Chama Selvagem: Faça um teste de Conjuração contra até três adversários em alcance corpo a corpo. Os alvos contra quem você tiver sucesso sofrem 2d6 de dano mágico e precisam marcar 1 PF quando chamas irrompem da sua mão.\n\nMão Mágica: Você conjura uma mão mágica, do mesmo tamanho e força da sua, em alcance distante.\n\nNévoa Misteriosa: Faça um teste de Conjuração (13) para lançar uma névoa densa temporária que se acumula numa área fixa em alcance muito próximo. A névoa encobre totalmente a área e tudo o que está nela."
+  },
+  "core_domain_card_book_of_sitil": {
+    "nome": "Livro de Sitil",
+    "texto": "Ajustar a Aparência: Você muda magicamente sua aparência e suas roupas para não ser reconhecido.\n\nParalela: Gaste 2 Esperança para lançar esta magia em você ou num aliado em alcance próximo. Da próxima vez que o alvo atacar, ele pode atingir um alvo adicional dentro do alcance contra quem o teste de ataque teria sucesso. Você só pode manter esta magia em uma criatura por vez.\n\nIlusão: Faça um teste de Conjuração (14). Com sucesso, crie uma ilusão visual temporária, não maior que você, em alcance próximo, que dura enquanto você olhar para ela. Ela resiste a um exame até um observador estar em alcance corpo a corpo."
+  },
+  "core_domain_card_book_of_vagras": {
+    "nome": "Livro de Vagras",
+    "texto": "Tranca Rúnica: Faça um teste de Conjuração (15) num objeto que você esteja tocando e que possa ser fechado (como uma fechadura, um baú ou uma caixa). Uma vez por descanso, com sucesso, você tranca o objeto para que só criaturas à sua escolha possam abri-lo. Alguém com acesso a magia e uma hora para estudar a magia consegue quebrá-la.\n\nPorta Arcana: Quando não houver adversários em alcance corpo a corpo, faça um teste de Conjuração (13). Com sucesso, gaste 1 Esperança para criar um portal de onde você está até um ponto que você consiga ver em alcance distante. Ele se fecha assim que uma criatura passar por ele.\n\nRevelar: Faça um teste de Conjuração. Se houver algo escondido magicamente em alcance próximo contra o qual o teste teria sucesso, isso é revelado."
+  },
+  "core_domain_card_book_of_korvax": {
+    "nome": "Livro de Korvax",
+    "texto": "Levitação: Faça um teste de Conjuração para erguer temporariamente no ar um alvo que você consiga ver e movê-lo em alcance próximo da posição original dele.\n\nRetratação: Gaste 1 Esperança para obrigar um alvo em alcance corpo a corpo a fazer um teste de reação (15). Se falhar, ele esquece o último minuto da conversa com você.\n\nCírculo Rúnico: Marque 1 PF para criar um círculo mágico temporário no chão onde você está. Todos os adversários em alcance corpo a corpo, ou que entrarem nesse alcance, sofrem 2d12+4 de dano mágico e são empurrados para alcance muito próximo."
+  },
+  "core_domain_card_book_of_norai": {
+    "nome": "Livro de Norai",
+    "texto": "Amarra Mística: Faça um teste de Conjuração contra um alvo em alcance distante. Com sucesso, ele fica temporariamente Contido e precisa marcar 1 PF. Se o alvo for uma criatura voadora, a magia a derruba e a deixa temporariamente Contida.\n\nBola de Fogo: Faça um teste de Conjuração contra um alvo em alcance muito distante. Com sucesso, arremesse nele uma esfera de fogo que explode no impacto. O alvo e todas as criaturas em alcance muito próximo dele precisam fazer um teste de reação (13). Quem falhar sofre d20+5 de dano mágico usando a sua Proficiência. Quem tiver sucesso sofre metade do dano."
+  },
+  "core_domain_card_book_of_exota": {
+    "nome": "Livro de Exota",
+    "texto": "Repúdio: Você pode interromper um efeito mágico em andamento. Faça um teste de reação usando o seu traço de Conjuração. Uma vez por descanso, com sucesso, o efeito para e as consequências são evitadas.\n\nCriar Construto: Gaste 1 Esperança para escolher um grupo de objetos ao seu redor e criar com eles um construto animado que obedece a comandos simples. Faça um teste de Conjuração para mandá-lo agir. Quando necessário, ele usa a sua Evasão e os seus traços, e os ataques dele causam 2d10+3 de dano físico. Você só pode manter um construto por vez, e ele se desfaz ao sofrer qualquer dano."
+  },
+  "core_domain_card_book_of_grynn": {
+    "nome": "Livro de Grynn",
+    "texto": "Deflexão Arcana: Uma vez por descanso longo, gaste 1 Esperança para anular o dano de um ataque contra você ou contra um aliado em alcance muito próximo.\n\nTrava Temporal: Escolha um objeto em alcance distante. Ele para no tempo e no espaço exatamente onde está até o seu próximo descanso. Se uma criatura tentar movê-lo, faça um teste de Conjuração contra ela para manter a magia.\n\nMuralha de Chamas: Faça um teste de Conjuração (15). Com sucesso, crie uma muralha temporária de fogo mágico entre dois pontos em alcance distante. Todas as criaturas no caminho dela precisam escolher de que lado ficar, e tudo o que atravessar a muralha depois sofre 4d10+3 de dano mágico."
+  },
+  "core_domain_card_manifest_wall": {
+    "nome": "Manifestar Muralha",
+    "texto": "Faça um teste de Conjuração (15). Uma vez por descanso, com sucesso, gaste 1 Esperança para criar uma muralha mágica temporária entre dois pontos em alcance distante. Ela pode ter até 15 metros de altura e se formar em qualquer ângulo. Criaturas ou objetos no caminho dela são empurrados para o lado que você escolher. A muralha fica de pé até o seu próximo descanso ou até você lançar Manifestar Muralha de novo."
+  },
+  "core_domain_card_teleport": {
+    "nome": "Teleporte",
+    "texto": "Uma vez por descanso longo, você pode se teleportar instantaneamente, junto com quantos alvos dispostos quiser em alcance próximo, para um lugar onde já esteve. Escolha uma das opções a seguir e então faça um teste de Conjuração (16):\n• Se conhece o lugar muito bem, ganhe +3.\n• Se visitou o lugar com frequência, ganhe +1.\n• Se visitou o lugar poucas vezes, sem modificador.\n• Se esteve lá só uma vez, sofra −2.\nCom sucesso, você aparece onde pretendia ir. Se falhar, você aparece fora do rumo; quanto pior a falha, mais longe."
+  },
+  "core_domain_card_banish": {
+    "nome": "Banir",
+    "texto": "Faça um teste de Conjuração contra um alvo em alcance próximo. Com sucesso, role um número de d20 igual ao seu traço de Conjuração. O alvo precisa fazer um teste de reação com Dificuldade igual ao seu maior resultado. Se tiver sucesso, ele marca 1 PF mas não é banido. Uma vez por descanso, se ele falhar, é banido deste plano.\nQuando os personagens dos jogadores tirarem um resultado com Medo, a Dificuldade sofre −1 e o alvo faz outro teste de reação. Com sucesso, ele volta do banimento."
+  },
+  "core_domain_card_sigil_of_retribution": {
+    "nome": "Sigilo da Retribuição",
+    "texto": "Marque um adversário em alcance próximo com um sigilo de retribuição. O mestre ganha 1 Medo. Quando o adversário marcado causar dano a você ou aos seus aliados, coloque um d8 nesta carta. Você pode guardar um número de d8 igual ao seu nível. Quando acertar um ataque no adversário marcado, role os dados desta carta e some o total à rolagem de dano; depois, retire os dados. O efeito acaba quando o adversário marcado for derrotado ou quando você lançar Sigilo da Retribuição de novo."
+  },
+  "core_domain_card_book_of_homet": {
+    "nome": "Livro de Homet",
+    "texto": "Atravessar: Faça um teste de Conjuração (13). Uma vez por descanso, com sucesso, você e todas as criaturas que estiverem te tocando podem atravessar uma parede ou porta em alcance próximo. O efeito acaba quando todos estiverem do outro lado.\n\nPortal Planar: Faça um teste de Conjuração (14). Uma vez por descanso longo, com sucesso, abra um portal para um lugar em outra dimensão ou plano de existência onde você já esteve. O portal dura até o seu próximo descanso."
+  },
+  "core_domain_card_codex_touched": {
+    "nome": "Tocado pelo Códice",
+    "texto": "Quando 4 ou mais das cartas de domínio ativas forem do domínio Códice, ganhe os seguintes benefícios:\n• Você pode marcar 1 PF para somar sua Proficiência a um teste de Conjuração.\n• Uma vez por descanso, troque esta carta por qualquer carta do seu cofre sem pagar o custo de recuperação dela."
+  },
+  "core_domain_card_book_of_vyola": {
+    "nome": "Livro de Vyola",
+    "texto": "Mergulho na Memória: Faça um teste de Conjuração contra um alvo em alcance distante. Com sucesso, espie a mente do alvo e faça uma pergunta ao mestre. O mestre descreve as lembranças do alvo relacionadas à resposta.\n\nClareza Compartilhada: Uma vez por descanso longo, gaste 1 Esperança para escolher duas criaturas dispostas. Quando uma delas for marcar PF, elas podem escolher qual das duas marca. A magia dura até o próximo descanso delas."
+  },
+  "core_domain_card_safe_haven": {
+    "nome": "Refúgio Seguro",
+    "texto": "Quando tiver alguns minutos de calma para se concentrar, você pode gastar 2 Esperança para invocar seu Refúgio Seguro, uma grande morada interdimensional onde você e seus aliados podem se abrigar. Ao fazer isso, uma porta mágica aparece em algum lugar em alcance próximo. Só criaturas à sua escolha podem entrar. Lá dentro, você pode tornar a entrada invisível. Você e quem estiver lá dentro sempre podem sair. Depois que você sai, a porta precisa ser invocada de novo.\nQuando descansar dentro do seu próprio Refúgio Seguro, você pode escolher um movimento de descanso adicional."
+  },
+  "core_domain_card_book_of_ronin": {
+    "nome": "Livro de Ronin",
+    "texto": "Transformar: Faça um teste de Conjuração (15). Com sucesso, transforme-se num objeto inanimado de até o dobro do seu tamanho normal. Você pode continuar nessa forma até sofrer dano.\n\nEsgotamento Eterno: Uma vez por descanso longo, faça um teste de Conjuração contra um alvo em alcance próximo. Com sucesso, ele fica permanentemente Vulnerável. Ele não pode encerrar essa condição de forma alguma."
+  },
+  "core_domain_card_disintegration_wave": {
+    "nome": "Onda de Desintegração",
+    "texto": "Faça um teste de Conjuração (18). Uma vez por descanso longo, com sucesso, o mestre diz quais adversários em alcance distante têm Dificuldade 18 ou menor. Marque 1 PF para cada um que quiser atingir com esta magia. Eles morrem e não podem voltar à vida de forma alguma."
+  },
+  "core_domain_card_book_of_yarrow": {
+    "nome": "Livro de Yarrow",
+    "texto": "Trava-Tempo: Faça um teste de Conjuração (18). Com sucesso, o tempo desacelera temporariamente até parar para todos em alcance distante, menos você. Ele volta a correr na próxima vez que você fizer um teste de ação que tenha outra criatura como alvo.\n\nImunidade Mágica: Gaste 5 Esperança para ficar imune a dano mágico até o seu próximo descanso."
+  },
+  "core_domain_card_transcendent_union": {
+    "nome": "União Transcendente",
+    "texto": "Uma vez por descanso longo, gaste 5 Esperança para lançar esta magia em duas ou mais criaturas dispostas. Até o próximo descanso, quando uma criatura ligada por esta união for marcar PF ou Pontos de Vida, as criaturas ligadas podem escolher quem marca."
+  }
+}

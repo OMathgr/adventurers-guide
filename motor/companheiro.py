@@ -30,10 +30,20 @@ class OpcaoTreino(str, Enum):
     VINCULO = "VINCULO"                    # Bonded: ao marcar seu último PV, ele pode te levantar
     ATENTO = "ATENTO"                      # Aware: +2 Evasão
 
+    @property
+    def rotulo(self) -> str:
+        return {"INTELIGENTE": "Inteligente", "LUZ_NA_ESCURIDAO": "Luz na Escuridão",
+                "CONFORTO": "Conforto Animal", "BLINDADO": "Blindado", "FEROZ": "Feroz",
+                "RESILIENTE": "Resiliente", "VINCULO": "Vínculo", "ATENTO": "Atento"}[self.value]
+
 
 class AlvoFeroz(str, Enum):
     DANO = "DANO"
     ALCANCE = "ALCANCE"
+
+    @property
+    def rotulo(self) -> str:
+        return "dano" if self is AlvoFeroz.DANO else "alcance"
 
 
 # --- Entradas -------------------------------------------------------------------

@@ -7,6 +7,7 @@ só este arquivo muda.
 
 from __future__ import annotations
 
+import dataclasses
 import json
 import re
 from dataclasses import dataclass
@@ -40,7 +41,20 @@ def _texto(valor):
 
 
 def _paragrafos(descricao: list) -> str:
+    """Texto corrido (para ler regras como "+1 to Evasion")."""
     return " ".join(_texto(p["paragraph"]) for p in descricao if "paragraph" in p)
+
+
+def _texto_completo(descricao: list) -> str:
+    """Texto para exibição: parágrafos em linhas e listas com marcador
+    (algumas cartas têm listas, ex.: os benefícios da Arcana-Touched)."""
+    linhas = []
+    for bloco in descricao:
+        if "paragraph" in bloco:
+            linhas.append(_texto(bloco["paragraph"]))
+        for item in bloco.get("list", []):
+            linhas.append(f"• {_texto(item)}")
+    return "\n".join(linhas)
 
 
 class Alvo(str, Enum):
@@ -84,6 +98,7 @@ class Caracteristica:
     modificadores: tuple[Modificador, ...] = ()   # vazio = só texto
     requisitos: tuple[Requisito, ...] = ()
     efeito: Efeito | None = None                  # regra especial aplicada na sessão
+    nome_original: str = ""                       # nome no SRD (inglês)
 
 
 class TipoDano(str, Enum):
@@ -201,25 +216,28 @@ def _caracteristicas(item: dict) -> tuple[Caracteristica, ...]:
         descricao = _paragrafos(c["description"])
         nome = _texto(c["name"])
         resultado.append(Caracteristica(nome, descricao, _modificadores(descricao),
-                                        _requisitos(descricao), _efeito(nome, descricao)))
+                                        _requisitos(descricao), _efeito(nome, descricao), nome))
     return tuple(resultado)
 
 
 @dataclass(frozen=True)
 class Classe:
     id: str
-    nome: str
+    codigo: str     # "BARD": é por ele que as subclasses apontam para a classe
+    nome: str       # nome de exibição ("Bard", ou traduzido)
     dominios: tuple[str, str]
     evasao_inicial: int
     pv_iniciais: int
+    nome_original: str = ""
 
 
 @dataclass(frozen=True)
 class Subclasse:
     id: str
     nome: str
-    classe: str  # nome da classe em maiúsculas, ex.: "BARD"
+    classe: str  # código da classe, ex.: "BARD" (Classe.codigo)
     traco_conjuracao: Traco | None   # None = subclasse não conjura
+    nome_original: str = ""
 
 
 @dataclass(frozen=True)
@@ -231,6 +249,7 @@ class CartaDeDominio:
     tipo: str
     custo_recall: int
     texto: str = ""   # o que a carta faz (só para exibição)
+    nome_original: str = ""
 
 
 class CategoriaArma(str, Enum):
@@ -252,6 +271,7 @@ class Arma:
     tipo_dano: TipoDano
     duas_maos: bool
     caracteristicas: tuple[Caracteristica, ...] = ()
+    nome_original: str = ""
 
     @property
     def primaria(self) -> bool:
@@ -271,6 +291,7 @@ class Armadura:
     limiar_grave: int
     pontuacao: int
     caracteristicas: tuple[Caracteristica, ...] = ()
+    nome_original: str = ""
 
 
 @dataclass(frozen=True)
@@ -280,23 +301,34 @@ class Ancestralidade:
     # Sempre duas, na ordem do SRD. A ordem importa na ancestralidade mista:
     # pega-se a primeira de uma e a segunda de outra.
     caracteristicas: tuple[Caracteristica, ...] = ()
+    nome_original: str = ""
 
 
 @dataclass(frozen=True)
 class Comunidade:
     id: str
     nome: str
+    nome_original: str = ""
 
 
 class Biblioteca:
-    """Todo o conteúdo do SRD, indexado por id."""
+    """Todo o conteúdo do SRD, indexado por id.
 
-    def __init__(self, pasta: Path = PASTA_DADOS):
+    `idioma` (ex.: "pt-BR") troca nomes e textos de EXIBIÇÃO pela tradução em
+    data/traducoes/<idioma>/. As regras continuam lendo o inglês do SRD
+    ("+1 to Evasion", "Fortified"...), que é interpretado antes da tradução;
+    o nome em inglês fica em `nome_original`.
+    """
+
+    def __init__(self, pasta: Path = PASTA_DADOS, idioma: str | None = None):
         srd = pasta / "srd"
+        self.idioma = idioma
         self.classes = {
             c["id"]: Classe(
                 id=c["id"],
-                nome=c["name"],
+                codigo=c["name"],
+                nome=c["name"].title(),
+                nome_original=c["name"].title(),
                 dominios=tuple(c["domains"]),
                 evasao_inicial=c["startingEvasion"],
                 pv_iniciais=c["startingHitPoints"],
@@ -307,6 +339,7 @@ class Biblioteca:
             s["id"]: Subclasse(
                 id=s["id"],
                 nome=_texto(s["name"]),
+                nome_original=_texto(s["name"]),
                 classe=s["class"],
                 traco_conjuracao=Traco(s["spellcastTrait"]) if s.get("spellcastTrait") else None,
             )
@@ -316,26 +349,30 @@ class Biblioteca:
             c["id"]: CartaDeDominio(
                 id=c["id"],
                 nome=_texto(c["name"]),
+                nome_original=_texto(c["name"]),
                 dominio=c["domain"],
                 nivel=c["level"],
                 tipo=c["type"],
                 custo_recall=c["recallCost"],
-                texto="\n\n".join(_paragrafos(f["description"]) for f in c.get("features", [])),
+                # grimórios têm várias magias, cada uma com nome: "Power Push: ..."
+                texto="\n\n".join((f"{_texto(f['name'])}: " if "name" in f else "")
+                                  + _texto_completo(f["description"]) for f in c.get("features", [])),
             )
             for c in self._ler(srd / "domain-cards.json")
         }
         self.ancestralidades = {
-            a["id"]: Ancestralidade(a["id"], _texto(a["name"]), _caracteristicas(a))
+            a["id"]: Ancestralidade(a["id"], _texto(a["name"]), _caracteristicas(a), _texto(a["name"]))
             for a in self._ler(srd / "ancestries.json")
         }
         self.comunidades = {
-            c["id"]: Comunidade(c["id"], _texto(c["name"]))
+            c["id"]: Comunidade(c["id"], _texto(c["name"]), _texto(c["name"]))
             for c in self._ler(srd / "communities.json")
         }
         self.armas = {
             a["id"]: Arma(
                 id=a["id"],
                 nome=_texto(a["name"]),
+                nome_original=_texto(a["name"]),
                 categoria=CategoriaArma(a["type"]),
                 tier=a["tier"],
                 traco=Traco(a["trait"]),
@@ -352,6 +389,7 @@ class Biblioteca:
             a["id"]: Armadura(
                 id=a["id"],
                 nome=_texto(a["name"]),
+                nome_original=_texto(a["name"]),
                 tier=a["tier"],
                 limiar_maior=a["baseMajorThreshold"],
                 limiar_grave=a["baseSevereThreshold"],
@@ -362,6 +400,83 @@ class Biblioteca:
         }
         self.progressao = self._ler(pasta / "progressao.json")
         self.companheiro = self._ler(pasta / "companheiro.json")   # ficha do Ranger Companion
+        self._dominios: dict[str, str] = {}
+        # o que não achou tradução (o teste de traduções exige que fique vazio)
+        self.traducoes_faltando: list[str] = []
+        if idioma:
+            self._traduzir(pasta / "traducoes" / idioma)
+
+    # --- tradução (só exibição) ----------------------------------------------
+
+    def _traduzir(self, pasta: Path):
+        herancas = self._ler(pasta / "herancas.json")
+        carac = self._ler(pasta / "caracteristicas.json")
+        equip = self._ler(pasta / "equipamento.json")
+        cartas: dict = {}
+        for arquivo in sorted((pasta / "cartas").glob("*.json")):
+            cartas.update(self._ler(arquivo))
+        self._dominios = herancas["dominios"]
+        faltando = self.traducoes_faltando
+
+        def nome_de(tabela: dict, id_: str, atual: str) -> str:
+            if id_ not in tabela:
+                faltando.append(id_)
+                return atual
+            return tabela[id_]
+
+        def traduzir_carac(c: Caracteristica, nova: dict | None = None) -> Caracteristica:
+            nome = nova["nome"] if nova else carac["nomes"].get(c.nome_original)
+            descricao = nova["descricao"] if nova else carac["descricoes"].get(c.descricao)
+            if nome is None or descricao is None:
+                faltando.append(f"característica: {c.nome_original}")
+                return c
+            return dataclasses.replace(c, nome=nome, descricao=descricao)
+
+        def nome_equipamento(tabela: dict, prefixo: str, id_: str, atual: str) -> str:
+            if id_ in tabela:
+                return tabela[id_]["nome"]
+            # "core_weapon_improved_broadsword" = base "core_weapon_broadsword" + qualidade
+            for qualidade, formas in equip["qualidades"].items():
+                base = id_.replace(f"{prefixo}{qualidade}_", prefixo, 1)
+                if base != id_ and base in tabela:
+                    return f"{tabela[base]['nome']} {formas[tabela[base]['genero']]}"
+            faltando.append(id_)
+            return atual
+
+        def ancestralidade(i: str, a: Ancestralidade) -> Ancestralidade:
+            nova = herancas["ancestralidades"].get(i)
+            if nova is None:
+                faltando.append(i)
+                return a
+            return dataclasses.replace(a, nome=nova["nome"], caracteristicas=tuple(
+                traduzir_carac(c, n) for c, n in zip(a.caracteristicas, nova["caracteristicas"])))
+
+        def carta(i: str, c: CartaDeDominio) -> CartaDeDominio:
+            if i not in cartas:
+                faltando.append(i)
+                return c
+            return dataclasses.replace(c, nome=cartas[i]["nome"], texto=cartas[i]["texto"])
+
+        self.classes = {i: dataclasses.replace(c, nome=nome_de(herancas["classes"], i, c.nome))
+                        for i, c in self.classes.items()}
+        self.subclasses = {i: dataclasses.replace(s, nome=nome_de(herancas["subclasses"], i, s.nome))
+                           for i, s in self.subclasses.items()}
+        self.comunidades = {i: dataclasses.replace(c, nome=nome_de(herancas["comunidades"], i, c.nome))
+                            for i, c in self.comunidades.items()}
+        self.ancestralidades = {i: ancestralidade(i, a) for i, a in self.ancestralidades.items()}
+        self.cartas = {i: carta(i, c) for i, c in self.cartas.items()}
+        self.armas = {
+            i: dataclasses.replace(a, nome=nome_equipamento(equip["armas"], "core_weapon_", i, a.nome),
+                                   caracteristicas=tuple(traduzir_carac(c) for c in a.caracteristicas))
+            for i, a in self.armas.items()}
+        self.armaduras = {
+            i: dataclasses.replace(a, nome=nome_equipamento(equip["armaduras"], "core_armor_", i, a.nome),
+                                   caracteristicas=tuple(traduzir_carac(c) for c in a.caracteristicas))
+            for i, a in self.armaduras.items()}
+
+    def nome_dominio(self, codigo: str) -> str:
+        """Nome de exibição de um domínio ("BLADE" -> "Lâmina" ou "Blade")."""
+        return self._dominios.get(codigo, codigo.title())
 
     @staticmethod
     def _ler(caminho: Path):
@@ -371,7 +486,7 @@ class Biblioteca:
     # --- consultas úteis para o motor e para a interface -------------------
 
     def subclasses_da_classe(self, classe: Classe) -> list[Subclasse]:
-        return [s for s in self.subclasses.values() if s.classe == classe.nome]
+        return [s for s in self.subclasses.values() if s.classe == classe.codigo]
 
     def cartas_disponiveis(self, dominios, nivel_maximo: int) -> list[CartaDeDominio]:
         """Cartas dos domínios informados com nível <= nivel_maximo."""

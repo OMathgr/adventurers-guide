@@ -138,16 +138,16 @@ class Sessao:
         if rolagem_d6 is not None and not 1 <= rolagem_d6 <= 6:
             raise RegraViolada(f"Rolagem de d6 inválida: {rolagem_d6}.")
         if usar_armadura and tipo is TipoDano.MAGICO and Efeito.SO_FISICO in efeitos:
-            raise RegraViolada("Sua armadura (Physical) não reduz dano mágico.")
+            raise RegraViolada("Sua armadura (Física) não reduz dano mágico.")
         if usar_armadura and tipo is TipoDano.FISICO and Efeito.SO_MAGICO in efeitos:
-            raise RegraViolada("Sua armadura (Magic) não reduz dano físico.")
+            raise RegraViolada("Sua armadura (Mágica) não reduz dano físico.")
 
         notas: list[str] = []
         estresse_antes = self.estresse_marcado
         if tipo is TipoDano.MAGICO and Efeito.PROTEGIDA in efeitos and f.pontuacao_armadura:
             reduzido = min(dano, f.pontuacao_armadura)
             dano -= reduzido
-            notas.append(f"Warded: dano mágico reduzido em {reduzido}")
+            notas.append(f"Protegida: dano mágico reduzido em {reduzido}")
 
         gravidade = self.gravidade(dano)
         pv = int(gravidade)
@@ -159,13 +159,13 @@ class Sessao:
             if Efeito.RESILIENTE in efeitos and self.armadura_livre == 1:
                 d6 = rolagem_d6 or self.rng.randint(1, 6)
                 if d6 == 6:
-                    notas.append("Resilient: tirou 6 e reduziu sem marcar o último espaço")
+                    notas.append("Resiliente: tirou 6 e reduziu sem marcar o último espaço")
             if d6 != 6:
                 self._marcar_espaco(efeitos, notas)
                 espacos = 1
             reducao = 2 if Efeito.FORTIFICADA in efeitos else 1
             if reducao == 2:
-                notas.append("Fortified: reduziu dois níveis")
+                notas.append("Fortificada: reduziu dois níveis")
             pv = max(pv - reducao, 0)
 
         if (evitar_queda and pv > 0 and Efeito.IMPENETRAVEL in efeitos
@@ -175,7 +175,7 @@ class Sessao:
             pv -= 1
             self.estresse_marcado += 1
             self.usados_no_descanso.add(Efeito.IMPENETRAVEL)
-            notas.append("Impenetrable: marcou Estresse no lugar do último PV")
+            notas.append("Impenetrável: marcou 1 PF no lugar do último PV")
 
         self.marcar_pv(pv)
         if pv > 0 and self.caido:
@@ -212,7 +212,7 @@ class Sessao:
     def pagar_estresse(self, quantidade: int):
         """Estresse como custo de uma ação: só se houver espaço livre."""
         if quantidade > self.estresse_livre:
-            raise RegraViolada(f"Estresse insuficiente: custa {quantidade}, "
+            raise RegraViolada(f"Fadiga insuficiente: custa {quantidade} PF, "
                                f"você tem {self.estresse_livre} livre.")
         self.estresse_marcado += quantidade
 
@@ -238,7 +238,7 @@ class Sessao:
         efeitos = self.personagem.efeitos_ativos()
         if com_armadura:
             if Efeito.ESPERANCOSA not in efeitos:
-                raise RegraViolada("Só uma armadura com Hopeful troca Esperança por espaço de armadura.")
+                raise RegraViolada("Só uma armadura Esperançosa troca Esperança por espaço de armadura.")
             if com_armadura > quantidade:
                 raise RegraViolada("Não dá para pagar com armadura mais do que o custo.")
             if com_armadura > self.armadura_livre:
@@ -272,7 +272,7 @@ class Sessao:
         self.armadura_marcada += 1
         if Efeito.DOLOROSA in efeitos:
             self.marcar_estresse(1)   # "must mark": imposto, transborda para PV
-            notas.append("Painful: marcou 1 Estresse")
+            notas.append("Dolorosa: marcou 1 PF")
 
     # --- Descansos -----------------------------------------------------------------
 
@@ -295,7 +295,7 @@ class Sessao:
         longos = set()
         if movimento_longo is not None:
             if Efeito.EFICIENTE not in self.personagem.efeitos_ativos():
-                raise RegraViolada("Só Efficient (Clank) troca um movimento curto por um longo.")
+                raise RegraViolada("Só Eficiente (Autômato) troca um movimento curto por um longo.")
             if not 0 <= movimento_longo < len(movimentos):
                 raise RegraViolada("Índice de movimento inválido.")
             longos.add(movimento_longo)
@@ -321,7 +321,7 @@ class Sessao:
         maximo = 3 if Efeito.TRANSE in self.personagem.efeitos_ativos() else 2
         if not 2 <= len(movimentos) <= maximo:
             raise RegraViolada("Escolha dois movimentos de descanso"
-                               + (" (ou três, com Celestial Trance)." if maximo == 3 else "."))
+                               + (" (ou três, com Transe Celestial)." if maximo == 3 else "."))
         rolagens = list(rolagens) if rolagens is not None else [None] * len(movimentos)
         if len(rolagens) != len(movimentos):
             raise RegraViolada("Informe uma rolagem (ou None) para cada movimento.")
@@ -375,7 +375,7 @@ class Sessao:
         comp = self._companheiro_presente()
         if usar_armadura:
             if not comp.tem(OpcaoTreino.BLINDADO):
-                raise RegraViolada("Só com o treino Armored o companheiro usa sua armadura.")
+                raise RegraViolada("Só com o treino Blindado o companheiro usa sua armadura.")
             if self.armadura_livre <= 0:
                 raise RegraViolada("Sem espaço de armadura livre.")
             self._marcar_espaco(self.personagem.efeitos_ativos(), [])
@@ -390,9 +390,9 @@ class Sessao:
         uma Esperança OU vocês dois limpam um Estresse."""
         comp = self._companheiro_presente()
         if not comp.tem(OpcaoTreino.CONFORTO):
-            raise RegraViolada("Seu companheiro não tem o treino Creature Comfort.")
+            raise RegraViolada("Seu companheiro não tem o treino Conforto Animal.")
         if OpcaoTreino.CONFORTO in self.usados_no_descanso:
-            raise RegraViolada("Creature Comfort já foi usado neste descanso.")
+            raise RegraViolada("Conforto Animal já foi usado neste descanso.")
         if ganhar_esperanca:
             self.ganhar_esperanca(1)
         else:
@@ -424,14 +424,14 @@ class Sessao:
             return
         dados = list(rolagens) if rolagens is not None else [self.rng.randint(1, 6) for _ in range(livres)]
         if len(dados) != livres or any(not 1 <= d <= 6 for d in dados):
-            raise RegraViolada(f"Bonded: informe {livres} rolagens de d6.")
+            raise RegraViolada(f"Vínculo: informe {livres} rolagens de d6.")
         self.companheiro_estresse = comp.estresse_max
         self.companheiro_fora = True
         if 6 in dados:
             self.pv_marcados -= 1
-            notas.append(f"Bonded: {comp.nome} rolou {dados} e te levantou")
+            notas.append(f"Vínculo: {comp.nome} rolou {dados} e te levantou")
         else:
-            notas.append(f"Bonded: {comp.nome} rolou {dados}, sem 6")
+            notas.append(f"Vínculo: {comp.nome} rolou {dados}, sem 6")
 
     # --- Condições -------------------------------------------------------------------
 

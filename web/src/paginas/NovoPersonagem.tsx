@@ -8,10 +8,11 @@ import {
   useAncestralidades, useCartas, useClasses, useComunidades, useCriarPersonagem, useSubclasses,
 } from '../api/consultas'
 import type { Ancestralidade, Caracteristica, Classe, Subclasse, TipoDano, Traco } from '../api/tipos'
-import { Aviso, Botao, Campo, Carregando, Cartao, Escolhivel, Etapas, Selo } from '../componentes/ui'
+import { Aviso, Botao, Campo, Carregando, Cartao, Escolhivel, Etapas, Original, Selo } from '../componentes/ui'
+import { useNomeDominio } from '../lib/nomes'
 import { type Distribuicao, distribuicaoCompleta, valoresRestantes } from '../lib/regras'
 import {
-  comSinal, dominio, NOME_TIPO_DANO, NOME_TRACO, nomeClasse, TRACOS, USO_TRACO,
+  comSinal, NOME_TIPO_DANO, NOME_TRACO, TRACOS, USO_TRACO,
 } from '../lib/rotulos'
 
 const ETAPAS = ['Classe', 'Subclasse', 'Herança', 'Traços', 'Experiências', 'Cartas', 'Revisão']
@@ -93,13 +94,14 @@ type PropsEtapa = { r: Rascunho; atualizar: (p: Partial<Rascunho>) => void }
 
 function EtapaClasse({ r, atualizar }: PropsEtapa) {
   const classes = useClasses()
+  const dominio = useNomeDominio()
   if (classes.isPending) return <Carregando />
   return (
     <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
       {classes.data?.map((c) => (
         <Escolhivel key={c.id} selecionado={r.classe?.id === c.id}
           onClick={() => atualizar({ classe: c, subclasse: undefined, cartas: [] })}>
-          <p className="font-titulo text-lg">{nomeClasse(c.nome)}</p>
+          <p className="font-titulo text-lg">{c.nome}<Original nome={c.nome} original={c.nome_original} /></p>
           <p className="mt-1 text-sm text-texto-suave">{c.dominios.map(dominio).join(' & ')}</p>
           <p className="mt-2 flex gap-2"><Selo>Evasão {c.evasao_inicial}</Selo><Selo>PV {c.pv_iniciais}</Selo></p>
         </Escolhivel>
@@ -118,7 +120,7 @@ function EtapaSubclasse({ r, atualizar, temCompanheiro }: PropsEtapa & { temComp
       <div className="grid gap-3 sm:grid-cols-2">
         {subclasses.data?.map((s) => (
           <Escolhivel key={s.id} selecionado={r.subclasse?.id === s.id} onClick={() => atualizar({ subclasse: s })}>
-            <p className="font-titulo text-lg">{s.nome}</p>
+            <p className="font-titulo text-lg">{s.nome}<Original nome={s.nome} original={s.nome_original} /></p>
             <p className="mt-1 text-sm text-texto-suave">
               {s.traco_conjuracao ? `Conjura com ${NOME_TRACO[s.traco_conjuracao as Traco]}` : 'Não conjura'}
             </p>
@@ -158,7 +160,8 @@ function CaracteristicasDe({ lista }: { lista: Caracteristica[] }) {
   return (
     <ul className="mt-2 space-y-1 text-sm">
       {lista.map((c) => (
-        <li key={c.nome}><span className="font-semibold text-texto">{c.nome}:</span>{' '}
+        <li key={c.nome}><span className="font-semibold text-texto">{c.nome}</span>
+          <Original nome={c.nome} original={c.nome_original} />:{' '}
           <span className="text-texto-suave">{c.descricao}</span></li>
       ))}
     </ul>
@@ -198,7 +201,7 @@ function EtapaHeranca({ r, atualizar }: PropsEtapa) {
                   else atualizar({ segunda: a })
                 }}>
                 <p className="flex items-center gap-2 font-titulo text-lg">
-                  {a.nome}
+                  <span>{a.nome}<Original nome={a.nome} original={a.nome_original} /></span>
                   {r.mista && ehPrimeira && <Selo destaque>1ª</Selo>}
                   {r.mista && ehSegunda && <Selo destaque>2ª</Selo>}
                 </p>
@@ -219,7 +222,7 @@ function EtapaHeranca({ r, atualizar }: PropsEtapa) {
         <div className="grid gap-3 sm:grid-cols-3">
           {comunidades.data?.map((c) => (
             <Escolhivel key={c.id} selecionado={r.comunidade === c.id} onClick={() => atualizar({ comunidade: c.id })}>
-              <p className="font-titulo">{c.nome}</p>
+              <p className="font-titulo">{c.nome}<Original nome={c.nome} original={c.nome_original} /></p>
             </Escolhivel>
           ))}
         </div>
@@ -280,7 +283,7 @@ function EtapaExperiencias({ r, atualizar, temProposito }: PropsEtapa & { temPro
           }} />
       ))}
       {temProposito && (
-        <Cartao titulo="Purposeful Design">
+        <Cartao titulo="Projeto com Propósito">
           <p className="mb-2 text-sm text-texto-suave">Qual Experiência combina com o propósito para o qual você foi feito? Ela ganha +1.</p>
           {r.experiencias.filter((e) => e.trim()).map((e) => (
             <label key={e} className="flex items-center gap-2 text-sm">
@@ -296,6 +299,7 @@ function EtapaExperiencias({ r, atualizar, temProposito }: PropsEtapa & { temPro
 
 function EtapaCartas({ r, atualizar }: PropsEtapa) {
   const cartas = useCartas()
+  const dominio = useNomeDominio()
   if (cartas.isPending) return <Carregando />
   const disponiveis = cartas.data?.filter((c) => c.nivel === 1 && r.classe?.dominios.includes(c.dominio)) ?? []
   const alternar = (id: string) =>
@@ -309,7 +313,7 @@ function EtapaCartas({ r, atualizar }: PropsEtapa) {
           <Escolhivel key={c.id} selecionado={r.cartas.includes(c.id)}
             desabilitado={!r.cartas.includes(c.id) && r.cartas.length >= 2} onClick={() => alternar(c.id)}>
             <p className="flex items-center justify-between gap-2">
-              <span className="font-titulo">{c.nome}</span>
+              <span className="font-titulo">{c.nome}<Original nome={c.nome} original={c.nome_original} /></span>
               <Selo>{dominio(c.dominio)}</Selo>
             </p>
             <p className="mt-2 whitespace-pre-line text-sm text-texto-suave">{c.texto}</p>
@@ -355,7 +359,7 @@ function EtapaRevisao({ r, atualizar, temCompanheiro, temProposito }:
   return (
     <div className="grid gap-4 lg:grid-cols-2">
       <Cartao titulo="Resumo">
-        {linha('Classe', `${nomeClasse(r.classe!.nome)} · ${r.subclasse!.nome}`)}
+        {linha('Classe', `${r.classe!.nome} · ${r.subclasse!.nome}`)}
         {linha('Ancestralidade', r.mista && r.segunda ? `${r.ancestralidade!.nome} / ${r.segunda.nome}` : r.ancestralidade!.nome)}
         {linha('Traços', TRACOS.map((t) => `${NOME_TRACO[t]} ${comSinal(r.tracos[t] ?? 0)}`).join(', '))}
         {linha('Experiências', r.experiencias.join(', '))}

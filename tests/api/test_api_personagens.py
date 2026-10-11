@@ -62,7 +62,7 @@ def test_ficha_em_nivel_passado(cliente, bardo_id):
 
 def test_linha_do_tempo_e_opcoes(cliente, bardo_id):
     tempo = cliente.get(f"/personagens/{bardo_id}/linha-do-tempo").json()
-    assert len(tempo) == 10 and "Classe: Bard" in tempo[0]["itens"]
+    assert len(tempo) == 10 and "Classe: Bardo" in tempo[0]["itens"]
     opcoes = cliente.get(f"/personagens/{bardo_id}/opcoes").json()
     assert {"tier": 2, "opcao": "PV", "restantes": 2, "custo": 1} in opcoes
 
@@ -78,12 +78,13 @@ def test_equipar_persiste_e_valida(cliente, bardo_id):
     f = cliente.put(f"/personagens/{bardo_id}/equipamento",
                     json={"principal": "core_weapon_broadsword",
                           "armadura": "core_armor_leather_armor"}).json()
-    assert f["ataques"][0]["arma"] == "Broadsword" and f["pontuacao_armadura"] == 3
-    assert cliente.get(f"/personagens/{bardo_id}").json()["armadura"] == "Leather Armor"
+    assert f["ataques"][0]["arma"] == "Espada Larga" and f["pontuacao_armadura"] == 3
+    assert f["ataques"][0]["arma_original"] == "Broadsword"   # nome do SRD fica junto
+    assert cliente.get(f"/personagens/{bardo_id}").json()["armadura"] == "Armadura de Couro"
     ruim = cliente.put(f"/personagens/{bardo_id}/equipamento",
                        json={"principal": "core_weapon_longsword", "secundaria": "core_weapon_shortsword"})
     assert ruim.status_code == 422
-    assert cliente.get(f"/personagens/{bardo_id}").json()["ataques"][0]["arma"] == "Broadsword"
+    assert cliente.get(f"/personagens/{bardo_id}").json()["ataques"][0]["arma"] == "Espada Larga"
 
 
 def test_guardar_e_recuperar_carta(cliente, bardo_id):

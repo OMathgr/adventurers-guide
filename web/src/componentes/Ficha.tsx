@@ -1,10 +1,10 @@
 // Visão "ficha": tudo o que o personagem é agora, como na ficha de papel.
 import type { Ficha } from '../api/tipos'
-import { useNomes } from '../lib/nomes'
+import { useNomeDominio, useNomes } from '../lib/nomes'
 import {
-  comSinal, dominio, NOME_ALCANCE, NOME_TIPO_DANO, NOME_TRACO, TRACOS, USO_TRACO,
+  comSinal, condicao, NOME_ALCANCE, NOME_TIPO_DANO, NOME_TRACO, TRACOS, USO_TRACO,
 } from '../lib/rotulos'
-import { Cartao, Espacos, Esperanca, Selo } from './ui'
+import { Cartao, Espacos, Esperanca, Original, Selo } from './ui'
 
 function Numero({ rotulo, valor, detalhe }: { rotulo: string; valor: string | number; detalhe?: string }) {
   return (
@@ -16,11 +16,12 @@ function Numero({ rotulo, valor, detalhe }: { rotulo: string; valor: string | nu
   )
 }
 
-function ListaCaracteristicas({ lista }: { lista: { nome: string; descricao: string }[] }) {
+function ListaCaracteristicas({ lista }: { lista: { nome: string; descricao: string; nome_original?: string }[] }) {
   return (
     <ul className="space-y-1.5 text-sm">
       {lista.map((c) => (
-        <li key={c.nome}><span className="font-semibold">{c.nome}:</span>{' '}
+        <li key={c.nome}><span className="font-semibold">{c.nome}</span>
+          <Original nome={c.nome} original={c.nome_original} />:{' '}
           <span className="text-texto-suave">{c.descricao}</span></li>
       ))}
     </ul>
@@ -29,6 +30,7 @@ function ListaCaracteristicas({ lista }: { lista: { nome: string; descricao: str
 
 export default function FichaVisao({ ficha }: { ficha: Ficha }) {
   const nomes = useNomes(ficha)
+  const dominio = useNomeDominio()
 
   return (
     <div className="grid gap-4 lg:grid-cols-3">
@@ -41,7 +43,7 @@ export default function FichaVisao({ ficha }: { ficha: Ficha }) {
                 <span className="font-titulo text-2xl text-esperanca">{comSinal(ficha.tracos[t] ?? 0)}</span>
               </div>
               <p className="text-xs text-texto-suave">{USO_TRACO[t]}</p>
-              {ficha.tracos_marcados.includes(t) && <p className="mt-1 text-xs text-medo">marcado neste tier</p>}
+              {ficha.tracos_marcados.includes(t) && <p className="mt-1 text-xs text-medo">marcado neste patamar</p>}
             </div>
           ))}
         </div>
@@ -69,12 +71,12 @@ export default function FichaVisao({ ficha }: { ficha: Ficha }) {
         <div className="space-y-3">
           <div><p className="mb-1 text-sm">Pontos de Vida <span className="text-texto-suave">({ficha.pv_marcados}/{ficha.pv_max})</span></p>
             <Espacos total={ficha.pv_max} marcados={ficha.pv_marcados} rotulo="Pontos de Vida" cor="perigo" /></div>
-          <div><p className="mb-1 text-sm">Estresse <span className="text-texto-suave">({ficha.estresse_marcado}/{ficha.estresse_max})</span></p>
-            <Espacos total={ficha.estresse_max} marcados={ficha.estresse_marcado} rotulo="Estresse" cor="medo" /></div>
+          <div><p className="mb-1 text-sm">Fadiga <span className="text-texto-suave">({ficha.estresse_marcado}/{ficha.estresse_max})</span></p>
+            <Espacos total={ficha.estresse_max} marcados={ficha.estresse_marcado} rotulo="Fadiga" cor="medo" /></div>
           <div><p className="mb-1.5 text-sm">Esperança <span className="text-texto-suave">({ficha.esperanca}/{ficha.esperanca_max})</span></p>
             <Esperanca atual={ficha.esperanca} maximo={ficha.esperanca_max} /></div>
           {ficha.condicoes.length > 0 && (
-            <p className="flex flex-wrap gap-1.5">{ficha.condicoes.map((c) => <Selo key={c} destaque>{c}</Selo>)}</p>
+            <p className="flex flex-wrap gap-1.5">{ficha.condicoes.map((c) => <Selo key={c} destaque>{condicao(c)}</Selo>)}</p>
           )}
         </div>
       </Cartao>
@@ -96,7 +98,7 @@ export default function FichaVisao({ ficha }: { ficha: Ficha }) {
           {ficha.ataques.map((a) => (
             <li key={a.arma} className="rounded-xl border border-borda bg-fundo/60 p-3">
               <div className="flex flex-wrap items-baseline justify-between gap-2">
-                <span className="font-titulo text-lg">{a.arma}</span>
+                <span className="font-titulo text-lg">{a.arma}<Original nome={a.arma} original={a.arma_original} /></span>
                 <span className="text-sm"><b className="text-esperanca">{comSinal(a.bonus)}</b> {NOME_TRACO[a.traco]} ·{' '}
                   <b>{a.dano}</b> {NOME_TIPO_DANO[a.tipo_dano]} · {NOME_ALCANCE[a.alcance] ?? a.alcance}</span>
               </div>
@@ -122,7 +124,7 @@ export default function FichaVisao({ ficha }: { ficha: Ficha }) {
               return (
                 <details key={id} className={`rounded-xl border border-borda bg-fundo/60 p-3 ${cofre ? 'opacity-60' : ''}`}>
                   <summary className="cursor-pointer list-none">
-                    <span className="font-titulo">{carta?.nome ?? id}</span>
+                    <span className="font-titulo">{carta?.nome ?? id}</span><Original nome={carta?.nome} original={carta?.nome_original} />
                     <span className="mt-1 flex flex-wrap gap-1.5">
                       {carta && <Selo>{dominio(carta.dominio)} · nível {carta.nivel}</Selo>}
                       {cofre && <Selo>no cofre</Selo>}
@@ -138,7 +140,7 @@ export default function FichaVisao({ ficha }: { ficha: Ficha }) {
       <Cartao titulo="Ancestralidade" className="lg:col-span-2">
         <ListaCaracteristicas lista={ficha.caracteristicas_ancestralidade} />
         {ficha.caracteristicas_armadura.length > 0 && (
-          <><h3 className="mb-1 mt-4 text-sm text-esperanca">{ficha.armadura}</h3>
+          <><h3 className="mb-1 mt-4 text-sm text-esperanca">{ficha.armadura}<Original nome={ficha.armadura} original={ficha.armadura_original} /></h3>
             <ListaCaracteristicas lista={ficha.caracteristicas_armadura} /></>
         )}
       </Cartao>
@@ -150,9 +152,9 @@ export default function FichaVisao({ ficha }: { ficha: Ficha }) {
             <Numero rotulo="Dano" valor={ficha.companheiro.dano}
               detalhe={NOME_ALCANCE[ficha.companheiro.alcance] ?? ficha.companheiro.alcance} />
           </div>
-          <p className="mb-1 mt-3 text-sm">Estresse</p>
+          <p className="mb-1 mt-3 text-sm">Fadiga</p>
           <Espacos total={ficha.companheiro.estresse_max} marcados={ficha.companheiro.estresse_marcado}
-            rotulo="Estresse do companheiro" cor="medo" />
+            rotulo="Fadiga do companheiro" cor="medo" />
           <ul className="mt-3 space-y-1 text-sm">
             {Object.entries(ficha.companheiro.experiencias).map(([nome, v]) => (
               <li key={nome} className="flex justify-between"><span>{nome}</span><b className="text-esperanca">{comSinal(v)}</b></li>

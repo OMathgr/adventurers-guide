@@ -1,0 +1,86 @@
+{
+  "core_domain_card_deft_maneuvers": {
+    "nome": "Manobras Hábeis",
+    "texto": "Uma vez por descanso, marque 1 PF para disparar até qualquer lugar em alcance distante sem precisar de um teste de Agilidade para chegar lá.\nSe terminar esse movimento em alcance corpo a corpo de um adversário e atacá-lo imediatamente, ganhe +1 no teste de ataque."
+  },
+  "core_domain_card_i_see_it_coming": {
+    "nome": "Eu Vi Isso Chegando",
+    "texto": "Quando for alvo de um ataque feito de fora do alcance corpo a corpo, você pode marcar 1 PF para rolar um d4 e somar o resultado à sua Evasão contra esse ataque."
+  },
+  "core_domain_card_untouchable": {
+    "nome": "Intocável",
+    "texto": "Ganhe um bônus na Evasão igual à metade da sua Agilidade."
+  },
+  "core_domain_card_ferocity": {
+    "nome": "Ferocidade",
+    "texto": "Quando fizer um adversário marcar 1 ou mais Pontos de Vida, você pode gastar 2 Esperança para aumentar sua Evasão pelo número de Pontos de Vida que ele marcou. O bônus dura até depois do próximo ataque feito contra você."
+  },
+  "core_domain_card_strategic_approach": {
+    "nome": "Abordagem Estratégica",
+    "texto": "Depois de um descanso longo, coloque nesta carta um número de marcadores igual ao seu Conhecimento (mínimo 1). Na primeira vez que você se mover para alcance próximo de um adversário e atacá-lo, você pode gastar um marcador para escolher uma das opções a seguir:\n• Você faz o ataque com vantagem.\n• Você limpa 1 PF de um aliado em alcance corpo a corpo do adversário.\n• Você soma um d8 à rolagem de dano.\nQuando fizer um descanso longo, remova todos os marcadores não gastos."
+  },
+  "core_domain_card_brace": {
+    "nome": "Firmar-se",
+    "texto": "Quando marcar um espaço de armadura para reduzir o dano recebido, você pode marcar 1 PF para marcar um espaço de armadura adicional."
+  },
+  "core_domain_card_tactician": {
+    "nome": "Tático",
+    "texto": "Quando você Ajuda um Aliado, ele pode gastar 1 Esperança para somar uma das suas Experiências ao teste dele, junto com o seu dado de vantagem.\nAo fazer um Teste em Dupla, você pode rolar um d20 como seu Dado de Esperança."
+  },
+  "core_domain_card_boost": {
+    "nome": "Impulso",
+    "texto": "Marque 1 PF para tomar impulso num aliado disposto em alcance próximo, se lançar no ar e fazer um ataque aéreo contra um alvo em alcance distante. Você tem vantagem no ataque, soma um d10 à rolagem de dano e termina o movimento em alcance corpo a corpo do alvo."
+  },
+  "core_domain_card_redirect": {
+    "nome": "Redirecionar",
+    "texto": "Quando um ataque feito contra você de fora do alcance corpo a corpo falhar, role um número de d6 igual à sua Proficiência. Se algum resultado for 6, você pode marcar 1 PF para redirecionar o ataque e causar dano a um adversário em alcance muito próximo."
+  },
+  "core_domain_card_know_thy_enemy": {
+    "nome": "Conheça seu Inimigo",
+    "texto": "Ao observar uma criatura, você pode fazer um teste de Instinto contra ela. Com sucesso, gaste 1 Esperança e peça ao mestre um conjunto de informações sobre o alvo, entre as opções a seguir:\n• Os Pontos de Vida e PF não marcados dele.\n• A Dificuldade e os limiares de dano dele.\n• As táticas e os dados de dano do ataque padrão dele.\n• As habilidades e Experiências dele.\nAlém disso, com sucesso, você pode marcar 1 PF para tirar 1 Medo da reserva de Medo do mestre."
+  },
+  "core_domain_card_signature_move": {
+    "nome": "Golpe Assinatura",
+    "texto": "Dê nome e descreva seu golpe de combate característico. Uma vez por descanso, quando fizer esse golpe como parte de uma ação, você pode rolar um d20 como seu Dado de Esperança. Com sucesso, limpe 1 PF."
+  },
+  "core_domain_card_rapid_riposte": {
+    "nome": "Contra-Ataque Rápido",
+    "texto": "Quando um ataque feito contra você em alcance corpo a corpo falhar, você pode marcar 1 PF e aproveitar a abertura para causar ao atacante o dano de uma das suas armas ativas."
+  },
+  "core_domain_card_recovery": {
+    "nome": "Recuperação",
+    "texto": "Durante um descanso curto, você pode escolher um movimento de descanso longo no lugar. Você pode gastar 1 Esperança para deixar um aliado fazer o mesmo."
+  },
+  "core_domain_card_bone_touched": {
+    "nome": "Tocado pelo Osso",
+    "texto": "Quando 4 ou mais das cartas de domínio ativas forem do domínio Osso, ganhe os seguintes benefícios:\n• +1 na Agilidade\n• Uma vez por descanso, você pode gastar 3 Esperança para fazer um ataque que acertou você falhar."
+  },
+  "core_domain_card_cruel_precision": {
+    "nome": "Precisão Cruel",
+    "texto": "Quando acertar um ataque com uma arma, ganhe um bônus na rolagem de dano igual à sua Acuidade ou à sua Agilidade."
+  },
+  "core_domain_card_breaking_blow": {
+    "nome": "Golpe Quebrador",
+    "texto": "Quando acertar um ataque, você pode marcar 1 PF para que o próximo ataque bem-sucedido contra o mesmo alvo cause 2d12 de dano extra."
+  },
+  "core_domain_card_wrangle": {
+    "nome": "Arrebanhar",
+    "texto": "Faça um teste de Agilidade contra todos os alvos em alcance próximo. Gaste 1 Esperança para mover os alvos contra quem teve sucesso, e quaisquer aliados dispostos em alcance próximo, para outro ponto em alcance próximo."
+  },
+  "core_domain_card_on_the_brink": {
+    "nome": "À Beira do Abismo",
+    "texto": "Quando tiver 2 ou menos Pontos de Vida não marcados, você não sofre dano Menor."
+  },
+  "core_domain_card_splintering_strike": {
+    "nome": "Golpe Estilhaçante",
+    "texto": "Gaste 1 Esperança e faça um ataque contra todos os adversários dentro do alcance da sua arma. Uma vez por descanso longo, com sucesso contra algum alvo, role o dano da arma e distribua esse dano como quiser entre os alvos que acertou. Antes de causar o dano a cada alvo, role um dado de dano adicional e some o resultado ao dano dele."
+  },
+  "core_domain_card_deathrun": {
+    "nome": "Corrida Mortal",
+    "texto": "Gaste 3 Esperança para correr em linha reta pelo campo de batalha até um ponto em alcance distante, atacando todos os adversários dentro do alcance da sua arma ao longo do caminho. Escolha a ordem em que causa dano aos alvos que acertou. No primeiro, role o dano da arma com +1 de Proficiência. Depois, tire um dado da rolagem de dano e cause o restante ao próximo alvo. Continue tirando um dado para cada alvo seguinte até acabarem os dados de dano ou os adversários.\nVocê não pode mirar no mesmo adversário mais de uma vez por ataque."
+  },
+  "core_domain_card_swift_step": {
+    "nome": "Passo Ligeiro",
+    "texto": "Quando um ataque feito contra você falhar, limpe 1 PF. Se não puder limpar PF, ganhe 1 Esperança."
+  }
+}

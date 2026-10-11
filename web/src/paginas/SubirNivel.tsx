@@ -8,11 +8,11 @@ import {
   useClasses, useFicha, useOpcoesDeCarta, useProximoNivel, useSubclasses, useSubirDeNivel,
 } from '../api/consultas'
 import type { AlvoFeroz, Escolha, Ficha, OpcaoAvanco, OpcaoTreino, ProximoNivel, Traco, Treino } from '../api/tipos'
-import { Aviso, Botao, Campo, Carregando, Cartao, Escolhivel, Etapas, Selo } from '../componentes/ui'
-import { useNomes } from '../lib/nomes'
+import { Aviso, Botao, Campo, Carregando, Cartao, Escolhivel, Etapas, Original, Selo } from '../componentes/ui'
+import { useNomeDominio, useNomes } from '../lib/nomes'
 import { type AvancoMarcado, custoTotal, opcoesPorTier, podeMarcar, treinosExigidos } from '../lib/regras'
 import {
-  dominio, NOME_ALVO_FEROZ, NOME_OPCAO, NOME_TRACO, NOME_TREINO, nomeClasse, TRACOS,
+  NOME_ALVO_FEROZ, NOME_OPCAO, NOME_TRACO, NOME_TREINO, TRACOS,
 } from '../lib/rotulos'
 
 const BEASTBOUND = 'core_subclass_beastbound'
@@ -145,7 +145,7 @@ function Assistente({ id, ficha, proximo }: { id: string; ficha: Ficha; proximo:
     <div className="space-y-4">
       <div>
         <h1 className="text-2xl">{ficha.nome}: nível {proximo.nivel}</h1>
-        <p className="text-sm text-texto-suave">Tier {proximo.tier}. Limiares de dano sobem +1 automaticamente.</p>
+        <p className="text-sm text-texto-suave">Patamar {proximo.tier}. Limiares de dano sobem +1 automaticamente.</p>
       </div>
       <Etapas etapas={etapas} atual={etapa} />
 
@@ -171,7 +171,7 @@ function Assistente({ id, ficha, proximo }: { id: string; ficha: Ficha; proximo:
             <div className="space-y-4">
               {opcoesPorTier(proximo.opcoes).map(([tier, opcoes]) => (
                 <div key={tier}>
-                  <p className="mb-1 text-xs uppercase tracking-wider text-texto-suave">Tier {tier}</p>
+                  <p className="mb-1 text-xs uppercase tracking-wider text-texto-suave">Patamar {tier}</p>
                   <ul className="space-y-1">
                     {opcoes.map((o) => (
                       <li key={o.opcao} className="flex items-center justify-between gap-2 text-sm">
@@ -311,6 +311,7 @@ function DetalheAvanco({ id, ficha, proximo, marcado, detalhe, outrosTracos, exp
 
 function CartaDoAvanco({ id, tier, carta, mudar }: { id: string; tier: number; carta?: string; mudar: (c: string) => void }) {
   const opcoes = useOpcoesDeCarta(id, { para: 'avanco', tier })
+  const dominio = useNomeDominio()
   if (opcoes.isPending) return <Carregando />
   return (
     <select value={carta ?? ''} onChange={(e) => mudar(e.target.value)} aria-label="Carta do avanço"
@@ -325,6 +326,7 @@ function Multiclasse({ ficha, detalhe, mudar }: { ficha: Ficha; detalhe: Detalhe
   const classes = useClasses()
   const subclasses = useSubclasses(detalhe.classe)
   const classe = classes.data?.find((c) => c.id === detalhe.classe)
+  const dominio = useNomeDominio()
   const seletor = 'w-full rounded-lg border border-borda bg-fundo px-3 py-2 text-sm'
   return (
     <div className="space-y-2">
@@ -332,7 +334,7 @@ function Multiclasse({ ficha, detalhe, mudar }: { ficha: Ficha; detalhe: Detalhe
         onChange={(e) => mudar({ classe: e.target.value, dominio: undefined, subclasse: undefined })}>
         <option value="">Classe</option>
         {classes.data?.filter((c) => c.id !== ficha.classe)
-          .map((c) => <option key={c.id} value={c.id}>{nomeClasse(c.nome)}</option>)}
+          .map((c) => <option key={c.id} value={c.id}>{c.nome}</option>)}
       </select>
       {classe && (
         <>
@@ -381,6 +383,7 @@ function EtapaCarta({ id, ficha, escolhas, carta, setCarta, troca, setTroca }: P
   const opcoesTroca = useOpcoesDeCarta(id, troca?.antiga
     ? { para: 'troca', antiga: troca.antiga, escolhas, carta_do_nivel: carta ?? null } : null)
   const nomes = useNomes(ficha)
+  const dominio = useNomeDominio()
 
   return (
     <div className="space-y-4">
@@ -390,7 +393,7 @@ function EtapaCarta({ id, ficha, escolhas, carta, setCarta, troca, setTroca }: P
           {opcoes.data?.map((c) => (
             <Escolhivel key={c.id} selecionado={carta === c.id} onClick={() => setCarta(c.id)}>
               <p className="flex items-center justify-between gap-2">
-                <span className="font-titulo">{c.nome}</span><Selo>{dominio(c.dominio)} · nível {c.nivel}</Selo>
+                <span className="font-titulo">{c.nome}<Original nome={c.nome} original={c.nome_original} /></span><Selo>{dominio(c.dominio)} · nível {c.nivel}</Selo>
               </p>
               <p className="mt-2 line-clamp-4 whitespace-pre-line text-sm text-texto-suave">{c.texto}</p>
             </Escolhivel>

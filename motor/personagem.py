@@ -40,6 +40,19 @@ class Opcao(str, Enum):
     PROFICIENCIA = "PROFICIENCIA"  # +1 Proficiência (custa os 2 avanços)
     MULTICLASSE = "MULTICLASSE"    # nova classe (custa os 2 avanços)
 
+    @property
+    def rotulo(self) -> str:
+        return _ROTULO_OPCAO[self]
+
+
+_ROTULO_OPCAO = {
+    Opcao.TRACOS: "+1 em dois traços", Opcao.PV: "+1 espaço de Ponto de Vida",
+    Opcao.ESTRESSE: "+1 espaço de Fadiga", Opcao.EXPERIENCIAS: "+1 em duas Experiências",
+    Opcao.CARTA_DOMINIO: "Carta de domínio adicional", Opcao.EVASAO: "+1 de Evasão",
+    Opcao.SUBCLASSE: "Próxima carta de subclasse", Opcao.PROFICIENCIA: "+1 de Proficiência",
+    Opcao.MULTICLASSE: "Multiclasse",
+}
+
 
 # --- Entradas: o que o jogador escolhe -------------------------------------
 
@@ -108,6 +121,7 @@ class Ataque:
     dano: str        # ex.: "2d8+1" (número de dados = Proficiência)
     tipo_dano: TipoDano
     caracteristicas: list[Caracteristica] = field(default_factory=list)
+    arma_original: str = ""   # nome no SRD (inglês)
 
 
 @dataclass
@@ -160,6 +174,7 @@ class Ficha:
     limiar_grave: int = 0
     pontuacao_armadura: int = 0
     armadura: str | None = None   # nome de exibição
+    armadura_original: str | None = None   # nome no SRD (inglês)
     caracteristicas_armadura: list[Caracteristica] = field(default_factory=list)
     ataques: list[Ataque] = field(default_factory=list)
     # uma por subclasse que conjura (a principal e, se houver, a da multiclasse)
@@ -414,7 +429,7 @@ class Personagem:
             itens = []
             if str(nivel) in conquistas:
                 c = conquistas[str(nivel)]
-                itens.append("Conquista de tier: nova Experiência +2, +1 Proficiência"
+                itens.append("Conquista de patamar: nova Experiência +2, +1 Proficiência"
                              + (", limpa marcas dos traços" if c["limpar_marcas_tracos"] else ""))
             subida = feitos.get(nivel)
             if subida:
@@ -461,7 +476,7 @@ class Personagem:
         bib = self.bib
         classe = self._exigir(bib.classes, c.classe, "Classe")
         subclasse = self._exigir(bib.subclasses, c.subclasse, "Subclasse")
-        if subclasse.classe != classe.nome:
+        if subclasse.classe != classe.codigo:
             raise RegraViolada(f"{subclasse.nome} não é subclasse de {classe.nome}.")
         caracteristicas_anc = self._caracteristicas_ancestralidade(c)
         self._exigir(bib.comunidades, c.comunidade, "Comunidade")
@@ -523,10 +538,10 @@ class Personagem:
             f.evasao += 1
         if Efeito.PROPOSITO in efeitos:
             if c.experiencia_proposito not in f.experiencias:
-                raise RegraViolada("Purposeful Design: escolha uma das suas Experiências para ganhar +1.")
+                raise RegraViolada("Projeto com Propósito: escolha uma das suas Experiências para ganhar +1.")
             f.experiencias[c.experiencia_proposito] += 1
         elif c.experiencia_proposito is not None:
-            raise RegraViolada("Só Purposeful Design (Clank) dá +1 numa Experiência na criação.")
+            raise RegraViolada("Só Projeto com Propósito (Autômato) dá +1 numa Experiência na criação.")
 
     def _ganhar_companheiro(self, sub: Subclasse, dados: Companheiro | None) -> FichaCompanheiro | None:
         """Beastbound exige os dados do companheiro; outras subclasses não aceitam."""
@@ -595,21 +610,21 @@ class Personagem:
         tier = e.tier or tier_atual
         tabela = self.bib.progressao["opcoes"].get(str(tier))
         if tabela is None or tier > tier_atual:
-            raise RegraViolada(f"Tier {tier} não está disponível no nível {nivel}.")
+            raise RegraViolada(f"Patamar {tier} não está disponível no nível {nivel}.")
         if e.opcao.value not in tabela:
-            raise RegraViolada(f"A opção {e.opcao.value} não existe no tier {tier}.")
+            raise RegraViolada(f"A opção {e.opcao.rotulo} não existe no patamar {tier}.")
         chave = (tier, e.opcao.value)
         if f.slots_usados.get(chave, 0) >= tabela[e.opcao.value]:
-            raise RegraViolada(f"Não há mais espaços de {e.opcao.value} no tier {tier}.")
+            raise RegraViolada(f"Não há mais espaços de {e.opcao.rotulo} no patamar {tier}.")
         if self._bloqueada(f, e.opcao, tier):
-            raise RegraViolada(f"{e.opcao.value} foi bloqueada no tier {tier}.")
+            raise RegraViolada(f"{e.opcao.rotulo} foi bloqueada no patamar {tier}.")
 
         o = e.opcao
         if o is Opcao.TRACOS:
             if len(set(e.tracos)) != 2:
                 raise RegraViolada("Escolha dois traços diferentes.")
             if any(t in f.tracos_marcados for t in e.tracos):
-                raise RegraViolada("Traço marcado só pode subir de novo após a próxima conquista de tier.")
+                raise RegraViolada("Traço marcado só pode subir de novo após a próxima conquista de patamar.")
             for t in e.tracos:
                 f.tracos[t] += 1
                 f.tracos_marcados.add(t)
@@ -619,7 +634,7 @@ class Personagem:
             f.pv_max += 1
         elif o is Opcao.ESTRESSE:
             if f.estresse_max >= self.bib.progressao["limite_estresse"]:
-                raise RegraViolada("Limite de Estresse atingido.")
+                raise RegraViolada("Limite de Fadiga atingido.")
             f.estresse_max += 1
         elif o is Opcao.EXPERIENCIAS:
             if len(set(e.experiencias)) != 2 or any(x not in f.experiencias for x in e.experiencias):
@@ -652,7 +667,7 @@ class Personagem:
         if e.dominio not in classe.dominios:
             raise RegraViolada(f"{e.dominio} não é domínio de {classe.nome}.")
         sub = self._exigir(self.bib.subclasses, e.subclasse, "Subclasse")
-        if sub.classe != classe.nome:
+        if sub.classe != classe.codigo:
             raise RegraViolada(f"{sub.nome} não é subclasse de {classe.nome}.")
         companheiro = self._ganhar_companheiro(sub, e.companheiro)
         f.multiclasse = {"classe": classe.id, "dominio": e.dominio, "subclasse": sub.id}
@@ -789,6 +804,7 @@ class Personagem:
             f.limiar_grave = armadura.limiar_grave + f.nivel
             f.pontuacao_armadura = armadura.pontuacao
             f.armadura = armadura.nome
+            f.armadura_original = armadura.nome_original
             f.caracteristicas_armadura = list(armadura.caracteristicas)
         else:
             # regra do SRD para quem está sem armadura
@@ -842,7 +858,7 @@ class Personagem:
         return Ataque(arma=arma.nome, traco=arma.traco,
                       bonus=f.tracos[arma.traco] + bonus_ataque,
                       alcance=arma.alcance, dano=dano, tipo_dano=arma.tipo_dano,
-                      caracteristicas=list(arma.caracteristicas))
+                      caracteristicas=list(arma.caracteristicas), arma_original=arma.nome_original)
 
     def _pecas(self, eq: Equipamento) -> list[Arma | Armadura]:
         """Armas e armadura do equipamento, como objetos da Biblioteca."""
@@ -895,14 +911,12 @@ class Personagem:
         return colecao[chave].nome
 
     def _nome_classe(self, chave: str) -> str:
-        # O SRD guarda "BARD" e as subclasses comparam por esse valor,
-        # então só formatamos na exibição.
-        return self._nome(self.bib.classes, chave).title()
+        return self._nome(self.bib.classes, chave)
 
     @staticmethod
     def _descrever_treino(t: Treino) -> str:
-        detalhe = f" ({t.experiencia})" if t.experiencia else f" ({t.alvo.value})" if t.alvo else ""
-        return f"Treino do companheiro: {t.opcao.value}{detalhe}"
+        detalhe = f" ({t.experiencia})" if t.experiencia else f" ({t.alvo.rotulo})" if t.alvo else ""
+        return f"Treino do companheiro: {t.opcao.rotulo}{detalhe}"
 
     def _descrever(self, e: Escolha) -> str:
         detalhe = ""
@@ -913,7 +927,7 @@ class Personagem:
         elif e.carta:
             detalhe = f" ({self._nome(self.bib.cartas, e.carta)})"
         elif e.classe:
-            detalhe = (f" ({self._nome_classe(e.classe)} / {e.dominio.title()}"
+            detalhe = (f" ({self._nome_classe(e.classe)} / {self.bib.nome_dominio(e.dominio)}"
                        f" / {self._nome(self.bib.subclasses, e.subclasse)})")
-        origem = f" [tier {e.tier}]" if e.tier else ""
-        return f"Avanço: {e.opcao.value}{detalhe}{origem}"
+        origem = f" [patamar {e.tier}]" if e.tier else ""
+        return f"Avanço: {e.opcao.rotulo}{detalhe}{origem}"

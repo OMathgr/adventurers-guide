@@ -1,0 +1,86 @@
+{
+  "core_domain_card_rune_ward": {
+    "nome": "Proteção Rúnica",
+    "texto": "Você tem um bibelô profundamente pessoal que pode ser imbuído de magia protetora e carregado como proteção por você ou por um aliado. Descreva o que ele é e por que é importante para você. Quem carrega a proteção pode gastar 1 Esperança para reduzir em 1d8 o dano que vai receber. Se o resultado do Dado de Proteção for 8, o poder da proteção acaba depois de reduzir o dano neste turno. Ela pode ser recarregada de graça no seu próximo descanso."
+  },
+  "core_domain_card_unleash_chaos": {
+    "nome": "Libertar o Caos",
+    "texto": "No início de uma sessão, coloque nesta carta um número de marcadores igual ao seu traço de Conjuração. Faça um teste de Conjuração contra um alvo em alcance distante e gaste quantos marcadores quiser para canalizar energia bruta de dentro de você e soltá-la contra ele. Com sucesso, role um número de d10 igual aos marcadores gastos e cause esse total de dano mágico ao alvo. Marque 1 PF para reabastecer esta carta de marcadores (até o seu traço de Conjuração). No fim de cada sessão, remova todos os marcadores não gastos."
+  },
+  "core_domain_card_wall_walk": {
+    "nome": "Andar nas Paredes",
+    "texto": "Gaste 1 Esperança para permitir que uma criatura que você possa tocar escale paredes e tetos com a mesma facilidade de andar no chão. Isso dura até o fim da cena ou até você lançar Andar nas Paredes de novo."
+  },
+  "core_domain_card_cinder_grasp": {
+    "nome": "Toque de Brasa",
+    "texto": "Faça um teste de Conjuração contra um alvo em alcance corpo a corpo. Com sucesso, o alvo pega fogo na hora, sofre 1d20+3 de dano mágico e fica temporariamente Em Chamas. Quando uma criatura Em Chamas age, ela sofre 2d6 de dano mágico extra se ainda estiver Em Chamas no fim da ação."
+  },
+  "core_domain_card_floating_eye": {
+    "nome": "Olho Flutuante",
+    "texto": "Gaste 1 Esperança para criar um único orbe pequeno e flutuante, que você pode mover para qualquer lugar em alcance muito distante. Enquanto esta magia estiver ativa, você pode enxergar através do orbe como se olhasse da posição dele. Você alterna livremente entre seus próprios sentidos e a visão pelo orbe. Se o orbe sofrer dano ou sair do alcance, a magia acaba."
+  },
+  "core_domain_card_counterspell": {
+    "nome": "Contramágica",
+    "texto": "Você pode interromper um efeito mágico em andamento fazendo um teste de reação com o seu traço de Conjuração. Com sucesso, o efeito para, as consequências são evitadas e esta carta vai para o seu cofre."
+  },
+  "core_domain_card_flight": {
+    "nome": "Voo",
+    "texto": "Faça um teste de Conjuração (15). Com sucesso, coloque nesta carta um número de marcadores igual à sua Agilidade (mínimo 1). Quando fizer um teste de ação enquanto voa, gaste um marcador desta carta. Depois de resolver a ação que gastar o último marcador, você desce até o chão logo abaixo de você."
+  },
+  "core_domain_card_blink_out": {
+    "nome": "Piscar",
+    "texto": "Faça um teste de Conjuração (12). Com sucesso, gaste 1 Esperança para se teleportar para outro ponto que você consiga ver em alcance distante. Se houver criaturas dispostas em alcance muito próximo, gaste 1 Esperança adicional por criatura para levá-las com você."
+  },
+  "core_domain_card_preservation_blast": {
+    "nome": "Explosão Preservadora",
+    "texto": "Faça um teste de Conjuração contra todos os alvos em alcance corpo a corpo. Os alvos contra quem você tiver sucesso são empurrados para alcance distante e sofrem d8+3 de dano mágico usando o seu traço de Conjuração."
+  },
+  "core_domain_card_chain_lightning": {
+    "nome": "Relâmpago em Cadeia",
+    "texto": "Marque 2 PF para fazer um teste de Conjuração, soltando relâmpagos em todos os alvos em alcance próximo. Os alvos contra quem você tiver sucesso precisam fazer um teste de reação com Dificuldade igual ao resultado do seu teste de Conjuração. Quem falhar sofre 2d8+4 de dano mágico. Adversários que ainda não foram alvo do Relâmpago em Cadeia e estejam em alcance próximo de alvos anteriores que sofreram dano também precisam fazer o teste de reação. Quem falhar sofre 2d8+4 de dano mágico. A cadeia continua até não haver mais adversários no alcance."
+  },
+  "core_domain_card_premonition": {
+    "nome": "Premonição",
+    "texto": "Você pode canalizar energia arcana para ter visões do futuro. Uma vez por descanso longo, logo depois que o mestre narrar as consequências de um teste seu, você pode desfazer o movimento e as consequências como se nunca tivessem acontecido e fazer outro movimento no lugar."
+  },
+  "core_domain_card_rift_walker": {
+    "nome": "Andarilho da Fenda",
+    "texto": "Faça um teste de Conjuração (15). Com sucesso, você deixa uma marca arcana no chão onde está agora. Da próxima vez que lançar Andarilho da Fenda com sucesso, uma fenda no espaço se abre, oferecendo passagem segura de volta ao ponto exato da marca. A fenda fica aberta até você decidir fechá-la ou lançar outra magia. Você pode encerrar a magia a qualquer momento para lançar Andarilho da Fenda de novo e deixar a marca em outro lugar."
+  },
+  "core_domain_card_telekinesis": {
+    "nome": "Telecinese",
+    "texto": "Faça um teste de Conjuração contra um alvo em alcance distante. Com sucesso, você pode usar a mente para movê-lo para qualquer lugar em alcance distante da posição original dele. Você pode arremessar o alvo erguido como um ataque, fazendo um teste de Conjuração adicional contra o segundo alvo que quer atingir. Com sucesso, cause d12+4 de dano físico ao segundo alvo usando a sua Proficiência. A magia então acaba."
+  },
+  "core_domain_card_arcana_touched": {
+    "nome": "Tocado pelo Arcano",
+    "texto": "Quando 4 ou mais das cartas de domínio ativas forem do domínio Arcano, ganhe os seguintes benefícios:\n• +1 nos seus testes de Conjuração\n• Uma vez por descanso, você pode trocar entre si os resultados dos seus Dados de Esperança e de Medo."
+  },
+  "core_domain_card_cloaking_blast": {
+    "nome": "Explosão Ocultadora",
+    "texto": "Quando tiver sucesso num teste de Conjuração para lançar outra magia, você pode gastar 1 Esperança para ficar Encoberto. Enquanto estiver Encoberto, você continua sem ser visto se ficar parado quando um adversário se mover para onde normalmente te veria. Quando você entra ou se move na linha de visão de um adversário, ou faz um ataque, deixa de estar Encoberto."
+  },
+  "core_domain_card_arcane_reflection": {
+    "nome": "Reflexo Arcano",
+    "texto": "Quando for sofrer dano mágico, você pode gastar quantas Esperanças quiser para rolar esse número de d6. Se algum resultado for 6, o ataque é refletido de volta para quem o lançou, que sofre o dano no seu lugar."
+  },
+  "core_domain_card_confusing_aura": {
+    "nome": "Aura Confusa",
+    "texto": "Faça um teste de Conjuração (14). Uma vez por descanso longo, com sucesso, você cria uma camada de ilusão sobre o corpo que dificulta saber exatamente onde você está. Marque quantos PF quiser para criar esse número de camadas adicionais. Quando um adversário te atacar, role um número de d6 igual às camadas ativas. Se algum resultado for 5 ou mais, uma camada da aura é destruída e o ataque falha. Se todos os resultados forem 4 ou menos, você sofre o dano e a magia acaba."
+  },
+  "core_domain_card_earthquake": {
+    "nome": "Terremoto",
+    "texto": "Faça um teste de Conjuração (16). Uma vez por descanso, com sucesso, todos os alvos em alcance muito distante que não estejam voando precisam fazer um teste de reação (18). Quem falhar sofre 3d10+8 de dano físico e fica temporariamente Vulnerável. Quem tiver sucesso sofre metade do dano. Além disso, quando você tem sucesso no teste de Conjuração, todo o terreno em alcance muito distante fica difícil de atravessar, e as construções nesse alcance podem ser danificadas ou desabar."
+  },
+  "core_domain_card_sensory_projection": {
+    "nome": "Projeção Sensorial",
+    "texto": "Uma vez por descanso, faça um teste de Conjuração (15). Com sucesso, você entra numa visão que te deixa ver e ouvir com clareza qualquer lugar onde já esteve, como se estivesse lá neste momento. Na visão, você se move livremente, sem as limitações físicas ou os impedimentos de um corpo. Esta magia não pode ser detectada por meios mundanos nem mágicos. Você sai da visão ao sofrer dano ou lançar outra magia."
+  },
+  "core_domain_card_adjust_reality": {
+    "nome": "Ajustar a Realidade",
+    "texto": "Depois que você ou um aliado disposto fizer qualquer teste ou rolagem, você pode gastar 5 Esperança para mudar o resultado numérico para um resultado à sua escolha. O resultado precisa ser possível dentro da faixa dos dados."
+  },
+  "core_domain_card_falling_sky": {
+    "nome": "Céu Desabando",
+    "texto": "Faça um teste de Conjuração contra todos os adversários em alcance distante. Marque quantos PF quiser para fazer cair do alto uma chuva de estilhaços arcanos. Os alvos contra quem você tiver sucesso sofrem 1d20+2 de dano mágico para cada PF marcado."
+  }
+}

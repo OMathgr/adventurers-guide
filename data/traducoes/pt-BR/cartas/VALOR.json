@@ -1,0 +1,86 @@
+{
+  "core_domain_card_bare_bones": {
+    "nome": "Peito Aberto",
+    "texto": "Quando escolher não usar armadura, você tem Pontuação de Armadura base de 3 + sua Força e usa os seguintes limiares de dano base:\n• Patamar 1: 9/19\n• Patamar 2: 11/24\n• Patamar 3: 13/31\n• Patamar 4: 15/38"
+  },
+  "core_domain_card_forceful_push": {
+    "nome": "Empurrão Vigoroso",
+    "texto": "Ataque com a arma principal um alvo em alcance corpo a corpo. Com sucesso, você causa dano e o empurra para alcance próximo. Com sucesso com Esperança, some um d6 à rolagem de dano.\nAlém disso, você pode gastar 1 Esperança para deixá-lo temporariamente Vulnerável."
+  },
+  "core_domain_card_i_am_your_shield": {
+    "nome": "Eu Sou Seu Escudo",
+    "texto": "Quando um aliado em alcance muito próximo for sofrer dano, você pode marcar 1 PF para se colocar no caminho e virar o alvo do ataque no lugar dele. Quando sofrer dano desse ataque, você pode marcar quantos espaços de armadura quiser."
+  },
+  "core_domain_card_body_basher": {
+    "nome": "Trombada",
+    "texto": "Você usa toda a força do corpo na luta. Ao acertar um ataque com uma arma de alcance corpo a corpo, ganhe um bônus na rolagem de dano igual à sua Força."
+  },
+  "core_domain_card_bold_presence": {
+    "nome": "Presença Ousada",
+    "texto": "Quando fizer um teste de Presença, você pode gastar 1 Esperança para somar sua Força ao teste.\nAlém disso, uma vez por descanso, quando for receber uma condição, você pode descrever como sua presença ousada te ajuda na situação e evitar a condição."
+  },
+  "core_domain_card_critical_inspiration": {
+    "nome": "Inspiração Crítica",
+    "texto": "Uma vez por descanso, quando tiver um sucesso crítico num ataque, todos os aliados em alcance muito próximo podem limpar 1 PF ou ganhar 1 Esperança."
+  },
+  "core_domain_card_lean_on_me": {
+    "nome": "Conte Comigo",
+    "texto": "Uma vez por descanso longo, quando consolar ou inspirar um aliado que falhou num teste de ação, vocês dois podem limpar 2 PF."
+  },
+  "core_domain_card_goad_them_on": {
+    "nome": "Atiçar",
+    "texto": "Descreva como você provoca um alvo em alcance próximo e faça um teste de Presença contra ele. Com sucesso, o alvo precisa marcar 1 PF e, da próxima vez que o mestre der destaque a ele, ele precisa te atacar, com desvantagem."
+  },
+  "core_domain_card_support_tank": {
+    "nome": "Escudeiro de Apoio",
+    "texto": "Quando um aliado em alcance próximo falhar num teste, você pode gastar 2 Esperança para deixá-lo rolar de novo o Dado de Esperança ou o Dado de Medo."
+  },
+  "core_domain_card_armorer": {
+    "nome": "Armeiro",
+    "texto": "Enquanto estiver usando armadura, ganhe +1 na Pontuação de Armadura.\nDurante um descanso, quando escolher consertar a armadura como movimento de descanso, seus aliados também limpam um espaço de armadura."
+  },
+  "core_domain_card_rousing_strike": {
+    "nome": "Golpe Inspirador",
+    "texto": "Uma vez por descanso, quando tiver um sucesso crítico num ataque, você e todos os aliados que puderem te ver ou ouvir podem limpar 1 Ponto de Vida ou 1d4 PF."
+  },
+  "core_domain_card_inevitable": {
+    "nome": "Inevitável",
+    "texto": "Quando falhar num teste de ação, seu próximo teste de ação tem vantagem."
+  },
+  "core_domain_card_rise_up": {
+    "nome": "Reerguer-se",
+    "texto": "Ganhe um bônus no seu limiar Grave igual à sua Proficiência.\nQuando marcar 1 ou mais Pontos de Vida por causa de um ataque, limpe 1 PF."
+  },
+  "core_domain_card_shrug_it_off": {
+    "nome": "Nem Sentiu",
+    "texto": "Quando for sofrer dano, você pode marcar 1 PF para reduzir a gravidade do dano em um limiar. Ao fazer isso, role um d6. Com resultado 3 ou menor, coloque esta carta no seu cofre."
+  },
+  "core_domain_card_valor_touched": {
+    "nome": "Tocado pelo Valor",
+    "texto": "Quando 4 ou mais das cartas de domínio ativas forem do domínio Valor, ganhe os seguintes benefícios:\n• +1 na Pontuação de Armadura\n• Quando marcar 1 ou mais Pontos de Vida sem marcar espaço de armadura, limpe um espaço de armadura."
+  },
+  "core_domain_card_full_surge": {
+    "nome": "Explosão Total",
+    "texto": "Uma vez por descanso longo, marque 3 PF para levar o corpo ao limite. Ganhe +2 em todos os seus traços até o seu próximo descanso."
+  },
+  "core_domain_card_ground_pound": {
+    "nome": "Tremor de Terra",
+    "texto": "Gaste 2 Esperança para golpear o chão onde está e faça um teste de Força contra todos os alvos em alcance muito próximo. Os alvos contra quem você tiver sucesso são arremessados para alcance distante e precisam fazer um teste de reação (17). Quem falhar sofre 4d10+8 de dano. Quem tiver sucesso sofre metade do dano."
+  },
+  "core_domain_card_hold_the_line": {
+    "nome": "Segurar a Linha",
+    "texto": "Descreva a postura defensiva que você assume e gaste 1 Esperança. Se um adversário entrar em alcance muito próximo, ele é puxado para alcance corpo a corpo e fica Contido.\nA condição dura até você se mover ou falhar num teste com Medo, ou até o mestre gastar 2 Medo no turno dele para encerrá-la."
+  },
+  "core_domain_card_lead_by_example": {
+    "nome": "Dar o Exemplo",
+    "texto": "Quando causar dano a um adversário, você pode marcar 1 PF e descrever como encoraja seus aliados. O próximo personagem de jogador a atacar esse adversário pode limpar 1 PF ou ganhar 1 Esperança."
+  },
+  "core_domain_card_unbreakable": {
+    "nome": "Inquebrável",
+    "texto": "Quando marcar seu último Ponto de Vida, em vez de fazer um Movimento de Morte, você pode rolar um d6 e limpar um número de Pontos de Vida igual ao resultado. Depois, coloque esta carta no seu cofre."
+  },
+  "core_domain_card_unyielding_armor": {
+    "nome": "Armadura Inabalável",
+    "texto": "Quando for marcar um espaço de armadura, role um número de d6 igual à sua Proficiência. Se algum resultado for 6, reduza a gravidade em um limiar sem marcar espaço de armadura."
+  }
+}

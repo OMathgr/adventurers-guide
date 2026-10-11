@@ -33,6 +33,9 @@ export const useAncestralidades = () =>
 export const useComunidades = () =>
   useQuery({ queryKey: ['srd', 'comunidades'], queryFn: () => chamar<Comunidade[]>('/srd/comunidades'), staleTime: UMA_HORA })
 
+export const useDominios = () =>
+  useQuery({ queryKey: ['srd', 'dominios'], queryFn: () => chamar<Record<string, string>>('/srd/dominios'), staleTime: UMA_HORA })
+
 export const useCartas = () =>
   useQuery({ queryKey: ['srd', 'cartas'], queryFn: () => chamar<CartaDeDominio[]>('/srd/cartas'), staleTime: UMA_HORA })
 

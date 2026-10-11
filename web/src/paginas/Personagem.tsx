@@ -5,8 +5,8 @@ import { useApagarPersonagem, useDesfazerNivel, useFicha, useLinhaDoTempo } from
 import FichaVisao from '../componentes/Ficha'
 import LinhaDoTempo from '../componentes/LinhaDoTempo'
 import { Aviso, Botao, Carregando } from '../componentes/ui'
-import { useNomes } from '../lib/nomes'
-import { NOME_ESTAGIO, dominio } from '../lib/rotulos'
+import { useNomeDominio, useNomes } from '../lib/nomes'
+import { NOME_ESTAGIO } from '../lib/rotulos'
 
 export default function Personagem() {
   const { id = '' } = useParams()
@@ -18,6 +18,7 @@ export default function Personagem() {
   const apagar = useApagarPersonagem()
   const navegar = useNavigate()
   const nomes = useNomes(ficha.data)
+  const dominio = useNomeDominio()
 
   if (ficha.isPending) return <Carregando />
   if (ficha.error) return <Aviso erro={ficha.error} />

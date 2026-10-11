@@ -82,7 +82,7 @@ export function Selo({ children, destaque }: { children: ReactNode; destaque?: b
   )
 }
 
-/** Quadradinhos de PV/Estresse/armadura: `marcados` de `total`. */
+/** Quadradinhos de PV/Fadiga/armadura: `marcados` de `total`. */
 export function Espacos({ total, marcados, rotulo, cor = 'esperanca' }:
   { total: number; marcados: number; rotulo: string; cor?: 'esperanca' | 'medo' | 'perigo' }) {
   const fundo = { esperanca: 'bg-esperanca', medo: 'bg-medo', perigo: 'bg-perigo' }[cor]
@@ -107,6 +107,13 @@ export function Esperanca({ atual, maximo }: { atual: number; maximo: number }) 
       ))}
     </div>
   )
+}
+
+/** Nome original (inglês, do SRD) ao lado do traduzido, para quem consulta
+    material oficial. Some quando os dois são iguais. */
+export function Original({ nome, original }: { nome?: string | null; original?: string | null }) {
+  if (!original || original === nome) return null
+  return <span className="ml-1.5 text-xs font-normal italic text-texto-suave" lang="en">{original}</span>
 }
 
 /** Opção clicável em lista (classe, carta, ancestralidade...). */

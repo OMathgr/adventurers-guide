@@ -43,6 +43,13 @@ def armaduras(tier: int | None = None):
     return [a for a in biblioteca().armaduras.values() if tier is None or a.tier == tier]
 
 
+@rotas.get("/dominios")
+def dominios() -> dict[str, str]:
+    """Código -> nome de exibição dos domínios (ex.: "BLADE": "Lâmina")."""
+    bib = biblioteca()
+    return {d: bib.nome_dominio(d) for d in sorted({c.dominio for c in bib.cartas.values()})}
+
+
 @rotas.get("/cartas", response_model=list[CartaDeDominio])
 def cartas(dominio: str | None = None, nivel_max: int = 10):
     dominios = [dominio] if dominio else {c.dominio for c in biblioteca().cartas.values()}

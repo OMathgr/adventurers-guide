@@ -23,7 +23,7 @@ export default function LinhaDoTempo({ eventos, personagemId, aoDesfazer, desfaz
         const novoTier = i === 0 || eventos[i - 1].tier !== e.tier
         return (
           <li key={e.nivel} className="relative">
-            {novoTier && <p className="-ml-6 mb-2 text-xs uppercase tracking-widest text-texto-suave">Tier {e.tier}</p>}
+            {novoTier && <p className="-ml-6 mb-2 text-xs uppercase tracking-widest text-texto-suave">Patamar {e.tier}</p>}
             <span aria-hidden className={`absolute -left-[33px] top-1.5 h-4 w-4 rotate-45 rounded-[3px] border-2 ${
               feito ? 'border-esperanca bg-esperanca' : proximo ? 'border-esperanca bg-fundo' : 'border-borda bg-fundo'}`} />
             <div className={`rounded-2xl border p-4 ${feito ? 'border-borda bg-superficie' : 'border-dashed border-borda bg-transparent'}`}>

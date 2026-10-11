@@ -24,8 +24,8 @@ export const USO_TRACO: Record<Traco, string> = {
 
 export const NOME_OPCAO: Record<Opcao, string> = {
   TRACOS: '+1 em dois traços não marcados',
-  PV: '+1 espaço de Pontos de Vida',
-  ESTRESSE: '+1 espaço de Estresse',
+  PV: '+1 espaço de Ponto de Vida',
+  ESTRESSE: '+1 espaço de Fadiga',
   EXPERIENCIAS: '+1 em duas Experiências',
   CARTA_DOMINIO: 'Carta de domínio adicional',
   EVASAO: '+1 de Evasão',
@@ -35,14 +35,14 @@ export const NOME_OPCAO: Record<Opcao, string> = {
 }
 
 export const NOME_TREINO: Record<OpcaoTreino, string> = {
-  INTELIGENTE: 'Intelligent: +1 numa Experiência do companheiro',
-  LUZ_NA_ESCURIDAO: 'Light in the Dark: +1 espaço de Esperança para você',
-  CONFORTO: 'Creature Comfort: 1x por descanso, Esperança ou alívio',
-  BLINDADO: 'Armored: usa sua armadura no lugar do Estresse dele',
-  FEROZ: 'Vicious: dado de dano ou alcance sobe um passo',
-  RESILIENTE: 'Resilient: +1 espaço de Estresse',
-  VINCULO: 'Bonded: pode te levantar quando você cair',
-  ATENTO: 'Aware: +2 de Evasão',
+  INTELIGENTE: 'Inteligente: +1 numa Experiência do companheiro',
+  LUZ_NA_ESCURIDAO: 'Luz na Escuridão: +1 espaço de Esperança para você',
+  CONFORTO: 'Conforto Animal: 1x por descanso, Esperança ou alívio',
+  BLINDADO: 'Blindado: usa sua armadura no lugar da Fadiga dele',
+  FEROZ: 'Feroz: dado de dano ou alcance sobe um passo',
+  RESILIENTE: 'Resiliente: +1 espaço de Fadiga',
+  VINCULO: 'Vínculo: pode te levantar quando você cair',
+  ATENTO: 'Atento: +2 de Evasão',
 }
 
 export const NOME_ALVO_FEROZ: Record<AlvoFeroz, string> = { DANO: 'Dado de dano', ALCANCE: 'Alcance' }
@@ -55,24 +55,21 @@ export const NOME_TIPO_DANO: Record<TipoDano, string> = {
 
 export const NOME_ALCANCE: Record<string, string> = {
   MELEE: 'Corpo a corpo',
-  VERY_CLOSE: 'Muito perto',
-  CLOSE: 'Perto',
-  FAR: 'Longe',
-  VERY_FAR: 'Muito longe',
+  VERY_CLOSE: 'Muito próximo',
+  CLOSE: 'Próximo',
+  FAR: 'Distante',
+  VERY_FAR: 'Muito distante',
 }
 
-export const NOME_DOMINIO: Record<string, string> = {
-  ARCANA: 'Arcana', BLADE: 'Lâmina', BONE: 'Osso', CODEX: 'Códice', GRACE: 'Graça',
-  MIDNIGHT: 'Meia-noite', SAGE: 'Sábio', SPLENDOR: 'Esplendor', VALOR: 'Valor',
+/** Condições padrão (o resto são condições de características, já em texto). */
+export const NOME_CONDICAO: Record<string, string> = {
+  OCULTO: 'Oculto', CONTIDO: 'Contido', VULNERAVEL: 'Vulnerável',
 }
+
+export const condicao = (c: string) => NOME_CONDICAO[c] ?? c
 
 export const NOME_ESTAGIO: Record<string, string> = {
   fundacao: 'Fundação', especializacao: 'Especialização', maestria: 'Maestria',
 }
-
-/** "BARD" -> "Bard" (o SRD guarda o nome da classe em maiúsculas). */
-export const nomeClasse = (nome: string) => nome.charAt(0) + nome.slice(1).toLowerCase()
-
-export const dominio = (d: string) => NOME_DOMINIO[d] ?? d
 
 export const comSinal = (n: number) => (n > 0 ? `+${n}` : `${n}`)

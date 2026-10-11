@@ -55,7 +55,7 @@ def test_slot_esgotado_no_tier(bardo):
 
 
 def test_proficiencia_nao_existe_no_tier_2(bardo):
-    with pytest.raises(RegraViolada, match="não existe no tier 2"):
+    with pytest.raises(RegraViolada, match="não existe no patamar 2"):
         bardo.subir_de_nivel(SubidaDeNivel(
             nivel=2, escolhas=[Escolha(Opcao.PROFICIENCIA)],
             carta="core_domain_card_tell_no_lies", nova_experiencia="X"))
@@ -128,7 +128,7 @@ def test_linha_do_tempo(bardo):
     tempo = bardo.linha_do_tempo()
     assert len(tempo) == 10
     assert [e["status"] for e in tempo[:3]] == ["feito", "feito", "futuro"]
-    assert any("Conquista de tier" in i for i in tempo[4]["itens"])  # nível 5
+    assert any("Conquista de patamar" in i for i in tempo[4]["itens"])  # nível 5
 
 
 def test_linha_do_tempo_mostra_nomes_e_nao_ids(bardo):

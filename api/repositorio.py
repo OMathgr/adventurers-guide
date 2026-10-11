@@ -29,8 +29,9 @@ class NaoEncontrado(Exception):
 
 @lru_cache
 def biblioteca() -> Biblioteca:
-    """O SRD é lido uma vez só e compartilhado (é só leitura)."""
-    return Biblioteca()
+    """O SRD é lido uma vez só e compartilhado (é só leitura). Nomes e
+    textos em português; as regras continuam lendo o inglês do SRD."""
+    return Biblioteca(idioma="pt-BR")
 
 
 def para_json(criacao_ou_subida) -> dict:

@@ -29,6 +29,10 @@ personagem é guardado como criação + histórico de subidas de nível; a ficha
   dentro de `web/`. Cores: azul-escuro (Medo) e laranja (Esperança), via
   variáveis em `web/src/index.css`.
 - Conteúdo de jogo só do SRD (licença DPCGL). Nada do livro completo.
+- Tradução pt-BR em `data/traducoes/pt-BR/` (não oficial, só exibição; as
+  regras leem o inglês). Siga o glossário do `docs/ARQUITETURA.md` (Fadiga/PF,
+  teste, patamar, alcance próximo/distante). Da edição brasileira usamos só
+  termos e nomes, nunca o texto.
 - Dados ficam em `data/`; o motor só acessa dados pela `Biblioteca` (`motor/srd.py`).
 
 ## Como trabalhar comigo

@@ -33,9 +33,9 @@ def test_clank_escolhe_experiencia_para_o_proposito(bib, criacao_bardo):
     f = bardo_com(bib, criacao_bardo, ancestralidade="core_ancestry_clank",
                   experiencia_proposito="Diplomata").ficha()
     assert f.experiencias == {"Diplomata": 3, "Cantora de taverna": 2}
-    with pytest.raises(RegraViolada, match="Purposeful Design"):
+    with pytest.raises(RegraViolada, match="Projeto com Propósito"):
         bardo_com(bib, criacao_bardo, ancestralidade="core_ancestry_clank")
-    with pytest.raises(RegraViolada, match="Purposeful Design"):
+    with pytest.raises(RegraViolada, match="Projeto com Propósito"):
         bardo_com(bib, criacao_bardo, experiencia_proposito="Diplomata")   # Faun
 
 
@@ -90,7 +90,7 @@ def test_efficient_permite_projeto_no_curto(bib, criacao_bardo):
 
 
 def test_sem_efficient_nao_troca(bardo):
-    with pytest.raises(RegraViolada, match="Efficient"):
+    with pytest.raises(RegraViolada, match="Eficiente"):
         bardo.sessao.descanso_curto([Movimento.CUIDAR_FERIDAS, Movimento.PREPARAR], movimento_longo=0)
 
 

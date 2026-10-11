@@ -90,4 +90,10 @@ This product includes materials from the Daggerheart System Reference Document 1
 License. More information can be found at https://www.daggerheart.com. There are no
 previous modifications by others.
 
+Modifications: the SRD content was translated into Brazilian Portuguese by the
+Adventurer's Guide project (`data/traducoes/pt-BR/`). This is an unofficial
+translation, not affiliated with or endorsed by Darrington Press or Critical Role.
+
+Tradução não oficial para o português feita pelo projeto Adventurer's Guide.
+
 Dados em JSON: [daggersearch/daggerheart-data](https://github.com/daggersearch/daggerheart-data).

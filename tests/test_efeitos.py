@@ -31,7 +31,7 @@ def test_fortified_reduz_dois_niveis(bardo):
     sessao = armadura(bardo, "full_fortified_armor")     # limiares 16 / 41
     r = sessao.receber_dano(41, usar_armadura=True)       # grave -> menor
     assert (r.pv_marcados, r.espacos_marcados) == (1, 1)
-    assert "Fortified" in r.notas[0]
+    assert "Fortificada" in r.notas[0]
     assert sessao.receber_dano(16, usar_armadura=True).pv_marcados == 0   # maior -> nenhum
 
 
@@ -93,7 +93,7 @@ def test_hopeful_paga_esperanca_com_armadura(bardo):
 
 def test_sem_hopeful_nao_paga_com_armadura(bardo):
     sessao = armadura(bardo, "leather_armor")
-    with pytest.raises(RegraViolada, match="Hopeful"):
+    with pytest.raises(RegraViolada, match="Esperançosa"):
         sessao.gastar_esperanca(1, com_armadura=1)
     assert (sessao.esperanca, sessao.armadura_marcada) == (2, 0)
 

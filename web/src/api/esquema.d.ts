@@ -164,6 +164,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/srd/dominios": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Dominios
+         * @description Código -> nome de exibição dos domínios (ex.: "BLADE": "Lâmina").
+         */
+        get: operations["dominios_srd_dominios_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/srd/cartas": {
         parameters: {
             query?: never;
@@ -879,6 +899,11 @@ export interface components {
              * @default []
              */
             caracteristicas: components["schemas"]["Caracteristica"][];
+            /**
+             * Nome Original
+             * @default
+             */
+            nome_original: string;
         };
         /** Arma */
         Arma: {
@@ -904,6 +929,11 @@ export interface components {
              * @default []
              */
             caracteristicas: components["schemas"]["Caracteristica"][];
+            /**
+             * Nome Original
+             * @default
+             */
+            nome_original: string;
         };
         /** Armadura */
         Armadura: {
@@ -924,6 +954,11 @@ export interface components {
              * @default []
              */
             caracteristicas: components["schemas"]["Caracteristica"][];
+            /**
+             * Nome Original
+             * @default
+             */
+            nome_original: string;
         };
         /** Ataque */
         Ataque: {
@@ -939,6 +974,11 @@ export interface components {
             tipo_dano: components["schemas"]["TipoDano"];
             /** Caracteristicas */
             caracteristicas?: components["schemas"]["Caracteristica"][];
+            /**
+             * Arma Original
+             * @default
+             */
+            arma_original: string;
         };
         /** Body_login_auth_login_post */
         Body_login_auth_login_post: {
@@ -993,6 +1033,11 @@ export interface components {
              */
             requisitos: components["schemas"]["Requisito"][];
             efeito?: components["schemas"]["Efeito"] | null;
+            /**
+             * Nome Original
+             * @default
+             */
+            nome_original: string;
         };
         /** CartaDeDominio */
         CartaDeDominio: {
@@ -1013,6 +1058,11 @@ export interface components {
              * @default
              */
             texto: string;
+            /**
+             * Nome Original
+             * @default
+             */
+            nome_original: string;
         };
         /**
          * CategoriaArma
@@ -1023,6 +1073,8 @@ export interface components {
         Classe: {
             /** Id */
             id: string;
+            /** Codigo */
+            codigo: string;
             /** Nome */
             nome: string;
             /** Dominios */
@@ -1034,6 +1086,11 @@ export interface components {
             evasao_inicial: number;
             /** Pv Iniciais */
             pv_iniciais: number;
+            /**
+             * Nome Original
+             * @default
+             */
+            nome_original: string;
         };
         /**
          * Companheiro
@@ -1053,6 +1110,11 @@ export interface components {
             id: string;
             /** Nome */
             nome: string;
+            /**
+             * Nome Original
+             * @default
+             */
+            nome_original: string;
         };
         /** CondicaoEntrada */
         CondicaoEntrada: {
@@ -1267,6 +1329,8 @@ export interface components {
             pontuacao_armadura: number;
             /** Armadura */
             armadura: string | null;
+            /** Armadura Original */
+            armadura_original: string | null;
             /** Caracteristicas Armadura */
             caracteristicas_armadura: components["schemas"]["Caracteristica"][];
             /** Ataques */
@@ -1621,6 +1685,11 @@ export interface components {
             /** Classe */
             classe: string;
             traco_conjuracao: components["schemas"]["Traco"] | null;
+            /**
+             * Nome Original
+             * @default
+             */
+            nome_original: string;
         };
         /** SubidaDeNivel */
         SubidaDeNivel: {
@@ -1959,6 +2028,28 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    dominios_srd_dominios_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: string;
+                    };
                 };
             };
         };
