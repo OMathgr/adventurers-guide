@@ -131,6 +131,49 @@ def test_linha_do_tempo(bardo):
     assert any("Conquista de patamar" in i for i in tempo[4]["itens"])  # nível 5
 
 
+def _quadro(evento, tier):
+    """Opções do quadro de um patamar, por nome: {opcao: dict}."""
+    return {o["opcao"]: o for q in evento["quadros"] if q["tier"] == tier for o in q["opcoes"]}
+
+
+def test_quadros_de_avanco_por_nivel(bardo):
+    bardo.subir_de_nivel(nivel_simples(2, "core_domain_card_tell_no_lies", "X"))
+    tempo = bardo.linha_do_tempo()
+    assert "quadros" not in tempo[0]                      # criação não tem avanços
+    assert [q["tier"] for q in tempo[1]["quadros"]] == [2]
+    n2 = _quadro(tempo[1], 2)
+    assert list(n2) == ["TRACOS", "PV", "ESTRESSE", "EXPERIENCIAS", "CARTA_DOMINIO", "EVASAO"]  # ordem do livro
+    assert n2["PV"] == {"opcao": "PV", "limite": 2, "custo": 1, "antes": 0, "neste": 1, "riscados": 0}
+    n3 = _quadro(tempo[2], 2)                             # próximo nível: o que já foi marcado é "antes"
+    assert (n3["EVASAO"]["antes"], n3["EVASAO"]["neste"]) == (1, 0)
+    assert _quadro(tempo[4], 3)["PROFICIENCIA"]["custo"] == 2   # futuro: quadro do patamar 3
+
+
+def test_quadros_mostram_riscados_e_patamares_anteriores(bardo_nivel_4):
+    bardo = bardo_nivel_4
+    bardo.subir_de_nivel(SubidaDeNivel(
+        5, [Escolha(Opcao.SUBCLASSE), Escolha(Opcao.EXPERIENCIAS, tier=2, experiencias=("X", "Y"))],
+        "core_domain_card_hypnotic_shimmer", nova_experiencia="Y"))
+    tempo = bardo.linha_do_tempo()
+    n5 = tempo[4]
+    assert [q["tier"] for q in n5["quadros"]] == [3, 2]   # usou um quadradinho do patamar 2
+    assert _quadro(n5, 3)["SUBCLASSE"]["neste"] == 1
+    assert _quadro(n5, 3)["MULTICLASSE"]["riscados"] == 1  # subclasse risca a multiclasse
+    assert _quadro(n5, 2)["EXPERIENCIAS"]["neste"] == 1
+    n6 = tempo[5]                                          # próximo: todos os patamares até o atual
+    assert [q["tier"] for q in n6["quadros"]] == [3, 2]
+    assert _quadro(n6, 3)["SUBCLASSE"] == {"opcao": "SUBCLASSE", "limite": 1, "custo": 1,
+                                           "antes": 1, "neste": 0, "riscados": 0}
+    assert _quadro(n6, 3)["MULTICLASSE"]["riscados"] == 1
+
+
+def test_quadro_da_multiclasse_risca_a_subclasse(bardo_nivel_4):
+    bardo_nivel_4.subir_de_nivel(_multiclasse_guerreiro_nivel_5("core_domain_card_scramble"))
+    n5 = _quadro(bardo_nivel_4.linha_do_tempo()[4], 3)
+    assert n5["MULTICLASSE"]["neste"] == 1 and n5["MULTICLASSE"]["riscados"] == 0
+    assert n5["SUBCLASSE"]["riscados"] == 1
+
+
 def test_linha_do_tempo_mostra_nomes_e_nao_ids(bardo):
     bardo.subir_de_nivel(nivel_simples(2, "core_domain_card_tell_no_lies", "X"))
     tempo = bardo.linha_do_tempo()
@@ -157,7 +200,7 @@ def test_proximo_nivel_mostra_tracos_marcados(bardo):
         "core_domain_card_tell_no_lies", nova_experiencia="X"))
     p = bardo.proximo_nivel()
     assert p.nivel == 3 and p.nova_experiencia is False
-    assert p.tracos_marcados == [Traco.AGILIDADE, Traco.PRESENCA]   # na ordem dos traços
+    assert p.tracos_marcados == [Traco.AGILIDADE, Traco.PRESENCA]   # na ordem dos atributos
 
 
 def test_proximo_nivel_5_limpa_as_marcas(bardo_nivel_4):

@@ -4,7 +4,7 @@
 import type { OpcaoAvanco, ProximoNivel, Traco } from '../api/tipos'
 import { TRACOS } from './rotulos'
 
-/** Os valores que a criação distribui entre os seis traços. */
+/** Os valores que a criação distribui entre os seis atributos. */
 export const VALORES_TRACOS = [2, 1, 1, 0, 0, -1] as const
 
 export type Distribuicao = Partial<Record<Traco, number>>
@@ -40,11 +40,4 @@ export function podeMarcar(opcao: OpcaoAvanco, marcados: AvancoMarcado[], limite
 export function treinosExigidos(proximo: ProximoNivel, marcados: AvancoMarcado[]): number {
   const pegouSubclasse = marcados.some((m) => m.opcao === 'SUBCLASSE')
   return proximo.treinos + (pegouSubclasse ? proximo.treinos_extra_com_subclasse : 0)
-}
-
-/** Agrupa as opções por tier, do atual para o mais antigo. */
-export function opcoesPorTier(opcoes: OpcaoAvanco[]): [number, OpcaoAvanco[]][] {
-  const grupos = new Map<number, OpcaoAvanco[]>()
-  for (const o of opcoes) grupos.set(o.tier, [...(grupos.get(o.tier) ?? []), o])
-  return [...grupos.entries()].sort((a, b) => b[0] - a[0])
 }

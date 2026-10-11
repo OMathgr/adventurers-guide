@@ -6,7 +6,7 @@ const CHAVE_TOKEN = 'ag.token'
 
 export class ErroApi extends Error {
   readonly status: number
-  /** "regra" quando o motor recusou (ex.: traços mal distribuídos). */
+  /** "regra" quando o motor recusou (ex.: atributos mal distribuídos). */
   readonly tipo?: string
 
   constructor(status: number, mensagem: string, tipo?: string) {

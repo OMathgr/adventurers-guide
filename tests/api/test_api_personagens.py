@@ -63,6 +63,10 @@ def test_ficha_em_nivel_passado(cliente, bardo_id):
 def test_linha_do_tempo_e_opcoes(cliente, bardo_id):
     tempo = cliente.get(f"/personagens/{bardo_id}/linha-do-tempo").json()
     assert len(tempo) == 10 and "Classe: Bardo" in tempo[0]["itens"]
+    assert tempo[0]["quadros"] == []
+    assert tempo[1]["quadros"][0]["tier"] == 2
+    assert {"opcao": "PV", "limite": 2, "custo": 1, "antes": 0, "neste": 0, "riscados": 0} \
+        in tempo[1]["quadros"][0]["opcoes"]
     opcoes = cliente.get(f"/personagens/{bardo_id}/opcoes").json()
     assert {"tier": 2, "opcao": "PV", "restantes": 2, "custo": 1} in opcoes
 

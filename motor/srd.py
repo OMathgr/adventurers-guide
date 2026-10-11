@@ -18,7 +18,7 @@ PASTA_DADOS = Path(__file__).resolve().parent.parent / "data"
 
 
 class Traco(str, Enum):
-    """Os seis traços de personagem. O valor é a chave usada no SRD."""
+    """Os seis atributos de personagem. O valor é a chave usada no SRD."""
 
     AGILIDADE = "AGILITY"
     FORCA = "STRENGTH"
@@ -58,7 +58,7 @@ def _texto_completo(descricao: list) -> str:
 
 
 class Alvo(str, Enum):
-    """O que um modificador fixo de equipamento altera (além dos traços)."""
+    """O que um modificador fixo de equipamento altera (além dos atributos)."""
 
     EVASAO = "EVASAO"
     PONTUACAO_ARMADURA = "PONTUACAO_ARMADURA"
@@ -69,7 +69,7 @@ class Alvo(str, Enum):
 
 
 class Referencia(str, Enum):
-    """Valores da ficha que um bônus pode copiar (além dos traços)."""
+    """Valores da ficha que um bônus pode copiar (além dos atributos)."""
 
     NIVEL = "NIVEL"
 

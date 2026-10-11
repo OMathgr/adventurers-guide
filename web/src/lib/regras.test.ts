@@ -2,17 +2,17 @@ import { describe, expect, it } from 'vitest'
 
 import type { ProximoNivel } from '../api/tipos'
 import {
-  type AvancoMarcado, custoTotal, distribuicaoCompleta, opcoesPorTier, podeMarcar, treinosExigidos,
+  type AvancoMarcado, custoTotal, distribuicaoCompleta, podeMarcar, treinosExigidos,
   valoresRestantes,
 } from './regras'
 
-describe('distribuição de traços', () => {
+describe('distribuição de atributos', () => {
   it('tira cada valor usado só uma vez', () => {
     expect(valoresRestantes({ AGILITY: 1 })).toEqual([2, 1, 0, 0, -1])
     expect(valoresRestantes({ AGILITY: 1, STRENGTH: 1 })).toEqual([2, 0, 0, -1])
   })
 
-  it('só fica completa com os seis traços e todos os valores', () => {
+  it('só fica completa com os seis atributos e todos os valores', () => {
     const quase = { AGILITY: 2, STRENGTH: 1, FINESSE: 1, INSTINCT: 0, PRESENCE: 0 }
     expect(distribuicaoCompleta(quase)).toBe(false)
     expect(distribuicaoCompleta({ ...quase, KNOWLEDGE: -1 })).toBe(true)
@@ -32,10 +32,6 @@ describe('avanços', () => {
     expect(podeMarcar(pv, [marcar(pv, 1)], 2)).toBe(true)
     expect(podeMarcar(pv, [marcar(pv, 1), marcar(pv, 2)], 3)).toBe(false)   // sem quadradinho
     expect(podeMarcar(prof, [marcar(pv, 1)], 2)).toBe(false)                // custo não cabe
-  })
-
-  it('agrupa por tier, do mais alto para o mais baixo', () => {
-    expect(opcoesPorTier([pv, prof]).map(([tier]) => tier)).toEqual([3, 2])
   })
 })
 

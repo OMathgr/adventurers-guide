@@ -14,7 +14,7 @@ export const NOME_TRACO: Record<Traco, string> = {
   KNOWLEDGE: 'Conhecimento',
 }
 
-/** Verbos da ficha oficial, para lembrar para que serve cada traço. */
+/** Verbos da ficha oficial, para lembrar para que serve cada atributo. */
 export const USO_TRACO: Record<Traco, string> = {
   AGILITY: 'Correr, saltar, manobrar',
   STRENGTH: 'Erguer, golpear, agarrar',
@@ -25,13 +25,13 @@ export const USO_TRACO: Record<Traco, string> = {
 }
 
 export const NOME_OPCAO: Record<Opcao, string> = {
-  TRACOS: '+1 em dois traços não marcados',
+  TRACOS: '+1 em dois atributos não marcados',
   PV: '+1 espaço de Ponto de Vida',
   ESTRESSE: '+1 espaço de Fadiga',
   EXPERIENCIAS: '+1 em duas Experiências',
   CARTA_DOMINIO: 'Carta de domínio adicional',
   EVASAO: '+1 de Evasão',
-  SUBCLASSE: 'Próxima carta de subclasse',
+  SUBCLASSE: 'Carta de subclasse aprimorada',
   PROFICIENCIA: '+1 de Proficiência',
   MULTICLASSE: 'Multiclasse',
 }

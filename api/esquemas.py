@@ -47,6 +47,31 @@ class ProximoNivelSaida(BaseModel):
     treinos_extra_com_subclasse: int
 
 
+class OpcaoNoQuadro(BaseModel):
+    """Uma linha da página de Level Up: quadradinhos de uma opção num patamar."""
+
+    opcao: Opcao
+    limite: int
+    custo: int
+    antes: int      # marcados em níveis anteriores
+    neste: int      # marcados neste nível
+    riscados: int   # cortados por regra (subclasse x multiclasse)
+
+
+class QuadroDeAvanco(BaseModel):
+    tier: int
+    opcoes: list[OpcaoNoQuadro]
+
+
+class EventoLinhaDoTempo(BaseModel):
+    nivel: int
+    tier: int
+    status: Literal["feito", "futuro"]
+    titulo: str
+    itens: list[str]
+    quadros: list[QuadroDeAvanco] = []   # vazio no nível 1 (criação)
+
+
 class PersonagemCriado(BaseModel):
     id: str
     ficha: FichaSaida

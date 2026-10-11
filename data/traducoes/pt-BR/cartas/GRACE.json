@@ -25,7 +25,7 @@
   },
   "core_domain_card_invisibility": {
     "nome": "Invisibilidade",
-    "texto": "Faça um teste de Conjuração (10). Com sucesso, marque 1 PF e escolha você ou um aliado em alcance corpo a corpo para ficar Invisível. Uma criatura Invisível não pode ser vista, a não ser por meios mágicos, e os testes de ataque contra ela são feitos com desvantagem. Coloque nesta carta um número de marcadores igual ao seu traço de Conjuração. Quando a criatura Invisível fizer uma ação, gaste um marcador desta carta. Depois de resolver a ação que gastar o último marcador, o efeito acaba.\nVocê só pode manter Invisibilidade em uma criatura por vez."
+    "texto": "Faça um teste de Conjuração (10). Com sucesso, marque 1 PF e escolha você ou um aliado em alcance corpo a corpo para ficar Invisível. Uma criatura Invisível não pode ser vista, a não ser por meios mágicos, e os testes de ataque contra ela são feitos com desvantagem. Coloque nesta carta um número de marcadores igual ao seu atributo de Conjuração. Quando a criatura Invisível fizer uma ação, gaste um marcador desta carta. Depois de resolver a ação que gastar o último marcador, o efeito acaba.\nVocê só pode manter Invisibilidade em uma criatura por vez."
   },
   "core_domain_card_soothing_speech": {
     "nome": "Palavras Reconfortantes",

@@ -28,7 +28,7 @@ Ver "API e banco" no fim deste documento.
 Ordem de cada nível:
 
 1. **Conquista de tier** (níveis 2, 5, 8): nova Experiência +2, +1 Proficiência;
-   nos níveis 5 e 8 limpa as marcas dos traços.
+   nos níveis 5 e 8 limpa as marcas dos atributos.
 2. **Dois avanços** do tier atual ou anterior. Proficiência e Multiclasse valem por dois.
 3. **Limiares de dano** +1 (o bônus é igual ao nível).
 4. **Uma carta de domínio** de nível ≤ ao seu. Opcionalmente troca uma carta antiga
@@ -37,7 +37,7 @@ Ordem de cada nível:
 Restrições checadas:
 
 - quantidade de usos de cada opção por tier (`data/progressao.json`);
-- traço marcado não sobe até a próxima conquista de tier;
+- atributo marcado não sobe até a próxima conquista de tier;
 - pegar Subclasse risca a Multiclasse do mesmo tier;
 - Multiclasse risca a Subclasse do tier e todas as outras Multiclasses;
 - cartas do domínio da multiclasse têm nível ≤ metade do seu nível,
@@ -57,7 +57,7 @@ equipamento de hoje.
 - Com armadura: limiares base da armadura + nível.
 - Dano: número de dados = Proficiência (`2d8+1`).
 - Arma de duas mãos impede secundária; arma mágica exige subclasse com
-  traço de conjuração (inclusive a da multiclasse).
+  atributo de conjuração (inclusive a da multiclasse).
 
 No banco, o equipamento vira colunas (ou tabela) do `personagem`, não de
 `subida_de_nivel`.
@@ -67,7 +67,7 @@ No banco, o equipamento vira colunas (ou tabela) do `personagem`, não de
 O SRD só traz texto. A `Biblioteca` extrai os **bônus fixos** dele
 (`_modificadores` em `srd.py`): cada trecho separado por `;` no formato
 `+N to <alvo>`, com `<alvo>` na tabela `ALVOS_SRD` (Evasão, Pontuação de
-Armadura, limiar grave, ataque, traços). Os valores vêm do próprio SRD, então
+Armadura, limiar grave, ataque, atributos). Os valores vêm do próprio SRD, então
 "Barrier" +2 a +5 funciona sem tabela feita à mão.
 
 - Bônus fixos de todas as peças alteram a ficha (uma arma Heavy também tira
@@ -83,7 +83,7 @@ Armadura, limiar grave, ataque, traços). Os valores vêm do próprio SRD, entã
   penalidades de equipamento. Valem só para o dano da própria arma.
 - Requisitos de uso (Pompous: Presença ≤ 0) bloqueiam `equipar()` e também
   `subir_de_nivel()` se o nível quebrar o requisito de uma peça equipada.
-  O traço é checado com todo o equipamento aplicado.
+  O atributo é checado com todo o equipamento aplicado.
 - Versatile fica só como texto: escolher o perfil alternativo é decisão de mesa.
 
 ## Cartas de domínio
@@ -228,13 +228,13 @@ a rolagem de comando (é a Rolagem de Conjuração do personagem).
 ## Rolagem de conjuração
 
 `Ficha.conjuracoes` traz uma `Conjuracao` por subclasse que conjura: a
-principal e, se houver, a da multiclasse (o SRD define o traço de conjuração
-na subclasse, e cada subclasse pode usar um traço diferente). Subclasse sem
-traço (ex.: Guerreiro) não gera entrada.
+principal e, se houver, a da multiclasse (o SRD define o atributo de conjuração
+na subclasse, e cada subclasse pode usar um atributo diferente). Subclasse sem
+atributo (ex.: Guerreiro) não gera entrada.
 
-Bônus = traço de conjuração já com modificadores de equipamento (ex.: Gilded
+Bônus = atributo de conjuração já com modificadores de equipamento (ex.: Gilded
 +1 Presença) + bônus "to Spellcast Rolls" (Channeling). É calculado em
-`_vestir`, porque depende dos traços modificados.
+`_vestir`, porque depende dos atributos modificados.
 
 ## API e banco (fase 2, `api/`)
 
@@ -344,11 +344,11 @@ descansa), atualização em tempo real.
 React 19 + TypeScript + Vite, Tailwind CSS v4, React Router e React Query.
 
 - **Regras ficam no motor.** A tela guia (ex.: só libera "Continuar" quando
-  os traços estão distribuídos) mas quem decide é a API; a mensagem de
-  `RegraViolada` aparece para o jogador. O que o assistente de level up
+  os atributos estão distribuídos) mas quem decide é a API; a mensagem de
+  `RegraViolada` aparece para o jogador. O que a escolha do próximo nível
   precisa saber vem de `GET /personagens/{id}/proximo-nivel`
   (`Personagem.proximo_nivel()`): conquista de tier, avanços disponíveis,
-  traços marcados e quantos treinos o companheiro exige.
+  atributos marcados e quantos treinos o companheiro exige.
 - **Tipos gerados da API:** `npm run api:tipos` exporta o OpenAPI do FastAPI
   (`api/exportar_openapi.py`) e gera `web/src/api/esquema.d.ts`. Front e back
   não divergem em silêncio: mudou a API, o `tsc` aponta onde.
@@ -362,9 +362,28 @@ React 19 + TypeScript + Vite, Tailwind CSS v4, React Router e React Query.
   destaque, tema escuro padrão e claro opcional, tudo em variáveis CSS.
 
 Telas: entrar/cadastro, lista de personagens, criação passo a passo (classe,
-subclasse + companheiro, herança com ancestralidade mista, traços,
-Experiências, cartas, revisão), personagem (abas Ficha e Linha do tempo,
-excluir, desfazer último nível) e subir de nível passo a passo.
+subclasse + companheiro, herança com ancestralidade mista, atributos,
+Experiências, cartas, revisão) e personagem (abas Ficha e Linha do tempo,
+excluir, desfazer último nível).
+
+**Linha do tempo e subir de nível:** os níveis 1 a 10 ficam lado a lado com
+rolagem horizontal (abre no próximo nível). Embaixo de cada nível aparece a
+caixa de avanços do patamar, como a página de Level Up do livro: um
+quadradinho por vez que a opção pode ser marcada, duplo nas que valem dois
+avanços. Os dados vêm do motor (`Personagem.quadros_de_avanco`, em cada
+evento de `linha_do_tempo()` como `quadros`): por opção, `limite`, `antes`
+(marcados em níveis anteriores), `neste` (no próprio nível) e `riscados`
+(cortados por regra: subclasse risca a multiclasse do patamar e vice-versa;
+contados à parte porque o motor risca preenchendo `slots_usados`).
+- Nível feito: o patamar dele e os anteriores de onde vieram avanços.
+- Próximo nível: a caixa é interativa (checkbox por quadradinho) e todo o
+  level up acontece ali (`EscolhaDeNivel`): conquista, avanços (detalhes como
+  quais atributos ou qual carta aparecem logo abaixo), treinos do
+  companheiro, carta do nível e confirmar. Patamares anteriores com
+  quadradinho livre ficam num "Usar um patamar anterior" recolhível.
+  Substituiu o assistente em etapas (`/personagens/{id}/subir` saiu).
+- Níveis futuros: só consulta, com o que resta no patamar. Planejar
+  (marcar e guardar um plano) ficou de fora por ora.
 
 Mesas: lista, criar, entrar por código ou link (`/convite/CODIGO`; sem login,
 a tela de entrar volta para o convite depois), página da mesa com convite,
@@ -408,6 +427,7 @@ Glossário (alinhado à edição brasileira quando conhecida):
 | SRD | pt-BR | | SRD | pt-BR |
 |---|---|---|---|---|
 | Hope / Fear | Esperança / Medo | | Stress | Fadiga (PF) |
+| traits | atributos | | upgraded subclass card | carta de subclasse aprimorada |
 | Hit Points | Pontos de Vida (PV) | | Armor Slot / Score | espaço / Pontuação de Armadura |
 | Evasion | Evasão | | damage thresholds | limiares de dano |
 | Minor / Major / Severe | Menor / Maior / Grave | | Proficiency | Proficiência |

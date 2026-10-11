@@ -5,9 +5,10 @@ import type { ReactNode } from 'react'
 import { MemoryRouter } from 'react-router'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import type { EventoLinhaDoTempo } from '../api/tipos'
+import type { EventoLinhaDoTempo, Ficha, OpcaoNoQuadro, ProximoNivel, QuadroDeAvanco } from '../api/tipos'
 import { ProvedorAutenticacao } from '../auth/Autenticacao'
 import LinhaDoTempo from '../componentes/LinhaDoTempo'
+import QuadroAvanco from '../componentes/QuadroAvanco'
 import { Espacos } from '../componentes/ui'
 import { Entrar } from '../paginas/Acesso'
 
@@ -34,23 +35,86 @@ describe('Entrar', () => {
   })
 })
 
+/** Quadro do patamar 2 com PV e Evasão marcados no nível 2 (`antes` ou `neste`). */
+function quadroTier2(onde: 'antes' | 'neste'): QuadroDeAvanco {
+  const linha = (opcao: OpcaoNoQuadro['opcao'], limite: number, marcados = 0): OpcaoNoQuadro =>
+    ({ opcao, limite, custo: 1, antes: onde === 'antes' ? marcados : 0, neste: onde === 'neste' ? marcados : 0, riscados: 0 })
+  return {
+    tier: 2,
+    opcoes: [linha('TRACOS', 3), linha('PV', 2, 1), linha('ESTRESSE', 2), linha('EXPERIENCIAS', 1),
+      linha('CARTA_DOMINIO', 1), linha('EVASAO', 1, 1)],
+  }
+}
+
+const PROXIMO: ProximoNivel = {
+  nivel: 3, tier: 2, nova_experiencia: false, limpa_marcas_tracos: false, experiencia_companheiro: false,
+  avancos: 2, tracos_marcados: [], treinos: 0, treinos_extra_com_subclasse: 0,
+  opcoes: [
+    { tier: 2, opcao: 'TRACOS', restantes: 3, custo: 1 }, { tier: 2, opcao: 'PV', restantes: 1, custo: 1 },
+    { tier: 2, opcao: 'ESTRESSE', restantes: 2, custo: 1 }, { tier: 2, opcao: 'EXPERIENCIAS', restantes: 1, custo: 1 },
+    { tier: 2, opcao: 'CARTA_DOMINIO', restantes: 1, custo: 1 },
+  ],
+}
+
 describe('Linha do tempo', () => {
   const eventos: EventoLinhaDoTempo[] = [
-    { nivel: 1, tier: 1, status: 'feito', titulo: 'Criação', itens: ['Classe: Bard'] },
-    { nivel: 2, tier: 2, status: 'feito', titulo: 'Nível 2', itens: ['Avanço: PV'] },
-    { nivel: 3, tier: 2, status: 'futuro', titulo: 'Nível 3', itens: ['Escolher 2 avanços'] },
-    { nivel: 4, tier: 2, status: 'futuro', titulo: 'Nível 4', itens: ['Escolher 2 avanços'] },
+    { nivel: 1, tier: 1, status: 'feito', titulo: 'Criação', itens: ['Classe: Bardo'], quadros: [] },
+    { nivel: 2, tier: 2, status: 'feito', titulo: 'Nível 2', itens: ['Avanço: PV'], quadros: [quadroTier2('neste')] },
+    { nivel: 3, tier: 2, status: 'futuro', titulo: 'Nível 3', itens: [], quadros: [quadroTier2('antes')] },
+    { nivel: 4, tier: 2, status: 'futuro', titulo: 'Nível 4', itens: ['Escolher 2 avanços'], quadros: [quadroTier2('antes')] },
   ]
+  const ficha = { nome: 'Lia', experiencias: { Diplomata: 2 }, cartas: [], companheiro: null } as unknown as Ficha
 
-  it('oferece subir só para o próximo nível e desfazer só o último feito', async () => {
+  function montarLinha(desfazer = vi.fn()) {
+    const fetch = vi.fn(async (url: string) => new Response(
+      JSON.stringify(url.endsWith('/proximo-nivel') ? PROXIMO : []), { status: 200 }))
+    vi.stubGlobal('fetch', fetch)
+    montar(<LinhaDoTempo eventos={eventos} personagemId="p1" ficha={ficha} aoDesfazer={desfazer} desfazendo={false} />)
+    return fetch
+  }
+
+  it('mostra a caixa do patamar em cada nível e desfazer só no último feito', async () => {
     const desfazer = vi.fn()
-    montar(<LinhaDoTempo eventos={eventos} personagemId="p1" aoDesfazer={desfazer} desfazendo={false} />)
-    const subir = screen.getByRole('link', { name: 'Subir para o nível 3' })
-    expect(subir).toHaveAttribute('href', '/personagens/p1/subir')
-    expect(screen.queryByText('Subir para o nível 4')).not.toBeInTheDocument()
+    montarLinha(desfazer)
+    expect(await screen.findAllByRole('checkbox')).not.toHaveLength(0)   // próximo nível carregou
+    expect(screen.getAllByRole('region', { name: '2º patamar' })).toHaveLength(3)
+    expect(screen.getByRole('img', { name: '+1 de Evasão (2º patamar): marcado neste nível' })).toBeInTheDocument()
     await userEvent.click(screen.getByRole('button', { name: 'Desfazer este nível' }))
     expect(desfazer).toHaveBeenCalledOnce()
     expect(screen.getAllByRole('button', { name: 'Desfazer este nível' })).toHaveLength(1)
+  })
+
+  it('marca os avanços do próximo nível direto na caixa', async () => {
+    montarLinha()
+    const pv = await screen.findByRole('checkbox', { name: '+1 espaço de Ponto de Vida (2º patamar), quadradinho 2' })
+    // o quadradinho 1 do PV já foi usado no nível 2: não é marcável
+    expect(screen.queryByRole('checkbox', { name: /Ponto de Vida.*quadradinho 1/ })).not.toBeInTheDocument()
+    await userEvent.click(pv)
+    expect(pv).toHaveAttribute('aria-checked', 'true')
+    await userEvent.click(screen.getByRole('checkbox', { name: /dois atributos.*quadradinho 1/ }))
+    expect(screen.getByText('Avanços (2/2)')).toBeInTheDocument()
+    // avanço que pede detalhe abre os campos logo abaixo; com 2/2, o resto trava
+    expect(screen.getByLabelText('Agilidade')).toBeInTheDocument()
+    expect(screen.getByRole('checkbox', { name: /Fadiga.*quadradinho 1/ })).toBeDisabled()
+    expect(screen.getByRole('button', { name: 'Confirmar nível 3' })).toBeDisabled()
+    await userEvent.click(pv)
+    expect(screen.getByText('Avanços (1/2)')).toBeInTheDocument()
+  })
+})
+
+describe('Caixa de avanços', () => {
+  it('mostra marcados antes, riscados e opção cortada', () => {
+    render(<QuadroAvanco quadro={{
+      tier: 3,
+      opcoes: [
+        { opcao: 'SUBCLASSE', limite: 1, custo: 1, antes: 1, neste: 0, riscados: 0 },
+        { opcao: 'MULTICLASSE', limite: 1, custo: 2, antes: 0, neste: 0, riscados: 1 },
+      ],
+    }} />)
+    expect(screen.getByRole('img', { name: 'Carta de subclasse aprimorada (3º patamar): marcado em nível anterior' }))
+      .toBeInTheDocument()
+    expect(screen.getByRole('img', { name: 'Multiclasse (3º patamar): riscado' })).toBeInTheDocument()
+    expect(screen.getByText('Multiclasse')).toHaveClass('line-through')
   })
 })
 

@@ -9,3 +9,4 @@ __pycache__/
 # Claude Code: configurações e permissões ficam só nesta máquina
 # (o CLAUDE.md, na raiz, é do projeto e vai para o git)
 .claude/
+referencias/

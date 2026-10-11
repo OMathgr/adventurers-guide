@@ -54,7 +54,7 @@ export default function Personagem() {
         </div>
         <div className="flex gap-2">
           {f.nivel < 10 && (
-            <Link to={`/personagens/${id}/subir`}
+            <Link to={`/personagens/${id}?visao=tempo`}
               className="rounded-lg bg-esperanca px-4 py-2 text-sm font-semibold text-sobre-esperanca hover:bg-esperanca-forte">
               Subir de nível
             </Link>
@@ -72,7 +72,7 @@ export default function Personagem() {
 
       {visao === 'ficha' && <FichaVisao ficha={f} />}
       {visao === 'tempo' && (tempo.isPending ? <Carregando /> : tempo.data && (
-        <LinhaDoTempo eventos={tempo.data} personagemId={id}
+        <LinhaDoTempo eventos={tempo.data} personagemId={id} ficha={f}
           aoDesfazer={() => desfazer.mutate()} desfazendo={desfazer.isPending} />
       ))}
     </div>

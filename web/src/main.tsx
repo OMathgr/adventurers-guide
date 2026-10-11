@@ -15,7 +15,6 @@ import Mesas from './paginas/Mesas'
 import NovoPersonagem from './paginas/NovoPersonagem'
 import Personagem from './paginas/Personagem'
 import Personagens from './paginas/Personagens'
-import SubirNivel from './paginas/SubirNivel'
 
 const clienteConsultas = new QueryClient({
   defaultOptions: {
@@ -47,7 +46,6 @@ createRoot(document.getElementById('root')!).render(
                 <Route path="/personagens" element={<Personagens />} />
                 <Route path="/personagens/novo" element={<NovoPersonagem />} />
                 <Route path="/personagens/:id" element={<Personagem />} />
-                <Route path="/personagens/:id/subir" element={<SubirNivel />} />
                 <Route path="/mesas" element={<Mesas />} />
                 <Route path="/mesas/:id" element={<Mesa />} />
                 <Route path="/convite/:codigo" element={<Convite />} />

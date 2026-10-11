@@ -37,7 +37,7 @@
   },
   "core_domain_card_thorn_skin": {
     "nome": "Pele de Espinhos",
-    "texto": "Uma vez por descanso, gaste 1 Esperança para fazer brotar espinhos por todo o seu corpo. Ao fazer isso, coloque nesta carta um número de marcadores igual ao seu traço de Conjuração. Quando sofrer dano, você pode gastar quantos marcadores quiser para rolar esse número de d6. Some os resultados e reduza o dano recebido nesse valor. Se estiver em alcance corpo a corpo do atacante, cause a ele esse mesmo dano.\nQuando descansar, remova todos os marcadores não gastos."
+    "texto": "Uma vez por descanso, gaste 1 Esperança para fazer brotar espinhos por todo o seu corpo. Ao fazer isso, coloque nesta carta um número de marcadores igual ao seu atributo de Conjuração. Quando sofrer dano, você pode gastar quantos marcadores quiser para rolar esse número de d6. Some os resultados e reduza o dano recebido nesse valor. Se estiver em alcance corpo a corpo do atacante, cause a ele esse mesmo dano.\nQuando descansar, remova todos os marcadores não gastos."
   },
   "core_domain_card_wild_fortress": {
     "nome": "Fortaleza Selvagem",
@@ -53,7 +53,7 @@
   },
   "core_domain_card_sage_touched": {
     "nome": "Tocado pelo Sábio",
-    "texto": "Quando 4 ou mais das cartas de domínio ativas forem do domínio Sábio, ganhe os seguintes benefícios:\n• Enquanto estiver num ambiente natural, você ganha +2 nos testes de Conjuração.\n• Uma vez por descanso, você pode dobrar sua Agilidade ou seu Instinto num teste que use esse traço. Você precisa decidir isso antes de rolar."
+    "texto": "Quando 4 ou mais das cartas de domínio ativas forem do domínio Sábio, ganhe os seguintes benefícios:\n• Enquanto estiver num ambiente natural, você ganha +2 nos testes de Conjuração.\n• Uma vez por descanso, você pode dobrar sua Agilidade ou seu Instinto num teste que use esse atributo. Você precisa decidir isso antes de rolar."
   },
   "core_domain_card_wild_surge": {
     "nome": "Surto Selvagem",

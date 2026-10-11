@@ -29,7 +29,7 @@
   },
   "core_domain_card_book_of_exota": {
     "nome": "Livro de Exota",
-    "texto": "Repúdio: Você pode interromper um efeito mágico em andamento. Faça um teste de reação usando o seu traço de Conjuração. Uma vez por descanso, com sucesso, o efeito para e as consequências são evitadas.\n\nCriar Construto: Gaste 1 Esperança para escolher um grupo de objetos ao seu redor e criar com eles um construto animado que obedece a comandos simples. Faça um teste de Conjuração para mandá-lo agir. Quando necessário, ele usa a sua Evasão e os seus traços, e os ataques dele causam 2d10+3 de dano físico. Você só pode manter um construto por vez, e ele se desfaz ao sofrer qualquer dano."
+    "texto": "Repúdio: Você pode interromper um efeito mágico em andamento. Faça um teste de reação usando o seu atributo de Conjuração. Uma vez por descanso, com sucesso, o efeito para e as consequências são evitadas.\n\nCriar Construto: Gaste 1 Esperança para escolher um grupo de objetos ao seu redor e criar com eles um construto animado que obedece a comandos simples. Faça um teste de Conjuração para mandá-lo agir. Quando necessário, ele usa a sua Evasão e os seus atributos, e os ataques dele causam 2d10+3 de dano físico. Você só pode manter um construto por vez, e ele se desfaz ao sofrer qualquer dano."
   },
   "core_domain_card_book_of_grynn": {
     "nome": "Livro de Grynn",
@@ -45,7 +45,7 @@
   },
   "core_domain_card_banish": {
     "nome": "Banir",
-    "texto": "Faça um teste de Conjuração contra um alvo em alcance próximo. Com sucesso, role um número de d20 igual ao seu traço de Conjuração. O alvo precisa fazer um teste de reação com Dificuldade igual ao seu maior resultado. Se tiver sucesso, ele marca 1 PF mas não é banido. Uma vez por descanso, se ele falhar, é banido deste plano.\nQuando os personagens dos jogadores tirarem um resultado com Medo, a Dificuldade sofre −1 e o alvo faz outro teste de reação. Com sucesso, ele volta do banimento."
+    "texto": "Faça um teste de Conjuração contra um alvo em alcance próximo. Com sucesso, role um número de d20 igual ao seu atributo de Conjuração. O alvo precisa fazer um teste de reação com Dificuldade igual ao seu maior resultado. Se tiver sucesso, ele marca 1 PF mas não é banido. Uma vez por descanso, se ele falhar, é banido deste plano.\nQuando os personagens dos jogadores tirarem um resultado com Medo, a Dificuldade sofre −1 e o alvo faz outro teste de reação. Com sucesso, ele volta do banimento."
   },
   "core_domain_card_sigil_of_retribution": {
     "nome": "Sigilo da Retribuição",

@@ -25,7 +25,7 @@
   },
   "core_domain_card_versatile_fighter": {
     "nome": "Combatente Versátil",
-    "texto": "Você pode usar outro traço com uma arma equipada, em vez do traço que a arma pede. Quando causar dano, você pode marcar 1 PF para usar o resultado máximo de um dos seus dados de dano em vez de rolá-lo."
+    "texto": "Você pode usar outro atributo com uma arma equipada, em vez do atributo que a arma pede. Quando causar dano, você pode marcar 1 PF para usar o resultado máximo de um dos seus dados de dano em vez de rolá-lo."
   },
   "core_domain_card_deadly_focus": {
     "nome": "Foco Mortal",

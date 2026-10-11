@@ -56,7 +56,7 @@
       {"nome": "Levitação", "texto": "O Crânio levita a alguns palmos do chão e não pode ficar _Contido_."},
       {"nome": "Proteções", "texto": "O Crânio tem resistência a dano mágico."},
       {"nome": "Explosão Mágica", "texto": "**Marque 1 PF** para atacar todos os alvos em alcance próximo. Os alvos atingidos sofrem **2d6+4** de dano mágico."},
-      {"nome": "Drenar Magia", "texto": "**Gaste 1 Ponto de Medo** para atacar um PJ com traço de Conjuração em alcance muito próximo. Com sucesso, o alvo marca **1d4** PF e o Crânio limpa a mesma quantidade de PF. Além disso, com sucesso, o Crânio pode ser posto em destaque de novo imediatamente."}
+      {"nome": "Drenar Magia", "texto": "**Gaste 1 Ponto de Medo** para atacar um PJ com atributo de Conjuração em alcance muito próximo. Com sucesso, o alvo marca **1d4** PF e o Crânio limpa a mesma quantidade de PF. Além disso, com sucesso, o Crânio pode ser posto em destaque de novo imediatamente."}
     ]
   },
   "srd_conscript": {

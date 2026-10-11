@@ -40,10 +40,6 @@ export type InimigoResumo = S['InimigoResumo']
 export type Npc = S['Npc']
 export type NpcEntrada = S['NpcEntrada']
 
-export type EventoLinhaDoTempo = {
-  nivel: number
-  tier: number
-  status: 'feito' | 'futuro'
-  titulo: string
-  itens: string[]
-}
+export type EventoLinhaDoTempo = S['EventoLinhaDoTempo']
+export type QuadroDeAvanco = S['QuadroDeAvanco']
+export type OpcaoNoQuadro = S['OpcaoNoQuadro']

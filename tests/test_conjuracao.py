@@ -32,7 +32,7 @@ def test_channeling_soma_na_conjuracao(bardo):
     bardo.equipar(armadura="core_armor_channeling_armor")       # +1 to Spellcast Rolls
     f = bardo.ficha()
     assert f.conjuracoes[0].bonus == 3
-    assert f.tracos[Traco.PRESENCA] == 2                        # o traço em si não muda
+    assert f.tracos[Traco.PRESENCA] == 2                        # o atributo em si não muda
 
 
 def test_multiclasse_conjuradora_adiciona_segunda_conjuracao(bardo_nivel_4):

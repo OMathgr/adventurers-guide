@@ -30,7 +30,7 @@ ESTAGIOS_SUBCLASSE = ["fundacao", "especializacao", "maestria"]
 class Opcao(str, Enum):
     """Opções de avanço da página de Level Up da ficha."""
 
-    TRACOS = "TRACOS"              # +1 em dois traços não marcados
+    TRACOS = "TRACOS"              # +1 em dois atributos não marcados
     PV = "PV"                      # +1 slot de Pontos de Vida
     ESTRESSE = "ESTRESSE"          # +1 slot de Estresse
     EXPERIENCIAS = "EXPERIENCIAS"  # +1 em duas Experiências
@@ -46,10 +46,10 @@ class Opcao(str, Enum):
 
 
 _ROTULO_OPCAO = {
-    Opcao.TRACOS: "+1 em dois traços", Opcao.PV: "+1 espaço de Ponto de Vida",
+    Opcao.TRACOS: "+1 em dois atributos", Opcao.PV: "+1 espaço de Ponto de Vida",
     Opcao.ESTRESSE: "+1 espaço de Fadiga", Opcao.EXPERIENCIAS: "+1 em duas Experiências",
     Opcao.CARTA_DOMINIO: "Carta de domínio adicional", Opcao.EVASAO: "+1 de Evasão",
-    Opcao.SUBCLASSE: "Próxima carta de subclasse", Opcao.PROFICIENCIA: "+1 de Proficiência",
+    Opcao.SUBCLASSE: "Carta de subclasse aprimorada", Opcao.PROFICIENCIA: "+1 de Proficiência",
     Opcao.MULTICLASSE: "Multiclasse",
 }
 
@@ -115,8 +115,8 @@ class Equipamento:
 @dataclass
 class Ataque:
     arma: str        # nome de exibição
-    traco: Traco     # traço usado na rolagem de ataque
-    bonus: int       # traço (já com modificadores) + bônus de ataque da arma
+    traco: Traco     # atributo usado na rolagem de ataque
+    bonus: int       # atributo (já com modificadores) + bônus de ataque da arma
     alcance: str
     dano: str        # ex.: "2d8+1" (número de dados = Proficiência)
     tipo_dano: TipoDano
@@ -140,9 +140,9 @@ class ProximoNivel:
 
 @dataclass
 class Conjuracao:
-    subclasse: str   # nome de exibição da subclasse que dá o traço
-    traco: Traco     # traço de conjuração da subclasse
-    bonus: int       # traço (já com modificadores) + bônus de equipamento
+    subclasse: str   # nome de exibição da subclasse que dá o atributo
+    traco: Traco     # atributo de conjuração da subclasse
+    bonus: int       # atributo (já com modificadores) + bônus de equipamento
 
 
 @dataclass
@@ -430,7 +430,7 @@ class Personagem:
             if str(nivel) in conquistas:
                 c = conquistas[str(nivel)]
                 itens.append("Conquista de patamar: nova Experiência +2, +1 Proficiência"
-                             + (", limpa marcas dos traços" if c["limpar_marcas_tracos"] else ""))
+                             + (", limpa marcas dos atributos" if c["limpar_marcas_tracos"] else ""))
             subida = feitos.get(nivel)
             if subida:
                 if subida.nova_experiencia:
@@ -447,12 +447,54 @@ class Personagem:
                                  f" → {self._nome(bib.cartas, nova)}")
             else:
                 itens += ["Escolher 2 avanços", "Limiares de dano +1", "Escolher 1 carta de domínio"]
+            tier = self.bib.tier_do_nivel(nivel)
+            if subida:
+                # o patamar do nível e os de onde vieram os avanços dele
+                quadros = self.quadros_de_avanco(nivel, {tier} | {e.tier or tier for e in subida.escolhas})
+            elif nivel == len(self.historico) + 2:
+                quadros = self.quadros_de_avanco(None, set(range(2, tier + 1)))   # pode usar anteriores
+            else:
+                quadros = self.quadros_de_avanco(None, {tier})
             eventos.append({
-                "nivel": nivel, "tier": self.bib.tier_do_nivel(nivel),
+                "nivel": nivel, "tier": tier,
                 "status": "feito" if subida else "futuro",
-                "titulo": f"Nível {nivel}", "itens": itens,
+                "titulo": f"Nível {nivel}", "itens": itens, "quadros": quadros,
             })
         return eventos
+
+    def quadros_de_avanco(self, nivel: int | None, tiers: set[int]) -> list[dict]:
+        """Quadradinhos da página de Level Up de cada patamar em `tiers`, do mais
+        alto para o mais baixo, como estavam ao fim de `nivel` (None: hoje).
+
+        Por opção: `limite` de quadradinhos, `antes` (marcados em níveis
+        anteriores), `neste` (marcados no próprio `nivel`), `riscados` (cortados
+        por regra: subclasse risca a multiclasse do patamar e vice-versa) e
+        `custo` (2 para as opções de quadradinho duplo).
+        """
+        f = self._ficha_base(nivel)
+        antes: dict[tuple[int, str], int] = {}
+        neste: dict[tuple[int, str], int] = {}
+        for s in self.historico:
+            if nivel is not None and s.nivel > nivel:
+                continue
+            destino = neste if s.nivel == nivel else antes
+            for e in s.escolhas:
+                chave = (e.tier or self.bib.tier_do_nivel(s.nivel), e.opcao.value)
+                destino[chave] = destino.get(chave, 0) + 1
+        quadros = []
+        for tier in sorted(tiers, reverse=True):
+            opcoes = []
+            for nome, limite in self.bib.progressao["opcoes"][str(tier)].items():
+                chave, opcao = (tier, nome), Opcao(nome)
+                marcados = antes.get(chave, 0) + neste.get(chave, 0)
+                livres = limite - marcados
+                # riscar preenche os quadradinhos em slots_usados sem ser marca de verdade
+                riscados = livres if self._bloqueada(f, opcao, tier) else f.slots_usados.get(chave, 0) - marcados
+                opcoes.append({"opcao": nome, "limite": limite, "custo": self._custo(opcao),
+                               "antes": antes.get(chave, 0), "neste": neste.get(chave, 0),
+                               "riscados": max(0, min(riscados, livres))})
+            quadros.append({"tier": tier, "opcoes": opcoes})
+        return quadros
 
     # --- Replay --------------------------------------------------------------
 
@@ -482,9 +524,9 @@ class Personagem:
         self._exigir(bib.comunidades, c.comunidade, "Comunidade")
 
         if set(c.tracos) != set(Traco):
-            raise RegraViolada("Todos os seis traços precisam de um valor.")
+            raise RegraViolada("Todos os seis atributos precisam de um valor.")
         if sorted(c.tracos.values()) != DISTRIBUICAO_TRACOS:
-            raise RegraViolada("Distribua exatamente +2, +1, +1, +0, +0 e -1 entre os traços.")
+            raise RegraViolada("Distribua exatamente +2, +1, +1, +0, +0 e -1 entre os atributos.")
 
         nomes = [e.strip() for e in c.experiencias]
         if len(nomes) != 2 or "" in nomes or len(set(nomes)) != 2:
@@ -622,9 +664,9 @@ class Personagem:
         o = e.opcao
         if o is Opcao.TRACOS:
             if len(set(e.tracos)) != 2:
-                raise RegraViolada("Escolha dois traços diferentes.")
+                raise RegraViolada("Escolha dois atributos diferentes.")
             if any(t in f.tracos_marcados for t in e.tracos):
-                raise RegraViolada("Traço marcado só pode subir de novo após a próxima conquista de patamar.")
+                raise RegraViolada("Atributo marcado só pode subir de novo após a próxima conquista de patamar.")
             for t in e.tracos:
                 f.tracos[t] += 1
                 f.tracos_marcados.add(t)
@@ -767,7 +809,7 @@ class Personagem:
             if not principal.primaria:
                 raise RegraViolada(f"{principal.nome} é uma arma secundária.")
             if principal.magica and not self._conjura(f):
-                raise RegraViolada(f"{principal.nome} é mágica e exige um traço de conjuração.")
+                raise RegraViolada(f"{principal.nome} é mágica e exige um atributo de conjuração.")
         if eq.secundaria:
             secundaria = self._exigir(bib.armas, eq.secundaria, "Arma")
             if secundaria.primaria:
@@ -785,7 +827,7 @@ class Personagem:
         return [self.bib.subclasses[s] for s in ids]
 
     def _conjura(self, f: Ficha) -> bool:
-        """Alguma subclasse do personagem (inclusive da multiclasse) tem traço de conjuração."""
+        """Alguma subclasse do personagem (inclusive da multiclasse) tem atributo de conjuração."""
         return any(s.traco_conjuracao for s in self._subclasses(f))
 
     def _vestir(self, f: Ficha, eq: Equipamento) -> Ficha:
@@ -793,7 +835,7 @@ class Personagem:
 
         Ordem: valores base da armadura, depois os modificadores fixos de
         TODAS as peças (uma arma Heavy também tira Evasão), e por último os
-        ataques, que já usam os traços modificados.
+        ataques, que já usam os atributos modificados.
         O equipamento já foi validado em equipar().
         """
         armas = [self.bib.armas[a] for a in (eq.principal, eq.secundaria) if a]
@@ -840,7 +882,7 @@ class Personagem:
 
     @staticmethod
     def _valor(f: Ficha, m: Modificador) -> int:
-        """Valor do modificador nesta ficha (resolve "igual ao seu nível/traço")."""
+        """Valor do modificador nesta ficha (resolve "igual ao seu nível/atributo")."""
         if m.igual_a is Referencia.NIVEL:
             return f.nivel
         if isinstance(m.igual_a, Traco):
@@ -875,7 +917,7 @@ class Personagem:
         return {c.efeito for c in caracteristicas if c.efeito}
 
     def _validar_requisitos(self, f: Ficha, eq: Equipamento):
-        """`f` já vestida com `eq`: o requisito vale para o traço como ele fica
+        """`f` já vestida com `eq`: o requisito vale para o atributo como ele fica
         com todo o equipamento (ex.: uma peça que dá +1 Presença conta)."""
         for peca in self._pecas(eq):
             for c in peca.caracteristicas:

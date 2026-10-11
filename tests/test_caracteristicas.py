@@ -179,7 +179,7 @@ def test_subir_presenca_com_pompous_equipada_e_bloqueado(bardo_humilde):
     with pytest.raises(RegraViolada, match="Ego Blade"):
         bardo_humilde.subir_de_nivel(subida_nivel_2(Traco.PRESENCA, Traco.AGILIDADE))
     assert bardo_humilde.historico == []
-    # subir outros traços continua permitido
+    # subir outros atributos continua permitido
     bardo_humilde.subir_de_nivel(subida_nivel_2(Traco.AGILIDADE, Traco.FORCA))
 
 

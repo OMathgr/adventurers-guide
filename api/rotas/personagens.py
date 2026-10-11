@@ -10,7 +10,7 @@ from motor import CartaDeDominio, Criacao, Personagem, RegraViolada, SubidaDeNiv
 
 from .. import repositorio
 from ..autenticacao import Acesso, acesso
-from ..esquemas import (EquipamentoEntrada, FichaSaida, OpcoesDeCarta, PersonagemCriado,
+from ..esquemas import (EquipamentoEntrada, EventoLinhaDoTempo, FichaSaida, OpcoesDeCarta, PersonagemCriado,
                         PersonagemResumo, ProximoNivelSaida, RecuperarCarta, VinculoMesa,
                         ficha_saida)
 from ..mesas import membro
@@ -54,8 +54,8 @@ def apagar(personagem_id: str, a: Acesso = Depends(acesso)):
     return Response(status_code=204)
 
 
-@rotas.get("/{personagem_id}/linha-do-tempo")
-def linha_do_tempo(personagem_id: str, a: Acesso = Depends(acesso)) -> list[dict]:
+@rotas.get("/{personagem_id}/linha-do-tempo", response_model=list[EventoLinhaDoTempo])
+def linha_do_tempo(personagem_id: str, a: Acesso = Depends(acesso)):
     return repositorio.carregar(a.banco, a.usuario_id, personagem_id).linha_do_tempo()
 
 
@@ -70,7 +70,7 @@ def opcoes(personagem_id: str, a: Acesso = Depends(acesso)) -> list[dict]:
 @rotas.get("/{personagem_id}/proximo-nivel", response_model=ProximoNivelSaida | None)
 def proximo_nivel(personagem_id: str, a: Acesso = Depends(acesso)):
     """O que o próximo nível pede (null no nível máximo): conquista de tier,
-    avanços disponíveis, traços marcados e treinos do companheiro."""
+    avanços disponíveis, atributos marcados e treinos do companheiro."""
     proximo = repositorio.carregar(a.banco, a.usuario_id, personagem_id).proximo_nivel()
     return None if proximo is None else ProximoNivelSaida.model_validate(proximo, from_attributes=True)
 

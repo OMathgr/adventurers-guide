@@ -9,11 +9,11 @@
   },
   "core_domain_card_uncanny_disguise": {
     "nome": "Disfarce Perfeito",
-    "texto": "Quando tiver alguns minutos para se preparar, você pode marcar 1 PF para assumir a aparência de qualquer humanoide que consiga imaginar com clareza. Disfarçado, você tem vantagem em testes de Presença para escapar de um exame.\nColoque nesta carta um número de marcadores igual ao seu traço de Conjuração. Quando fizer uma ação disfarçado, gaste um marcador desta carta. Depois de resolver a ação que gastar o último marcador, o disfarce cai."
+    "texto": "Quando tiver alguns minutos para se preparar, você pode marcar 1 PF para assumir a aparência de qualquer humanoide que consiga imaginar com clareza. Disfarçado, você tem vantagem em testes de Presença para escapar de um exame.\nColoque nesta carta um número de marcadores igual ao seu atributo de Conjuração. Quando fizer uma ação disfarçado, gaste um marcador desta carta. Depois de resolver a ação que gastar o último marcador, o disfarce cai."
   },
   "core_domain_card_midnight_spirit": {
     "nome": "Espírito da Meia-Noite",
-    "texto": "Gaste 1 Esperança para invocar um espírito do tamanho de um humanoide que pode se mover ou carregar coisas para você até o seu próximo descanso.\nVocê também pode mandá-lo atacar um adversário. Ao fazer isso, faça um teste de Conjuração contra um alvo em alcance muito distante. Com sucesso, o espírito vai até o alcance corpo a corpo do alvo. Role um número de d6 igual ao seu traço de Conjuração e cause esse total de dano mágico ao alvo. O espírito então se dissipa. Você só pode ter um espírito por vez."
+    "texto": "Gaste 1 Esperança para invocar um espírito do tamanho de um humanoide que pode se mover ou carregar coisas para você até o seu próximo descanso.\nVocê também pode mandá-lo atacar um adversário. Ao fazer isso, faça um teste de Conjuração contra um alvo em alcance muito distante. Com sucesso, o espírito vai até o alcance corpo a corpo do alvo. Role um número de d6 igual ao seu atributo de Conjuração e cause esse total de dano mágico ao alvo. O espírito então se dissipa. Você só pode ter um espírito por vez."
   },
   "core_domain_card_shadowbind": {
     "nome": "Prisão de Sombras",
@@ -65,7 +65,7 @@
   },
   "core_domain_card_spellcharge": {
     "nome": "Carga Arcana",
-    "texto": "Quando sofrer dano mágico, coloque nesta carta marcadores iguais aos Pontos de Vida que marcou. Você pode guardar um número de marcadores igual ao seu traço de Conjuração.\nQuando acertar um ataque contra um alvo, você pode gastar quantos marcadores quiser para somar um d6 por marcador gasto à rolagem de dano."
+    "texto": "Quando sofrer dano mágico, coloque nesta carta marcadores iguais aos Pontos de Vida que marcou. Você pode guardar um número de marcadores igual ao seu atributo de Conjuração.\nQuando acertar um ataque contra um alvo, você pode gastar quantos marcadores quiser para somar um d6 por marcador gasto à rolagem de dano."
   },
   "core_domain_card_night_terror": {
     "nome": "Terror Noturno",

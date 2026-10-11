@@ -5,7 +5,7 @@
   },
   "core_domain_card_unleash_chaos": {
     "nome": "Libertar o Caos",
-    "texto": "No início de uma sessão, coloque nesta carta um número de marcadores igual ao seu traço de Conjuração. Faça um teste de Conjuração contra um alvo em alcance distante e gaste quantos marcadores quiser para canalizar energia bruta de dentro de você e soltá-la contra ele. Com sucesso, role um número de d10 igual aos marcadores gastos e cause esse total de dano mágico ao alvo. Marque 1 PF para reabastecer esta carta de marcadores (até o seu traço de Conjuração). No fim de cada sessão, remova todos os marcadores não gastos."
+    "texto": "No início de uma sessão, coloque nesta carta um número de marcadores igual ao seu atributo de Conjuração. Faça um teste de Conjuração contra um alvo em alcance distante e gaste quantos marcadores quiser para canalizar energia bruta de dentro de você e soltá-la contra ele. Com sucesso, role um número de d10 igual aos marcadores gastos e cause esse total de dano mágico ao alvo. Marque 1 PF para reabastecer esta carta de marcadores (até o seu atributo de Conjuração). No fim de cada sessão, remova todos os marcadores não gastos."
   },
   "core_domain_card_wall_walk": {
     "nome": "Andar nas Paredes",
@@ -21,7 +21,7 @@
   },
   "core_domain_card_counterspell": {
     "nome": "Contramágica",
-    "texto": "Você pode interromper um efeito mágico em andamento fazendo um teste de reação com o seu traço de Conjuração. Com sucesso, o efeito para, as consequências são evitadas e esta carta vai para o seu cofre."
+    "texto": "Você pode interromper um efeito mágico em andamento fazendo um teste de reação com o seu atributo de Conjuração. Com sucesso, o efeito para, as consequências são evitadas e esta carta vai para o seu cofre."
   },
   "core_domain_card_flight": {
     "nome": "Voo",
@@ -33,7 +33,7 @@
   },
   "core_domain_card_preservation_blast": {
     "nome": "Explosão Preservadora",
-    "texto": "Faça um teste de Conjuração contra todos os alvos em alcance corpo a corpo. Os alvos contra quem você tiver sucesso são empurrados para alcance distante e sofrem d8+3 de dano mágico usando o seu traço de Conjuração."
+    "texto": "Faça um teste de Conjuração contra todos os alvos em alcance corpo a corpo. Os alvos contra quem você tiver sucesso são empurrados para alcance distante e sofrem d8+3 de dano mágico usando o seu atributo de Conjuração."
   },
   "core_domain_card_chain_lightning": {
     "nome": "Relâmpago em Cadeia",

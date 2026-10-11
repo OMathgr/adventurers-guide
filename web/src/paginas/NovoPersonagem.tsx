@@ -15,7 +15,7 @@ import {
   comSinal, NOME_TIPO_DANO, NOME_TRACO, TRACOS, USO_TRACO,
 } from '../lib/rotulos'
 
-const ETAPAS = ['Classe', 'Subclasse', 'Herança', 'Traços', 'Experiências', 'Cartas', 'Revisão']
+const ETAPAS = ['Classe', 'Subclasse', 'Herança', 'Atributos', 'Experiências', 'Cartas', 'Revisão']
 // Única subclasse do SRD 1.0 com companheiro (a API recusa se faltar ou sobrar)
 const BEASTBOUND = 'core_subclass_beastbound'
 
@@ -236,7 +236,7 @@ function EtapaTracos({ r, atualizar }: PropsEtapa) {
   return (
     <div className="space-y-3">
       <p className="text-sm text-texto-suave">
-        Distribua +2, +1, +1, +0, +0 e −1 entre os seis traços.
+        Distribua +2, +1, +1, +0, +0 e −1 entre os seis atributos.
         {restantes.length > 0 && <> Faltam: {restantes.map(comSinal).join(', ')}.</>}
       </p>
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -361,7 +361,7 @@ function EtapaRevisao({ r, atualizar, temCompanheiro, temProposito }:
       <Cartao titulo="Resumo">
         {linha('Classe', `${r.classe!.nome} · ${r.subclasse!.nome}`)}
         {linha('Ancestralidade', r.mista && r.segunda ? `${r.ancestralidade!.nome} / ${r.segunda.nome}` : r.ancestralidade!.nome)}
-        {linha('Traços', TRACOS.map((t) => `${NOME_TRACO[t]} ${comSinal(r.tracos[t] ?? 0)}`).join(', '))}
+        {linha('Atributos', TRACOS.map((t) => `${NOME_TRACO[t]} ${comSinal(r.tracos[t] ?? 0)}`).join(', '))}
         {linha('Experiências', r.experiencias.join(', '))}
         {linha('Cartas', r.cartas.map((id) => cartas.data?.find((c) => c.id === id)?.nome ?? id).join(', '))}
         {temCompanheiro && linha('Companheiro', r.companheiro.nome)}

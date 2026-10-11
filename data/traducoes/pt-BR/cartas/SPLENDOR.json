@@ -45,7 +45,7 @@
   },
   "core_domain_card_restoration": {
     "nome": "Restauração",
-    "texto": "Depois de um descanso longo, coloque nesta carta um número de marcadores igual ao seu traço de Conjuração. Toque uma criatura e gaste quantos marcadores quiser para limpar 2 Pontos de Vida ou 2 PF por marcador gasto.\nVocê também pode gastar um marcador desta carta ao tocar uma criatura para encerrar a condição Vulnerável ou curar um mal físico ou mágico (o mestre pode exigir mais marcadores, conforme a força do mal).\nQuando fizer um descanso longo, remova todos os marcadores não gastos."
+    "texto": "Depois de um descanso longo, coloque nesta carta um número de marcadores igual ao seu atributo de Conjuração. Toque uma criatura e gaste quantos marcadores quiser para limpar 2 Pontos de Vida ou 2 PF por marcador gasto.\nVocê também pode gastar um marcador desta carta ao tocar uma criatura para encerrar a condição Vulnerável ou curar um mal físico ou mágico (o mestre pode exigir mais marcadores, conforme a força do mal).\nQuando fizer um descanso longo, remova todos os marcadores não gastos."
   },
   "core_domain_card_zone_of_protection": {
     "nome": "Zona de Proteção",
@@ -69,7 +69,7 @@
   },
   "core_domain_card_overwhelming_aura": {
     "nome": "Aura Avassaladora",
-    "texto": "Faça um teste de Conjuração (15) para fortalecer magicamente sua aura. Com sucesso, gaste 2 Esperança para que sua Presença fique igual ao seu traço de Conjuração até o seu próximo descanso longo.\nEnquanto esta magia estiver ativa, um adversário precisa marcar 1 PF ao te escolher como alvo de um ataque."
+    "texto": "Faça um teste de Conjuração (15) para fortalecer magicamente sua aura. Com sucesso, gaste 2 Esperança para que sua Presença fique igual ao seu atributo de Conjuração até o seu próximo descanso longo.\nEnquanto esta magia estiver ativa, um adversário precisa marcar 1 PF ao te escolher como alvo de um ataque."
   },
   "core_domain_card_salvation_beam": {
     "nome": "Raio da Salvação",

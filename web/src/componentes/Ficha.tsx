@@ -34,7 +34,7 @@ export default function FichaVisao({ ficha }: { ficha: Ficha }) {
 
   return (
     <div className="grid gap-4 lg:grid-cols-3">
-      <Cartao titulo="Traços" className="lg:col-span-2">
+      <Cartao titulo="Atributos" className="lg:col-span-2">
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
           {TRACOS.map((t) => (
             <div key={t} className="rounded-xl border border-borda bg-fundo/60 p-3">

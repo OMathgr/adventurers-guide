@@ -321,7 +321,7 @@ export interface paths {
         /**
          * Proximo Nivel
          * @description O que o próximo nível pede (null no nível máximo): conquista de tier,
-         *     avanços disponíveis, traços marcados e treinos do companheiro.
+         *     avanços disponíveis, atributos marcados e treinos do companheiro.
          */
         get: operations["proximo_nivel_personagens__personagem_id__proximo_nivel_get"];
         put?: never;
@@ -1075,7 +1075,7 @@ export interface components {
         };
         /**
          * Alvo
-         * @description O que um modificador fixo de equipamento altera (além dos traços).
+         * @description O que um modificador fixo de equipamento altera (além dos atributos).
          * @enum {string}
          */
         Alvo: "EVASAO" | "PONTUACAO_ARMADURA" | "LIMIAR_GRAVE" | "ATAQUE" | "DANO" | "CONJURACAO";
@@ -1475,6 +1475,27 @@ export interface components {
              */
             como: "imposto" | "custo";
         };
+        /** EventoLinhaDoTempo */
+        EventoLinhaDoTempo: {
+            /** Nivel */
+            nivel: number;
+            /** Tier */
+            tier: number;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "feito" | "futuro";
+            /** Titulo */
+            titulo: string;
+            /** Itens */
+            itens: string[];
+            /**
+             * Quadros
+             * @default []
+             */
+            quadros: components["schemas"]["QuadroDeAvanco"][];
+        };
         /** Ficha */
         Ficha: {
             /** Nome */
@@ -1774,6 +1795,23 @@ export interface components {
             custo: number;
         };
         /**
+         * OpcaoNoQuadro
+         * @description Uma linha da página de Level Up: quadradinhos de uma opção num patamar.
+         */
+        OpcaoNoQuadro: {
+            opcao: components["schemas"]["Opcao"];
+            /** Limite */
+            limite: number;
+            /** Custo */
+            custo: number;
+            /** Antes */
+            antes: number;
+            /** Neste */
+            neste: number;
+            /** Riscados */
+            riscados: number;
+        };
+        /**
          * OpcaoTreino
          * @description Opções de Training da ficha do companheiro (nome no SRD ao lado).
          * @enum {string}
@@ -1880,6 +1918,13 @@ export interface components {
             /** Treinos Extra Com Subclasse */
             treinos_extra_com_subclasse: number;
         };
+        /** QuadroDeAvanco */
+        QuadroDeAvanco: {
+            /** Tier */
+            tier: number;
+            /** Opcoes */
+            opcoes: components["schemas"]["OpcaoNoQuadro"][];
+        };
         /** Quantidade */
         Quantidade: {
             /**
@@ -1900,7 +1945,7 @@ export interface components {
         };
         /**
          * Referencia
-         * @description Valores da ficha que um bônus pode copiar (além dos traços).
+         * @description Valores da ficha que um bônus pode copiar (além dos atributos).
          * @enum {string}
          */
         Referencia: "NIVEL";
@@ -2017,7 +2062,7 @@ export interface components {
         };
         /**
          * Traco
-         * @description Os seis traços de personagem. O valor é a chave usada no SRD.
+         * @description Os seis atributos de personagem. O valor é a chave usada no SRD.
          * @enum {string}
          */
         Traco: "AGILITY" | "STRENGTH" | "FINESSE" | "INSTINCT" | "PRESENCE" | "KNOWLEDGE";
@@ -2570,9 +2615,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        [key: string]: unknown;
-                    }[];
+                    "application/json": components["schemas"]["EventoLinhaDoTempo"][];
                 };
             };
             /** @description Validation Error */
