@@ -44,6 +44,7 @@ class MesaSaida(BaseModel):
     id: str
     nome: str
     codigo_convite: str        # exibido na página da mesa; o link usa o mesmo código
+    medo: int                  # Pontos de Medo do mestre: visíveis para todos
     meu_papel: str
     sou_criador: bool
     permissoes_mestres: dict[str, bool]
@@ -72,7 +73,7 @@ class PermissoesMestres(BaseModel):
 def _saida(m: MembroTabela) -> MesaSaida:
     mesa = m.mesa
     return MesaSaida(
-        id=mesa.id, nome=mesa.nome, codigo_convite=mesa.codigo_convite, meu_papel=m.papel,
+        id=mesa.id, nome=mesa.nome, codigo_convite=mesa.codigo_convite, medo=mesa.medo, meu_papel=m.papel,
         sou_criador=eh_criador(m), permissoes_mestres=mesa.permissoes_mestres,
         minhas_permissoes=[p for p in Permissao if pode(m, p)],
         membros=[MembroSaida(usuario_id=x.usuario_id, nome=x.usuario.nome, papel=x.papel,

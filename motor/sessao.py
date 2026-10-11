@@ -439,14 +439,14 @@ class Sessao:
         """Aplica uma condição. Nomes das padrão (Hidden/OCULTO...) viram o
         valor do enum; outros nomes ficam como condição de característica.
         Condições duram até serem removidas (o SRD não dá prazo fixo)."""
-        nome = _normalizar_condicao(condicao)
+        nome = normalizar_condicao(condicao)
         if nome in self.condicoes:
             raise RegraViolada(f"O personagem já está com a condição {nome}.")
         self.condicoes.append(nome)
         return nome
 
     def remover_condicao(self, condicao: Condicao | str):
-        nome = _normalizar_condicao(condicao)
+        nome = normalizar_condicao(condicao)
         if nome not in self.condicoes:
             raise RegraViolada(f"O personagem não está com a condição {nome}.")
         self.condicoes.remove(nome)
@@ -516,7 +516,7 @@ _NOMES_SRD = {"HIDDEN": Condicao.OCULTO, "RESTRAINED": Condicao.CONTIDO,
               "VULNERABLE": Condicao.VULNERAVEL}
 
 
-def _normalizar_condicao(condicao: Condicao | str) -> str:
+def normalizar_condicao(condicao: Condicao | str) -> str:
     if isinstance(condicao, Condicao):
         return condicao.value
     nome = condicao.strip()

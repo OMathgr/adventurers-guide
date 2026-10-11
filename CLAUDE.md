@@ -12,9 +12,9 @@ Fase 1 (motor de regras em Python puro, `motor/`) e fase 2 (API FastAPI em
 (convite por código, jogador/mestre, permissões dos mestres definidas pelo
 criador; o mestre só lê fichas e aplica dano e condições) e biblioteca
 privada dos mestres por mesa (inimigos do SRD ou do zero, NPCs). Fase 3 em
-andamento: interface React em `web/` (construtor, mesas e área do mestre
-prontos; sessão de jogo, revelar aos jogadores e quadro de planejamento a
-seguir). Leia `docs/ARQUITETURA.md` antes de mudar a modelagem. O
+andamento: interface React em `web/` (construtor, mesas, área do mestre e
+sessão de jogo com encontros e Medo prontos; revelar aos jogadores e quadro
+de planejamento a seguir). Leia `docs/ARQUITETURA.md` antes de mudar a modelagem. O
 personagem é guardado como criação + histórico de subidas de nível; a ficha
 é sempre recalculada.
 
@@ -35,6 +35,8 @@ personagem é guardado como criação + histórico de subidas de nível; a ficha
   regras leem o inglês). Siga o glossário do `docs/ARQUITETURA.md` (Fadiga/PF,
   teste, patamar, alcance próximo/distante). Da edição brasileira usamos só
   termos e nomes, nunca o texto.
+- Arredondamento: toda metade arredonda **para cima**, em todo o projeto
+  (resistência, metade do nível etc.). Use `motor.numeros.metade`, nunca `// 2`.
 - Dados ficam em `data/`; o motor só acessa dados pela `Biblioteca` (`motor/srd.py`).
 
 ## Como trabalhar comigo

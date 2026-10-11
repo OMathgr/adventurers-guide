@@ -7,6 +7,7 @@ import {
   useRemoverMembro, useSairDaMesa, useVincularMesa,
 } from '../../api/consultas'
 import type { Mesa, Permissao, PermissoesMestres } from '../../api/tipos'
+import MedoDoMestre from '../../componentes/MedoDoMestre'
 import { Aviso, Botao, Cartao, Selecao, Selo } from '../../componentes/ui'
 import { NOME_PAPEL, NOME_PERMISSAO } from '../../lib/rotulos'
 
@@ -150,6 +151,9 @@ export default function AbaGeral({ mesa }: { mesa: Mesa }) {
 
   return (
     <div className="grid gap-4 lg:grid-cols-2">
+      <div className="lg:col-span-2">
+        <MedoDoMestre mesaId={mesa.id} medo={mesa.medo} podeMudar={mesa.meu_papel === 'mestre'} />
+      </div>
       <Convite mesa={mesa} />
       <Membros mesa={mesa} />
       <Personagens mesa={mesa} />

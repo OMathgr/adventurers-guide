@@ -87,7 +87,7 @@ describe('Editor de inimigo', () => {
 
 describe('Página da mesa', () => {
   const mesa = (papel: string): MesaT => ({
-    id: 'm1', nome: 'Sombras de Haven', codigo_convite: 'ABC123', meu_papel: papel, sou_criador: papel === 'mestre',
+    id: 'm1', nome: 'Sombras de Haven', codigo_convite: 'ABC123', medo: 3, meu_papel: papel, sou_criador: papel === 'mestre',
     permissoes_mestres: { ver_fichas: true, aplicar_dano: true, aplicar_condicoes: true, preparar: true },
     minhas_permissoes: papel === 'mestre' ? ['ver_fichas', 'aplicar_dano', 'aplicar_condicoes', 'preparar'] : [],
     membros: [{ usuario_id: 'u1', nome: 'Ana', papel, criador: papel === 'mestre' }],
@@ -100,6 +100,39 @@ describe('Página da mesa', () => {
     expect(await screen.findByText('ABC123')).toBeInTheDocument()
     expect(screen.queryByRole('tab', { name: 'Inimigos' })).not.toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Sair da mesa' })).toBeInTheDocument()
+    // o Medo fica visível para os jogadores, sem botões
+    expect(screen.getByRole('img', { name: 'Medo: 3 de 12' })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Ganhar 1' })).not.toBeInTheDocument()
+  })
+
+  it('sessão: mestre ganha Medo, marca PV por clique e aplica dano', async () => {
+    const lobo = { id: 'c1', rotulo: 'Lobo 1', adversario: { ...MAGO, nome: 'Lobo', pv: 4, pf: 2 }, origem: 'srd:x',
+      pv_marcados: 0, pf_marcados: 0, condicoes: [], derrotado: false }
+    const encontro = { id: 'e1', nome: 'Emboscada', combatentes: [lobo] }
+    const comPv = (pv: number) => ({ ...encontro, combatentes: [{ ...lobo, pv_marcados: pv, derrotado: pv >= 4 }] })
+    const fetch = respostas({
+      '/mesas/m1': mesa('mestre'), '/mesas/m1/medo': { medo: 4 },
+      '/mesas/m1/encontros': [{ id: 'e1', nome: 'Emboscada', combatentes: 1, derrotados: 0 }],
+      '/mesas/m1/encontros/e1': encontro,
+      '/mesas/m1/encontros/e1/combatentes/c1/marcas': comPv(2),
+      '/mesas/m1/encontros/e1/combatentes/c1/dano': {
+        resultado: { dano: 12, gravidade: 2, pv_marcados: 2, derrotado: true }, encontro: comPv(4) },
+    })
+    vi.stubGlobal('fetch', fetch)
+    montarEm('/mesas/m1?aba=sessao', <Mesa />, '/mesas/:id')
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Ganhar 1' }))
+    expect(await screen.findByRole('group', { name: 'Medo: 4 de 12' })).toBeInTheDocument()
+
+    await userEvent.click(await screen.findByRole('button', { name: 'PV de Lobo 1 2' }))
+    expect(fetch).toHaveBeenCalledWith('/api/mesas/m1/encontros/e1/combatentes/c1/marcas', expect.objectContaining({
+      method: 'PUT', body: JSON.stringify({ pv_marcados: 2, pf_marcados: 0 }) }))
+    expect(await screen.findByRole('group', { name: 'PV de Lobo 1: 2 de 4 marcados' })).toBeInTheDocument()
+
+    await userEvent.type(screen.getByLabelText('Dano em Lobo 1'), '12')
+    await userEvent.click(screen.getByRole('button', { name: 'Aplicar dano' }))
+    expect(await screen.findByText('12 de dano (Maior): 2 PV marcados. Derrotado!')).toBeInTheDocument()
+    expect(screen.getByText('Derrotado')).toBeInTheDocument()
   })
 
   it('mestre copia um adversário do SRD para a mesa', async () => {

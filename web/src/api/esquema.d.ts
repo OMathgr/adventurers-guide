@@ -1007,6 +1007,169 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/mesas/{mesa_id}/medo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Definir */
+        put: operations["definir_mesas__mesa_id__medo_put"];
+        /** Mudar Medo */
+        post: operations["mudar_medo_mesas__mesa_id__medo_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/mesas/{mesa_id}/encontros": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Listar Encontros */
+        get: operations["listar_encontros_mesas__mesa_id__encontros_get"];
+        put?: never;
+        /** Criar Encontro */
+        post: operations["criar_encontro_mesas__mesa_id__encontros_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/mesas/{mesa_id}/encontros/{encontro_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Ver Encontro */
+        get: operations["ver_encontro_mesas__mesa_id__encontros__encontro_id__get"];
+        /** Renomear Encontro */
+        put: operations["renomear_encontro_mesas__mesa_id__encontros__encontro_id__put"];
+        post?: never;
+        /** Apagar Encontro */
+        delete: operations["apagar_encontro_mesas__mesa_id__encontros__encontro_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/mesas/{mesa_id}/encontros/{encontro_id}/combatentes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Adicionar Combatentes
+         * @description Põe cópias de um inimigo da mesa, da ficha de combate de um NPC ou de um adversário do SRD.
+         */
+        post: operations["adicionar_combatentes_mesas__mesa_id__encontros__encontro_id__combatentes_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/mesas/{mesa_id}/encontros/{encontro_id}/combatentes/{combatente_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Remover Combatente */
+        delete: operations["remover_combatente_mesas__mesa_id__encontros__encontro_id__combatentes__combatente_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/mesas/{mesa_id}/encontros/{encontro_id}/combatentes/{combatente_id}/dano": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Dano Em Combatente */
+        post: operations["dano_em_combatente_mesas__mesa_id__encontros__encontro_id__combatentes__combatente_id__dano_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/mesas/{mesa_id}/encontros/{encontro_id}/combatentes/{combatente_id}/marcas": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Marcar
+         * @description PV e PF marcados (valores absolutos, como clicar nos quadradinhos).
+         */
+        put: operations["marcar_mesas__mesa_id__encontros__encontro_id__combatentes__combatente_id__marcas_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/mesas/{mesa_id}/encontros/{encontro_id}/combatentes/{combatente_id}/condicoes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Condicao Em Combatente */
+        post: operations["condicao_em_combatente_mesas__mesa_id__encontros__encontro_id__combatentes__combatente_id__condicoes_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/mesas/{mesa_id}/encontros/{encontro_id}/combatentes/{combatente_id}/condicoes/{condicao}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Tirar Condicao */
+        delete: operations["tirar_condicao_mesas__mesa_id__encontros__encontro_id__combatentes__combatente_id__condicoes__condicao__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1072,6 +1235,14 @@ export interface components {
              * @default
              */
             arma_original: string;
+        };
+        /** AjusteMedo */
+        AjusteMedo: {
+            /**
+             * Delta
+             * @description Positivo ganha (até 12), negativo gasta
+             */
+            delta: number;
         };
         /**
          * Alvo
@@ -1288,6 +1459,24 @@ export interface components {
              */
             nome_original: string;
         };
+        /** CombatenteSaida */
+        CombatenteSaida: {
+            /** Id */
+            id: string;
+            /** Rotulo */
+            rotulo: string;
+            adversario: components["schemas"]["Adversario"];
+            /** Origem */
+            origem: string;
+            /** Pv Marcados */
+            pv_marcados: number;
+            /** Pf Marcados */
+            pf_marcados: number;
+            /** Condicoes */
+            condicoes: string[];
+            /** Derrotado */
+            derrotado: boolean;
+        };
         /**
          * Companheiro
          * @description O que o jogador define ao ganhar o companheiro (criação ou multiclasse).
@@ -1318,6 +1507,11 @@ export interface components {
              * Condicao
              * @description OCULTO, CONTIDO, VULNERAVEL (ou Hidden...) ou o nome de uma condição de característica
              */
+            condicao: string;
+        };
+        /** CondicaoNova */
+        CondicaoNova: {
+            /** Condicao */
             condicao: string;
         };
         /** Conforto */
@@ -1382,6 +1576,21 @@ export interface components {
             /** Rolagens Vinculo */
             rolagens_vinculo?: number[] | null;
         };
+        /** DanoAdversario */
+        DanoAdversario: {
+            /** Dano */
+            dano: number;
+            /**
+             * Resistente
+             * @default false
+             */
+            resistente: boolean;
+        };
+        /** DanoAdversarioSaida */
+        DanoAdversarioSaida: {
+            resultado: components["schemas"]["ResultadoDanoAdversario"];
+            encontro: components["schemas"]["EncontroSaida"];
+        };
         /** DanoCompanheiro */
         DanoCompanheiro: {
             /**
@@ -1424,6 +1633,26 @@ export interface components {
          * @enum {string}
          */
         Efeito: "FORTIFICADA" | "DOLOROSA" | "ESPERANCOSA" | "REFORCADA" | "RESILIENTE" | "IMPENETRAVEL" | "SO_FISICO" | "SO_MAGICO" | "PROTEGIDA" | "CURA" | "VIGOR" | "FOLEGO" | "AGIL" | "PROPOSITO" | "CASCO" | "EFICIENTE" | "TRANSE";
+        /** EncontroResumo */
+        EncontroResumo: {
+            /** Id */
+            id: string;
+            /** Nome */
+            nome: string;
+            /** Combatentes */
+            combatentes: number;
+            /** Derrotados */
+            derrotados: number;
+        };
+        /** EncontroSaida */
+        EncontroSaida: {
+            /** Id */
+            id: string;
+            /** Nome */
+            nome: string;
+            /** Combatentes */
+            combatentes: components["schemas"]["CombatenteSaida"][];
+        };
         /** EquipamentoEntrada */
         EquipamentoEntrada: {
             /** Principal */
@@ -1666,6 +1895,18 @@ export interface components {
             /** Base Id */
             base_id: string | null;
         };
+        /** Marcas */
+        Marcas: {
+            /** Pv Marcados */
+            pv_marcados: number;
+            /** Pf Marcados */
+            pf_marcados: number;
+        };
+        /** Medo */
+        Medo: {
+            /** Medo */
+            medo: number;
+        };
         /** MembroSaida */
         MembroSaida: {
             /** Usuario Id */
@@ -1694,6 +1935,8 @@ export interface components {
             nome: string;
             /** Codigo Convite */
             codigo_convite: string;
+            /** Medo */
+            medo: number;
             /** Meu Papel */
             meu_papel: string;
             /** Sou Criador */
@@ -1727,10 +1970,33 @@ export interface components {
          * @enum {string}
          */
         Movimento: "CUIDAR_FERIDAS" | "ALIVIAR_ESTRESSE" | "REPARAR_ARMADURA" | "PREPARAR" | "PREPARAR_EM_GRUPO" | "PROJETO";
+        /** NomeEncontro */
+        NomeEncontro: {
+            /** Nome */
+            nome: string;
+        };
         /** NovaMesa */
         NovaMesa: {
             /** Nome */
             nome: string;
+        };
+        /** NovosCombatentes */
+        NovosCombatentes: {
+            /**
+             * Origem
+             * @description De onde vem a ficha
+             */
+            origem: string;
+            /**
+             * Id
+             * @description Id do inimigo da mesa, do NPC ou do adversário do SRD
+             */
+            id: string;
+            /**
+             * Quantidade
+             * @default 1
+             */
+            quantidade: number;
         };
         /** Npc */
         Npc: {
@@ -1989,6 +2255,16 @@ export interface components {
             /** Notas */
             notas?: string[];
         };
+        /** ResultadoDanoAdversario */
+        ResultadoDanoAdversario: {
+            /** Dano */
+            dano: number;
+            gravidade: components["schemas"]["Gravidade"];
+            /** Pv Marcados */
+            pv_marcados: number;
+            /** Derrotado */
+            derrotado: boolean;
+        };
         /** ResultadoMovimento */
         ResultadoMovimento: {
             movimento: components["schemas"]["Movimento"];
@@ -2096,6 +2372,11 @@ export interface components {
             input?: unknown;
             /** Context */
             ctx?: Record<string, never>;
+        };
+        /** ValorMedo */
+        ValorMedo: {
+            /** Valor */
+            valor: number;
         };
         /** VinculoMesa */
         VinculoMesa: {
@@ -4248,6 +4529,454 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    definir_mesas__mesa_id__medo_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mesa_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ValorMedo"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Medo"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    mudar_medo_mesas__mesa_id__medo_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mesa_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AjusteMedo"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Medo"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    listar_encontros_mesas__mesa_id__encontros_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mesa_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EncontroResumo"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    criar_encontro_mesas__mesa_id__encontros_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mesa_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NomeEncontro"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EncontroSaida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    ver_encontro_mesas__mesa_id__encontros__encontro_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mesa_id: string;
+                encontro_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EncontroSaida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    renomear_encontro_mesas__mesa_id__encontros__encontro_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mesa_id: string;
+                encontro_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NomeEncontro"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EncontroSaida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    apagar_encontro_mesas__mesa_id__encontros__encontro_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mesa_id: string;
+                encontro_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    adicionar_combatentes_mesas__mesa_id__encontros__encontro_id__combatentes_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mesa_id: string;
+                encontro_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NovosCombatentes"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EncontroSaida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    remover_combatente_mesas__mesa_id__encontros__encontro_id__combatentes__combatente_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mesa_id: string;
+                encontro_id: string;
+                combatente_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EncontroSaida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    dano_em_combatente_mesas__mesa_id__encontros__encontro_id__combatentes__combatente_id__dano_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mesa_id: string;
+                encontro_id: string;
+                combatente_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DanoAdversario"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DanoAdversarioSaida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    marcar_mesas__mesa_id__encontros__encontro_id__combatentes__combatente_id__marcas_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mesa_id: string;
+                encontro_id: string;
+                combatente_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Marcas"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EncontroSaida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    condicao_em_combatente_mesas__mesa_id__encontros__encontro_id__combatentes__combatente_id__condicoes_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mesa_id: string;
+                encontro_id: string;
+                combatente_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CondicaoNova"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EncontroSaida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    tirar_condicao_mesas__mesa_id__encontros__encontro_id__combatentes__combatente_id__condicoes__condicao__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mesa_id: string;
+                encontro_id: string;
+                combatente_id: string;
+                condicao: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EncontroSaida"];
+                };
             };
             /** @description Validation Error */
             422: {

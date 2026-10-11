@@ -347,6 +347,34 @@ Documentação interativa em `/docs`.
   mestre; criar/editar/apagar exige `preparar`. Revelar informações aos
   jogadores é uma entrega futura.
 
+### Sessão do mestre (`motor/encontro.py` e `api/rotas/encontros.py`)
+
+- **Medo** fica na mesa (`mesas.medo`, 0 a 12) e passa de uma sessão para a
+  outra. O livro pede que fique visível para os jogadores: vem em
+  `GET /mesas/{id}` para todos; só mestres mudam (`POST /medo` com `delta`:
+  ganhar para no 12, gastar mais do que tem é recusado; `PUT /medo` define).
+- **Encontro** = lista de `Combatente`: uma **cópia** da ficha do adversário
+  (editar o inimigo na biblioteca não mexe na luta em andamento) + PV, PF e
+  condições marcados. A origem pode ser um inimigo da mesa, a ficha de combate
+  de um NPC ou o SRD (`origem: "inimigo:<id>"`...). Várias cópias do mesmo
+  nome são numeradas ("Lobo 1", "Lobo 2"), continuando a contagem.
+- **Dano em adversário** (`receber_dano`): mesmos limiares dos PJs (abaixo do
+  Maior 1 PV, Maior 2, Grave 3); resistência divide por 2 (arredonda para
+  cima, `motor.numeros.metade`: convenção do projeto para toda metade) antes
+  de comparar; lacaio cai com qualquer dano; marcar o último PV
+  derrota. Clicar nos quadradinhos usa `definir_marcas` (valores absolutos).
+  O dano massivo (regra opcional) ficou de fora.
+- **Permissões:** encontros são privados dos mestres (jogador: 404). Montar
+  (criar, apagar, pôr e tirar combatentes) exige `preparar`; conduzir a luta
+  (dano, marcas, condições, Medo) qualquer mestre pode.
+- Encontro guardado como JSON (`encontros.combatentes`), com `ON DELETE
+  CASCADE` da mesa.
+- Interface: aba **Sessão** da mesa (mestres) com o Medo, os encontros (um
+  cartão por combatente: PV/PF clicáveis, dano com "resistente", condições,
+  ficha completa) e os personagens da mesa (ficha resumida, dano e condições
+  pelas permissões `ver_fichas`, `aplicar_dano`, `aplicar_condicoes`). Na aba
+  Mesa, todos veem o Medo.
+
 Ainda não: renovação de token (refresh) e "esqueci minha senha", jogadores
 verem as fichas uns dos outros, controle de concorrência entre duas edições
 simultâneas do mesmo personagem (ex.: mestre aplica dano enquanto o jogador
@@ -408,8 +436,7 @@ inimigo). A ficha do inimigo segue o bloco do SRD; textos com `**negrito**`,
 `_itálico_` e listas são lidos por `web/src/lib/texto.ts` (sem HTML cru).
 
 Ainda não na interface: estado de sessão (marcar PV/Estresse, descansos),
-equipamento e as ações do mestre sobre os personagens
-(a API já tem tudo isso).
+equipamento (a API já tem tudo isso).
 
 ## Tradução pt-BR (`data/traducoes/pt-BR/`)
 

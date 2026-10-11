@@ -104,6 +104,9 @@ export const NOME_TIPO_ADVERSARIO: Record<TipoAdversario, string> = {
   SOLO: 'Solo',
 }
 
+/** Gravidade do dano (quantos PV marca, pelos limiares). */
+export const NOME_GRAVIDADE: Record<number, string> = { 0: 'sem dano', 1: 'Menor', 2: 'Maior', 3: 'Grave', 4: 'Massivo' }
+
 export const NOME_TIPO_HABILIDADE: Record<TipoHabilidade, string> = {
   PASSIVA: 'Passiva', ACAO: 'Ação', REACAO: 'Reação',
 }

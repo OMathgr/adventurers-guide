@@ -19,6 +19,7 @@ from enum import Enum
 from .companheiro import (Companheiro, FichaCompanheiro, OpcaoTreino, Treino,
                           aplicar_treino, criar_companheiro, nova_experiencia)
 from .erros import RegraViolada
+from .numeros import metade
 from .sessao import Sessao
 from .srd import (Alvo, Arma, Armadura, Biblioteca, Caracteristica, CartaDeDominio, Efeito,
                   Modificador, Referencia, Subclasse, TipoDano, Traco)
@@ -783,9 +784,8 @@ class Personagem:
         if carta.dominio in self.bib.classes[f.classe].dominios and carta.nivel <= nivel_maximo:
             return True
         # domínio da multiclasse: "half your level or lower (rounded up)"
-        metade = (nivel + 1) // 2
         return bool(f.multiclasse and carta.dominio == f.multiclasse["dominio"]
-                    and carta.nivel <= min(nivel_maximo, metade))
+                    and carta.nivel <= min(nivel_maximo, metade(nivel)))
 
     def _validar_nova_carta(self, f: Ficha, carta_id, nivel_maximo: int, nivel: int):
         carta = self._exigir(self.bib.cartas, carta_id, "Carta")

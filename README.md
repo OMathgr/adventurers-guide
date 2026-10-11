@@ -17,7 +17,8 @@ dano e condições nos personagens da mesa. Cada mesa tem uma biblioteca
 privada dos mestres: inimigos (copiados dos 129 adversários do SRD ou criados
 do zero) e NPCs (ficha simples, com ficha de combate opcional). A interface
 web cobre o construtor (criar, ficha, linha do tempo, subir de nível), as
-mesas e a área do mestre; a sessão de jogo vem a seguir.
+mesas, a área do mestre e a sessão de jogo (Medo, encontros com várias cópias
+de inimigos, PV/PF/condições por clique, dano e condições nos personagens).
 
 ## Como rodar
 
@@ -56,11 +57,12 @@ motor/
   sessao.py       # estado de jogo: PV, Estresse, Esperança, armadura, dano e descansos
   companheiro.py  # companheiro do Ranger Beastbound: ficha e treinos
   adversarios.py  # adversários (SRD e criados pelo mestre): formato e validação
+  encontro.py     # sessão do mestre: encontros (cópias em combate, dano) e Medo
   erros.py        # RegraViolada
 api/
   main.py         # aplicação FastAPI e tratamento de erros
   rotas/          # auth, srd (catálogo), personagens (construtor), sessao (jogo), mesas,
-                  # conteudo (inimigos e NPCs da mesa)
+                  # conteudo (inimigos e NPCs da mesa), encontros (sessão do mestre)
   mesas.py        # papéis e permissões das mesas
   seguranca.py    # hash de senha (Argon2) e tokens JWT
   autenticacao.py # dependência usuario_atual (quem está logado)
@@ -83,7 +85,7 @@ docs/ARQUITETURA.md
 1. ~~Motor de regras~~
 2. ~~API (FastAPI) + banco: personagens salvos, usuários e login, mesas e papéis~~
 3. Interface web: ~~construtor (ficha + linha do tempo)~~, ~~mesas e área do mestre (inimigos e NPCs)~~,
-   sessão de jogo (encontros, Medo, PV/PF dos inimigos) e revelar informações aos jogadores (próximo)
+   ~~sessão de jogo (encontros, Medo, PV/PF dos inimigos)~~ e revelar informações aos jogadores (próximo)
 4. Workspace da mesa (mapa mental com visibilidade por papel)
 5. Colaboração em tempo real
 6. App mobile

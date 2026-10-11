@@ -25,7 +25,7 @@ class Permissao(str, Enum):
     VER_FICHAS = "ver_fichas"
     APLICAR_DANO = "aplicar_dano"
     APLICAR_CONDICOES = "aplicar_condicoes"
-    PREPARAR = "preparar"   # criar e editar inimigos e NPCs da mesa
+    PREPARAR = "preparar"   # criar e editar inimigos, NPCs e encontros da mesa
 
 
 PERMISSOES_PADRAO = {p.value: True for p in Permissao}

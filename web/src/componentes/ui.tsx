@@ -152,6 +152,26 @@ export function Espacos({ total, marcados, rotulo, cor = 'esperanca' }:
   )
 }
 
+/** Quadradinhos clicáveis: clicar no quadradinho N deixa N marcados; clicar
+    no último marcado desmarca ele (como riscar e apagar na ficha de papel). */
+export function EspacosClicaveis({ total, marcados, rotulo, cor = 'esperanca', aoMudar, desabilitado }: {
+  total: number; marcados: number; rotulo: string; cor?: 'esperanca' | 'medo' | 'perigo'
+  aoMudar: (marcados: number) => void; desabilitado?: boolean
+}) {
+  const fundo = { esperanca: 'bg-esperanca', medo: 'bg-medo', perigo: 'bg-perigo' }[cor]
+  return (
+    <div className="flex flex-wrap gap-1" role="group" aria-label={`${rotulo}: ${marcados} de ${total} marcados`}>
+      {Array.from({ length: total }, (_, i) => (
+        <button key={i} type="button" disabled={desabilitado}
+          aria-label={`${rotulo} ${i + 1}`} aria-pressed={i < marcados}
+          onClick={() => aoMudar(i + 1 === marcados ? i : i + 1)}
+          className={juntar('h-5 w-6 rounded-sm border border-borda transition hover:border-texto disabled:cursor-wait',
+            i < marcados && fundo)} />
+      ))}
+    </div>
+  )
+}
+
 /** Losangos de Esperança. */
 export function Esperanca({ atual, maximo }: { atual: number; maximo: number }) {
   return (

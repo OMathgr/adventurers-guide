@@ -39,6 +39,8 @@ class MesaTabela(Base):
     codigo_convite: Mapped[str] = mapped_column(String(16), unique=True, index=True)
     # o que TODOS os mestres podem fazer (o criador pode tudo): {"ver_fichas": true, ...}
     permissoes_mestres: Mapped[dict] = mapped_column(JSON)
+    # Pontos de Medo do mestre (0 a 12); passam de uma sessão para a outra
+    medo: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
     criado_em: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_agora)
 
     membros: Mapped[list["MembroTabela"]] = relationship(
@@ -84,6 +86,20 @@ class NpcTabela(Base):
     motivacoes: Mapped[str] = mapped_column(String(2000), default="")
     notas: Mapped[str] = mapped_column(String(8000), default="")
     ficha_combate: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    criado_em: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_agora)
+    atualizado_em: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_agora, onupdate=_agora)
+
+
+class EncontroTabela(Base):
+    """Encontro da sessão de jogo: cópias de adversários com as marcas de cada
+    uma. `combatentes` é uma lista de motor.encontro.Combatente."""
+
+    __tablename__ = "encontros"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    mesa_id: Mapped[str] = mapped_column(ForeignKey("mesas.id", ondelete="CASCADE"), index=True)
+    nome: Mapped[str] = mapped_column(String(120))
+    combatentes: Mapped[list] = mapped_column(JSON)
     criado_em: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_agora)
     atualizado_em: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_agora, onupdate=_agora)
 

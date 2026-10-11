@@ -4,9 +4,10 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 import { chamar } from './cliente'
 import type {
-  Adversario, Ancestralidade, CartaDeDominio, Classe, Comunidade, Criacao, Escolha, EventoLinhaDoTempo,
-  Ficha, InimigoResumo, Mesa, MesaResumo, Npc, NpcEntrada, PermissoesMestres, PersonagemCriado,
-  PersonagemResumo, ProximoNivel, Subclasse, SubidaDeNivel,
+  Adversario, Ancestralidade, CartaDeDominio, Classe, Comunidade, Criacao, Encontro, EncontroResumo, Escolha,
+  EventoLinhaDoTempo, Ficha, InimigoResumo, Mesa, MesaResumo, Npc, NpcEntrada, PermissoesMestres,
+  PersonagemCriado, PersonagemResumo, ProximoNivel, ResultadoDano, ResultadoDanoAdversario, Subclasse,
+  SubidaDeNivel,
 } from './tipos'
 
 const UMA_HORA = 60 * 60 * 1000
@@ -270,6 +271,130 @@ export const useSalvarNpc = (mesaId: string) =>
     id
       ? chamar<Npc>(`/mesas/${mesaId}/npcs/${id}`, { metodo: 'PUT', corpo: npc })
       : chamar<Npc>(`/mesas/${mesaId}/npcs`, { corpo: npc }))
+
+// --- Sessão do mestre: Medo, encontros e ações sobre os personagens -----------------------
+
+/** Muda o Medo (delta ou valor) e atualiza a mesa no cache: todos veem o número. */
+export function useMedo(mesaId: string) {
+  const cliente = useQueryClient()
+  return useMutation({
+    mutationFn: (p: { delta: number } | { valor: number }) =>
+      chamar<{ medo: number }>(`/mesas/${mesaId}/medo`, { metodo: 'delta' in p ? 'POST' : 'PUT', corpo: p }),
+    onSuccess: ({ medo }) =>
+      cliente.setQueryData<Mesa>(chavesMesa.mesa(mesaId), (m) => (m ? { ...m, medo } : m)),
+  })
+}
+
+const chaveEncontros = (mesaId: string) => ['mesas', mesaId, 'encontros'] as const
+const chaveEncontro = (mesaId: string, id: string) => ['mesas', mesaId, 'encontros', id] as const
+
+export const useEncontros = (mesaId: string) =>
+  useQuery({ queryKey: chaveEncontros(mesaId), queryFn: () => chamar<EncontroResumo[]>(`/mesas/${mesaId}/encontros`) })
+
+export const useEncontro = (mesaId: string, id: string | null) =>
+  useQuery({
+    queryKey: chaveEncontro(mesaId, id ?? ''),
+    queryFn: () => chamar<Encontro>(`/mesas/${mesaId}/encontros/${id}`),
+    enabled: !!id,
+  })
+
+export function useCriarEncontro(mesaId: string) {
+  const cliente = useQueryClient()
+  return useMutation({
+    mutationFn: (nome: string) => chamar<Encontro>(`/mesas/${mesaId}/encontros`, { corpo: { nome } }),
+    onSuccess: (e) => {
+      cliente.setQueryData(chaveEncontro(mesaId, e.id), e)
+      return cliente.invalidateQueries({ queryKey: chaveEncontros(mesaId), exact: true })
+    },
+  })
+}
+
+export function useApagarEncontro(mesaId: string) {
+  const cliente = useQueryClient()
+  return useMutation({
+    mutationFn: (id: string) => chamar<void>(`/mesas/${mesaId}/encontros/${id}`, { metodo: 'DELETE' }),
+    onSuccess: (_, id) => {
+      cliente.removeQueries({ queryKey: chaveEncontro(mesaId, id) })
+      return cliente.invalidateQueries({ queryKey: chaveEncontros(mesaId), exact: true })
+    },
+  })
+}
+
+type AcaoNoEncontro =
+  | { tipo: 'adicionar'; origem: 'inimigo' | 'npc' | 'srd'; id: string; quantidade: number }
+  | { tipo: 'remover'; combatente: string }
+  | { tipo: 'marcas'; combatente: string; pv_marcados: number; pf_marcados: number }
+  | { tipo: 'condicao'; combatente: string; condicao: string }
+  | { tipo: 'tirar_condicao'; combatente: string; condicao: string }
+
+/** Ações que devolvem o encontro inteiro: o cache é trocado pela resposta. */
+export function useAcaoNoEncontro(mesaId: string, encontroId: string) {
+  const cliente = useQueryClient()
+  const base = `/mesas/${mesaId}/encontros/${encontroId}/combatentes`
+  return useMutation({
+    mutationFn: (a: AcaoNoEncontro) => {
+      switch (a.tipo) {
+        case 'adicionar': return chamar<Encontro>(base, { corpo: { origem: a.origem, id: a.id, quantidade: a.quantidade } })
+        case 'remover': return chamar<Encontro>(`${base}/${a.combatente}`, { metodo: 'DELETE' })
+        case 'marcas': return chamar<Encontro>(`${base}/${a.combatente}/marcas`,
+          { metodo: 'PUT', corpo: { pv_marcados: a.pv_marcados, pf_marcados: a.pf_marcados } })
+        case 'condicao': return chamar<Encontro>(`${base}/${a.combatente}/condicoes`, { corpo: { condicao: a.condicao } })
+        case 'tirar_condicao': return chamar<Encontro>(
+          `${base}/${a.combatente}/condicoes/${encodeURIComponent(a.condicao)}`, { metodo: 'DELETE' })
+      }
+    },
+    onSuccess: (e) => {
+      cliente.setQueryData(chaveEncontro(mesaId, encontroId), e)
+      return cliente.invalidateQueries({ queryKey: chaveEncontros(mesaId), exact: true })
+    },
+  })
+}
+
+export function useDanoEmCombatente(mesaId: string, encontroId: string) {
+  const cliente = useQueryClient()
+  return useMutation({
+    mutationFn: ({ combatente, dano, resistente }: { combatente: string; dano: number; resistente: boolean }) =>
+      chamar<{ resultado: ResultadoDanoAdversario; encontro: Encontro }>(
+        `/mesas/${mesaId}/encontros/${encontroId}/combatentes/${combatente}/dano`, { corpo: { dano, resistente } }),
+    onSuccess: ({ encontro }) => {
+      cliente.setQueryData(chaveEncontro(mesaId, encontroId), encontro)
+      return cliente.invalidateQueries({ queryKey: chaveEncontros(mesaId), exact: true })
+    },
+  })
+}
+
+const chaveFichaNaMesa = (mesaId: string, pid: string) => ['mesas', mesaId, 'personagens', pid] as const
+
+/** Ficha de um personagem da mesa, como o mestre vê (permissão ver_fichas). */
+export const useFichaNaMesa = (mesaId: string, pid: string, ativo = true) =>
+  useQuery({
+    queryKey: chaveFichaNaMesa(mesaId, pid),
+    queryFn: () => chamar<Ficha>(`/mesas/${mesaId}/personagens/${pid}`),
+    enabled: ativo,
+  })
+
+type AcaoNoPersonagem =
+  | { tipo: 'dano'; dano: number; usar_armadura: boolean }
+  | { tipo: 'condicao'; condicao: string }
+  | { tipo: 'tirar_condicao'; condicao: string }
+
+export function useAcaoNoPersonagem(mesaId: string, pid: string) {
+  const cliente = useQueryClient()
+  const base = `/mesas/${mesaId}/personagens/${pid}`
+  return useMutation({
+    mutationFn: async (a: AcaoNoPersonagem): Promise<{ ficha: Ficha; resultado?: ResultadoDano }> => {
+      if (a.tipo === 'dano') {
+        return chamar<{ ficha: Ficha; resultado: ResultadoDano }>(`${base}/dano`,
+          { corpo: { dano: a.dano, usar_armadura: a.usar_armadura } })
+      }
+      const ficha = a.tipo === 'condicao'
+        ? await chamar<Ficha>(`${base}/condicoes`, { corpo: { condicao: a.condicao } })
+        : await chamar<Ficha>(`${base}/condicoes/${encodeURIComponent(a.condicao)}`, { metodo: 'DELETE' })
+      return { ficha }
+    },
+    onSuccess: ({ ficha }) => cliente.setQueryData(chaveFichaNaMesa(mesaId, pid), ficha),
+  })
+}
 
 export const useApagarNpc = (mesaId: string) =>
   useMutacaoNpc(mesaId, (npcId: string) => chamar<void>(`/mesas/${mesaId}/npcs/${npcId}`, { metodo: 'DELETE' }))
