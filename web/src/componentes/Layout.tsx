@@ -42,6 +42,10 @@ export default function Layout() {
               className={({ isActive }) => (isActive ? 'text-esperanca' : 'text-texto-suave hover:text-texto')}>
               Personagens
             </NavLink>
+            <NavLink to="/mesas"
+              className={({ isActive }) => (isActive ? 'text-esperanca' : 'text-texto-suave hover:text-texto')}>
+              Mesas
+            </NavLink>
             <button onClick={alternarTema} className="text-texto-suave hover:text-texto"
               aria-label={tema === 'escuro' ? 'Usar tema claro' : 'Usar tema escuro'}>
               {tema === 'escuro' ? '☀' : '☾'}

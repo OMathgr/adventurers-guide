@@ -1,5 +1,8 @@
 // Peças visuais reutilizadas em todas as telas.
-import type { ButtonHTMLAttributes, InputHTMLAttributes, ReactNode } from 'react'
+import {
+  type ButtonHTMLAttributes, type InputHTMLAttributes, type ReactNode, type SelectHTMLAttributes,
+  type TextareaHTMLAttributes, useId,
+} from 'react'
 
 import { ErroApi } from '../api/cliente'
 
@@ -43,17 +46,71 @@ export function Cartao({ titulo, acao, children, className }:
   )
 }
 
+const ESTILO_ENTRADA =
+  'rounded-lg border border-borda bg-fundo px-3 py-2 text-texto placeholder:text-texto-suave/60 focus:border-esperanca focus:outline-none'
+
+/** Rótulo + entrada + dica. A dica fica fora do <label> (não entra no nome
+    acessível) e é ligada à entrada por aria-describedby. */
+function ComRotulo({ rotulo, dica, className, children }:
+  { rotulo: string; dica?: string; className?: string; children: (idDica?: string) => ReactNode }) {
+  const id = useId()
+  const idDica = dica ? `${id}-dica` : undefined
+  return (
+    <div className={juntar('flex flex-col gap-1 text-sm', className)}>
+      <label className="flex flex-col gap-1">
+        <span className="font-medium text-texto-suave">{rotulo}</span>
+        {children(idDica)}
+      </label>
+      {dica && <span id={idDica} className="text-xs text-texto-suave">{dica}</span>}
+    </div>
+  )
+}
+
 export function Campo({ rotulo, dica, className, ...props }:
   InputHTMLAttributes<HTMLInputElement> & { rotulo: string; dica?: string }) {
   return (
+    <ComRotulo rotulo={rotulo} dica={dica} className={className}>
+      {(idDica) => <input aria-describedby={idDica} {...props} className={ESTILO_ENTRADA} />}
+    </ComRotulo>
+  )
+}
+
+export function Area({ rotulo, dica, className, ...props }:
+  TextareaHTMLAttributes<HTMLTextAreaElement> & { rotulo: string; dica?: string }) {
+  return (
+    <ComRotulo rotulo={rotulo} dica={dica} className={className}>
+      {(idDica) => <textarea rows={3} aria-describedby={idDica} {...props} className={ESTILO_ENTRADA} />}
+    </ComRotulo>
+  )
+}
+
+export function Selecao({ rotulo, opcoes, className, ...props }:
+  SelectHTMLAttributes<HTMLSelectElement> & { rotulo: string; opcoes: [valor: string, texto: string][] }) {
+  return (
     <label className={juntar('flex flex-col gap-1 text-sm', className)}>
       <span className="font-medium text-texto-suave">{rotulo}</span>
-      <input
-        {...props}
-        className="rounded-lg border border-borda bg-fundo px-3 py-2 text-texto placeholder:text-texto-suave/60 focus:border-esperanca focus:outline-none"
-      />
-      {dica && <span className="text-xs text-texto-suave">{dica}</span>}
+      <select {...props} className={ESTILO_ENTRADA}>
+        {opcoes.map(([valor, texto]) => <option key={valor} value={valor}>{texto}</option>)}
+      </select>
     </label>
+  )
+}
+
+/** Abas simples (botões com aria-selected). */
+export function Abas<T extends string>({ abas, atual, aoTrocar }:
+  { abas: [T, string][]; atual: T; aoTrocar: (aba: T) => void }) {
+  return (
+    <div role="tablist" className="flex gap-1 border-b border-borda">
+      {abas.map(([id, nome]) => (
+        <button key={id} role="tab" type="button" aria-selected={id === atual} onClick={() => aoTrocar(id)}
+          className={juntar(
+            '-mb-px border-b-2 px-4 py-2 text-sm transition',
+            id === atual ? 'border-esperanca text-esperanca' : 'border-transparent text-texto-suave hover:text-texto',
+          )}>
+          {nome}
+        </button>
+      ))}
+    </div>
   )
 }
 

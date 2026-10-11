@@ -1,5 +1,7 @@
 // Textos em português para os códigos que vêm da API.
-import type { AlvoFeroz, Opcao, OpcaoTreino, TipoDano, Traco } from '../api/tipos'
+import type {
+  AlvoFeroz, Opcao, OpcaoTreino, Permissao, TipoAdversario, TipoDano, TipoHabilidade, Traco,
+} from '../api/tipos'
 
 export const TRACOS: Traco[] = ['AGILITY', 'STRENGTH', 'FINESSE', 'INSTINCT', 'PRESENCE', 'KNOWLEDGE']
 
@@ -73,3 +75,35 @@ export const NOME_ESTAGIO: Record<string, string> = {
 }
 
 export const comSinal = (n: number) => (n > 0 ? `+${n}` : `${n}`)
+
+// --- Mesas e área do mestre ---------------------------------------------------------------
+
+export const NOME_PAPEL: Record<string, string> = { jogador: 'Jogador', mestre: 'Mestre' }
+
+export const NOME_PERMISSAO: Record<Permissao, string> = {
+  ver_fichas: 'Ver as fichas dos personagens',
+  aplicar_dano: 'Aplicar dano',
+  aplicar_condicoes: 'Aplicar e remover condições',
+  preparar: 'Criar e editar inimigos e NPCs',
+}
+
+export const TIPOS_ADVERSARIO: TipoAdversario[] = [
+  'PADRAO', 'BRUTAMONTES', 'ATIRADOR', 'ESPREITADOR', 'SUPORTE', 'LIDER', 'LACAIO', 'HORDA', 'SOCIAL', 'SOLO',
+]
+
+export const NOME_TIPO_ADVERSARIO: Record<TipoAdversario, string> = {
+  PADRAO: 'Padrão',
+  BRUTAMONTES: 'Brutamontes',
+  ATIRADOR: 'Atirador',
+  ESPREITADOR: 'Espreitador',
+  SUPORTE: 'Suporte',
+  LIDER: 'Líder',
+  LACAIO: 'Lacaio',
+  HORDA: 'Horda',
+  SOCIAL: 'Social',
+  SOLO: 'Solo',
+}
+
+export const NOME_TIPO_HABILIDADE: Record<TipoHabilidade, string> = {
+  PASSIVA: 'Passiva', ACAO: 'Ação', REACAO: 'Reação',
+}

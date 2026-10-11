@@ -1,0 +1,170 @@
+{
+  "srd_jagged_knife_bandit": {
+    "nome": "Bandido da Faca Serrilhada", "arma": "Adagas", "experiencias": {"Thief": "Ladrão"},
+    "descricao": "Um criminoso astuto, de capa, carregando uma das facas que são a marca da gangue.",
+    "motivacoes": "Fugir, lucrar, roubar, jogar fumaça",
+    "habilidades": [
+      {"nome": "Escalador", "texto": "O Bandido escala com a mesma facilidade com que corre."},
+      {"nome": "Do Alto", "texto": "Quando o Bandido acerta um ataque padrão vindo de cima do alvo, causa **1d10+1** de dano físico em vez do dano padrão."}
+    ]
+  },
+  "srd_jagged_knife_hexer": {
+    "nome": "Enfeitiçador da Faca Serrilhada", "arma": "Cajado", "experiencias": {"Magical Knowledge": "Conhecimento Mágico"},
+    "descricao": "Um bandido com cajado e capa enfeitada de apetrechos mágicos, que usa maldições para atormentar os inimigos.",
+    "motivacoes": "Comandar, amaldiçoar, lucrar",
+    "habilidades": [
+      {"nome": "Maldição", "texto": "Escolha um alvo em alcance distante e deixe-o temporariamente _Amaldiçoado_. Enquanto o alvo estiver _Amaldiçoado_, você pode **marcar 1 PF** quando o teste dele sair com Esperança para que saia com Medo."},
+      {"nome": "Fluxo Caótico", "texto": "Faça um ataque contra até três alvos em alcance muito próximo. **Marque 1 PF** para causar **2d6+3** de dano mágico aos alvos atingidos."}
+    ]
+  },
+  "srd_jagged_knife_kneebreaker": {
+    "nome": "Quebra-Joelhos da Faca Serrilhada", "arma": "Clava", "experiencias": {"Thief": "Ladrão", "Unveiled Threats": "Ameaças Explícitas"},
+    "descricao": "Um brigão imponente que carrega uma clava grande.",
+    "motivacoes": "Agarrar, intimidar, lucrar, roubar",
+    "habilidades": [
+      {"nome": "Peguei!", "texto": "Criaturas _Contidas_ pelo Quebra-Joelhos sofrem dano dobrado dos ataques de outros adversários."},
+      {"nome": "Segurem Ele", "texto": "Faça um ataque contra um alvo em alcance corpo a corpo. Com sucesso, o alvo não sofre dano, mas fica _Contido_ e _Vulnerável_. Ele pode se soltar, encerrando as duas condições, com sucesso num teste de Força, ou se solta automaticamente se o Quebra-Joelhos sofrer dano Maior ou pior."}
+    ]
+  },
+  "srd_jagged_knife_lackey": {
+    "nome": "Capanga da Faca Serrilhada", "arma": "Adagas", "experiencias": {"Thief": "Ladrão"},
+    "descricao": "Um ladrão de roupas simples e adagas pequenas, doido para se provar.",
+    "motivacoes": "Fugir, lucrar, jogar fumaça",
+    "habilidades": [
+      {"nome": "Lacaio (3)", "texto": "O Capanga é derrotado ao sofrer qualquer dano. Para cada 3 de dano que um PJ causar ao Capanga, derrote mais um Lacaio no alcance contra quem o ataque teria sucesso."},
+      {"nome": "Ataque em Grupo", "texto": "**Gaste 1 Ponto de Medo** para escolher um alvo e pôr em destaque todos os Capangas da Faca Serrilhada em alcance próximo dele. Esses Lacaios vão até o alcance corpo a corpo do alvo e fazem um único teste de ataque compartilhado. Com sucesso, cada um causa 2 de dano físico. Some esse dano."}
+    ]
+  },
+  "srd_jagged_knife_lieutenant": {
+    "nome": "Tenente da Faca Serrilhada", "arma": "Azagaia", "experiencias": {"Local Knowledge": "Conhecimento Local"},
+    "descricao": "Um bandido experiente em couro de qualidade, de voz forte e olhar astuto.",
+    "motivacoes": "Intimidar, comandar, lucrar, reforçar",
+    "habilidades": [
+      {"nome": "Tático", "texto": "Quando você põe o Tenente em destaque, **marque 1 PF** para destacar também dois aliados em alcance próximo."},
+      {"nome": "Tem Mais de Onde Veio Esse", "texto": "Invoque três Capangas da Faca Serrilhada, que aparecem em alcance distante."},
+      {"nome": "Golpe de Misericórdia", "texto": "**Gaste 1 Ponto de Medo** para atacar um alvo _Vulnerável_ em alcance próximo. Com sucesso, cause **2d6+12** de dano físico, e o alvo marca 1 PF."},
+      {"nome": "Embalo", "texto": "Quando o Tenente acerta um ataque contra um PJ, você ganha 1 Ponto de Medo."}
+    ]
+  },
+  "srd_jagged_knife_shadow": {
+    "nome": "Sombra da Faca Serrilhada", "arma": "Adagas", "experiencias": {"Intrusion": "Invasão"},
+    "descricao": "Um patife ágil, com uma faca cruel, que usa magia das sombras para isolar os alvos.",
+    "motivacoes": "Emboscar, esconder-se, dividir, lucrar",
+    "habilidades": [
+      {"nome": "Punhalada nas Costas", "texto": "Quando a Sombra acerta um ataque padrão com vantagem, causa **1d6+6** de dano físico em vez do dano padrão."},
+      {"nome": "Encoberto", "texto": "Fica _Oculta_ até depois do próximo ataque da Sombra. Ataques feitos enquanto _Oculta_ por esta habilidade têm vantagem."}
+    ]
+  },
+  "srd_jagged_knife_sniper": {
+    "nome": "Atirador da Faca Serrilhada", "arma": "Arco Curto", "experiencias": {"Stealth": "Furtividade"},
+    "descricao": "Um bandido magricela que ataca de cobertura com um arco curto.",
+    "motivacoes": "Emboscar, esconder-se, lucrar, reposicionar-se",
+    "habilidades": [
+      {"nome": "Golpe Invisível", "texto": "Se o Atirador estiver _Oculto_ ao acertar um ataque padrão, causa **1d10+4** de dano físico em vez do dano padrão."}
+    ]
+  },
+  "srd_merchant": {
+    "nome": "Mercador", "arma": "Clava", "experiencias": {"Shrewd Negotiator": "Negociador Astuto"},
+    "descricao": "Um comerciante bem-vestido, de olho afiado para o lucro.",
+    "motivacoes": "Comprar barato e vender caro, criar demanda, inflar preços, buscar lucro",
+    "habilidades": [
+      {"nome": "Tratamento Especial", "texto": "Um PJ que tiver sucesso num teste de Presença contra o Mercador ganha desconto nas compras. Um PJ que falhar num teste de Presença contra o Mercador paga mais e tem desvantagem nos próximos testes de Presença contra ele."},
+      {"nome": "Enrolação", "texto": "Quando um PJ tira 14 ou menos num teste de Presença contra o Mercador, marca 1 PF."}
+    ]
+  },
+  "srd_minor_chaos_elemental": {
+    "nome": "Elemental do Caos Menor", "arma": "Rajada Distorcida", "experiencias": {},
+    "descricao": "Uma massa cintilante de magia incontrolável.",
+    "motivacoes": "Confundir, desestabilizar, transmutar",
+    "habilidades": [
+      {"nome": "Forma Arcana", "texto": "O Elemental tem resistência a dano mágico."},
+      {"nome": "Fluxo Nauseante", "texto": "**Marque 1 PV** para obrigar todos os alvos em alcance próximo a marcar 1 PF e ficar _Vulneráveis_ até o próximo descanso ou até limparem 1 PV."},
+      {"nome": "Refazer a Realidade", "texto": "**Gaste 1 Ponto de Medo** para transformar a área em alcance muito próximo num bioma diferente. Todos os alvos na área sofrem **2d6+3** de dano mágico direto."},
+      {"nome": "Reflexo Mágico", "texto": "Quando o Elemental sofre dano de um ataque em alcance próximo, cause ao atacante metade do dano que ele causou."},
+      {"nome": "Embalo", "texto": "Quando o Elemental acerta um ataque contra um PJ, você ganha 1 Ponto de Medo."}
+    ]
+  },
+  "srd_minor_demon": {
+    "nome": "Demônio Menor", "arma": "Garras", "experiencias": {},
+    "descricao": "Uma criatura escarlate vinda dos Círculos Inferiores, consumida pela fúria contra todos os mortais.",
+    "motivacoes": "Agir de forma imprevisível, encurralar alvos, saborear a dor, atormentar",
+    "habilidades": [
+      {"nome": "Implacável (2)", "texto": "O Demônio pode ser posto em destaque até duas vezes por turno do mestre. Gaste Medo normalmente para destacá-lo."},
+      {"nome": "Todos Devem Cair", "texto": "Quando um PJ tem uma falha com Medo em alcance próximo do Demônio, ele perde 1 Esperança."},
+      {"nome": "Fogo Infernal", "texto": "**Gaste 1 Ponto de Medo** para fazer chover fogo infernal em alcance distante. Todos os alvos na área fazem um teste de reação de Agilidade. Quem falhar sofre **1d20+3** de dano mágico. Quem tiver sucesso sofre metade do dano."},
+      {"nome": "Ceifador", "texto": "Antes de rolar o dano do ataque do Demônio, você pode **marcar 1 PF** para ganhar um bônus na rolagem de dano igual aos PV que o Demônio tem marcados no momento."},
+      {"nome": "Embalo", "texto": "Quando o Demônio acerta um ataque contra um PJ, você ganha 1 Ponto de Medo."}
+    ]
+  },
+  "srd_minor_fire_elemental": {
+    "nome": "Elemental do Fogo Menor", "arma": "Rajada Elemental", "experiencias": {},
+    "descricao": "Uma chama viva do tamanho de uma grande fogueira.",
+    "motivacoes": "Cercar inimigos, crescer, intimidar, começar incêndios",
+    "habilidades": [
+      {"nome": "Implacável (2)", "texto": "O Elemental pode ser posto em destaque até duas vezes por turno do mestre. Gaste Medo normalmente para destacá-lo."},
+      {"nome": "Terra Arrasada", "texto": "**Marque 1 PF** para escolher um ponto em alcance distante. O chão em alcance muito próximo desse ponto pega fogo na hora. Todas as criaturas na área fazem um teste de reação de Agilidade. Quem falhar sofre **2d8** de dano mágico das chamas. Quem tiver sucesso sofre metade do dano."},
+      {"nome": "Explosão", "texto": "**Gaste 1 Ponto de Medo** para irromper numa explosão de fogo. Faça um ataque contra todos os alvos em alcance próximo. Os alvos atingidos sofrem **1d8** de dano mágico e são arremessados para alcance distante."},
+      {"nome": "Consumir Gravetos", "texto": "Três vezes por cena, quando o Elemental passa por objetos muito inflamáveis, ele os consome para limpar 1 PV ou 1 PF."},
+      {"nome": "Embalo", "texto": "Quando o Elemental acerta um ataque contra um PJ, você ganha 1 Ponto de Medo."}
+    ]
+  },
+  "srd_minor_treant": {
+    "nome": "Ente Menor", "arma": "Galho com Garras", "experiencias": {},
+    "descricao": "Uma arvorezinha ambulante que se ergue para defender sua floresta.",
+    "motivacoes": "Esmagar, sobrepujar, proteger",
+    "habilidades": [
+      {"nome": "Lacaio (5)", "texto": "O Ente é derrotado ao sofrer qualquer dano. Para cada 5 de dano que um PJ causar ao Ente, derrote mais um Lacaio no alcance contra quem o ataque teria sucesso."},
+      {"nome": "Ataque em Grupo", "texto": "**Gaste 1 Ponto de Medo** para escolher um alvo e pôr em destaque todos os Entes Menores em alcance próximo dele. Esses Lacaios vão até o alcance corpo a corpo do alvo e fazem um único teste de ataque compartilhado. Com sucesso, cada um causa 4 de dano físico. Some esse dano."}
+    ]
+  },
+  "srd_patchwork_zombie_hulk": {
+    "nome": "Zumbi Colosso Remendado", "arma": "Braços Demais", "experiencias": {"Intimidation": "Intimidação", "Tear Things Apart": "Despedaçar Coisas"},
+    "descricao": "Um amálgama imenso de cadáveres que se move como um só, com membros do tamanho de um tronco humano e punhos do tamanho de um halfling adulto.",
+    "motivacoes": "Absorver cadáveres, debater-se, ter fome, aterrorizar",
+    "habilidades": [
+      {"nome": "Destrutível", "texto": "Quando o Zumbi sofre dano Maior ou pior, marca 1 PV adicional."},
+      {"nome": "Membros Agitados", "texto": "Quando o Zumbi faz um ataque padrão, pode atacar todos os alvos em alcance muito próximo."},
+      {"nome": "Mais Um para a Pilha", "texto": "Quando o Zumbi está em alcance muito próximo de um cadáver, pode incorporá-lo, limpando 1 PV e 1 PF."},
+      {"nome": "Gritos Atormentados", "texto": "**Marque 1 PF** para obrigar todos os PJs em alcance distante a fazer um teste de reação de Presença (13). Quem falhar perde 1 Esperança, e você ganha 1 Ponto de Medo por alvo que falhou. Quem tiver sucesso marca 1 PF."}
+    ]
+  },
+  "srd_petty_noble": {
+    "nome": "Nobre Mesquinho", "arma": "Rapieira", "experiencias": {"Aristocrat": "Aristocrata"},
+    "descricao": "Um aristocrata ricamente vestido e adornado, transbordando arrogância.",
+    "motivacoes": "Abusar do poder, juntar recursos, mobilizar lacaios",
+    "habilidades": [
+      {"nome": "Minhas Terras, Minhas Regras", "texto": "Todas as ações sociais contra o Nobre nas terras dele têm desvantagem."},
+      {"nome": "Guardas, Prendam-nos!", "texto": "Uma vez por cena, **marque 1 PF** para invocar **1d4** Guardas Espadachins, que aparecem em alcance distante para fazer valer a vontade do Nobre."},
+      {"nome": "Exílio", "texto": "**Gaste 1 Ponto de Medo** e escolha um PJ como alvo. O Nobre proclama que o alvo e seus aliados estão exilados do território dele. Enquanto exilados, eles têm desvantagem em situações sociais nos domínios do Nobre."}
+    ]
+  },
+  "srd_pirate_captain": {
+    "nome": "Capitão Pirata", "arma": "Sabre de Abordagem", "experiencias": {"Commander": "Comandante", "Sailor": "Marinheiro"},
+    "descricao": "Um lobo do mar carismático, de chapéu impressionante, doido para saquear e pilhar.",
+    "motivacoes": "Comandar, fazer andar na prancha, pilhar, saquear",
+    "habilidades": [
+      {"nome": "Espadachim Audaz", "texto": "Quando o Capitão marca 2 ou menos PV com um ataque em alcance corpo a corpo, o atacante marca 1 PF."},
+      {"nome": "Reforços", "texto": "Uma vez por cena, **marque 1 PF** para invocar uma Horda de Saqueadores Piratas, que aparece em alcance distante."},
+      {"nome": "Sem Piedade", "texto": "**Gaste 1 Ponto de Medo** para escolher um alvo que tenha três ou mais Piratas em alcance corpo a corpo. O Capitão lidera os Piratas em ameaças e promessas de um túmulo no fundo do mar. O alvo faz um teste de reação de Presença. Se falhar, marca **1d4+1** PF. Se tiver sucesso, marca 1 PF."},
+      {"nome": "Embalo", "texto": "Quando o Capitão acerta um ataque contra um PJ, você ganha 1 Ponto de Medo."}
+    ]
+  },
+  "srd_pirate_raiders": {
+    "nome": "Saqueadores Piratas", "arma": "Sabre de Abordagem", "experiencias": {"Sailor": "Marinheiro"},
+    "descricao": "Patifes do mar que se movem em bando devastador.",
+    "motivacoes": "Atacar em bando, pilhar, saquear",
+    "habilidades": [
+      {"nome": "Horda (1d4+1)", "texto": "Quando os Saqueadores tiverem marcado metade ou mais dos PV, o ataque padrão deles causa **1d4+1** de dano físico no lugar."},
+      {"nome": "Espadachim Audaz", "texto": "Quando os Saqueadores marcam 2 ou menos PV com um ataque em alcance corpo a corpo, o atacante marca 1 PF."}
+    ]
+  },
+  "srd_pirate_tough": {
+    "nome": "Brutamontes Pirata", "arma": "Punhos Enormes", "experiencias": {"Sailor": "Marinheiro"},
+    "descricao": "Um pirata musculoso e tatuado, de punhos do tamanho de melões.",
+    "motivacoes": "Pilhar, saquear, esmagar, aterrorizar",
+    "habilidades": [
+      {"nome": "Espadachim Audaz", "texto": "Quando o Brutamontes marca 2 ou menos PV com um ataque em alcance corpo a corpo, o atacante marca 1 PF."},
+      {"nome": "Limpar o Convés", "texto": "Faça um ataque contra um alvo em alcance muito próximo. Com sucesso, **marque 1 PF** para ir até o alcance corpo a corpo do alvo, causando **3d4** de dano físico e arremessando-o para alcance próximo."}
+    ]
+  }
+}

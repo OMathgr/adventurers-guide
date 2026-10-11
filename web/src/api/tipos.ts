@@ -28,6 +28,17 @@ export type Caracteristica = S['Caracteristica']
 export type Ataque = S['Ataque']
 export type Usuario = S['Usuario']
 export type Token = S['Token']
+export type Mesa = S['MesaSaida']
+export type MesaResumo = S['MesaResumo']
+export type Permissao = S['Permissao']
+export type PermissoesMestres = S['PermissoesMestres']
+export type Adversario = S['Adversario']
+export type Habilidade = S['Habilidade']
+export type TipoAdversario = S['TipoAdversario']
+export type TipoHabilidade = S['TipoHabilidade']
+export type InimigoResumo = S['InimigoResumo']
+export type Npc = S['Npc']
+export type NpcEntrada = S['NpcEntrada']
 
 export type EventoLinhaDoTempo = {
   nivel: number

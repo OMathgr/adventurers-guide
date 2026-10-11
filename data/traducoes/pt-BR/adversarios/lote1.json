@@ -1,0 +1,169 @@
+{
+  "srd_acid_burrower": {
+    "nome": "Escavador Ácido", "arma": "Garras", "experiencias": {"Tremor Sense": "Sentir Tremores"},
+    "descricao": "Um inseto do tamanho de um cavalo, com garras escavadoras e sangue ácido.",
+    "motivacoes": "Escavar, arrastar, alimentar-se, reposicionar-se",
+    "habilidades": [
+      {"nome": "Implacável (3)", "texto": "O Escavador pode ser posto em destaque até três vezes por turno do mestre. Gaste Medo normalmente para destacá-lo."},
+      {"nome": "Erupção da Terra", "texto": "**Marque 1 PF** para o Escavador irromper do chão. Todas as criaturas em alcance muito próximo precisam ter sucesso num teste de reação de Agilidade ou são derrubadas, ficando _Vulneráveis_ até agirem de novo."},
+      {"nome": "Cuspe Ácido", "texto": "Faça um ataque contra todos os alvos à frente do Escavador em alcance próximo. Os alvos atingidos sofrem **2d6** de dano físico e precisam marcar um espaço de armadura sem receber o benefício dele (ainda podem usar a armadura para reduzir o dano). Se não puderem marcar espaço de armadura, marcam 1 PV adicional e você ganha 1 Ponto de Medo."},
+      {"nome": "Banho Ácido", "texto": "Quando o Escavador sofre dano Grave, todas as criaturas em alcance próximo são banhadas pelo seu sangue ácido e sofrem **1d10** de dano físico. O respingo cobre de sangue o chão em alcance muito próximo, e toda criatura, exceto o Escavador, que passar por ali sofre **1d6** de dano físico."}
+    ]
+  },
+  "srd_archer_guard": {
+    "nome": "Guarda Arqueiro", "arma": "Arco Longo", "experiencias": {"Local Knowledge": "Conhecimento Local"},
+    "descricao": "Um guarda alto com arco longo e uma aljava de flechas emplumadas nas cores do povoado.",
+    "motivacoes": "Prender, fechar os portões, sobreviver ao dia, imobilizar",
+    "habilidades": [
+      {"nome": "Tiro Incapacitante", "texto": "Faça um ataque contra um alvo em alcance distante. Com sucesso, **marque 1 PF** para causar **1d12+3** de dano físico. Se o alvo marcar PV com esse ataque, tem desvantagem em testes de Agilidade até limpar pelo menos 1 PV."}
+    ]
+  },
+  "srd_bear": {
+    "nome": "Urso", "arma": "Garras", "experiencias": {"Ambusher": "Emboscador", "Keen Senses": "Sentidos Aguçados"},
+    "descricao": "Um urso grande, de pelagem grossa e garras poderosas.",
+    "motivacoes": "Escalar, defender o território, esmurrar, rastrear",
+    "habilidades": [
+      {"nome": "Força Esmagadora", "texto": "Os alvos que marcam PV com o ataque padrão do Urso são arremessados para alcance muito próximo."},
+      {"nome": "Mordida", "texto": "**Marque 1 PF** para atacar um alvo em alcance corpo a corpo. Com sucesso, cause **3d4+10** de dano físico, e o alvo fica _Contido_ até se soltar com sucesso num teste de Força."},
+      {"nome": "Embalo", "texto": "Quando o Urso acerta um ataque contra um PJ, você ganha 1 Ponto de Medo."}
+    ]
+  },
+  "srd_bladed_guard": {
+    "nome": "Guarda Espadachim", "arma": "Espada Longa", "experiencias": {"Local Knowledge": "Conhecimento Local"},
+    "descricao": "Um guarda de armadura com espada e escudo pintado nas cores do povoado.",
+    "motivacoes": "Prender, fechar os portões, sobreviver ao dia, imobilizar",
+    "habilidades": [
+      {"nome": "Muralha de Escudos", "texto": "Uma criatura que tenta se mover para alcance muito próximo do Guarda precisa ter sucesso num teste de Agilidade. Se outros Guardas Espadachins estiverem enfileirados ao lado do primeiro, cada um em alcance corpo a corpo de outro guarda da fila, a Dificuldade aumenta pelo número total de guardas na fila."},
+      {"nome": "Deter", "texto": "Faça um ataque contra um alvo em alcance muito próximo. Com sucesso, **marque 1 PF** para deixar o alvo _Contido_ até ele se soltar com um ataque bem-sucedido ou com sucesso num teste de Acuidade ou de Força."}
+    ]
+  },
+  "srd_brawny_zombie": {
+    "nome": "Zumbi Parrudo", "arma": "Pancada", "experiencias": {"Collateral Damage": "Dano Colateral", "Throw": "Arremessar"},
+    "descricao": "Um cadáver grande, inchado de podridão e furioso.",
+    "motivacoes": "Esmagar, destruir, arremessar destroços, golpear",
+    "habilidades": [
+      {"nome": "Lento", "texto": "Quando você põe o Zumbi em destaque e ele não tem um marcador na ficha, ele ainda não pode agir. Coloque um marcador na ficha dele e descreva o que ele se prepara para fazer. Quando você põe o Zumbi em destaque e ele tem um marcador na ficha, retire o marcador: ele pode agir."},
+      {"nome": "Despedaçar", "texto": "Faça um ataque padrão com vantagem contra um alvo que o Zumbi tenha deixado _Contido_. Com sucesso, o ataque causa dano direto."},
+      {"nome": "Rasgar e Dilacerar", "texto": "Quando o Zumbi acerta um ataque padrão, você pode **marcar 1 PF** para deixar o alvo temporariamente _Contido_ e obrigá-lo a marcar 2 PF."}
+    ]
+  },
+  "srd_cave_ogre": {
+    "nome": "Ogro das Cavernas", "arma": "Clava", "experiencias": {"Throw": "Arremessar"},
+    "descricao": "Um humanoide enorme que vê toda vida inteligente como comida.",
+    "motivacoes": "Arrancar cabeças, banquetear, arrancar membros, pisotear, arremessar inimigos",
+    "habilidades": [
+      {"nome": "Aquecendo", "texto": "Você precisa **gastar 1 Ponto de Medo** para pôr o Ogro em destaque. Em destaque, ele pode fazer o ataque padrão contra todos os alvos no alcance."},
+      {"nome": "Quebra-Ossos", "texto": "Os ataques do Ogro causam dano direto."},
+      {"nome": "Chuva de Pedregulhos", "texto": "**Marque 1 PF** para pegar objetos pesados e arremessá-los em todos os alvos à frente do Ogro em alcance distante. Faça um ataque contra esses alvos. Os alvos atingidos sofrem **1d10+2** de dano físico. Se acertar mais de um alvo, você ganha 1 Ponto de Medo."},
+      {"nome": "Fúria Desenfreada", "texto": "Quando o Ogro marca 2 ou mais PV, ele pode sair em disparada. Mova o Ogro para um ponto em alcance próximo e cause **2d6+3** de dano físico direto a todos os alvos no caminho."}
+    ]
+  },
+  "srd_construct": {
+    "nome": "Construto", "arma": "Soco Esmagador", "experiencias": {},
+    "descricao": "Um ser vagamente humanoide de pedra e aço, montado e animado por magia.",
+    "motivacoes": "Destruir o ambiente, servir ao criador, esmagar o alvo, pisotear grupos",
+    "habilidades": [
+      {"nome": "Implacável (2)", "texto": "O Construto pode ser posto em destaque até duas vezes por turno do mestre. Gaste Medo normalmente para destacá-lo."},
+      {"nome": "Estrutura Frágil", "texto": "Quando o Construto marca PV por dano físico, precisa marcar 1 PV adicional."},
+      {"nome": "Pisotear", "texto": "**Marque 1 PF** para atacar todos os alvos no caminho do Construto quando ele se move. Os alvos atingidos sofrem **1d8** de dano físico."},
+      {"nome": "Sobrecarga", "texto": "Antes de rolar o dano do ataque do Construto, você pode **marcar 1 PF** para ganhar +10 na rolagem de dano. O Construto pode então ficar em destaque de novo."},
+      {"nome": "Tremor Mortal", "texto": "Quando o Construto marca o último PV, a magia que o move se rompe numa explosão de força. Faça um ataque com vantagem contra todos os alvos em alcance muito próximo. Os alvos atingidos sofrem **1d12+2** de dano mágico."}
+    ]
+  },
+  "srd_courtier": {
+    "nome": "Cortesão", "arma": "Adagas", "experiencias": {"Socialite": "Socialite"},
+    "descricao": "Uma figura da alta sociedade, ambiciosa e vestida com ostentação.",
+    "motivacoes": "Desacreditar, ganhar favores, manobrar, tramar",
+    "habilidades": [
+      {"nome": "Zombaria", "texto": "**Marque 1 PF** para dizer algo zombeteiro e obrigar um alvo em alcance próximo a fazer um teste de reação de Presença (14) para ver se ele salva as aparências. Se falhar, o alvo marca 2 PF e fica _Vulnerável_ até o fim da cena."},
+      {"nome": "Bode Expiatório", "texto": "**Gaste 1 Ponto de Medo** e escolha um PJ como alvo. O Cortesão convence uma multidão ou uma pessoa importante de que o alvo é a causa do conflito ou da desgraça atual."}
+    ]
+  },
+  "srd_deeproot_defender": {
+    "nome": "Defensor Raiz-Funda", "arma": "Vinhas", "experiencias": {"Huge": "Enorme"},
+    "descricao": "Uma criatura vegetal corpulenta, com vinhas agarradoras.",
+    "motivacoes": "Emboscar, agarrar, proteger, esmurrar",
+    "habilidades": [
+      {"nome": "Golpe no Chão", "texto": "Golpeia o chão, arremessando todos os alvos em alcance muito próximo para alcance distante. Cada alvo arremessado assim precisa marcar 1 PF."},
+      {"nome": "Agarrar e Arrastar", "texto": "Faça um ataque contra um alvo em alcance próximo. Com sucesso, **gaste 1 Ponto de Medo** para puxá-lo para alcance corpo a corpo, causar **1d6+2** de dano físico e deixá-lo _Contido_ até o Defensor sofrer dano Grave."}
+    ]
+  },
+  "srd_dire_wolf": {
+    "nome": "Lobo Atroz", "arma": "Garras", "experiencias": {"Keen Senses": "Sentidos Aguçados"},
+    "descricao": "Um lobo grande de dentes ameaçadores, raramente encontrado sozinho.",
+    "motivacoes": "Defender o território, acossar, proteger a matilha, cercar, seguir rastros",
+    "habilidades": [
+      {"nome": "Tática de Matilha", "texto": "Se o Lobo acerta um ataque padrão e outro Lobo Atroz está em alcance corpo a corpo do alvo, ele causa **1d6+5** de dano físico em vez do dano padrão, e você ganha 1 Ponto de Medo."},
+      {"nome": "Golpe Incapacitante", "texto": "**Marque 1 PF** para atacar um alvo em alcance corpo a corpo. Com sucesso, cause **3d4+10** de dano físico direto e deixe o alvo _Vulnerável_ até ele limpar pelo menos 1 PV."}
+    ]
+  },
+  "srd_giant_mosquitoes": {
+    "nome": "Mosquitos Gigantes", "arma": "Probóscide", "experiencias": {"Camouflage": "Camuflagem"},
+    "descricao": "Dezenas de mosquitos do tamanho de um punho, voando juntos para se protegerem.",
+    "motivacoes": "Fugir voando, perturbar, roubar sangue",
+    "habilidades": [
+      {"nome": "Horda (1d4+1)", "texto": "Quando os Mosquitos tiverem marcado metade ou mais dos PV, o ataque padrão deles causa **1d4+1** de dano físico no lugar."},
+      {"nome": "Voador", "texto": "Enquanto voam, os Mosquitos têm +2 na Dificuldade."},
+      {"nome": "Sugador de Sangue", "texto": "Quando o ataque dos Mosquitos faz um alvo marcar PV, você pode **marcar 1 PF** para obrigar o alvo a marcar 1 PV adicional."}
+    ]
+  },
+  "srd_giant_rat": {
+    "nome": "Rato Gigante", "arma": "Garras", "experiencias": {"Keen Senses": "Sentidos Aguçados"},
+    "descricao": "Um roedor do tamanho de um gato, especialista em catar restos e sobreviver.",
+    "motivacoes": "Escavar, ter fome, catar restos, desgastar",
+    "habilidades": [
+      {"nome": "Lacaio (3)", "texto": "O Rato é derrotado ao sofrer qualquer dano. Para cada 3 de dano que um PJ causar ao Rato, derrote mais um Lacaio no alcance contra quem o ataque teria sucesso."},
+      {"nome": "Ataque em Grupo", "texto": "**Gaste 1 Ponto de Medo** para escolher um alvo e pôr em destaque todos os Ratos Gigantes em alcance próximo dele. Esses Lacaios vão até o alcance corpo a corpo do alvo e fazem um único teste de ataque compartilhado. Com sucesso, cada um causa 1 de dano físico. Some esse dano."}
+    ]
+  },
+  "srd_giant_scorpion": {
+    "nome": "Escorpião Gigante", "arma": "Pinças", "experiencias": {"Camouflage": "Camuflagem"},
+    "descricao": "Um aracnídeo do tamanho de uma pessoa, com garras dilacerantes e cauda com ferrão.",
+    "motivacoes": "Emboscar, alimentar-se, agarrar, envenenar",
+    "habilidades": [
+      {"nome": "Golpe Duplo", "texto": "**Marque 1 PF** para fazer um ataque padrão contra dois alvos em alcance corpo a corpo."},
+      {"nome": "Ferrão Venenoso", "texto": "Faça um ataque contra um alvo em alcance muito próximo. Com sucesso, **gaste 1 Ponto de Medo** para causar **1d4+4** de dano físico e deixar o alvo _Envenenado_ até o próximo descanso dele ou até ele ter sucesso num teste de Conhecimento (16). Enquanto _Envenenado_, o alvo rola um **d6** antes de cada teste de ação. Com resultado 4 ou menor, ele marca 1 PF."},
+      {"nome": "Embalo", "texto": "Quando o Escorpião acerta um ataque contra um PJ, você ganha 1 Ponto de Medo."}
+    ]
+  },
+  "srd_glass_snake": {
+    "nome": "Serpente de Vidro", "arma": "Presas de Vidro", "experiencias": {},
+    "descricao": "Uma serpente transparente de cabeça enorme que deixa um rastro de cacos de vidro por onde passa.",
+    "motivacoes": "Escalar, alimentar-se, manter distância, assustar",
+    "habilidades": [
+      {"nome": "Cacos Rasga-Armadura", "texto": "Depois de acertar um ataque contra a Serpente em alcance corpo a corpo, o atacante precisa marcar um espaço de armadura. Se não puder, marca 1 PV."},
+      {"nome": "Serpente Giratória", "texto": "**Marque 1 PF** para atacar todos os alvos em alcance muito próximo. Os alvos atingidos sofrem **1d6+1** de dano físico."},
+      {"nome": "Cuspidora", "texto": "**Gaste 1 Ponto de Medo** para introduzir um Dado Cuspidor (**d6**). Quando a Serpente estiver em destaque, role esse dado. Com resultado 5 ou maior, todos os alvos à frente da Serpente em alcance distante precisam ter sucesso num teste de reação de Agilidade ou sofrem **1d4** de dano físico. A Serpente pode ficar em destaque uma segunda vez neste turno do mestre."}
+    ]
+  },
+  "srd_green_ooze": {
+    "nome": "Gosma Verde", "arma": "Apêndice Gosmento", "experiencias": {"Camouflage": "Camuflagem"},
+    "descricao": "Um monte ambulante de lodo verde translúcido.",
+    "motivacoes": "Camuflar-se, consumir e se multiplicar, aproximar-se sorrateiramente, envolver",
+    "habilidades": [
+      {"nome": "Lento", "texto": "Quando você põe a Gosma em destaque e ela não tem um marcador na ficha, ela ainda não pode agir. Coloque um marcador na ficha dela e descreva o que ela se prepara para fazer. Quando você põe a Gosma em destaque e ela tem um marcador na ficha, retire o marcador: ela pode agir."},
+      {"nome": "Forma Ácida", "texto": "Quando a Gosma acerta um ataque, o alvo precisa marcar um espaço de armadura sem receber o benefício dele (ainda pode usar a armadura para reduzir o dano). Se não puder marcar espaço de armadura, marca 1 PV adicional."},
+      {"nome": "Envolver", "texto": "Faça um ataque padrão contra um alvo em alcance corpo a corpo. Com sucesso, a Gosma o envolve e o alvo marca 2 PF. O alvo marca 1 PF adicional sempre que fizer um teste de ação. Se a Gosma sofrer dano Grave, o alvo se liberta."},
+      {"nome": "Dividir", "texto": "Quando a Gosma tem 3 ou mais PV marcados, você pode **gastar 1 Ponto de Medo** para dividi-la em duas Gosmas Verdes Minúsculas (sem PV nem PF marcados). Ponha as duas em destaque imediatamente."}
+    ]
+  },
+  "srd_harrier": {
+    "nome": "Fustigador", "arma": "Azagaia", "experiencias": {"Camouflage": "Camuflagem"},
+    "descricao": "Um combatente ágil armado com azagaias.",
+    "motivacoes": "Flanquear, acossar, manter-se fora de alcance, lucrar",
+    "habilidades": [
+      {"nome": "Manter Distância", "texto": "Depois de fazer um ataque padrão, o Fustigador pode se mover para qualquer lugar em alcance distante."},
+      {"nome": "Recuar", "texto": "Quando uma criatura entra em alcance corpo a corpo para atacar, você pode **marcar 1 PF** antes do teste de ataque para se mover para qualquer lugar em alcance próximo e atacar essa criatura. Com sucesso, cause **1d10+2** de dano físico."}
+    ]
+  },
+  "srd_head_guard": {
+    "nome": "Chefe da Guarda", "arma": "Maça", "experiencias": {"Commander": "Comandante", "Local Knowledge": "Conhecimento Local"},
+    "descricao": "Um guarda experiente, com maça, apito e voz trovejante.",
+    "motivacoes": "Prender, fechar os portões, imobilizar, buscar glória",
+    "habilidades": [
+      {"nome": "Reunir os Guardas", "texto": "**Gaste 2 Pontos de Medo** para pôr em destaque o Chefe da Guarda e até **2d4** aliados em alcance distante."},
+      {"nome": "Ao Meu Sinal", "detalhe": "Contagem Regressiva (5)", "texto": "Quando o Chefe da Guarda fica em destaque pela primeira vez, ative a contagem regressiva. Ela avança quando um PJ faz um teste de ataque. Quando dispara, todos os Guardas Arqueiros em alcance distante fazem um ataque padrão com vantagem contra o alvo mais próximo no alcance deles. Se mais de um ataque acertar o mesmo alvo, some o dano."},
+      {"nome": "Embalo", "texto": "Quando o Chefe da Guarda acerta um ataque contra um PJ, você ganha 1 Ponto de Medo."}
+    ]
+  }
+}

@@ -66,6 +66,7 @@ class PermissoesMestres(BaseModel):
     ver_fichas: bool
     aplicar_dano: bool
     aplicar_condicoes: bool
+    preparar: bool = True
 
 
 def _saida(m: MembroTabela) -> MesaSaida:

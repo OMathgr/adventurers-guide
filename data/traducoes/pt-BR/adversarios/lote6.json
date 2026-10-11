@@ -1,0 +1,189 @@
+{
+  "srd_spy": {
+    "nome": "Espião", "arma": "Adaga", "experiencias": {"Espionage": "Espionagem"},
+    "descricao": "Um agente de espionagem habilidoso, com talento para estar no lugar certo para ouvir segredos.",
+    "motivacoes": "Golpear e fugir, disfarçar a aparência, bisbilhotar",
+    "habilidades": [
+      {"nome": "Coletar Segredos", "texto": "**Gaste 1 Ponto de Medo** para descrever como o Espião sabe um segredo sobre um PJ na cena."},
+      {"nome": "Mosca na Parede", "texto": "Quando um PJ ou grupo está discutindo algo delicado, você pode **marcar 1 PF** para revelar que o Espião está na cena, observando. Se o Espião sair da cena para relatar o que descobriu, você ganha **1d4** Pontos de Medo."}
+    ]
+  },
+  "srd_stonewraith": {
+    "nome": "Espectro de Pedra", "arma": "Mordida e Garras", "experiencias": {"Stonesense": "Sentir a Pedra"},
+    "descricao": "Um caçador à espreita, como um puma sorrateiro, de corpo de pedra cinza-ardósia.",
+    "motivacoes": "Defender o território, isolar a presa, espreitar",
+    "habilidades": [
+      {"nome": "Andarilho da Pedra", "texto": "O Espectro de Pedra atravessa pedra e terra com a facilidade com que atravessa o ar. Dentro da pedra ou da terra, fica _Oculto_ e imune a todo dano."},
+      {"nome": "Emboscada Rochosa", "texto": "Enquanto _Oculto_, **marque 1 PF** para saltar até o alcance corpo a corpo de um alvo em alcance muito próximo. O alvo precisa ter sucesso num teste de reação de Agilidade ou de Instinto (15) ou sofre **2d8** de dano físico e fica temporariamente _Contido_."},
+      {"nome": "Rugido de Avalanche", "texto": "**Gaste 1 Ponto de Medo** para rugir dentro de uma caverna e provocar um desabamento. Todos os alvos em alcance próximo precisam ter sucesso num teste de reação de Agilidade (14) ou sofrem **2d10** de dano físico. Os escombros podem ser removidos com uma Contagem Regressiva de Progresso (8)."},
+      {"nome": "Embalo", "texto": "Quando o Espectro de Pedra acerta um ataque contra um PJ, você ganha 1 Ponto de Medo."}
+    ]
+  },
+  "srd_war_wizard": {
+    "nome": "Mago de Batalha", "arma": "Cajado", "experiencias": {"Magical Knowledge": "Conhecimento Mágico", "Strategize": "Estratégia"},
+    "descricao": "Um mago calejado pela guerra, treinado em magia destrutiva.",
+    "motivacoes": "Criar novos feitiços, buscar poder, romper formações",
+    "habilidades": [
+      {"nome": "Teleporte de Batalha", "texto": "Antes ou depois de um ataque padrão, você pode **marcar 1 PF** para teleportar o Mago para um lugar em alcance distante."},
+      {"nome": "Recuperar Esfera de Proteção", "texto": "**Marque 1 PF** para que o Mago volte a poder usar a reação Esfera de Proteção."},
+      {"nome": "Erupção", "texto": "**Gaste 1 Ponto de Medo** e escolha um ponto em alcance distante. A área muito próxima desse ponto se transforma em terreno intransponível. Todos os alvos na área fazem um teste de reação de Agilidade (14). Quem falhar sofre **2d10** de dano físico e é lançado para fora da área. Quem tiver sucesso sofre metade do dano e fica onde está."},
+      {"nome": "Artilharia Arcana", "texto": "**Gaste 1 Ponto de Medo** para disparar uma saraivada precisa de rajadas mágicas. Todos os alvos na cena fazem um teste de reação de Agilidade. Quem falhar sofre **2d12** de dano mágico. Quem tiver sucesso sofre metade do dano."},
+      {"nome": "Esfera de Proteção", "texto": "Quando o Mago sofre dano de um ataque em alcance próximo, cause **2d6** de dano mágico ao atacante. Esta reação só pode ser usada de novo depois que o Mago a recuperar com a ação Recuperar Esfera de Proteção."}
+    ]
+  },
+  "srd_adult_flickerfly": {
+    "nome": "Vagalume-Cintilante Adulto", "arma": "Corte de Asa", "experiencias": {},
+    "descricao": "Um inseto alado do tamanho de uma casa grande, de escamas iridescentes e asas rápidas demais para acompanhar.",
+    "motivacoes": "Colecionar coisas brilhantes, caçar, fazer ninho, dar rasantes",
+    "habilidades": [
+      {"nome": "Implacável (4)", "texto": "O Vagalume-Cintilante pode ser posto em destaque até quatro vezes por turno do mestre. Gaste Medo normalmente para destacá-lo."},
+      {"nome": "Nunca Erra", "texto": "Quando o Vagalume-Cintilante ataca, a Evasão do alvo cai pela metade contra o ataque."},
+      {"nome": "Voo Mortal", "texto": "Enquanto voa, o Vagalume-Cintilante pode se mover até alcance distante, em vez de próximo, antes de agir."},
+      {"nome": "Redemoinho", "texto": "**Gaste 1 Ponto de Medo** para rodopiar, atacando todos os alvos em alcance muito próximo. Os alvos atingidos sofrem **3d8** de dano físico direto."},
+      {"nome": "Dança Mental", "texto": "**Marque 1 PF** para criar um espetáculo mágico ofuscante que prende a mente dos inimigos próximos. Todos os alvos em alcance próximo fazem um teste de reação de Instinto. Para cada alvo que falhar, você ganha 1 Ponto de Medo e o Vagalume-Cintilante descobre um dos medos daquele alvo."},
+      {"nome": "Sopro Alucinógeno", "detalhe": "Contagem Regressiva (Ciclo 1d6)", "texto": "Quando o Vagalume-Cintilante sofre dano pela primeira vez, ative a contagem regressiva. Quando ela dispara, ele sopra gás alucinógeno em todos os alvos à sua frente, até alcance distante. Os alvos fazem um teste de reação de Instinto ou são atormentados por alucinações assustadoras. Alvos cujos medos o Vagalume-Cintilante conhece têm desvantagem nesse teste. Quem falhar perde 2 Esperanças e sofre **3d8+3** de dano mágico direto."},
+      {"nome": "Reflexos Sobrenaturais", "texto": "Quando o Vagalume-Cintilante sofre dano de um ataque em alcance próximo, você pode **marcar 1 PF** para que ele sofra metade do dano."}
+    ]
+  },
+  "srd_demon_of_avarice": {
+    "nome": "Demônio da Avareza", "arma": "Bocarra Faminta", "experiencias": {"Manipulation": "Manipulação"},
+    "descricao": "Uma monstruosidade régia, de manto, com chifres circulares adornados de tesouros.",
+    "motivacoes": "Consumir, alimentar a ganância, semear a discórdia",
+    "habilidades": [
+      {"nome": "Dinheiro Fala", "texto": "Ataques contra o Demônio têm desvantagem, a menos que o atacante gaste um punhado de ouro. O Demônio começa com um número de punhados igual ao de PJs. Quando um alvo marca PV com o ataque padrão do Demônio, pode gastar um punhado de ouro em vez de marcar PV (1 punhado por PV). Dê ao Demônio um punhado de ouro para cada punhado que os PJs gastarem com esta habilidade."},
+      {"nome": "Os Números Têm que Subir", "texto": "Some aos testes de ataque do Demônio um bônus igual aos punhados de ouro que ele tem."},
+      {"nome": "Dinheiro é Tempo", "texto": "**Gaste 3 punhados de ouro (ou 1 Ponto de Medo)** para pôr em destaque **1d4+1** aliados."}
+    ]
+  },
+  "srd_demon_of_despair": {
+    "nome": "Demônio do Desespero", "arma": "Raio de Miasma", "experiencias": {"Manipulation": "Manipulação"},
+    "descricao": "Uma criatura demoníaca de manto e membros longos, que verte sombras.",
+    "motivacoes": "Espalhar o medo, ficar nas sombras, minar a determinação",
+    "habilidades": [
+      {"nome": "Profundezas do Desespero", "texto": "O Demônio causa dano dobrado a PJs com 0 de Esperança."},
+      {"nome": "Sua Luta é Inútil", "texto": "**Gaste 1 Ponto de Medo** para abater o ânimo de todos os PJs em alcance distante. Os alvos afetados trocam o Dado de Esperança por um **d8** até terem um sucesso com Esperança ou até o próximo descanso."},
+      {"nome": "Seus Amigos Vão Falhar", "texto": "Quando um PJ falha com Medo, você pode **marcar 1 PF** para fazer todos os outros PJs em alcance próximo perderem 1 Esperança."},
+      {"nome": "Embalo", "texto": "Quando o Demônio acerta um ataque contra um PJ, você ganha 1 Ponto de Medo."}
+    ]
+  },
+  "srd_demon_of_hubris": {
+    "nome": "Demônio da Soberba", "arma": "Lança Perfeita", "experiencias": {"Manipulation": "Manipulação"},
+    "descricao": "Um demônio perfeitamente belo e infinitamente cruel, de lança reluzente e túnicas elegantes.",
+    "motivacoes": "Tratar com desdém, cantar vitória antes da hora, provar superioridade",
+    "habilidades": [
+      {"nome": "Aterrorizante", "texto": "Quando o Demônio acerta um ataque, todos os PJs em alcance distante perdem 1 Esperança e você ganha 1 Ponto de Medo."},
+      {"nome": "Dobro ou Nada", "texto": "Quando um PJ em alcance distante falha num teste, pode escolher rolar de novo o Dado de Medo e ficar com o novo resultado. Se ainda falhar, marca 2 PF e o Demônio limpa 1 PF."},
+      {"nome": "Habilidade Incomparável", "texto": "**Marque 1 PF** para causar o dano do ataque padrão do Demônio a um alvo em alcance próximo."},
+      {"nome": "A Raiz da Vilania", "texto": "**Gaste 1 Ponto de Medo** para pôr em destaque dois outros Demônios em alcance distante."},
+      {"nome": "Você Não Chega aos Meus Pés", "texto": "Quando um PJ falha num teste em alcance próximo do Demônio, marca 1 PF."}
+    ]
+  },
+  "srd_demon_of_jealousy": {
+    "nome": "Demônio da Inveja", "arma": "Ataque Psíquico", "experiencias": {"Manipulation": "Manipulação"},
+    "descricao": "Uma criatura volúvel de membros finos e desejos insaciáveis.",
+    "motivacoes": "Pegar carona no sucesso alheio, tomar o que é dos outros, guardar rancor",
+    "habilidades": [
+      {"nome": "Mente Desprotegida", "texto": "O ataque padrão do Demônio causa dano direto."},
+      {"nome": "Minha Vez", "texto": "Quando o Demônio marca PV com um ataque, **gaste Pontos de Medo iguais aos PV marcados pelo Demônio** para fazer o atacante marcar a mesma quantidade de PV."},
+      {"nome": "Rivalidade", "texto": "Quando uma criatura em alcance próximo sofre dano de outro adversário, você pode **marcar 1 PF** para somar um **d4** à rolagem de dano."},
+      {"nome": "O Que é Seu é Meu", "texto": "Quando um PJ sofre dano Grave em alcance muito próximo do Demônio, você pode **gastar 1 Ponto de Medo** para obrigar o alvo a fazer um teste de reação de Acuidade. Se falhar, o Demônio toma um item ou consumível à escolha dele do inventário do alvo."}
+    ]
+  },
+  "srd_demon_of_wrath": {
+    "nome": "Demônio da Ira", "arma": "Punhos", "experiencias": {"Intimidation": "Intimidação"},
+    "descricao": "Um demônio enorme, de punhos do tamanho de pedregulhos, movido por uma raiva sem fim.",
+    "motivacoes": "Alimentar a raiva, impressionar rivais, causar estragos",
+    "habilidades": [
+      {"nome": "Raiva Implacável", "texto": "Os ataques do Demônio causam dano direto."},
+      {"nome": "Sede de Batalha", "texto": "**Gaste 1 Ponto de Medo** para ferver o sangue de todos os PJs em alcance distante. Eles usam um d20 como Dado de Medo até o fim da cena."},
+      {"nome": "Retaliação", "texto": "Quando o Demônio sofre dano de um ataque em alcance próximo, você pode **marcar 1 PF** para fazer um ataque padrão contra o atacante."},
+      {"nome": "Sangue e Almas", "detalhe": "Contagem Regressiva (Ciclo 6)", "texto": "Ative na primeira vez que um ataque for feito à vista do Demônio. Ela avança quando um PJ faz uma ação violenta. Quando dispara, invoque **1d4** Demônios Menores, que aparecem em alcance próximo."}
+    ]
+  },
+  "srd_dire_bat": {
+    "nome": "Morcego Atroz", "arma": "Garras e Dentes", "experiencias": {"Bloodthirsty": "Sanguinário"},
+    "descricao": "Um bicho de estimação de asas largas, eternamente leal ao seu dono vampiro.",
+    "motivacoes": "Atacar em mergulho, esconder-se, proteger o líder",
+    "habilidades": [
+      {"nome": "Voador", "texto": "Enquanto voa, o Morcego tem +3 na Dificuldade."},
+      {"nome": "Guincho", "texto": "**Marque 1 PF** para soltar um guincho agudo contra todos os alvos à frente do Morcego em alcance distante. Esses alvos marcam **1d4** PF."},
+      {"nome": "Guardião", "texto": "Quando um Vampiro aliado marca PV, você pode **marcar 1 PF** para o Morcego voar até o alcance corpo a corpo do atacante e atacá-lo com vantagem. Com sucesso, cause **2d6+2** de dano físico."}
+    ]
+  },
+  "srd_dryad": {
+    "nome": "Dríade", "arma": "Arco Curto de Galho Seco", "experiencias": {"Forest Knowledge": "Conhecimento da Floresta"},
+    "descricao": "Um espírito da natureza na forma de uma árvore humanoide.",
+    "motivacoes": "Comandar, cultivar, expulsar, preservar a floresta",
+    "habilidades": [
+      {"nome": "Moita de Espinhos", "texto": "**Marque 1 PF** para escolher um ponto em alcance distante. Crie uma moita de espinhos que cobre a área em alcance próximo desse ponto. Todos os alvos na área sofrem **2d6+2** de dano físico quando agem. Para sair da área, um alvo precisa ter sucesso num teste de Acuidade ou causar mais de 20 de dano à Dríade com um ataque."},
+      {"nome": "Fazer Brotar Mudas", "texto": "**Gaste 1 Ponto de Medo** para fazer brotar três Lacaios Muda de Ente, que aparecem em alcance próximo e ficam em destaque imediatamente."},
+      {"nome": "Somos Todos Um", "texto": "Quando um aliado morre em alcance próximo, você pode **gastar 1 Ponto de Medo** para limpar 2 PV e 2 PF, enquanto a força vital do aliado caído volta para a floresta."}
+    ]
+  },
+  "srd_elemental_spark": {
+    "nome": "Centelha Elemental", "arma": "Labaredas", "experiencias": {},
+    "descricao": "Uma partícula ardente de fogo elemental.",
+    "motivacoes": "Explodir, consumir, ganhar massa",
+    "habilidades": [
+      {"nome": "Lacaio (9)", "texto": "O Elemental é derrotado ao sofrer qualquer dano. Para cada 9 de dano que um PJ causar ao Elemental, derrote mais um Lacaio no alcance contra quem o ataque teria sucesso."},
+      {"nome": "Ataque em Grupo", "texto": "**Gaste 1 Ponto de Medo** para escolher um alvo e pôr em destaque todas as Centelhas Elementais em alcance próximo dele. Esses Lacaios vão até o alcance corpo a corpo do alvo e fazem um único teste de ataque compartilhado. Com sucesso, cada um causa 5 de dano físico. Some esse dano."}
+    ]
+  },
+  "srd_greater_earth_elemental": {
+    "nome": "Elemental da Terra Maior", "arma": "Punho de Pedregulho", "experiencias": {},
+    "descricao": "Um deslizamento vivo de pedregulhos e poeira, do tamanho de uma casa.",
+    "motivacoes": "Desabar, derrubar, esmurrar",
+    "habilidades": [
+      {"nome": "Lento", "texto": "Quando você põe o Elemental em destaque e ele não tem um marcador na ficha, ele ainda não pode agir. Coloque um marcador na ficha dele e descreva o que ele se prepara para fazer. Quando você põe o Elemental em destaque e ele tem um marcador na ficha, retire o marcador: ele pode agir."},
+      {"nome": "Golpes Esmagadores", "texto": "Quando o Elemental acerta um ataque, o alvo precisa marcar um espaço de armadura sem receber o benefício dele (ainda pode usar a armadura para reduzir o dano). Se não puder marcar espaço de armadura, marca 1 PV adicional."},
+      {"nome": "Objeto Imóvel", "texto": "Um ataque que moveria o Elemental o move dois alcances a menos (por exemplo, distante vira muito próximo). Quando o Elemental sofre dano físico, reduza-o em 7."},
+      {"nome": "Deslizamento", "texto": "**Marque 1 PF** para provocar um deslizamento que soterra o terreno à frente do Elemental, em alcance próximo. Todos os alvos na área fazem um teste de reação de Agilidade (19). Quem falhar sofre **2d12+5** de dano físico e fica _Vulnerável_ até o próximo resultado com Esperança. Quem tiver sucesso sofre metade do dano."},
+      {"nome": "Embalo", "texto": "Quando o Elemental acerta um ataque contra um PJ, você ganha 1 Ponto de Medo."}
+    ]
+  },
+  "srd_greater_water_elemental": {
+    "nome": "Elemental da Água Maior", "arma": "Onda Arrebentando", "experiencias": {},
+    "descricao": "Uma onda viva gigantesca que desaba sobre os inimigos.",
+    "motivacoes": "Inundar, dispersar, afogar",
+    "habilidades": [
+      {"nome": "Jato d'Água", "texto": "**Marque 1 PF** para atacar um alvo em alcance muito próximo. Com sucesso, cause **2d4+7** de dano físico, e a próxima ação do alvo tem desvantagem. Se falhar, o alvo marca 1 PF."},
+      {"nome": "Abraço Afogador", "texto": "**Gaste 1 Ponto de Medo** para atacar todos os alvos em alcance muito próximo. Os alvos atingidos ficam _Contidos_ e _Vulneráveis_ ao começar a se afogar. Um alvo pode se soltar, encerrando as duas condições, com sucesso num teste de Força ou de Instinto."},
+      {"nome": "Maré Alta", "texto": "Quando o Elemental acerta um ataque padrão, você pode **marcar 1 PF** para arremessar o alvo para alcance próximo."}
+    ]
+  },
+  "srd_head_vampire": {
+    "nome": "Vampiro Líder", "arma": "Rapieira", "experiencias": {"Aristocrat": "Aristocrata"},
+    "descricao": "Um morto-vivo cativante, vestido com requinte aristocrático.",
+    "motivacoes": "Criar servos, encantar, comandar, voar, intimidar",
+    "habilidades": [
+      {"nome": "Aterrorizante", "texto": "Quando o Vampiro acerta um ataque, todos os PJs em alcance distante perdem 1 Esperança e você ganha 1 Ponto de Medo."},
+      {"nome": "Olhe nos Meus Olhos", "texto": "Uma criatura que entra em alcance corpo a corpo do Vampiro faz um teste de reação de Instinto. Se falhar, você ganha **1d4** Pontos de Medo."},
+      {"nome": "Alimentar-se dos Seguidores", "texto": "Quando o Vampiro está em alcance corpo a corpo de um aliado, pode fazê-lo marcar 1 PV. O Vampiro então limpa 1 PV."},
+      {"nome": "Começou a Caçada", "texto": "**Gaste 2 Pontos de Medo** para invocar **1d4** Vampiros, que aparecem em alcance distante e ficam em destaque imediatamente."},
+      {"nome": "Sugar a Vida", "texto": "Quando o Vampiro é posto em destaque, role um **d8**. Com resultado 6 ou maior, todos os alvos em alcance muito próximo marcam 1 PV."}
+    ]
+  },
+  "srd_huge_green_ooze": {
+    "nome": "Gosma Verde Enorme", "arma": "Apêndice Gosmento", "experiencias": {"Blend In": "Mesclar-se"},
+    "descricao": "Um monte verde translúcido de ácido, mais alto que a maioria dos humanos.",
+    "motivacoes": "Camuflar-se, aproximar-se sorrateiramente, envolver, multiplicar-se",
+    "habilidades": [
+      {"nome": "Lento", "texto": "Quando você põe a Gosma em destaque e ela não tem um marcador na ficha, ela ainda não pode agir. Coloque um marcador na ficha dela e descreva o que ela se prepara para fazer. Quando você põe a Gosma em destaque e ela tem um marcador na ficha, retire o marcador: ela pode agir."},
+      {"nome": "Forma Ácida", "texto": "Quando a Gosma acerta um ataque, o alvo precisa marcar um espaço de armadura sem receber o benefício dele (ainda pode usar a armadura para reduzir o dano). Se não puder marcar espaço de armadura, marca 1 PV adicional."},
+      {"nome": "Envolver", "texto": "Faça um ataque contra um alvo em alcance corpo a corpo. Com sucesso, a Gosma o deixa _Envolvido_, e o alvo marca 2 PF. Enquanto _Envolvido_, o alvo marca 1 PF adicional sempre que faz um teste de ação. Quando a Gosma sofre dano Grave, todos os alvos _Envolvidos_ se libertam e a condição acaba."},
+      {"nome": "Dividir", "texto": "Quando a Gosma tem 4 ou mais PV marcados, você pode **gastar 1 Ponto de Medo** para dividi-la em duas Gosmas Verdes (sem PV nem PF marcados). Ponha as duas em destaque imediatamente."}
+    ]
+  },
+  "srd_hydra": {
+    "nome": "Hidra", "arma": "Mordida", "experiencias": {},
+    "descricao": "Uma fera quadrúpede e escamosa, com várias cabeças de pescoço longo, cada uma cheia de presas ameaçadoras.",
+    "motivacoes": "Devorar, regenerar, aterrorizar",
+    "habilidades": [
+      {"nome": "Ameaça de Muitas Cabeças", "texto": "A Hidra começa com três cabeças e pode ter até cinco. Quando sofre dano Maior ou pior, perde uma cabeça."},
+      {"nome": "Implacável (X)", "texto": "A Hidra pode ser posta em destaque X vezes por turno do mestre, sendo X o número de cabeças dela. Gaste Medo normalmente para destacá-la."},
+      {"nome": "Regeneração", "texto": "Se a Hidra tiver algum PV marcado, **gaste 1 Ponto de Medo** para limpar 1 PV e fazer crescer duas cabeças."},
+      {"nome": "Coro Aterrorizante", "texto": "Todos os PJs em alcance distante perdem 2 Esperanças."},
+      {"nome": "Fraqueza Mágica", "texto": "Quando a Hidra sofre dano mágico, fica _Atordoada_ até o próximo resultado com Medo. Enquanto _Atordoada_, não pode usar a ação Regeneração, mas fica imune a dano mágico."}
+    ]
+  }
+}

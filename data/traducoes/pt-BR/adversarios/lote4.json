@@ -1,0 +1,166 @@
+{
+  "srd_zombie_pack": {
+    "nome": "Bando de Zumbis", "arma": "Mordida", "experiencias": {},
+    "descricao": "Um grupo de cadáveres cambaleantes que se movem juntos por instinto.",
+    "motivacoes": "Consumir carne, ter fome, mutilar",
+    "habilidades": [
+      {"nome": "Horda (1d4+2)", "texto": "Quando os Zumbis tiverem marcado metade ou mais dos PV, o ataque padrão deles causa **1d4+2** de dano físico no lugar."},
+      {"nome": "Sobrepujar", "texto": "Quando os Zumbis marcam PV com um ataque em alcance corpo a corpo, você pode **marcar 1 PF** para fazer um ataque padrão contra o atacante."}
+    ]
+  },
+  "srd_apprentice_assassin": {
+    "nome": "Assassino Aprendiz", "arma": "Adaga de Arremesso", "experiencias": {"Intrusion": "Invasão"},
+    "descricao": "Um jovem aprendiz doido para se provar.",
+    "motivacoes": "Agir de forma imprudente, matar, provar seu valor, se exibir",
+    "habilidades": [
+      {"nome": "Lacaio (6)", "texto": "O Assassino é derrotado ao sofrer qualquer dano. Para cada 6 de dano que um PJ causar ao Assassino, derrote mais um Lacaio no alcance contra quem o ataque teria sucesso."},
+      {"nome": "Ataque em Grupo", "texto": "**Gaste 1 Ponto de Medo** para escolher um alvo e pôr em destaque todos os Assassinos Aprendizes em alcance próximo dele. Esses Lacaios vão até o alcance corpo a corpo do alvo e fazem um único teste de ataque compartilhado. Com sucesso, cada um causa 4 de dano físico. Some esse dano."}
+    ]
+  },
+  "srd_archer_squadron": {
+    "nome": "Esquadrão de Arqueiros", "arma": "Arco Longo", "experiencias": {},
+    "descricao": "Um grupo de arqueiros treinados com arcos enormes.",
+    "motivacoes": "Manter-se juntos, sobreviver, disparar em saraivada",
+    "habilidades": [
+      {"nome": "Horda (1d6+3)", "texto": "Quando o Esquadrão tiver marcado metade ou mais dos PV, o ataque padrão dele causa **1d6+3** de dano físico no lugar."},
+      {"nome": "Saraivada Concentrada", "texto": "**Gaste 1 Ponto de Medo** para escolher um ponto em alcance distante. Faça um ataque com vantagem contra todos os alvos em alcance próximo desse ponto. Os alvos atingidos sofrem **1d10+4** de dano físico."},
+      {"nome": "Fogo de Supressão", "texto": "**Marque 1 PF** para escolher um ponto em alcance distante. Até o próximo resultado com Medo, uma criatura que se mover para alcance próximo desse ponto faz um teste de reação de Agilidade. Se falhar, sofre **2d6+3** de dano físico. Se tiver sucesso, sofre metade do dano."}
+    ]
+  },
+  "srd_assassin_poisoner": {
+    "nome": "Assassino Envenenador", "arma": "Adaga de Arremesso Envenenada", "experiencias": {"Intrusion": "Invasão"},
+    "descricao": "Um patife astuto, especialista em venenos e emboscadas.",
+    "motivacoes": "Antecipar-se, receber o pagamento, matar, contaminar comida e água",
+    "habilidades": [
+      {"nome": "Veneno de Rangedente", "texto": "Os alvos que marcam PV com os ataques do Assassino ficam _Vulneráveis_ até limparem 1 PV."},
+      {"nome": "Do Nada", "texto": "O Assassino tem vantagem nos ataques se estiver _Oculto_."},
+      {"nome": "Fumigação", "texto": "Solta uma bomba de fumaça que enche o ar em alcance próximo, deixando _Atordoados_ todos os alvos na área. Alvos _Atordoados_ têm desvantagem no próximo teste de ação e depois saem da condição."}
+    ]
+  },
+  "srd_battle_box": {
+    "nome": "Caixa de Batalha", "arma": "Pancada", "experiencias": {"Camouflage": "Camuflagem"},
+    "descricao": "Um construto em forma de cubo com uma runa diferente em cada uma das seis faces.",
+    "motivacoes": "Mudar de tática, pisotear inimigos, esperar disfarçado",
+    "habilidades": [
+      {"nome": "Implacável (2)", "texto": "A Caixa pode ser posta em destaque até duas vezes por turno do mestre. Gaste Medo normalmente para destacá-la."},
+      {"nome": "Táticas Aleatórias", "texto": "**Marque 1 PF** e role um **d6**. A Caixa usa o movimento correspondente:\n\n- 1. _Raio de Mana._ A Caixa dispara um raio abrasador. Faça um ataque contra um alvo em alcance distante. Com sucesso, cause **2d10+2** de dano mágico.\n- 2. _Jatos de Fogo._ A Caixa dispara para o alto, girando e soltando jatos de chamas. Faça um ataque contra todos os alvos em alcance próximo. Os alvos atingidos sofrem **2d8** de dano físico.\n- 3. _Pisotear._ A Caixa dispara de um lado para o outro sem rumo. Faça um ataque contra todos os PJs em alcance próximo. Os alvos atingidos sofrem **1d6+5** de dano físico e ficam _Vulneráveis_ até o próximo resultado com Esperança deles.\n- 4. _Gás Chocante._ A Caixa borrifa um gás prateado que solta faíscas elétricas. Todos os alvos em alcance próximo precisam ter sucesso num teste de reação de Acuidade ou marcam 3 PF.\n- 5. _Estalo Atordoante._ A Caixa salta e bate as faces, criando um pequeno estrondo sônico. Todos os alvos em alcance muito próximo precisam ter sucesso num teste de reação de Força ou ficam _Vulneráveis_ até o cubo ser derrotado.\n- 6. _Zumbido Psiônico._ A Caixa solta um enxame de abelhas mecânicas cujo zumbido abala mentes mortais. Todos os alvos em alcance próximo precisam ter sucesso num teste de reação de Presença ou sofrem **2d4+9** de dano mágico direto."},
+      {"nome": "Sobrecarga", "texto": "Antes de rolar o dano do ataque da Caixa, você pode **marcar 1 PF** para somar um **d6** à rolagem de dano. Além disso, você ganha 1 Ponto de Medo."},
+      {"nome": "Tremor Mortal", "texto": "Quando a Caixa marca o último PV, a magia que a move se rompe numa explosão de força. Todos os alvos em alcance próximo precisam ter sucesso num teste de reação de Instinto ou sofrem **2d8+1** de dano mágico."}
+    ]
+  },
+  "srd_chaos_skull": {
+    "nome": "Crânio do Caos", "arma": "Rajada de Energia", "experiencias": {},
+    "descricao": "Um crânio humanoide flutuante, animado por magia cintilante.",
+    "motivacoes": "Gargalhar, consumir magia, servir ao criador",
+    "habilidades": [
+      {"nome": "Levitação", "texto": "O Crânio levita a alguns palmos do chão e não pode ficar _Contido_."},
+      {"nome": "Proteções", "texto": "O Crânio tem resistência a dano mágico."},
+      {"nome": "Explosão Mágica", "texto": "**Marque 1 PF** para atacar todos os alvos em alcance próximo. Os alvos atingidos sofrem **2d6+4** de dano mágico."},
+      {"nome": "Drenar Magia", "texto": "**Gaste 1 Ponto de Medo** para atacar um PJ com traço de Conjuração em alcance muito próximo. Com sucesso, o alvo marca **1d4** PF e o Crânio limpa a mesma quantidade de PF. Além disso, com sucesso, o Crânio pode ser posto em destaque de novo imediatamente."}
+    ]
+  },
+  "srd_conscript": {
+    "nome": "Recruta Forçado", "arma": "Lanças", "experiencias": {},
+    "descricao": "Um civil mal treinado, obrigado a ir para a guerra.",
+    "motivacoes": "Seguir ordens, atacar em bando, sobreviver",
+    "habilidades": [
+      {"nome": "Lacaio (6)", "texto": "O Recruta é derrotado ao sofrer qualquer dano. Para cada 6 de dano que um PJ causar ao Recruta, derrote mais um Lacaio no alcance contra quem o ataque teria sucesso."},
+      {"nome": "Ataque em Grupo", "texto": "**Gaste 1 Ponto de Medo** para escolher um alvo e pôr em destaque todos os Recrutas Forçados em alcance próximo dele. Esses Lacaios vão até o alcance corpo a corpo do alvo e fazem um único teste de ataque compartilhado. Com sucesso, cada um causa 6 de dano físico. Some esse dano."}
+    ]
+  },
+  "srd_courtesan": {
+    "nome": "Cortesã", "arma": "Adaga", "experiencias": {"Manipulation": "Manipulação", "Socialite": "Socialite"},
+    "descricao": "Uma manipuladora consumada e mestra das artes sociais.",
+    "motivacoes": "Seduzir, manobrar, garantir patronos",
+    "habilidades": [
+      {"nome": "Olhar Fulminante", "texto": "Quando um PJ em alcance próximo faz um teste de Presença, você pode **marcar 1 PF** para lançar um olhar sobre o resultado. Se o alvo falhar, marca 2 PF e fica _Vulnerável_ até o fim da cena ou até ter sucesso numa ação social contra a Cortesã. Se o alvo tiver sucesso, marca 1 PF."}
+    ]
+  },
+  "srd_cult_adept": {
+    "nome": "Adepto do Culto", "arma": "Bastão Coberto de Runas", "experiencias": {"Fallen Lore": "Saber dos Caídos", "Rituals": "Rituais"},
+    "descricao": "Um mago experiente que domina sombra e medo.",
+    "motivacoes": "Bajular, atrapalhar inimigos, descobrir conhecimento",
+    "habilidades": [
+      {"nome": "Rajada Debilitante", "texto": "**Gaste 1 Ponto de Medo** para fazer um ataque padrão contra um alvo no alcance. Com sucesso, o alvo marca 1 PF."},
+      {"nome": "Mortalha dos Caídos", "texto": "**Marque 1 PF** para envolver um aliado em alcance próximo numa mortalha de _Proteção_ até o Adepto marcar o último PV. Enquanto _Protegido_, o alvo tem resistência a todo dano."},
+      {"nome": "Grilhões de Sombra", "texto": "**Gaste 1 Ponto de Medo** e escolha um ponto em alcance distante. Todos os alvos em alcance próximo desse ponto ficam _Contidos_ por correntes de fumaça até se soltarem com sucesso num teste de Força ou de Instinto. Um alvo _Contido_ por esta habilidade precisa gastar 1 Esperança para fazer um teste de ação."},
+      {"nome": "O Medo é Combustível", "texto": "Duas vezes por cena, quando um PJ tem uma falha com Medo, limpe 1 PF."}
+    ]
+  },
+  "srd_cult_fang": {
+    "nome": "Presa do Culto", "arma": "Faca Longa", "experiencias": {},
+    "descricao": "Um assassino profissional que virou cultista.",
+    "motivacoes": "Capturar sacrifícios, isolar a presa, subir na hierarquia",
+    "habilidades": [
+      {"nome": "Abraço da Sombra", "texto": "A Presa consegue escalar e andar em superfícies verticais. **Marque 1 PF** para se mover de uma sombra para outra em alcance distante."},
+      {"nome": "Pegar o Retardatário", "texto": "**Marque 1 PF** para obrigar um alvo em alcance corpo a corpo a fazer um teste de reação de Instinto. Se falhar, o alvo marca 2 PF e é teleportado com a Presa para uma sombra em alcance distante, ficando temporariamente _Vulnerável_. Se tiver sucesso, marca 1 PF."}
+    ]
+  },
+  "srd_cult_initiate": {
+    "nome": "Iniciado do Culto", "arma": "Adaga Ritual", "experiencias": {},
+    "descricao": "Um cultista de baixo escalão, de túnica simples, ávido por poder.",
+    "motivacoes": "Seguir ordens, ganhar poder, buscar conhecimento proibido",
+    "habilidades": [
+      {"nome": "Lacaio (6)", "texto": "O Iniciado é derrotado ao sofrer qualquer dano. Para cada 6 de dano que um PJ causar ao Iniciado, derrote mais um Lacaio no alcance contra quem o ataque teria sucesso."},
+      {"nome": "Ataque em Grupo", "texto": "**Gaste 1 Ponto de Medo** para escolher um alvo e pôr em destaque todos os Iniciados do Culto em alcance próximo dele. Esses Lacaios vão até o alcance corpo a corpo do alvo e fazem um único teste de ataque compartilhado. Com sucesso, cada um causa 5 de dano físico. Some esse dano."}
+    ]
+  },
+  "srd_demonic_hound_pack": {
+    "nome": "Matilha de Cães Demoníacos", "arma": "Garras e Presas", "experiencias": {"Scent Tracking": "Rastrear pelo Faro"},
+    "descricao": "Cães antinaturais iluminados por dentro pelo fogo infernal.",
+    "motivacoes": "Causar medo, consumir carne, agradar aos mestres",
+    "habilidades": [
+      {"nome": "Horda (2d4+1)", "texto": "Quando a Matilha tiver marcado metade ou mais dos PV, o ataque padrão dela causa **2d4+1** de dano físico no lugar."},
+      {"nome": "Uivo Pavoroso", "texto": "**Marque 1 PF** para fazer todos os alvos em alcance muito próximo perderem 1 Esperança. Um alvo que não puder perder Esperança marca 2 PF no lugar."},
+      {"nome": "Embalo", "texto": "Quando a Matilha acerta um ataque contra um PJ, você ganha 1 Ponto de Medo."}
+    ]
+  },
+  "srd_electric_eels": {
+    "nome": "Enguias Elétricas", "arma": "Mordida Chocante", "experiencias": {},
+    "descricao": "Um cardume de enguias que cerca e eletrocuta.",
+    "motivacoes": "Evitar predadores maiores, eletrocutar a presa, despedaçar",
+    "habilidades": [
+      {"nome": "Horda (2d4+1)", "texto": "Quando as Enguias tiverem marcado metade ou mais dos PV, o ataque padrão delas causa **2d4+1** de dano físico no lugar."},
+      {"nome": "Choque Paralisante", "texto": "**Marque 1 PF** para fazer um ataque padrão contra todos os alvos em alcance muito próximo. Você ganha 1 Ponto de Medo para cada alvo que marcar PV."}
+    ]
+  },
+  "srd_elite_soldier": {
+    "nome": "Soldado de Elite", "arma": "Lança", "experiencias": {},
+    "descricao": "Um escudeiro de armadura ou plebeu experiente querendo subir na vida.",
+    "motivacoes": "Ganhar glória, manter a ordem, fazer alianças",
+    "habilidades": [
+      {"nome": "Reforçar", "texto": "**Marque 1 PF** para ir até o alcance corpo a corpo de um aliado e fazer um ataque padrão contra um alvo em alcance muito próximo. Com sucesso, cause **2d10+2** de dano físico, e o aliado pode limpar 1 PF."},
+      {"nome": "Lealdade de Vassalo", "texto": "Quando o Soldado está em alcance muito próximo de um cavaleiro ou outro nobre que vá sofrer dano, você pode **marcar 1 PF** para levá-lo até o alcance corpo a corpo dele e sofrer o dano no lugar."}
+    ]
+  },
+  "srd_failed_experiment": {
+    "nome": "Experimento Fracassado", "arma": "Mordida e Garra", "experiencias": {"Copycat": "Imitador"},
+    "descricao": "Um experimento necromântico que deu errado, deixando-o deformado e desajeitado.",
+    "motivacoes": "Devorar, caçar, rastrear",
+    "habilidades": [
+      {"nome": "Fortitude Deformada", "texto": "O Experimento tem resistência a dano físico."},
+      {"nome": "Sobrepujar", "texto": "Quando o alvo de um ataque do Experimento tem outros adversários em alcance muito próximo, o Experimento causa dano dobrado."},
+      {"nome": "Investida Cambaleante", "texto": "**Marque 1 PF** para pôr o Experimento em destaque como um movimento extra do mestre, em vez de gastar Medo."}
+    ]
+  },
+  "srd_giant_beastmaster": {
+    "nome": "Gigante Domador de Feras", "arma": "Arco Longo", "experiencias": {"Animal Handling": "Lidar com Animais"},
+    "descricao": "Um guerreiro vestido de couro, com chicote e um arco enorme.",
+    "motivacoes": "Comandar, ganhar a vida, manobrar, imobilizar, proteger os animais companheiros",
+    "habilidades": [
+      {"nome": "Dois Como Um", "texto": "Quando o Domador é posto em destaque, você também pode destacar um adversário animal de patamar 1 que esteja sob o controle dele."},
+      {"nome": "Golpe Imobilizante", "texto": "Faça um ataque padrão contra um alvo. Com sucesso, você pode **marcar 1 PF** para pregá-lo numa superfície próxima. O alvo preso fica _Contido_ até se soltar com sucesso num teste de Acuidade ou de Força."},
+      {"nome": "Companheiro Mortal", "texto": "Duas vezes por cena, invoque um Urso, um Lobo Atroz ou outro adversário animal de patamar 1 parecido, sob o controle do Domador. O adversário aparece em alcance próximo e é posto em destaque imediatamente."}
+    ]
+  },
+  "srd_giant_brawler": {
+    "nome": "Gigante Brigão", "arma": "Martelo de Guerra", "experiencias": {"Intrusion": "Invasão"},
+    "descricao": "Um gigante especialmente musculoso que empunha um martelo de guerra maior que uma pessoa.",
+    "motivacoes": "Ganhar a vida, sobrepujar, esmagar, derrubar",
+    "habilidades": [
+      {"nome": "Aríete", "texto": "**Marque 1 PF** para o Brigão investir contra um objeto inanimado em alcance próximo que ele consiga esmagar (como uma parede, uma carroça ou uma barraca de feira) e destruí-lo. Todos os alvos em alcance muito próximo do objeto precisam ter sucesso num teste de reação de Agilidade ou sofrem **2d4+3** de dano físico dos estilhaços."},
+      {"nome": "Represália Sangrenta", "texto": "Quando o Brigão marca 2 ou mais PV com um ataque em alcance muito próximo, você pode fazer um ataque padrão contra o atacante. Com sucesso, o Brigão causa **2d6+15** de dano físico em vez do dano padrão."},
+      {"nome": "Embalo", "texto": "Quando o Brigão acerta um ataque contra um PJ, você ganha 1 Ponto de Medo."}
+    ]
+  }
+}

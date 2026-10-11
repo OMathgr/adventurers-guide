@@ -1,0 +1,175 @@
+{
+  "srd_giant_eagle": {
+    "nome": "Águia Gigante", "arma": "Garras e Bico", "experiencias": {},
+    "descricao": "Uma ave de rapina gigante, de garras manchadas de sangue.",
+    "motivacoes": "Caçar presas, manter-se em movimento, atacar com precisão",
+    "habilidades": [
+      {"nome": "Voo", "texto": "Enquanto voa, a Águia tem +3 na Dificuldade."},
+      {"nome": "Mergulho Mortal", "texto": "**Marque 1 PF** para atacar um alvo em alcance distante. Com sucesso, cause **2d10+2** de dano físico e derrube o alvo, deixando-o _Vulnerável_ até agir de novo."},
+      {"nome": "Levantar Voo", "texto": "Faça um ataque contra um alvo em alcance muito próximo. Com sucesso, cause **2d4+3** de dano físico, e o alvo precisa ter sucesso num teste de reação de Agilidade ou fica temporariamente _Contido_ nas garras enormes da Águia. Se o alvo ficar _Contido_, a Águia sobe imediatamente a uma altura muito distante acima do campo de batalha, levando-o junto."},
+      {"nome": "Queda Mortal", "texto": "Enquanto voa, a Águia pode soltar um alvo _Contido_ que esteja segurando. Ao ser solto, o alvo deixa de estar _Contido_ mas começa a cair. Se a queda não for impedida na próxima ação dos PJs, o alvo sofre **2d20** de dano físico ao chegar ao chão."}
+    ]
+  },
+  "srd_giant_recruit": {
+    "nome": "Gigante Recruta", "arma": "Martelo de Guerra", "experiencias": {},
+    "descricao": "Um combatente gigante usando armadura emprestada.",
+    "motivacoes": "Espancar, ganhar a vida, sobrepujar, aterrorizar",
+    "habilidades": [
+      {"nome": "Lacaio (7)", "texto": "O Recruta é derrotado ao sofrer qualquer dano. Para cada 7 de dano que um PJ causar ao Recruta, derrote mais um Lacaio no alcance contra quem o ataque teria sucesso."},
+      {"nome": "Ataque em Grupo", "texto": "**Gaste 1 Ponto de Medo** para escolher um alvo e pôr em destaque todos os Gigantes Recrutas em alcance próximo dele. Esses Lacaios vão até o alcance corpo a corpo do alvo e fazem um único teste de ataque compartilhado. Com sucesso, cada um causa 5 de dano físico. Some esse dano."}
+    ]
+  },
+  "srd_gorgon": {
+    "nome": "Górgona", "arma": "Arco Curto Queima-Sol", "experiencias": {"Stealth": "Furtividade"},
+    "descricao": "Um humanoide escamoso com cabeça de serpentes e arco dourado, furioso por terem perturbado sua paz.",
+    "motivacoes": "Encurralar, atacar e fugir, petrificar, buscar vingança",
+    "habilidades": [
+      {"nome": "Implacável (2)", "texto": "A Górgona pode ser posta em destaque até duas vezes por turno do mestre. Gaste Medo normalmente para destacá-la."},
+      {"nome": "Flechas Queima-Sol", "texto": "Quando a Górgona acerta um ataque padrão, o alvo fica _Brilhando_ até o fim da cena e não pode ficar _Oculto_. Testes de ataque contra um alvo _Brilhando_ têm vantagem."},
+      {"nome": "Coroa de Serpentes", "texto": "Faça um teste de ataque contra um alvo em alcance corpo a corpo usando as serpentes protetoras da Górgona. Com sucesso, **marque 1 PF** para causar **2d10+4** de dano físico, e o alvo marca 1 PF."},
+      {"nome": "Olhar Petrificante", "texto": "Quando a Górgona sofre dano de um ataque em alcance próximo, você pode **gastar 1 Ponto de Medo** para obrigar o atacante a fazer um teste de reação de Instinto. Se falhar, ele começa a virar pedra: marca 1 PV e inicia uma Contagem Regressiva de Petrificação (4). Ela avança quando a Górgona é atacada. Quando dispara, o alvo faz um Movimento de Morte. Se a Górgona for derrotada, todas as contagens de petrificação acabam."},
+      {"nome": "Embalo", "texto": "Quando a Górgona acerta um ataque contra um PJ, você ganha 1 Ponto de Medo."}
+    ]
+  },
+  "srd_juvenile_flickerfly": {
+    "nome": "Vagalume-Cintilante Jovem", "arma": "Corte de Asa", "experiencias": {},
+    "descricao": "Um inseto do tamanho de um cavalo, de escamas iridescentes e asas cristalinas que se movem mais rápido do que o olho consegue ver.",
+    "motivacoes": "Colecionar coisas brilhantes, caçar, dar rasantes",
+    "habilidades": [
+      {"nome": "Implacável (3)", "texto": "O Vagalume-Cintilante pode ser posto em destaque até três vezes por turno do mestre. Gaste Medo normalmente para destacá-lo."},
+      {"nome": "Precisão Incomparável", "texto": "Antes de o Vagalume-Cintilante atacar, role um **d6**. Com resultado 4 ou maior, a Evasão do alvo cai pela metade contra esse ataque."},
+      {"nome": "Dança Mental", "texto": "**Marque 1 PF** para criar um espetáculo mágico ofuscante que prende a mente dos inimigos próximos. Todos os alvos em alcance próximo fazem um teste de reação de Instinto. Para cada alvo que falhar, você ganha 1 Ponto de Medo e o Vagalume-Cintilante descobre um dos medos daquele alvo."},
+      {"nome": "Sopro Alucinógeno", "detalhe": "Contagem Regressiva (Ciclo 1d6)", "texto": "Quando o Vagalume-Cintilante sofre dano pela primeira vez, ative a contagem regressiva. Quando ela dispara, ele sopra gás alucinógeno em todos os alvos à sua frente, até alcance distante. Os alvos precisam ter sucesso num teste de reação de Instinto ou são atormentados por alucinações assustadoras. Alvos cujos medos o Vagalume-Cintilante conhece têm desvantagem nesse teste. Quem falhar marca 1 PF e perde 1 Esperança."}
+    ]
+  },
+  "srd_knight_of_the_realm": {
+    "nome": "Cavaleiro do Reino", "arma": "Espada Longa", "experiencias": {"Ancient Knowledge": "Conhecimento Antigo", "High Society": "Alta Sociedade", "Tactics": "Táticas"},
+    "descricao": "Um soldado condecorado, de armadura pesada e corcel poderoso.",
+    "motivacoes": "Atropelar, buscar glória, mostrar domínio",
+    "habilidades": [
+      {"nome": "Cavaleiro Montado", "texto": "Enquanto estiver montado, o Cavaleiro tem +2 na Dificuldade. Quando sofre dano Grave, é derrubado da montaria e perde esse benefício até a próxima vez que for posto em destaque."},
+      {"nome": "Armadura Pesada", "texto": "Quando o Cavaleiro sofre dano físico, reduza-o em 3."},
+      {"nome": "Carga de Cavalaria", "texto": "Se estiver montado, o Cavaleiro se move até alcance distante e faz um ataque padrão contra um alvo. Com sucesso, cause **2d8+4** de dano físico, e o alvo marca 1 PF."},
+      {"nome": "Pelo Reino!", "texto": "**Marque 1 PF** para pôr em destaque **1d4+1** aliados. Os ataques que eles fizerem em destaque dessa forma causam metade do dano."}
+    ]
+  },
+  "srd_masked_thief": {
+    "nome": "Ladrão Mascarado", "arma": "Espada de Um Gume", "experiencias": {"Acrobatics": "Acrobacia"},
+    "descricao": "Um ladrão astuto, com talento acrobático e gosto pelo drama.",
+    "motivacoes": "Esquivar, esconder-se, surrupiar, lucrar",
+    "habilidades": [
+      {"nome": "Mãos Rápidas", "texto": "Faça um ataque contra um alvo em alcance corpo a corpo. Com sucesso, cause **1d8+2** de dano físico, e o Ladrão rouba um item ou consumível do inventário do alvo."},
+      {"nome": "Plano de Fuga", "texto": "**Marque 1 PF** para revelar uma armadilha de laço que o Ladrão armou em qualquer lugar do campo de batalha. Todos os alvos em alcance muito próximo da armadilha precisam ter sucesso num teste de reação de Agilidade (13) ou são puxados do chão e ficam pendurados de cabeça para baixo. O alvo fica _Contido_ e _Vulnerável_ até se soltar, encerrando as duas condições, com sucesso num teste de Acuidade ou de Força (13)."}
+    ]
+  },
+  "srd_master_assassin": {
+    "nome": "Mestre Assassino", "arma": "Adaga Serrilhada", "experiencias": {"Command": "Comando", "Intrusion": "Invasão"},
+    "descricao": "Um assassino experiente, de voz ameaçadora e lâmina mortal.",
+    "motivacoes": "Emboscar, sair vivo, matar, preparar-se para tudo",
+    "habilidades": [
+      {"nome": "Nem Vai Ver Chegando", "texto": "O Assassino causa dano direto enquanto estiver _Oculto_."},
+      {"nome": "Golpear Como Um Só", "texto": "**Marque 1 PF** para pôr em destaque um número de outros Assassinos igual aos PF não marcados do Assassino."},
+      {"nome": "A Lâmina Sutil", "texto": "Quando o Assassino acerta um ataque padrão contra um alvo _Vulnerável_, você pode **gastar 1 Ponto de Medo** para causar dano Grave em vez do dano padrão."},
+      {"nome": "Embalo", "texto": "Quando o Assassino acerta um ataque contra um PJ, você ganha 1 Ponto de Medo."}
+    ]
+  },
+  "srd_merchant_baron": {
+    "nome": "Barão Mercador", "arma": "Rapieira", "experiencias": {"Nobility": "Nobreza", "Trade": "Comércio"},
+    "descricao": "Um mercador bem-sucedido, com uma grande operação sob seu comando.",
+    "motivacoes": "Abusar do poder, juntar recursos, mobilizar lacaios",
+    "habilidades": [
+      {"nome": "Todo Mundo Tem um Preço", "texto": "**Gaste 1 Ponto de Medo** para oferecer a um alvo um acordo perigoso por algo que ele quer ou precisa. Se usado contra um PJ, ele faz um teste de reação de Presença (17). Se falhar, marca 2 PF ou aceita o acordo."},
+      {"nome": "A Melhor Força que o Dinheiro Compra", "texto": "Uma vez por cena, **marque 1 PF** para invocar **1d4+1** adversários de patamar 1, que aparecem em alcance distante para fazer valer a vontade do Barão."}
+    ]
+  },
+  "srd_minotaur_wrecker": {
+    "nome": "Minotauro Destruidor", "arma": "Machado de Batalha", "experiencias": {"Navigation": "Navegação"},
+    "descricao": "Um firbolg enorme com cabeça de touro e pavio curto.",
+    "motivacoes": "Consumir, chifrar, navegar, dominar, perseguir",
+    "habilidades": [
+      {"nome": "Aquecendo", "texto": "Você precisa **gastar 1 Ponto de Medo** para pôr o Minotauro em destaque. Em destaque, ele pode fazer o ataque padrão contra todos os alvos no alcance."},
+      {"nome": "Touro em Disparada", "texto": "**Marque 1 PF** para investir através de um grupo em alcance próximo e atacar todos os alvos no caminho do Minotauro. Os alvos atingidos sofrem **2d6+8** de dano físico e são arremessados para alcance muito distante. Se um alvo for arremessado contra um objeto sólido ou outra criatura, sofre **1d6** de dano extra (some o dano)."},
+      {"nome": "Chifrada", "texto": "Faça um ataque contra um alvo em alcance muito próximo, levando o Minotauro até o alcance corpo a corpo dele. Com sucesso, cause **2d8** de dano físico direto."}
+    ]
+  },
+  "srd_mortal_hunter": {
+    "nome": "Caçador de Mortais", "arma": "Rasgar a Carne", "experiencias": {"Bloodhound": "Farejador"},
+    "descricao": "Uma figura morta-viva de casaco pesado de couro, com olhos inquisidores e uma crueldade casual.",
+    "motivacoes": "Devorar, caçar, rastrear",
+    "habilidades": [
+      {"nome": "Aterrorizante", "texto": "Quando o Caçador acerta um ataque, todos os PJs em alcance distante perdem 1 Esperança e você ganha 1 Ponto de Medo."},
+      {"nome": "Selo da Morte", "texto": "**Gaste 1 Ponto de Medo** para amaldiçoar um alvo em alcance muito próximo com um _Selo da Morte_ necrótico até o fim da cena. Os ataques do Caçador contra um alvo _Selado_ causam dano direto. O Caçador só mantém um _Selo da Morte_ por vez."},
+      {"nome": "Morte Inevitável", "texto": "**Marque 1 PF** para pôr em destaque **1d4** aliados. Os ataques que eles fizerem em destaque dessa forma causam metade do dano."},
+      {"nome": "Fúria", "detalhe": "Contagem Regressiva (Ciclo 1d6)", "texto": "Quando o Caçador fica em destaque pela primeira vez, ative a contagem regressiva. Quando ela dispara, mova o Caçador em linha reta até um ponto em alcance distante e faça um ataque contra todos os alvos no caminho. Os alvos atingidos sofrem **2d8+2** de dano físico."}
+    ]
+  },
+  "srd_royal_advisor": {
+    "nome": "Conselheiro Real", "arma": "Varinha", "experiencias": {"Administration": "Administração", "Courtier": "Cortesão"},
+    "descricao": "Um cortesão de alto escalão que tem o ouvido da nobreza local.",
+    "motivacoes": "Bajular, forjar provas, tramar",
+    "habilidades": [
+      {"nome": "Réplica Devastadora", "texto": "Um PJ que tirar menos de 17 num teste de ação contra o Conselheiro marca 1 PF."},
+      {"nome": "Sussurrar ao Ouvido", "texto": "**Marque 1 PF** para influenciar com palavras sussurradas um NPC em alcance corpo a corpo. A opinião dele sobre um assunto pende para a preferência do Conselheiro, a menos que isso contrarie diretamente as motivações do alvo."},
+      {"nome": "Bode Expiatório", "texto": "**Gaste 1 Ponto de Medo** para convencer uma multidão ou uma pessoa importante de que alguém ou algum grupo é o responsável por um problema que ela enfrenta. O alvo fica hostil ao bode expiatório até ser convencido da inocência dele com sucesso num teste de Presença (17)."}
+    ]
+  },
+  "srd_secret_keeper": {
+    "nome": "Guardião de Segredos", "arma": "Cajado de Sigilos", "experiencias": {"Coercion": "Coerção", "Fallen Lore": "Saber dos Caídos"},
+    "descricao": "Um líder clandestino com um canal direto com os Deuses Caídos.",
+    "motivacoes": "Acumular grande poder, conspirar, assumir o comando",
+    "habilidades": [
+      {"nome": "Aproveitem o Momento", "texto": "**Gaste 2 Pontos de Medo** para pôr em destaque **1d4** aliados. Os ataques que eles fizerem em destaque dessa forma causam metade do dano."},
+      {"nome": "A Vontade do Nosso Senhor", "texto": "Quando você põe em destaque um aliado em alcance distante, **marque 1 PF** para ganhar 1 Ponto de Medo."},
+      {"nome": "Ritual de Invocação", "detalhe": "Contagem Regressiva (6)", "texto": "Quando o Guardião de Segredos fica em destaque pela primeira vez, ative a contagem regressiva. Quando ele marca PV, a contagem avança na mesma quantidade de PV marcados. Quando dispara, invoque um Demônio Menor, que aparece em alcance próximo."},
+      {"nome": "Cães dos Caídos", "texto": "Uma vez por cena, quando o Guardião de Segredos marca 2 ou mais PV, você pode **marcar 1 PF** para invocar uma Matilha de Cães Demoníacos, que aparece em alcance próximo e é posta em destaque imediatamente."}
+    ]
+  },
+  "srd_shark": {
+    "nome": "Tubarão", "arma": "Bocarra Dentada", "experiencias": {"Sense of Smell": "Olfato"},
+    "descricao": "Um grande predador aquático, sempre em movimento.",
+    "motivacoes": "Encontrar sangue, isolar a presa, mirar nos fracos",
+    "habilidades": [
+      {"nome": "Aterrorizante", "texto": "Quando o Tubarão acerta um ataque, todos os PJs em alcance distante perdem 1 Esperança e você ganha 1 Ponto de Medo."},
+      {"nome": "Mordida Dilacerante", "texto": "Quando o Tubarão acerta um ataque, o alvo precisa marcar um espaço de armadura sem receber o benefício dele (ainda pode usar a armadura para reduzir o dano). Se não puder marcar espaço de armadura, marca 1 PV adicional."},
+      {"nome": "Sangue na Água", "texto": "Quando uma criatura em alcance próximo do Tubarão marca PV com o ataque de outra criatura, você pode **marcar 1 PF** para pôr o Tubarão em destaque imediatamente, levando-o até o alcance corpo a corpo do alvo e fazendo um ataque padrão."}
+    ]
+  },
+  "srd_siren": {
+    "nome": "Sereia", "arma": "Mordida de Mandíbula Distendida", "experiencias": {"Song Repertoire": "Repertório de Canções"},
+    "descricao": "Uma criatura meio peixe, de escamas cintilantes e voz irresistível.",
+    "motivacoes": "Consumir, atrair a presa, subjugar com o canto",
+    "habilidades": [
+      {"nome": "Plateia Cativa", "texto": "Se a Sereia faz um ataque padrão contra um alvo _Enfeitiçado_ pelo seu canto, o ataque causa **2d10+1** de dano em vez do dano padrão."},
+      {"nome": "Canto Encantador", "texto": "**Gaste 1 Ponto de Medo** para entoar um canto que afeta todos os alvos em alcance próximo. Os alvos precisam ter sucesso num teste de reação de Instinto ou ficam _Enfeitiçados_ até marcarem 2 PF. Outras Sereias em alcance próximo do alvo podem **marcar 1 PF** cada para somar +1 à Dificuldade do teste de reação. Enquanto _Enfeitiçado_, o alvo não pode agir e fica _Vulnerável_."}
+    ]
+  },
+  "srd_spectral_archer": {
+    "nome": "Arqueiro Espectral", "arma": "Arco Longo", "experiencias": {"Ancient Knowledge": "Conhecimento Antigo"},
+    "descricao": "Um combatente fantasma com arco etéreo, incapaz de seguir em frente enquanto aquilo que protege estiver vulnerável.",
+    "motivacoes": "Atravessar objetos sólidos, ficar longe da confusão, reviver velhas batalhas",
+    "habilidades": [
+      {"nome": "Fantasma", "texto": "O Arqueiro tem resistência a dano físico. **Marque 1 PF** para se mover até alcance próximo atravessando objetos sólidos."},
+      {"nome": "Escolha seu Alvo", "texto": "**Gaste 1 Ponto de Medo** para fazer um ataque em alcance distante contra um PJ que esteja em alcance muito próximo de pelo menos dois outros PJs. Com sucesso, o alvo sofre **2d8+12** de dano físico."}
+    ]
+  },
+  "srd_spectral_captain": {
+    "nome": "Capitão Espectral", "arma": "Arco Longo", "experiencias": {"Ancient Knowledge": "Conhecimento Antigo"},
+    "descricao": "Um comandante fantasma que lidera suas tropas além da morte.",
+    "motivacoes": "Atravessar objetos sólidos, reunir as tropas, reviver velhas batalhas",
+    "habilidades": [
+      {"nome": "Fantasma", "texto": "O Capitão tem resistência a dano físico. **Marque 1 PF** para se mover até alcance próximo atravessando objetos sólidos."},
+      {"nome": "Batalha Sem Fim", "texto": "**Gaste 2 Pontos de Medo** para trazer de volta à batalha até **1d4+1** aliados Espectrais derrotados, nos pontos onde apareceram pela primeira vez (sem PV nem PF marcados)."},
+      {"nome": "Firmes!", "texto": "Quando os aliados Espectrais do Capitão precisam fazer um teste de reação, você pode **marcar 1 PF** para dar a eles +2 no teste."},
+      {"nome": "Embalo", "texto": "Quando o Capitão acerta um ataque contra um PJ, você ganha 1 Ponto de Medo."}
+    ]
+  },
+  "srd_spectral_guardian": {
+    "nome": "Guardião Espectral", "arma": "Lança", "experiencias": {"Ancient Knowledge": "Conhecimento Antigo"},
+    "descricao": "Um combatente fantasma com lanças e espadas, preso pelo dever.",
+    "motivacoes": "Atravessar objetos sólidos, proteger o tesouro, reviver velhas batalhas",
+    "habilidades": [
+      {"nome": "Fantasma", "texto": "O Guardião tem resistência a dano físico. **Marque 1 PF** para se mover até alcance próximo atravessando objetos sólidos."},
+      {"nome": "Lâmina Tumular", "texto": "**Gaste 1 Ponto de Medo** para atacar um alvo em alcance muito próximo. Com sucesso, cause **2d10+6** de dano físico, e o alvo marca 1 PF."}
+    ]
+  }
+}

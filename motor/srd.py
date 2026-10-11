@@ -400,6 +400,8 @@ class Biblioteca:
         }
         self.progressao = self._ler(pasta / "progressao.json")
         self.companheiro = self._ler(pasta / "companheiro.json")   # ficha do Ranger Companion
+        from .adversarios import de_srd   # aqui para evitar import circular (adversarios usa TipoDano)
+        self.adversarios = {a.id: a for a in map(de_srd, self._ler(srd / "adversarios.json"))}
         self._dominios: dict[str, str] = {}
         # o que não achou tradução (o teste de traduções exige que fique vazio)
         self.traducoes_faltando: list[str] = []
@@ -473,6 +475,24 @@ class Biblioteca:
             i: dataclasses.replace(a, nome=nome_equipamento(equip["armaduras"], "core_armor_", i, a.nome),
                                    caracteristicas=tuple(traduzir_carac(c) for c in a.caracteristicas))
             for i, a in self.armaduras.items()}
+
+        adversarios: dict = {}
+        for arquivo in sorted((pasta / "adversarios").glob("*.json")):
+            adversarios.update(self._ler(arquivo))
+
+        def adversario(i, a):
+            t = adversarios.get(i)
+            if t is None or len(t["habilidades"]) != len(a.habilidades):
+                faltando.append(i)
+                return a
+            return dataclasses.replace(
+                a, nome=t["nome"], descricao=t["descricao"], motivacoes=t["motivacoes"], arma=t["arma"],
+                experiencias={t["experiencias"].get(n, n): v for n, v in a.experiencias.items()},
+                habilidades=[dataclasses.replace(h, nome=n["nome"], texto=n["texto"],
+                                                 detalhe=n.get("detalhe", h.detalhe))
+                             for h, n in zip(a.habilidades, t["habilidades"])])
+
+        self.adversarios = {i: adversario(i, a) for i, a in self.adversarios.items()}
 
     def nome_dominio(self, codigo: str) -> str:
         """Nome de exibição de um domínio ("BLADE" -> "Lâmina" ou "Blade")."""

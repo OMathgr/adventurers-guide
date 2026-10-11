@@ -1,0 +1,162 @@
+{
+  "srd_red_ooze": {
+    "nome": "Gosma Vermelha", "arma": "Apêndice Gosmento", "experiencias": {"Camouflage": "Camuflagem"},
+    "descricao": "Um monte ambulante de lodo vermelho translúcido em chamas.",
+    "motivacoes": "Camuflar-se, consumir e se multiplicar, inflamar, começar incêndios",
+    "habilidades": [
+      {"nome": "Fogo Rastejante", "texto": "O movimento normal da Gosma só alcança até muito próximo. Ela incendeia qualquer objeto inflamável que toca."},
+      {"nome": "Inflamar", "texto": "Faça um ataque contra um alvo em alcance muito próximo. Com sucesso, o alvo sofre **1d8** de dano mágico e fica _Em Chamas_ até ser apagado com sucesso num teste de Acuidade (14). Enquanto _Em Chamas_, o alvo sofre **1d4** de dano mágico sempre que faz um teste de ação."},
+      {"nome": "Dividir", "texto": "Quando a Gosma tem 3 ou mais PV marcados, você pode **gastar 1 Ponto de Medo** para dividi-la em duas Gosmas Vermelhas Minúsculas (sem PV nem PF marcados). Ponha as duas em destaque imediatamente."}
+    ]
+  },
+  "srd_rotted_zombie": {
+    "nome": "Zumbi Apodrecido", "arma": "Mordida", "experiencias": {},
+    "descricao": "Um cadáver em decomposição cambaleando na direção da presa.",
+    "motivacoes": "Comer carne, ter fome, mutilar, cercar",
+    "habilidades": [
+      {"nome": "Lacaio (3)", "texto": "O Zumbi é derrotado ao sofrer qualquer dano. Para cada 3 de dano que um PJ causar ao Zumbi, derrote mais um Lacaio no alcance contra quem o ataque teria sucesso."},
+      {"nome": "Ataque em Grupo", "texto": "**Gaste 1 Ponto de Medo** para escolher um alvo e pôr em destaque todos os Zumbis Apodrecidos em alcance próximo dele. Esses Lacaios vão até o alcance corpo a corpo do alvo e fazem um único teste de ataque compartilhado. Com sucesso, cada um causa 2 de dano físico. Some esse dano."}
+    ]
+  },
+  "srd_sellsword": {
+    "nome": "Mercenário", "arma": "Espada Longa", "experiencias": {},
+    "descricao": "Um mercenário armado tentando a sorte.",
+    "motivacoes": "Investir, lacerar, sobrepujar, lucrar",
+    "habilidades": [
+      {"nome": "Lacaio (4)", "texto": "O Mercenário é derrotado ao sofrer qualquer dano. Para cada 4 de dano que um PJ causar ao Mercenário, derrote mais um Lacaio no alcance contra quem o ataque teria sucesso."},
+      {"nome": "Ataque em Grupo", "texto": "**Gaste 1 Ponto de Medo** para escolher um alvo e pôr em destaque todos os Mercenários em alcance próximo dele. Esses Lacaios vão até o alcance corpo a corpo do alvo e fazem um único teste de ataque compartilhado. Com sucesso, cada um causa 3 de dano físico. Some esse dano."}
+    ]
+  },
+  "srd_shambling_zombie": {
+    "nome": "Zumbi Arrastado", "arma": "Mordida", "experiencias": {},
+    "descricao": "Um cadáver animado que se move aos trancos, movido só pela fome.",
+    "motivacoes": "Devorar, ter fome, cercar o inimigo, dilacerar carne",
+    "habilidades": [
+      {"nome": "Demais para Aguentar", "texto": "Quando o Zumbi está em alcance corpo a corpo de uma criatura e pelo menos outro Zumbi está em alcance próximo, todos os ataques contra essa criatura têm vantagem."},
+      {"nome": "Horripilante", "texto": "Os alvos que marcam PV com os ataques do Zumbi também marcam 1 PF."}
+    ]
+  },
+  "srd_skeleton_archer": {
+    "nome": "Esqueleto Arqueiro", "arma": "Arco Curto", "experiencias": {},
+    "descricao": "Um esqueleto frágil com arco curto e flechas.",
+    "motivacoes": "Perfurar alvos distraídos, fingir-se de morto, roubar pele",
+    "habilidades": [
+      {"nome": "Oportunista", "texto": "Quando dois ou mais adversários estão em alcance muito próximo de uma criatura, todo dano que o Arqueiro causa a ela é dobrado."},
+      {"nome": "Tiro Mortal", "texto": "Faça um ataque contra um alvo _Vulnerável_ em alcance distante. Com sucesso, **marque 1 PF** para causar **3d4+8** de dano físico."}
+    ]
+  },
+  "srd_skeleton_dredge": {
+    "nome": "Esqueleto Refugo", "arma": "Garras de Osso", "experiencias": {},
+    "descricao": "Uma pilha barulhenta de ossos.",
+    "motivacoes": "Desmontar-se, sobrepujar, fingir-se de morto, roubar pele",
+    "habilidades": [
+      {"nome": "Lacaio (4)", "texto": "O Refugo é derrotado ao sofrer qualquer dano. Para cada 4 de dano que um PJ causar ao Refugo, derrote mais um Lacaio no alcance contra quem o ataque teria sucesso."},
+      {"nome": "Ataque em Grupo", "texto": "**Gaste 1 Ponto de Medo** para escolher um alvo e pôr em destaque todos os Refugos em alcance próximo dele. Esses Lacaios vão até o alcance corpo a corpo do alvo e fazem um único teste de ataque compartilhado. Com sucesso, cada um causa 1 de dano físico. Some esse dano."}
+    ]
+  },
+  "srd_skeleton_knight": {
+    "nome": "Esqueleto Cavaleiro", "arma": "Montante Enferrujado", "experiencias": {},
+    "descricao": "Um esqueleto grande de armadura, com uma lâmina enorme.",
+    "motivacoes": "Abater os vivos, roubar pele, causar estragos",
+    "habilidades": [
+      {"nome": "Aterrorizante", "texto": "Quando o Cavaleiro acerta um ataque, todos os PJs em alcance próximo perdem 1 Esperança e você ganha 1 Ponto de Medo."},
+      {"nome": "Cortar até o Osso", "texto": "**Marque 1 PF** para atacar todos os alvos em alcance muito próximo. Os alvos atingidos sofrem **1d8+2** de dano físico e marcam 1 PF."},
+      {"nome": "Cavar Duas Covas", "texto": "Quando o Cavaleiro é derrotado, ele ataca um alvo em alcance muito próximo (de preferência quem o matou). Com sucesso, o alvo sofre **1d4+8** de dano físico e perde **1d4** Esperança."}
+    ]
+  },
+  "srd_skeleton_warrior": {
+    "nome": "Esqueleto Guerreiro", "arma": "Espada", "experiencias": {},
+    "descricao": "Um esqueleto coberto de terra, armado com uma lâmina enferrujada.",
+    "motivacoes": "Fingir-se de morto, atacar em bando, roubar pele",
+    "habilidades": [
+      {"nome": "Só Ossos", "texto": "O Guerreiro tem resistência a dano físico."},
+      {"nome": "Não Fica Morto", "texto": "Quando o Guerreiro é derrotado, você pode pô-lo em destaque e rolar um **d6**. Com resultado 6, se houver outros adversários no campo de batalha, o Guerreiro se refaz sem PV marcados."}
+    ]
+  },
+  "srd_spellblade": {
+    "nome": "Lâmina Arcana", "arma": "Espada Longa Encantada", "experiencias": {"Magical Knowledge": "Conhecimento Mágico"},
+    "descricao": "Um mercenário que une esgrima e magia com efeito mortal.",
+    "motivacoes": "Explodir, comandar, resistir",
+    "habilidades": [
+      {"nome": "Aço Arcano", "texto": "O dano do ataque padrão da Lâmina Arcana conta como físico e mágico ao mesmo tempo."},
+      {"nome": "Rajada Supressora", "texto": "**Marque 1 PF** e escolha um grupo em alcance distante. Todos os alvos precisam ter sucesso num teste de reação de Agilidade ou sofrem **1d8+2** de dano mágico. Você ganha 1 Ponto de Medo para cada alvo que marcar PV com esse ataque."},
+      {"nome": "Mover-se em Unidade", "texto": "**Gaste 2 Pontos de Medo** para pôr em destaque até cinco aliados em alcance distante."},
+      {"nome": "Embalo", "texto": "Quando a Lâmina Arcana acerta um ataque contra um PJ, você ganha 1 Ponto de Medo."}
+    ]
+  },
+  "srd_swarm_of_rats": {
+    "nome": "Enxame de Ratos", "arma": "Garras", "experiencias": {},
+    "descricao": "Uma massa agitada de roedores comuns que se move como uma onda faminta.",
+    "motivacoes": "Consumir, obstruir, enxamear",
+    "habilidades": [
+      {"nome": "Horda (1d4+1)", "texto": "Quando o Enxame tiver marcado metade ou mais dos PV, o ataque padrão dele causa **1d4+1** de dano físico no lugar."},
+      {"nome": "Na Sua Cara", "texto": "Todos os alvos em alcance corpo a corpo têm desvantagem em ataques contra alvos que não sejam o Enxame."}
+    ]
+  },
+  "srd_sylvan_soldier": {
+    "nome": "Soldado Silvestre", "arma": "Foice", "experiencias": {"Tracker": "Rastreador"},
+    "descricao": "Um guerreiro feérico com armadura de folhas e casca de árvore.",
+    "motivacoes": "Emboscar, esconder-se, sobrepujar, proteger, seguir rastros",
+    "habilidades": [
+      {"nome": "Tática de Matilha", "texto": "Se o Soldado faz um ataque padrão e outro Soldado Silvestre está em alcance corpo a corpo do alvo, causa **1d8+5** de dano físico em vez do dano padrão."},
+      {"nome": "Domínio da Floresta", "texto": "**Gaste 1 Ponto de Medo** para derrubar uma árvore em alcance próximo. Uma criatura atingida pela árvore precisa ter sucesso num teste de reação de Agilidade (15) ou sofre **1d10** de dano físico."},
+      {"nome": "Mesclar-se", "texto": "Quando o Soldado acerta um ataque, você pode **marcar 1 PF** para deixá-lo _Oculto_ até o próximo ataque dele ou até um PJ ter sucesso num teste de Instinto (14) para encontrá-lo."}
+    ]
+  },
+  "srd_tangle_bramble": {
+    "nome": "Espinheiro Emaranhado", "arma": "Espinhos", "experiencias": {},
+    "descricao": "Uma bola de mato animada que bebe sangue.",
+    "motivacoes": "Juntar-se, drenar, enredar",
+    "habilidades": [
+      {"nome": "Lacaio (4)", "texto": "O Espinheiro é derrotado ao sofrer qualquer dano. Para cada 4 de dano que um PJ causar ao Espinheiro, derrote mais um Lacaio no alcance contra quem o ataque teria sucesso."},
+      {"nome": "Ataque em Grupo", "texto": "**Gaste 1 Ponto de Medo** para escolher um alvo e pôr em destaque todos os Espinheiros Emaranhados em alcance próximo dele. Esses Lacaios vão até o alcance corpo a corpo do alvo e fazem um único teste de ataque compartilhado. Com sucesso, cada um causa 2 de dano físico. Some esse dano."},
+      {"nome": "Drenar e Multiplicar", "texto": "Quando um ataque do Espinheiro faz um alvo marcar PV e há três ou mais Lacaios Espinheiro Emaranhado em alcance próximo, você pode juntar os Lacaios numa Horda de Enxame de Espinheiros. Os PV da Horda são iguais ao número de Lacaios juntados."}
+    ]
+  },
+  "srd_tangle_bramble_swarm": {
+    "nome": "Enxame de Espinheiros", "arma": "Espinhos", "experiencias": {"Camouflage": "Camuflagem"},
+    "descricao": "Um aglomerado de bolas de mato animadas que bebem sangue, cada uma do tamanho de uma abóbora grande.",
+    "motivacoes": "Digerir, enredar, imobilizar",
+    "habilidades": [
+      {"nome": "Horda (1d4+2)", "texto": "Quando o Enxame tiver marcado metade ou mais dos PV, o ataque padrão dele causa **1d4+2** de dano físico no lugar."},
+      {"nome": "Esmagar", "texto": "**Marque 1 PF** para causar **2d6+8** de dano físico direto a um alvo com 3 ou mais marcadores de espinheiro."},
+      {"nome": "Estorvar", "texto": "Quando o Enxame acerta um ataque, dê ao alvo um marcador de espinheiro. Um alvo com qualquer marcador de espinheiro fica _Contido_. Com 3 ou mais marcadores, também fica _Vulnerável_. Todos os marcadores podem ser removidos com sucesso num teste de Acuidade (12 + o número de marcadores de espinheiro) ou causando dano Maior ou pior ao Enxame. Se os marcadores forem removidos com um teste de Acuidade, surge em alcance corpo a corpo um número de Lacaios Espinheiro Emaranhado igual ao de marcadores removidos."}
+    ]
+  },
+  "srd_tiny_green_ooze": {
+    "nome": "Gosma Verde Minúscula", "arma": "Apêndice Gosmento", "experiencias": {},
+    "descricao": "Um montinho ambulante de lodo verde translúcido.",
+    "motivacoes": "Camuflar-se, aproximar-se sorrateiramente",
+    "habilidades": [
+      {"nome": "Forma Ácida", "texto": "Quando a Gosma acerta um ataque, o alvo precisa marcar um espaço de armadura sem receber o benefício dele (ainda pode usar a armadura para reduzir o dano). Se não puder marcar espaço de armadura, marca 1 PV adicional."}
+    ]
+  },
+  "srd_tiny_red_ooze": {
+    "nome": "Gosma Vermelha Minúscula", "arma": "Apêndice Gosmento", "experiencias": {},
+    "descricao": "Um montinho ambulante de lodo vermelho translúcido em chamas.",
+    "motivacoes": "Arder, camuflar-se",
+    "habilidades": [
+      {"nome": "Ardente", "texto": "Quando uma criatura em alcance corpo a corpo causa dano à Gosma, sofre **1d6** de dano mágico direto."}
+    ]
+  },
+  "srd_weaponmaster": {
+    "nome": "Mestre de Armas", "arma": "Claymore", "experiencias": {},
+    "descricao": "Um mestre de armas que empunha uma espada com o dobro do seu tamanho.",
+    "motivacoes": "Agir primeiro, mirar no mais fraco, intimidar",
+    "habilidades": [
+      {"nome": "Golpe Provocador", "texto": "Faça um ataque padrão contra um alvo. Com sucesso, **marque 1 PF** para deixar o alvo _Provocado_ até o próximo ataque bem-sucedido dele. Da próxima vez que o alvo _Provocado_ atacar, ele tem desvantagem contra alvos que não sejam o Mestre de Armas."},
+      {"nome": "Pico de Adrenalina", "texto": "Uma vez por cena, **gaste 1 Ponto de Medo** para limpar 2 PV e 2 PF."},
+      {"nome": "Embalo", "texto": "Quando o Mestre de Armas acerta um ataque contra um PJ, você ganha 1 Ponto de Medo."}
+    ]
+  },
+  "srd_young_dryad": {
+    "nome": "Dríade Jovem", "arma": "Foice", "experiencias": {"Leadership": "Liderança"},
+    "descricao": "Uma criatura-árvore imperiosa que lidera as defesas da sua floresta.",
+    "motivacoes": "Comandar, nutrir, podar os indesejados",
+    "habilidades": [
+      {"nome": "Voz da Floresta", "texto": "**Marque 1 PF** para pôr em destaque **1d4** aliados que estejam no alcance de um alvo que possam atacar sem se mover. Com sucesso, os ataques deles causam metade do dano."},
+      {"nome": "Gaiola de Espinhos", "texto": "**Gaste 1 Ponto de Medo** para formar uma gaiola ao redor de um alvo em alcance muito próximo e deixá-lo _Contido_ até ser libertado com sucesso num teste de Força. Quando uma criatura faz um teste de ação contra a gaiola, marca 1 PF."},
+      {"nome": "Embalo", "texto": "Quando a Dríade acerta um ataque contra um PJ, você ganha 1 Ponto de Medo."}
+    ]
+  }
+}

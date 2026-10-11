@@ -1,5 +1,6 @@
 """Motor de regras do Adventurer's Guide (Daggerheart)."""
 
+from .adversarios import Adversario, Habilidade, TipoAdversario, TipoHabilidade
 from .companheiro import AlvoFeroz, Companheiro, FichaCompanheiro, OpcaoTreino, Treino
 from .personagem import (Ataque, Conjuracao, Criacao, Equipamento, Escolha, Ficha, Opcao,
                          Personagem, ProximoNivel, RegraViolada, SubidaDeNivel)
@@ -14,4 +15,4 @@ __all__ = ["Biblioteca", "Traco", "Arma", "Armadura", "Caracteristica",
            "RegraViolada", "SubidaDeNivel", "Sessao", "Gravidade", "Movimento",
            "ResultadoDano", "ResultadoMovimento", "Efeito", "TipoDano",
            "Companheiro", "FichaCompanheiro", "OpcaoTreino", "Treino", "AlvoFeroz",
-           "ProximoNivel", "Condicao", "Classe", "Subclasse", "Ancestralidade", "Comunidade", "CartaDeDominio"]
+           "ProximoNivel", "Adversario", "Habilidade", "TipoAdversario", "TipoHabilidade", "Condicao", "Classe", "Subclasse", "Ancestralidade", "Comunidade", "CartaDeDominio"]

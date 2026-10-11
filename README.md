@@ -13,9 +13,11 @@ Hoje tem três camadas:
 
 Tem cadastro e login (e-mail e senha, token JWT) e mesas: entrada por
 código de convite, jogadores e mestres, e o mestre vê as fichas e aplica
-dano e condições nos personagens da mesa. A interface web já cobre o
-construtor (criar, ficha, linha do tempo, subir de nível); sessão de jogo e
-mesas na interface vêm a seguir.
+dano e condições nos personagens da mesa. Cada mesa tem uma biblioteca
+privada dos mestres: inimigos (copiados dos 129 adversários do SRD ou criados
+do zero) e NPCs (ficha simples, com ficha de combate opcional). A interface
+web cobre o construtor (criar, ficha, linha do tempo, subir de nível), as
+mesas e a área do mestre; a sessão de jogo vem a seguir.
 
 ## Como rodar
 
@@ -53,10 +55,12 @@ motor/
   personagem.py   # criação, level up, equipamento, cartas, ficha e linha do tempo
   sessao.py       # estado de jogo: PV, Estresse, Esperança, armadura, dano e descansos
   companheiro.py  # companheiro do Ranger Beastbound: ficha e treinos
+  adversarios.py  # adversários (SRD e criados pelo mestre): formato e validação
   erros.py        # RegraViolada
 api/
   main.py         # aplicação FastAPI e tratamento de erros
-  rotas/          # auth, srd (catálogo), personagens (construtor), sessao (jogo), mesas
+  rotas/          # auth, srd (catálogo), personagens (construtor), sessao (jogo), mesas,
+                  # conteudo (inimigos e NPCs da mesa)
   mesas.py        # papéis e permissões das mesas
   seguranca.py    # hash de senha (Argon2) e tokens JWT
   autenticacao.py # dependência usuario_atual (quem está logado)
@@ -78,7 +82,8 @@ docs/ARQUITETURA.md
 
 1. ~~Motor de regras~~
 2. ~~API (FastAPI) + banco: personagens salvos, usuários e login, mesas e papéis~~
-3. Interface web: ~~construtor (ficha + linha do tempo)~~, sessão de jogo e mesas (próximo)
+3. Interface web: ~~construtor (ficha + linha do tempo)~~, ~~mesas e área do mestre (inimigos e NPCs)~~,
+   sessão de jogo (encontros, Medo, PV/PF dos inimigos) e revelar informações aos jogadores (próximo)
 4. Workspace da mesa (mapa mental com visibilidade por papel)
 5. Colaboração em tempo real
 6. App mobile
@@ -96,4 +101,6 @@ translation, not affiliated with or endorsed by Darrington Press or Critical Rol
 
 Tradução não oficial para o português feita pelo projeto Adventurer's Guide.
 
-Dados em JSON: [daggersearch/daggerheart-data](https://github.com/daggersearch/daggerheart-data).
+Dados em JSON: [daggersearch/daggerheart-data](https://github.com/daggersearch/daggerheart-data)
+(personagens, cartas, equipamento) e [seansbox/daggerheart-srd](https://github.com/seansbox/daggerheart-srd)
+(adversários, `data/srd/adversarios.json`).

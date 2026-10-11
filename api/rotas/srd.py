@@ -3,7 +3,8 @@ as listas de escolha."""
 
 from fastapi import APIRouter, HTTPException
 
-from motor import Ancestralidade, Arma, Armadura, CartaDeDominio, Classe, Comunidade, Subclasse
+from motor import (Adversario, Ancestralidade, Arma, Armadura, CartaDeDominio, Classe, Comunidade,
+                   Subclasse, TipoAdversario)
 
 from ..repositorio import biblioteca
 
@@ -41,6 +42,22 @@ def armas(tier: int | None = None):
 @rotas.get("/armaduras", response_model=list[Armadura])
 def armaduras(tier: int | None = None):
     return [a for a in biblioteca().armaduras.values() if tier is None or a.tier == tier]
+
+
+@rotas.get("/adversarios", response_model=list[Adversario])
+def adversarios(patamar: int | None = None, tipo: TipoAdversario | None = None):
+    """Adversários do SRD (base para os inimigos que o mestre usa na mesa)."""
+    return sorted((a for a in biblioteca().adversarios.values()
+                   if (patamar is None or a.patamar == patamar) and (tipo is None or a.tipo is tipo)),
+                  key=lambda a: (a.patamar, a.nome))
+
+
+@rotas.get("/adversarios/{adversario_id}", response_model=Adversario)
+def adversario(adversario_id: str):
+    a = biblioteca().adversarios.get(adversario_id)
+    if a is None:
+        raise HTTPException(404, f"Adversário {adversario_id} não encontrado.")
+    return a
 
 
 @rotas.get("/dominios")

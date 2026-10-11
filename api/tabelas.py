@@ -59,6 +59,35 @@ class MembroTabela(Base):
     usuario: Mapped[UsuarioTabela] = relationship()
 
 
+class InimigoTabela(Base):
+    """Inimigo da mesa: criado do zero ou copiado de um adversário do SRD.
+    Privado dos mestres. `dados` é um motor.Adversario."""
+
+    __tablename__ = "inimigos"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    mesa_id: Mapped[str] = mapped_column(ForeignKey("mesas.id", ondelete="CASCADE"), index=True)
+    dados: Mapped[dict] = mapped_column(JSON)
+    criado_em: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_agora)
+    atualizado_em: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_agora, onupdate=_agora)
+
+
+class NpcTabela(Base):
+    """NPC da mesa: ficha simples, com ficha de combate opcional (motor.Adversario)."""
+
+    __tablename__ = "npcs"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    mesa_id: Mapped[str] = mapped_column(ForeignKey("mesas.id", ondelete="CASCADE"), index=True)
+    nome: Mapped[str] = mapped_column(String(120))
+    descricao: Mapped[str] = mapped_column(String(4000), default="")
+    motivacoes: Mapped[str] = mapped_column(String(2000), default="")
+    notas: Mapped[str] = mapped_column(String(8000), default="")
+    ficha_combate: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    criado_em: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_agora)
+    atualizado_em: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_agora, onupdate=_agora)
+
+
 class PersonagemTabela(Base):
     __tablename__ = "personagens"
 

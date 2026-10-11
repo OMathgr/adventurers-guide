@@ -1,0 +1,119 @@
+{
+  "srd_kraken": {
+    "nome": "Kraken", "arma": "Tentáculos", "experiencias": {"Swimming": "Natação"},
+    "descricao": "Uma fera lendária do mar, maior que o maior dos galeões, com tentáculos cheios de ventosas e uma bocarra aterrorizante.",
+    "motivacoes": "Devorar, esmagar, afogar, agarrar",
+    "habilidades": [
+      {"nome": "Implacável (3)", "texto": "O Kraken pode ser posto em destaque até três vezes por turno do mestre. Gaste Medo normalmente para destacá-lo."},
+      {"nome": "Muitos Tentáculos", "texto": "Enquanto o Kraken tiver 7 PV ou menos marcados, pode fazer o ataque padrão contra dois alvos no alcance."},
+      {"nome": "Agarrar e Afogar", "texto": "Faça um teste de ataque contra um alvo em alcance próximo. Com sucesso, **marque 1 PF** para agarrá-lo com um tentáculo e arrastá-lo para baixo d'água. O alvo fica _Contido_ e _Vulnerável_ até se libertar com sucesso num teste de Força ou até o Kraken sofrer dano Maior ou pior. Enquanto _Contido_ e _Vulnerável_ desta forma, o alvo precisa marcar 1 PF sempre que faz um teste de ação."},
+      {"nome": "Jato Fervente", "texto": "**Gaste 1 Ponto de Medo** para cuspir uma linha de água fervente contra qualquer número de alvos em linha, até alcance distante. Todos os alvos precisam ter sucesso num teste de reação de Agilidade ou sofrem **4d6+9** de dano físico. Se um alvo marcar um espaço de armadura para reduzir o dano, também precisa marcar 1 PF."},
+      {"nome": "Embalo", "texto": "Quando o Kraken acerta um ataque contra um PJ, você ganha 1 Ponto de Medo."}
+    ]
+  },
+  "srd_oracle_of_doom": {
+    "nome": "Oráculo da Perdição", "arma": "Ataque Psíquico", "experiencias": {"Boundless Knowledge": "Conhecimento sem Limites"},
+    "descricao": "Um imortal colossal, encarnação do destino, amaldiçoado a ver apenas desfechos ruins.",
+    "motivacoes": "Mudar o ambiente, condenar, desanimar, descartar",
+    "habilidades": [
+      {"nome": "Aterrorizante", "texto": "Quando o Oráculo acerta um ataque, todos os PJs em alcance distante perdem 1 Esperança e você ganha 1 Ponto de Medo."},
+      {"nome": "Paredes se Fechando", "texto": "Quando uma criatura rola uma falha em alcance muito distante do Oráculo, precisa marcar 1 PF."},
+      {"nome": "Pronunciar o Destino", "texto": "**Gaste 1 Ponto de Medo** para mostrar a um alvo em alcance distante uma visão do seu pesadelo pessoal. O alvo faz um teste de reação de Conhecimento. Se falhar, perde toda a Esperança e sofre **2d20+4** de dano mágico direto. Com sucesso, sofre metade do dano e perde 1 Esperança."},
+      {"nome": "Invocar Algozes", "texto": "Uma vez por dia, **gaste 2 Pontos de Medo** para invocar **2d4** Lacaios de patamar 2 ou menor ligados a um dos pesadelos pessoais de um PJ. Eles aparecem em alcance próximo desse PJ."},
+      {"nome": "Conhecimento Agourento", "texto": "Quando o Oráculo vê uma criatura mortal, descobre na hora um dos pesadelos pessoais dela."},
+      {"nome": "Destino Vingativo", "texto": "Quando o Oráculo marca PV com um ataque em alcance muito próximo, você pode **marcar 1 PF** para arremessar o atacante para alcance distante e causar **2d10+4** de dano físico."}
+    ]
+  },
+  "srd_outer_realms_abomination": {
+    "nome": "Abominação dos Reinos Exteriores", "arma": "Pseudópode Maciço", "experiencias": {},
+    "descricao": "Uma paródia caótica da vida, em fluxo constante.",
+    "motivacoes": "Demolir, devorar, solapar",
+    "habilidades": [
+      {"nome": "Forma Caótica", "texto": "Quando a Abominação ataca, role **2d4** e use o resultado como modificador de ataque."},
+      {"nome": "Presença Desorientadora", "texto": "Quando um alvo sofre dano da Abominação, faz um teste de reação de Instinto. Se falhar, tem desvantagem no próximo teste de ação e você ganha 1 Ponto de Medo."},
+      {"nome": "Tremor da Realidade", "texto": "**Gaste 1 Ponto de Medo** para abalar as bordas da realidade em alcance distante da Abominação. Todos os alvos na área precisam ter sucesso num teste de reação de Conhecimento ou ficam _Desancorados_ da realidade até o fim da cena. Quando um alvo _Desancorado_ gasta Esperança ou marca espaços de armadura, PV ou PF, precisa dobrar a quantidade gasta ou marcada."},
+      {"nome": "Forma Irreal", "texto": "Quando a Abominação sofre dano, reduza-o em **1d20**. Se a Abominação marcar 1 PV ou menos com um ataque bem-sucedido contra ela, você ganha 1 Ponto de Medo."}
+    ]
+  },
+  "srd_outer_realms_corruptor": {
+    "nome": "Corruptor dos Reinos Exteriores", "arma": "Pseudópode Corrosivo", "experiencias": {},
+    "descricao": "Uma massa disforme e mutável, que parece feita de luz cromática.",
+    "motivacoes": "Confundir, distrair, sobrepujar",
+    "habilidades": [
+      {"nome": "Toque Estilhaça-Vontade", "texto": "Quando um PJ sofre dano do Corruptor, perde 1 Esperança."},
+      {"nome": "Vomitar Destroços da Realidade", "texto": "**Marque 1 PF** para cuspir pedaços parcialmente digeridos de realidades consumidas em todos os alvos em alcance próximo. Os alvos precisam ter sucesso num teste de reação de Conhecimento ou marcam 2 PF."}
+    ]
+  },
+  "srd_outer_realms_thrall": {
+    "nome": "Servo dos Reinos Exteriores", "arma": "Garras e Dentes", "experiencias": {},
+    "descricao": "Uma forma vagamente humanoide, despojada de memória e identidade.",
+    "motivacoes": "Destruir, causar repulsa, desorientar, intimidar",
+    "habilidades": [
+      {"nome": "Lacaio (13)", "texto": "O Servo é derrotado ao sofrer qualquer dano. Para cada 13 de dano que um PJ causar ao Servo, derrote mais um Lacaio no alcance contra quem o ataque teria sucesso."},
+      {"nome": "Ataque em Grupo", "texto": "**Gaste 1 Ponto de Medo** para escolher um alvo e pôr em destaque todos os Servos dos Reinos Exteriores em alcance próximo dele. Esses Lacaios vão até o alcance corpo a corpo do alvo e fazem um único teste de ataque compartilhado. Com sucesso, cada um causa 11 de dano físico. Some esse dano."}
+    ]
+  },
+  "srd_perfected_zombie": {
+    "nome": "Zumbi Aperfeiçoado", "arma": "Machado Grande", "experiencias": {},
+    "descricao": "Um zumbi colossal e musculoso, com força e habilidade infundidas por magia.",
+    "motivacoes": "Devorar, perseguir, mutilar, aterrorizar",
+    "habilidades": [
+      {"nome": "Aterrorizante", "texto": "Quando o Zumbi acerta um ataque, todos os PJs em alcance distante perdem 1 Esperança e você ganha 1 Ponto de Medo."},
+      {"nome": "Presença Temível", "texto": "Os PJs não podem gastar Esperança para usar habilidades contra o Zumbi."},
+      {"nome": "Golpe Perfeito", "texto": "**Marque 1 PF** para fazer um ataque padrão contra todos os alvos em alcance muito próximo. Os alvos atingidos ficam _Vulneráveis_ até o próximo descanso."},
+      {"nome": "Oportunista Habilidoso", "texto": "Quando outro adversário causa dano a um alvo em alcance muito próximo do Zumbi, você pode **gastar 1 Ponto de Medo** para somar o dano do ataque padrão do Zumbi à rolagem de dano."}
+    ]
+  },
+  "srd_volcanic_dragon_ashen_tyrant": {
+    "nome": "Dragão Vulcânico: Tirano das Cinzas", "arma": "Garras e Dentes", "experiencias": {"Hunt from Above": "Caçar do Alto"},
+    "descricao": "Nenhum inimigo jamais teve a insolência de ferir tanto o dragão. Quando a lava assenta, vira cinza, como os antigos inimigos do dragão.",
+    "motivacoes": "Sufocar, voar, intimidar, matar ou morrer",
+    "habilidades": [
+      {"nome": "Implacável (4)", "texto": "O Tirano das Cinzas pode ser posto em destaque até quatro vezes por turno do mestre. Gaste Medo normalmente para destacá-lo."},
+      {"nome": "Encurralado", "texto": "**Marque 1 PF** em vez de gastar 1 Ponto de Medo para pôr o Tirano das Cinzas em destaque."},
+      {"nome": "Asas Feridas", "texto": "Enquanto voa, o Tirano das Cinzas tem +1 na Dificuldade."},
+      {"nome": "Das Cinzas às Cinzas", "texto": "Quando um PJ rola uma falha em alcance próximo do Tirano das Cinzas, perde 1 Esperança e você ganha 1 Ponto de Medo. Se o PJ não puder perder Esperança, precisa marcar 1 PV."},
+      {"nome": "Fúria Desesperada", "texto": "**Marque 1 PF** para fazer um ataque contra todos os alvos em alcance próximo. Os alvos atingidos sofrem **2d20+2** de dano físico, são arremessados para alcance próximo de onde estavam e precisam marcar 1 PF."},
+      {"nome": "Nuvem de Cinzas", "texto": "**Gaste 1 Ponto de Medo** para golpear o chão e levantar cinzas em alcance distante. Dentro da nuvem de cinzas, o alvo tem desvantagem em testes de ação. A nuvem se dissipa na próxima vez que um adversário for posto em destaque."},
+      {"nome": "Debater-se Apocalíptico", "detalhe": "Contagem Regressiva (1d12)", "texto": "**Gaste 1 Ponto de Medo** para ativar. Ela avança quando um PJ rola com Medo. Quando dispara, o Tirano das Cinzas se debate, causando dano ambiental (como um terremoto, uma avalanche ou paredes desabando). Todos os alvos em alcance distante fazem um teste de reação de Força. Quem falhar sofre **2d10+10** de dano físico e fica _Contido_ pelos escombros até se libertar com sucesso num teste de Força. Quem tiver sucesso sofre metade do dano. Se o Tirano das Cinzas for derrotado com esta contagem regressiva ativa, dispare-a imediatamente, como a destruição causada por sua agonia final."}
+    ]
+  },
+  "srd_volcanic_dragon_molten_scourge": {
+    "nome": "Dragão Vulcânico: Flagelo Derretido", "arma": "Garras Cobertas de Lava", "experiencias": {"Hunt from Above": "Caçar do Alto"},
+    "descricao": "Enfurecido pelos ferimentos, o dragão explode em lava derretida.",
+    "motivacoes": "Encharcar de lava, incinerar, repelir invasores, reposicionar-se",
+    "habilidades": [
+      {"nome": "Implacável (3)", "texto": "O Flagelo Derretido pode ser posto em destaque até três vezes por turno do mestre. Gaste Medo normalmente para destacá-lo."},
+      {"nome": "Escamas Rachadas", "texto": "Quando o Flagelo Derretido sofre dano, role **d6s** em quantidade igual aos PV marcados. Para cada resultado 4 ou maior, você ganha 1 Ponto de Medo."},
+      {"nome": "Poder Estilhaçador", "texto": "**Marque 1 PF** para fazer um ataque contra um alvo em alcance muito próximo. Com sucesso, o alvo sofre **4d8+1** de dano físico, perde 1 Esperança e é arremessado para alcance próximo. O Flagelo Derretido limpa 1 PF."},
+      {"nome": "Erupção", "texto": "**Gaste 1 Ponto de Medo** para fazer a lava irromper sob as escamas do Flagelo Derretido, enchendo a área em alcance muito próximo de lava derretida. Todos os alvos na área precisam ter sucesso num teste de reação de Agilidade ou sofrem **4d6+6** de dano físico e são arremessados para alcance próximo. A área continua coberta de lava. Quando uma criatura que não seja o Flagelo Derretido entra na área ou age dentro dela, precisa marcar 6 PV."},
+      {"nome": "Sopro Vulcânico", "texto": "Quando o Flagelo Derretido sofre dano Maior, role um **d10**. Com resultado 8 ou maior, ele sopra um fluxo de lava à sua frente, até alcance distante. Todos os alvos na área fazem um teste de reação de Agilidade. Quem falhar sofre **2d10+4** de dano físico, marca **1d4 PF** e fica _Vulnerável_ até limpar 1 PF. Quem tiver sucesso sofre metade do dano e precisa marcar 1 PF."},
+      {"nome": "Respingo de Lava", "texto": "Quando o Flagelo Derretido sofre dano Grave de um ataque em alcance muito próximo, sangue derretido jorra da ferida e causa **2d10+4** de dano físico direto ao atacante."},
+      {"nome": "Vingança das Cinzas (Mudança de Fase)", "texto": "Quando o Flagelo Derretido marca o último PV, substitua-o pelo Tirano das Cinzas e ponha-o em destaque imediatamente."}
+    ]
+  },
+  "srd_volcanic_dragon_obsidian_predator": {
+    "nome": "Dragão Vulcânico: Predador de Obsidiana", "arma": "Garras de Obsidiana", "experiencias": {"Hunt from Above": "Caçar do Alto"},
+    "descricao": "Uma criatura alada colossal, de escamas de obsidiana e garras impossivelmente afiadas.",
+    "motivacoes": "Defender o covil, atacar em mergulho, voar, caçar, intimidar",
+    "habilidades": [
+      {"nome": "Implacável (2)", "texto": "O Predador de Obsidiana pode ser posto em destaque até duas vezes por turno do mestre. Gaste Medo normalmente para destacá-lo."},
+      {"nome": "Voador", "texto": "Enquanto voa, o Predador de Obsidiana tem +3 na Dificuldade."},
+      {"nome": "Escamas de Obsidiana", "texto": "O Predador de Obsidiana tem resistência a dano físico."},
+      {"nome": "Cauda Avalanche", "texto": "**Marque 1 PF** para fazer um ataque contra todos os alvos em alcance próximo. Os alvos atingidos sofrem **4d6+4** de dano físico, são arremessados para alcance distante e ficam _Vulneráveis_ até o próximo teste com Esperança."},
+      {"nome": "Mergulho Devastador", "texto": "Se o Predador de Obsidiana estiver voando, **marque 1 PF** para escolher um ponto em alcance distante. Ele se move até esse ponto e faz um ataque contra todos os alvos em alcance muito próximo. Os alvos atingidos sofrem **2d10+6** de dano físico e precisam marcar 1 PF e perder 1 Esperança."},
+      {"nome": "Fúria em Erupção (Mudança de Fase)", "texto": "Quando o Predador de Obsidiana marca o último PV, substitua-o pelo Flagelo Derretido e ponha-o em destaque imediatamente."}
+    ]
+  },
+  "srd_zombie_legion": {
+    "nome": "Legião de Zumbis", "arma": "Mãos Mortas-Vivas", "experiencias": {},
+    "descricao": "Um grande bando de mortos-vivos, ainda poderosos apesar da carne podre.",
+    "motivacoes": "Devorar cérebros, rasgar carne, cercar",
+    "habilidades": [
+      {"nome": "Horda (2d6+5)", "texto": "Quando a Legião tem metade ou mais dos PV marcados, o ataque padrão dela passa a causar **2d6+5** de dano físico."},
+      {"nome": "Inflexível", "texto": "A Legião tem resistência a dano físico."},
+      {"nome": "Implacável (2)", "texto": "A Legião pode ser posta em destaque até duas vezes por turno do mestre. Gaste Medo normalmente para destacá-la."},
+      {"nome": "Sobrepujar", "texto": "Quando a Legião sofre dano Menor de um ataque em alcance corpo a corpo, você pode **marcar 1 PF** para fazer um ataque padrão com vantagem contra o atacante."}
+    ]
+  }
+}

@@ -3,12 +3,15 @@ import './index.css'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import { BrowserRouter, Navigate, Outlet, Route, Routes } from 'react-router'
+import { BrowserRouter, Navigate, Outlet, Route, Routes, useLocation } from 'react-router'
 
 import { ErroApi } from './api/cliente'
 import { ProvedorAutenticacao, useAutenticacao } from './auth/Autenticacao'
 import Layout from './componentes/Layout'
 import { Cadastro, Entrar } from './paginas/Acesso'
+import Convite from './paginas/Convite'
+import Mesa from './paginas/Mesa'
+import Mesas from './paginas/Mesas'
 import NovoPersonagem from './paginas/NovoPersonagem'
 import Personagem from './paginas/Personagem'
 import Personagens from './paginas/Personagens'
@@ -26,7 +29,9 @@ const clienteConsultas = new QueryClient({
 
 function SoLogado() {
   const { logado } = useAutenticacao()
-  return logado ? <Outlet /> : <Navigate to="/entrar" replace />
+  const local = useLocation()
+  // guarda para onde ia (ex.: link de convite) para voltar depois de entrar
+  return logado ? <Outlet /> : <Navigate to="/entrar" replace state={{ de: local.pathname }} />
 }
 
 createRoot(document.getElementById('root')!).render(
@@ -43,6 +48,9 @@ createRoot(document.getElementById('root')!).render(
                 <Route path="/personagens/novo" element={<NovoPersonagem />} />
                 <Route path="/personagens/:id" element={<Personagem />} />
                 <Route path="/personagens/:id/subir" element={<SubirNivel />} />
+                <Route path="/mesas" element={<Mesas />} />
+                <Route path="/mesas/:id" element={<Mesa />} />
+                <Route path="/convite/:codigo" element={<Convite />} />
               </Route>
             </Route>
             <Route path="*" element={<Navigate to="/personagens" replace />} />

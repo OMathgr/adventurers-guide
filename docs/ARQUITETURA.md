@@ -298,8 +298,9 @@ Documentação interativa em `/docs`.
 - **Papéis:** o criador é mestre e é o único que administra (renomear,
   apagar, mudar papéis, remover membros, novo código, permissões). Ele
   escolhe quem é mestre e liga/desliga cada permissão **para todos os
-  mestres de uma vez**: `ver_fichas`, `aplicar_dano`, `aplicar_condicoes`.
-  O criador pode tudo, sempre.
+  mestres de uma vez**: `ver_fichas`, `aplicar_dano`, `aplicar_condicoes`,
+  `preparar` (criar e editar inimigos e NPCs). O criador pode tudo, sempre.
+  Mesas antigas sem uma chave nova recebem o padrão (`PERMISSOES_PADRAO`).
 - **Mestre só lê e age em jogo:** vê a ficha, aplica dano e condições pelas
   rotas `/mesas/{id}/personagens/{pid}/...`. As rotas de edição do
   personagem continuam só do dono (para o mestre, o personagem "não existe"
@@ -309,6 +310,29 @@ Documentação interativa em `/docs`.
 - O repositório separa achar a linha (`linha_do_dono`, `linha_na_mesa`) de
   montar/gravar o personagem (`montar`, `gravar`), para dono e mestre usarem
   o mesmo caminho.
+
+### Conteúdo do mestre (`motor/adversarios.py` e `api/rotas/conteudo.py`)
+
+- **Um formato só de adversário** (`Adversario`) para os 129 do SRD, para os
+  inimigos criados do zero e para a ficha de combate de NPC. Descartado: um
+  formato livre para inimigos próprios, porque a sessão de jogo (PV/PF por
+  clique, estados de vitalidade) precisa dos mesmos números em todos.
+- `validar()` no motor confere o que a ficha precisa para funcionar: patamar
+  1–4, lacaio **sem** limiares e os demais com Maior (Grave opcional e maior
+  que o Maior), dano `2d8+3`/`12`, ataque `+3`/`+2d4`, alcance válido,
+  `horda_por_pv` só em horda. Erro vira 422 `"tipo": "regra"`, como no resto.
+- `de_srd()` lê o JSON do seansbox/daggerheart-srd (`data/srd/adversarios.json`)
+  e trata as variações do SRD: "Horde (5/HP)", limiares "None" e "4/None",
+  dano "phy/mag", ataque "+2d4", características "Nome - Ação: detalhe"
+  (contagens regressivas vão para `detalhe`).
+- **Biblioteca da mesa:** tabelas `inimigos` (adversário em JSON) e `npcs`
+  (nome, descrição, motivações, notas, `ficha_combate` JSON opcional), com
+  `ON DELETE CASCADE` da mesa. Copiar do SRD faz uma cópia profunda com
+  `base_id` (a origem; editar não a muda), para o mestre ajustar sem afetar
+  o catálogo.
+- **Privado:** jogador recebe 404 (não sabe que existe). Ver exige ser
+  mestre; criar/editar/apagar exige `preparar`. Revelar informações aos
+  jogadores é uma entrega futura.
 
 Ainda não: renovação de token (refresh) e "esqueci minha senha", jogadores
 verem as fichas uns dos outros, controle de concorrência entre duas edições
@@ -342,8 +366,18 @@ subclasse + companheiro, herança com ancestralidade mista, traços,
 Experiências, cartas, revisão), personagem (abas Ficha e Linha do tempo,
 excluir, desfazer último nível) e subir de nível passo a passo.
 
+Mesas: lista, criar, entrar por código ou link (`/convite/CODIGO`; sem login,
+a tela de entrar volta para o convite depois), página da mesa com convite,
+membros (o criador muda papéis e remove), personagens (trazer/tirar os seus)
+e permissões dos mestres. Mestres veem também as abas **Inimigos** (catálogo
+do SRD com busca e filtros, "Adicionar à mesa", criar do zero, editar) e
+**NPCs** (ficha simples + ficha de combate opcional, com o mesmo editor de
+inimigo). A ficha do inimigo segue o bloco do SRD; textos com `**negrito**`,
+`_itálico_` e listas são lidos por `web/src/lib/texto.ts` (sem HTML cru).
+
 Ainda não na interface: estado de sessão (marcar PV/Estresse, descansos),
-equipamento, cofre de cartas e mesas (a API já tem tudo isso).
+equipamento, cofre de cartas e as ações do mestre sobre os personagens
+(a API já tem tudo isso).
 
 ## Tradução pt-BR (`data/traducoes/pt-BR/`)
 
@@ -361,6 +395,9 @@ A API usa pt-BR; o motor e os testes dele usam o inglês.
   `improved_/advanced_/legendary_` são compostos (Espada Larga + Aprimorada).
 - `cartas/<DOMINIO>.json`: nome e texto de cada carta (grimórios com o nome
   de cada magia; listas com "•").
+- `adversarios/lote*.json`: por id do adversário, nome, arma, descrição,
+  motivações, experiências (inglês → português) e características **na mesma
+  ordem e quantidade** do SRD (senão o id conta como faltando).
 - `tests/test_traducao.py` exige que nada fique sem tradução
   (`Biblioteca.traducoes_faltando`) e que as regras sejam idênticas nos dois
   idiomas.
@@ -381,6 +418,11 @@ Glossário (alinhado à edição brasileira quando conhecida):
 | loadout / vault | cartas ativas / cofre | | Recall Cost | custo de recuperação |
 | Hidden / Restrained / Vulnerable | Oculto / Contido / Vulnerável | | Death Move | Movimento de Morte |
 | tokens | marcadores | | Countdown | Contagem Regressiva |
+| spotlight | pôr em destaque | | PCs | PJs |
+| Spend a Fear | gaste 1 Ponto de Medo | | mark a Stress | marque 1 PF |
+| Relentless / Momentum | Implacável / Embalo | | Minion / Horde | Lacaio / Horda |
+| Bruiser / Skulk / Ranged | Brutamontes / Espreitador / Atirador | | Leader / Support / Standard | Líder / Suporte / Padrão |
+| Loop (countdown) | Ciclo | | Group Attack | Ataque em Grupo |
 
 ## Pendências conhecidas
 

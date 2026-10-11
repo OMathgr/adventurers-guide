@@ -1,10 +1,16 @@
 // Telas de entrar e de criar conta.
 import { type FormEvent, useState } from 'react'
-import { Link, Navigate, useNavigate } from 'react-router'
+import { Link, Navigate, useLocation, useNavigate } from 'react-router'
 
 import { useAutenticacao } from '../auth/Autenticacao'
 import { Logo } from '../componentes/Layout'
 import { Aviso, Botao, Campo } from '../componentes/ui'
+
+/** Para onde voltar depois de entrar (ex.: link de convite aberto sem login). */
+function useDestino(): string {
+  const estado = useLocation().state as { de?: string } | null
+  return estado?.de ?? '/personagens'
+}
 
 function Moldura({ titulo, children }: { titulo: string; children: React.ReactNode }) {
   return (
@@ -26,7 +32,9 @@ export function Entrar() {
   const [erro, setErro] = useState<unknown>(null)
   const [enviando, setEnviando] = useState(false)
 
-  if (logado) return <Navigate to="/personagens" replace />
+  const destino = useDestino()
+
+  if (logado) return <Navigate to={destino} replace />
 
   async function enviar(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -35,7 +43,7 @@ export function Entrar() {
     setErro(null)
     try {
       await entrar(String(dados.get('email')), String(dados.get('senha')))
-      navegar('/personagens')
+      navegar(destino, { replace: true })
     } catch (falha) {
       setErro(falha)
     } finally {
@@ -52,7 +60,7 @@ export function Entrar() {
         <Botao type="submit" disabled={enviando} className="w-full">{enviando ? 'Entrando…' : 'Entrar'}</Botao>
       </form>
       <p className="mt-4 text-center text-sm text-texto-suave">
-        Novo por aqui? <Link to="/cadastro" className="text-esperanca hover:underline">Crie sua conta</Link>
+        Novo por aqui? <Link to="/cadastro" state={{ de: destino }} className="text-esperanca hover:underline">Crie sua conta</Link>
       </p>
     </Moldura>
   )
@@ -64,7 +72,9 @@ export function Cadastro() {
   const [erro, setErro] = useState<unknown>(null)
   const [enviando, setEnviando] = useState(false)
 
-  if (logado) return <Navigate to="/personagens" replace />
+  const destino = useDestino()
+
+  if (logado) return <Navigate to={destino} replace />
 
   async function enviar(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -77,7 +87,7 @@ export function Cadastro() {
         nome: String(dados.get('nome')),
         senha: String(dados.get('senha')),
       })
-      navegar('/personagens')
+      navegar(destino, { replace: true })
     } catch (falha) {
       setErro(falha)
     } finally {
@@ -96,7 +106,7 @@ export function Cadastro() {
         <Botao type="submit" disabled={enviando} className="w-full">{enviando ? 'Criando…' : 'Criar conta'}</Botao>
       </form>
       <p className="mt-4 text-center text-sm text-texto-suave">
-        Já tem conta? <Link to="/entrar" className="text-esperanca hover:underline">Entrar</Link>
+        Já tem conta? <Link to="/entrar" state={{ de: destino }} className="text-esperanca hover:underline">Entrar</Link>
       </p>
     </Moldura>
   )

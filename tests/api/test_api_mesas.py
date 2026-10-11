@@ -42,7 +42,7 @@ def test_criar_mesa(mesa):
     assert (mesa["meu_papel"], mesa["sou_criador"]) == ("mestre", True)
     assert len(mesa["codigo_convite"]) == 8
     assert mesa["permissoes_mestres"] == {"ver_fichas": True, "aplicar_dano": True,
-                                          "aplicar_condicoes": True}
+                                          "aplicar_condicoes": True, "preparar": True}
     assert [m["nome"] for m in mesa["membros"]] == ["Ana"]
 
 
@@ -137,7 +137,7 @@ def test_permissoes_valem_para_todos_os_mestres(cliente, mesa, carlos, lira_na_m
     assert cliente.post(url(mesa, lira_na_mesa, "/dano"), json={"dano": 1},
                         headers=carlos).status_code == 403
     assert cliente.get(f"/mesas/{mesa['id']}", headers=carlos).json()["minhas_permissoes"] == [
-        "ver_fichas", "aplicar_condicoes"]
+        "ver_fichas", "aplicar_condicoes", "preparar"]
     # o criador continua podendo tudo
     assert cliente.post(url(mesa, lira_na_mesa, "/dano"), json={"dano": 1}).status_code == 200
 

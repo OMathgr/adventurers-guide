@@ -164,6 +164,43 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/srd/adversarios": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Adversarios
+         * @description Adversários do SRD (base para os inimigos que o mestre usa na mesa).
+         */
+        get: operations["adversarios_srd_adversarios_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/srd/adversarios/{adversario_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Adversario */
+        get: operations["adversario_srd_adversarios__adversario_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/srd/dominios": {
         parameters: {
             query?: never;
@@ -873,10 +910,169 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/mesas/{mesa_id}/inimigos": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Listar Inimigos */
+        get: operations["listar_inimigos_mesas__mesa_id__inimigos_get"];
+        put?: never;
+        /**
+         * Criar Inimigo
+         * @description Inimigo criado do zero (mesmo formato dos adversários do SRD).
+         */
+        post: operations["criar_inimigo_mesas__mesa_id__inimigos_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/mesas/{mesa_id}/inimigos/do-srd/{adversario_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Copiar Do Srd
+         * @description Copia um adversário do SRD para a mesa, onde pode ser ajustado à vontade.
+         */
+        post: operations["copiar_do_srd_mesas__mesa_id__inimigos_do_srd__adversario_id__post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/mesas/{mesa_id}/inimigos/{inimigo_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Ver Inimigo */
+        get: operations["ver_inimigo_mesas__mesa_id__inimigos__inimigo_id__get"];
+        /** Editar Inimigo */
+        put: operations["editar_inimigo_mesas__mesa_id__inimigos__inimigo_id__put"];
+        post?: never;
+        /** Apagar Inimigo */
+        delete: operations["apagar_inimigo_mesas__mesa_id__inimigos__inimigo_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/mesas/{mesa_id}/npcs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Listar Npcs */
+        get: operations["listar_npcs_mesas__mesa_id__npcs_get"];
+        put?: never;
+        /** Criar Npc */
+        post: operations["criar_npc_mesas__mesa_id__npcs_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/mesas/{mesa_id}/npcs/{npc_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Ver Npc */
+        get: operations["ver_npc_mesas__mesa_id__npcs__npc_id__get"];
+        /** Editar Npc */
+        put: operations["editar_npc_mesas__mesa_id__npcs__npc_id__put"];
+        post?: never;
+        /** Apagar Npc */
+        delete: operations["apagar_npc_mesas__mesa_id__npcs__npc_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** Adversario */
+        Adversario: {
+            /** Nome */
+            nome: string;
+            /** Patamar */
+            patamar: number;
+            tipo: components["schemas"]["TipoAdversario"];
+            /** Dificuldade */
+            dificuldade: number;
+            /** Pv */
+            pv: number;
+            /** Pf */
+            pf: number;
+            /** Ataque */
+            ataque: string;
+            /** Arma */
+            arma: string;
+            /** Alcance */
+            alcance: string;
+            /** Dano */
+            dano: string;
+            tipo_dano: components["schemas"]["TipoDano"];
+            /** Limiar Maior */
+            limiar_maior?: number | null;
+            /** Limiar Grave */
+            limiar_grave?: number | null;
+            /**
+             * Descricao
+             * @default
+             */
+            descricao: string;
+            /**
+             * Motivacoes
+             * @default
+             */
+            motivacoes: string;
+            /** Experiencias */
+            experiencias?: {
+                [key: string]: number;
+            };
+            /** Habilidades */
+            habilidades?: components["schemas"]["Habilidade"][];
+            /** Horda Por Pv */
+            horda_por_pv?: number | null;
+            /**
+             * Id
+             * @default
+             */
+            id: string;
+            /** Base Id */
+            base_id?: string | null;
+            /**
+             * Nome Original
+             * @default
+             */
+            nome_original: string;
+            /**
+             * Arma Original
+             * @default
+             */
+            arma_original: string;
+        };
         /**
          * Alvo
          * @description O que um modificador fixo de equipamento altera (além dos traços).
@@ -1418,6 +1614,37 @@ export interface components {
             /** Detail */
             detail?: components["schemas"]["ValidationError"][];
         };
+        /** Habilidade */
+        Habilidade: {
+            /** Nome */
+            nome: string;
+            tipo: components["schemas"]["TipoHabilidade"];
+            /** Texto */
+            texto: string;
+            /**
+             * Detalhe
+             * @default
+             */
+            detalhe: string;
+            /**
+             * Nome Original
+             * @default
+             */
+            nome_original: string;
+        };
+        /** InimigoResumo */
+        InimigoResumo: {
+            /** Id */
+            id: string;
+            /** Nome */
+            nome: string;
+            /** Patamar */
+            patamar: number;
+            /** Tipo */
+            tipo: string;
+            /** Base Id */
+            base_id: string | null;
+        };
         /** MembroSaida */
         MembroSaida: {
             /** Usuario Id */
@@ -1484,6 +1711,52 @@ export interface components {
             /** Nome */
             nome: string;
         };
+        /** Npc */
+        Npc: {
+            /** Nome */
+            nome: string;
+            /**
+             * Descricao
+             * @default
+             */
+            descricao: string;
+            /**
+             * Motivacoes
+             * @default
+             */
+            motivacoes: string;
+            /**
+             * Notas
+             * @description Anotações privadas do mestre
+             * @default
+             */
+            notas: string;
+            ficha_combate?: components["schemas"]["Adversario"] | null;
+            /** Id */
+            id: string;
+        };
+        /** NpcEntrada */
+        NpcEntrada: {
+            /** Nome */
+            nome: string;
+            /**
+             * Descricao
+             * @default
+             */
+            descricao: string;
+            /**
+             * Motivacoes
+             * @default
+             */
+            motivacoes: string;
+            /**
+             * Notas
+             * @description Anotações privadas do mestre
+             * @default
+             */
+            notas: string;
+            ficha_combate?: components["schemas"]["Adversario"] | null;
+        };
         /**
          * Opcao
          * @description Opções de avanço da página de Level Up da ficha.
@@ -1534,7 +1807,7 @@ export interface components {
          * Permissao
          * @enum {string}
          */
-        Permissao: "ver_fichas" | "aplicar_dano" | "aplicar_condicoes";
+        Permissao: "ver_fichas" | "aplicar_dano" | "aplicar_condicoes" | "preparar";
         /** PermissoesMestres */
         PermissoesMestres: {
             /** Ver Fichas */
@@ -1543,6 +1816,11 @@ export interface components {
             aplicar_dano: boolean;
             /** Aplicar Condicoes */
             aplicar_condicoes: boolean;
+            /**
+             * Preparar
+             * @default true
+             */
+            preparar: boolean;
         };
         /** PersonagemCriado */
         PersonagemCriado: {
@@ -1712,10 +1990,21 @@ export interface components {
             experiencia_companheiro?: string | null;
         };
         /**
+         * TipoAdversario
+         * @description Papel do adversário no combate (nome no SRD ao lado).
+         * @enum {string}
+         */
+        TipoAdversario: "SOLO" | "BRUTAMONTES" | "LACAIO" | "LIDER" | "ESPREITADOR" | "PADRAO" | "ATIRADOR" | "SOCIAL" | "SUPORTE" | "HORDA";
+        /**
          * TipoDano
          * @enum {string}
          */
         TipoDano: "PHYSICAL" | "MAGICAL" | "PHYSICAL_OR_MAGICAL";
+        /**
+         * TipoHabilidade
+         * @enum {string}
+         */
+        TipoHabilidade: "PASSIVA" | "ACAO" | "REACAO";
         /** Token */
         Token: {
             /** Access Token */
@@ -2019,6 +2308,69 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Armadura"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    adversarios_srd_adversarios_get: {
+        parameters: {
+            query?: {
+                patamar?: number | null;
+                tipo?: components["schemas"]["TipoAdversario"] | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Adversario"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    adversario_srd_adversarios__adversario_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                adversario_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Adversario"];
                 };
             };
             /** @description Validation Error */
@@ -3491,6 +3843,366 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["Ficha"];
                 };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    listar_inimigos_mesas__mesa_id__inimigos_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mesa_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InimigoResumo"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    criar_inimigo_mesas__mesa_id__inimigos_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mesa_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Adversario"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Adversario"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    copiar_do_srd_mesas__mesa_id__inimigos_do_srd__adversario_id__post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mesa_id: string;
+                adversario_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Adversario"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    ver_inimigo_mesas__mesa_id__inimigos__inimigo_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mesa_id: string;
+                inimigo_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Adversario"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    editar_inimigo_mesas__mesa_id__inimigos__inimigo_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mesa_id: string;
+                inimigo_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Adversario"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Adversario"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    apagar_inimigo_mesas__mesa_id__inimigos__inimigo_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mesa_id: string;
+                inimigo_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    listar_npcs_mesas__mesa_id__npcs_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mesa_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Npc"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    criar_npc_mesas__mesa_id__npcs_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mesa_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NpcEntrada"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Npc"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    ver_npc_mesas__mesa_id__npcs__npc_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mesa_id: string;
+                npc_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Npc"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    editar_npc_mesas__mesa_id__npcs__npc_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mesa_id: string;
+                npc_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NpcEntrada"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Npc"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    apagar_npc_mesas__mesa_id__npcs__npc_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mesa_id: string;
+                npc_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description Validation Error */
             422: {

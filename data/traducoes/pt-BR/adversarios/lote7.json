@@ -1,0 +1,186 @@
+{
+  "srd_monarch": {
+    "nome": "Monarca", "arma": "Martelo de Guerra", "experiencias": {"History": "História", "Nobility": "Nobreza"},
+    "descricao": "O governante soberano de uma nação, cercado pelo privilégio da tradição e com poder incomparável em seus domínios.",
+    "motivacoes": "Controlar vassalos, destruir rivais, forjar um legado",
+    "habilidades": [
+      {"nome": "Executem-nos!", "texto": "**Gaste 1 Ponto de Medo** por PJ do grupo para que o grupo seja condenado por crimes reais ou imaginários. Um PJ que tiver sucesso num teste de Presença pode exigir julgamento por combate ou outra forma especial de julgamento."},
+      {"nome": "Guarda da Coroa", "texto": "Uma vez por cena, **marque 1 PF** para invocar seis Lacaios de patamar 3, que aparecem em alcance próximo para impor a vontade do Monarca."},
+      {"nome": "Casus Belli", "detalhe": "Contagem Regressiva de Longo Prazo (8)", "texto": "**Gaste 1 Ponto de Medo** para ativar depois que o desejo de guerra do Monarca for revelado pela primeira vez. Quando ela dispara, o Monarca tem um motivo para convocar a nação à guerra e o apoio para agir por esse motivo. Você ganha **1d4** Pontos de Medo."}
+    ]
+  },
+  "srd_oak_treant": {
+    "nome": "Ente Carvalho", "arma": "Galho", "experiencias": {"Forest Knowledge": "Conhecimento da Floresta"},
+    "descricao": "Uma árvore antiga e robusta que ganhou vida.",
+    "motivacoes": "Esconder-se à vista, preservar a floresta, enraizar-se, golpear com galhos",
+    "habilidades": [
+      {"nome": "Só uma Árvore", "texto": "Antes do primeiro ataque numa luta, ou depois de ficar _Oculto_, o Ente é indistinguível das outras árvores até agir de novo ou até um PJ ter sucesso num teste de Instinto para identificá-lo."},
+      {"nome": "Chuva de Sementes", "texto": "**Marque 1 PF** e faça um ataque contra até três alvos em alcance próximo, golpeando-os com bolotas gigantes. Os alvos atingidos sofrem **2d10+5** de dano físico."},
+      {"nome": "Criar Raízes", "texto": "**Marque 1 PF** para _Enraizar_ o Ente no lugar. O Ente fica _Contido_ enquanto _Enraizado_ e pode encerrar esse efeito em vez de se mover quando posto em destaque. Enquanto Enraizado, o Ente tem resistência a dano físico."}
+    ]
+  },
+  "srd_stag_knight": {
+    "nome": "Cavaleiro Cervo", "arma": "Espada de Espinheiro", "experiencias": {"Forest Knowledge": "Conhecimento da Floresta"},
+    "descricao": "Um cavaleiro com galhadas enormes e majestosas, vestindo uma armadura de espinhos perigosos.",
+    "motivacoes": "Isolar, manobrar, proteger a floresta, arrancar os indesejados",
+    "habilidades": [
+      {"nome": "Do Alto", "texto": "Quando o Cavaleiro acerta um ataque padrão vindo de cima do alvo, causa **3d12+3** de dano físico em vez do dano padrão."},
+      {"nome": "Lâmina da Floresta", "texto": "**Gaste 1 Ponto de Medo** para fazer um ataque contra todos os alvos em alcance muito próximo. Os alvos atingidos sofrem dano físico igual a **3d4** + o limiar Maior do alvo."},
+      {"nome": "Armadura de Espinhos", "texto": "Quando o Cavaleiro sofre dano de um ataque em alcance corpo a corpo, você pode **marcar 1 PF** para causar **1d10+5** de dano físico ao atacante."}
+    ]
+  },
+  "srd_treant_sapling": {
+    "nome": "Muda de Ente", "arma": "Galhos", "experiencias": {},
+    "descricao": "Uma pequena muda de árvore senciente.",
+    "motivacoes": "Camuflar-se, preservar a floresta, esmurrar, cercar",
+    "habilidades": [
+      {"nome": "Lacaio (6)", "texto": "A Muda é derrotada ao sofrer qualquer dano. Para cada 6 de dano que um PJ causar à Muda, derrote mais um Lacaio no alcance contra quem o ataque teria sucesso."},
+      {"nome": "Ataque em Grupo", "texto": "**Gaste 1 Ponto de Medo** para escolher um alvo e pôr em destaque todas as Mudas de Ente em alcance próximo dele. Esses Lacaios vão até o alcance corpo a corpo do alvo e fazem um único teste de ataque compartilhado. Com sucesso, cada um causa 8 de dano físico. Some esse dano."}
+    ]
+  },
+  "srd_vampire": {
+    "nome": "Vampiro", "arma": "Rapieira", "experiencias": {"Nocturnal Hunter": "Caçador Noturno"},
+    "descricao": "Um morto-vivo inteligente, de lábios manchados de sangue e sorriso de predador.",
+    "motivacoes": "Morder, encantar, enganar, alimentar-se, intimidar",
+    "habilidades": [
+      {"nome": "Mordida Drenante", "texto": "Faça um ataque contra um alvo em alcance corpo a corpo. Com sucesso, cause **5d4** de dano físico. Um alvo que marcar PV com este ataque perde 1 Esperança e precisa marcar 1 PF. O Vampiro então limpa 1 PV."},
+      {"nome": "Forma de Névoa", "texto": "Quando o Vampiro sofre dano físico, você pode **gastar 1 Ponto de Medo** para que ele sofra metade do dano."}
+    ]
+  },
+  "srd_vault_guardian_gaoler": {
+    "nome": "Guardião do Cofre Carcereiro", "arma": "Pancada de Corpo", "experiencias": {},
+    "descricao": "Um constructo quadradão e empoeirado, com grossas portas metálicas que se abrem no tronco.",
+    "motivacoes": "Carregar, aprisionar, proteger, esmurrar",
+    "habilidades": [
+      {"nome": "Escudo Bloqueador", "texto": "Criaturas em alcance corpo a corpo do Carcereiro têm desvantagem em testes de ataque contra ele. Criaturas presas dentro do Carcereiro são imunes a esta habilidade."},
+      {"nome": "Trancafiar", "texto": "**Marque 1 PF** para fazer um ataque contra um alvo em alcance muito próximo. Com sucesso, o alvo fica _Contido_ dentro do Carcereiro até ser libertado com sucesso num teste de Força (18). Enquanto _Contido_, o alvo só pode atacar o Carcereiro."}
+    ]
+  },
+  "srd_vault_guardian_sentinel": {
+    "nome": "Guardião do Cofre Sentinela", "arma": "Maça Carregada", "experiencias": {},
+    "descricao": "Um constructo dourado e empoeirado, de membros quadrados e uma maça enorme no lugar da mão.",
+    "motivacoes": "Destruir a qualquer custo, expurgar, proteger",
+    "habilidades": [
+      {"nome": "Pancada Cinética", "texto": "Alvos que sofrem dano do ataque padrão da Sentinela são arremessados para alcance muito próximo."},
+      {"nome": "Encurralar", "texto": "**Marque 1 PF** para escolher um alvo em alcance muito próximo como foco. Esse alvo tem desvantagem em testes de ataque enquanto estiver em alcance muito próximo da Sentinela. A Sentinela só pode focar um alvo por vez."},
+      {"nome": "Raio de Mana", "texto": "**Gaste 1 Ponto de Medo** para lançar magia explosiva num ponto em alcance distante. Todos os alvos em alcance muito próximo desse ponto fazem um teste de reação de Agilidade. Quem falhar sofre **2d8+20** de dano mágico e é arremessado para alcance próximo. Quem tiver sucesso sofre metade do dano e não é arremessado."},
+      {"nome": "Embalo", "texto": "Quando a Sentinela acerta um ataque contra um PJ, você ganha 1 Ponto de Medo."}
+    ]
+  },
+  "srd_vault_guardian_turret": {
+    "nome": "Guardião do Cofre Torre", "arma": "Canhão Magitec", "experiencias": {},
+    "descricao": "Uma torre de artilharia viva e maciça, com armadura reforçada e doze pernas mecânicas movidas a pistões.",
+    "motivacoes": "Concentrar fogo, bloquear, marcar, proteger",
+    "habilidades": [
+      {"nome": "Disparo Lento", "texto": "Quando você põe a Torre em destaque e ela não tem um marcador na ficha, ela não pode fazer um ataque padrão. Coloque um marcador na ficha dela e descreva o que ela se prepara para fazer. Quando você põe a Torre em destaque e ela tem um marcador na ficha, retire o marcador: ela pode atacar."},
+      {"nome": "Marcar Alvo", "texto": "**Gaste 1 Ponto de Medo** para _Marcar_ um alvo em alcance distante até a Torre ser destruída ou o alvo _Marcado_ ficar _Oculto_. Enquanto o alvo estiver _Marcado_, a Evasão dele cai pela metade."},
+      {"nome": "Concentrar Fogo", "texto": "Quando outro adversário causa dano a um alvo em alcance distante da Torre, você pode **marcar 1 PF** para somar o dano do ataque padrão da Torre à rolagem de dano."},
+      {"nome": "Detonação", "texto": "Quando a Torre é destruída, ela explode. Todos os alvos em alcance próximo fazem um teste de reação de Agilidade. Quem falhar sofre **3d20** de dano físico. Quem tiver sucesso sofre metade do dano."}
+    ]
+  },
+  "srd_young_ice_dragon": {
+    "nome": "Dragão de Gelo Jovem", "arma": "Mordida e Garras", "experiencias": {"Protect What Is Mine": "Proteger o que é Meu"},
+    "descricao": "Um dragão azul-glacial, de quatro membros poderosos e asas cobertas de geada.",
+    "motivacoes": "Provocar avalanches, defender o covil, voar, congelar, defender o que é seu, dilacerar",
+    "habilidades": [
+      {"nome": "Implacável (3)", "texto": "O Dragão pode ser posto em destaque até três vezes por turno do mestre. Gaste Medo normalmente para destacá-lo."},
+      {"nome": "Rasgar e Esmagar", "texto": "Se um alvo que sofreu dano do Dragão não marcar um espaço de armadura para reduzir o dano, precisa marcar 1 PF."},
+      {"nome": "Sem Esperança", "texto": "Quando um PJ rola com Medo em alcance distante do Dragão, perde 1 Esperança."},
+      {"nome": "Sopro de Nevasca", "texto": "**Gaste 2 Pontos de Medo** para soltar um redemoinho gélido à frente do Dragão, em alcance próximo. Todos os alvos na área fazem um teste de reação de Agilidade. Quem falhar sofre **4d6+5** de dano mágico e fica _Contido_ pelo gelo até se libertar com sucesso num teste de Força. Quem tiver sucesso precisa marcar 2 PF ou sofrer metade do dano."},
+      {"nome": "Avalanche", "texto": "**Gaste 1 Ponto de Medo** para o Dragão desencadear uma enorme queda de neve e gelo, cobrindo todas as outras criaturas em alcance distante. Todos os alvos na área precisam ter sucesso num teste de reação de Instinto ou ficam soterrados em neve e pedras, ficando _Vulneráveis_ até se desenterrarem dos escombros. Para cada PJ que falhar no teste de reação, você ganha 1 Ponto de Medo."},
+      {"nome": "Escamas Congeladas", "texto": "Quando uma criatura acerta um ataque contra o Dragão em alcance muito próximo, ela precisa marcar 1 PF e fica _Congelada_ até o próximo descanso ou até limpar 1 PF. Enquanto _Congelada_, tem desvantagem em testes de ataque."},
+      {"nome": "Embalo", "texto": "Quando o Dragão acerta um ataque contra um PJ, você ganha 1 Ponto de Medo."}
+    ]
+  },
+  "srd_arch_necromancer": {
+    "nome": "Arquinecromante", "arma": "Rajada Necrótica", "experiencias": {"Forbidden Knowledge": "Conhecimento Proibido", "Wisdom of Centuries": "Sabedoria dos Séculos"},
+    "descricao": "Um mago em decomposição, vestido com túnicas escuras e esfarrapadas.",
+    "motivacoes": "Corromper, apodrecer, fugir para lutar outro dia, ressuscitar",
+    "habilidades": [
+      {"nome": "Dança da Morte", "texto": "**Marque 1 PF** para pôr em destaque **1d4** aliados. Os ataques que eles fazem enquanto destacados desta forma causam metade do dano, ou o dano completo se você **gastar 1 Ponto de Medo**."},
+      {"nome": "Raio da Decomposição", "texto": "**Marque 2 PF** para fazer todos os alvos em alcance distante fazerem um teste de reação de Força. Quem falhar sofre **2d20+12** de dano mágico e você ganha 1 Ponto de Medo. Quem tiver sucesso sofre metade do dano. Um alvo que marcar 2 PV ou mais também precisa marcar **2 PF** e fica _Vulnerável_ até rolar com Esperança."},
+      {"nome": "Abrir os Portões da Morte", "texto": "**Gaste 1 Ponto de Medo** para invocar uma Legião de Zumbis, que aparece em alcance próximo e fica em destaque imediatamente."},
+      {"nome": "Hoje Não, Meus Queridos", "texto": "Quando o Necromante tem 7 PV ou mais marcados, você pode **gastar 1 Ponto de Medo** para que ele se teleporte para um lugar seguro para se recuperar. Um PJ que tiver sucesso num teste de Instinto pode rastrear a magia de teleporte até o destino."},
+      {"nome": "Sua Vida é Minha", "detalhe": "Contagem Regressiva (Ciclo 2d6)", "texto": "Quando o Necromante tem 6 PV ou mais marcados, ative a contagem regressiva. Quando ela dispara, cause **2d10+6** de dano mágico direto a um alvo em alcance próximo. O Necromante então **limpa PF ou PV** em quantidade igual aos PV que o alvo marcou com este ataque."}
+    ]
+  },
+  "srd_fallen_shock_troop": {
+    "nome": "Tropa de Choque dos Caídos", "arma": "Machado Amaldiçoado", "experiencias": {},
+    "descricao": "Uma alma amaldiçoada, presa à vontade dos Caídos.",
+    "motivacoes": "Esmagar, dominar, conquistar alívio, punir",
+    "habilidades": [
+      {"nome": "Lacaio (12)", "texto": "A Tropa de Choque é derrotada ao sofrer qualquer dano. Para cada 12 de dano que um PJ causar à Tropa de Choque, derrote mais um Lacaio no alcance contra quem o ataque teria sucesso."},
+      {"nome": "Aura da Perdição", "texto": "Quando um PJ marca PV com um ataque da Tropa de Choque, perde 1 Esperança."},
+      {"nome": "Ataque em Grupo", "texto": "**Gaste 1 Ponto de Medo** para escolher um alvo e pôr em destaque todas as Tropas de Choque dos Caídos em alcance próximo dele. Esses Lacaios vão até o alcance corpo a corpo do alvo e fazem um único teste de ataque compartilhado. Com sucesso, cada um causa 12 de dano físico. Some esse dano."}
+    ]
+  },
+  "srd_fallen_sorcerer": {
+    "nome": "Feiticeiro Caído", "arma": "Cajado Corrompido", "experiencias": {"Ancient Knowledge": "Conhecimento Antigo"},
+    "descricao": "Um mago poderoso, preso aos pactos que fez em vida.",
+    "motivacoes": "Adquirir, desanimar, dominar, atormentar",
+    "habilidades": [
+      {"nome": "Conflagração", "texto": "**Gaste 1 Ponto de Medo** para desencadear uma tempestade de fogo devoradora e fazer um ataque contra todos os alvos em alcance próximo. Os alvos atingidos sofrem **2d10+6** de dano mágico direto."},
+      {"nome": "Quadro de Pesadelo", "texto": "**Marque 1 PF** para prender um alvo em alcance distante numa ilusão poderosa de seus piores medos. Enquanto preso, o alvo fica _Contido_ e _Vulnerável_ até se libertar, encerrando as duas condições, com sucesso num teste de Instinto."},
+      {"nome": "Escorregadio", "texto": "Quando o Feiticeiro sofre dano de um ataque, pode se teleportar até alcance distante."},
+      {"nome": "Grilhões da Culpa", "detalhe": "Contagem Regressiva (Ciclo 2d6)", "texto": "Quando o Feiticeiro é posto em destaque pela primeira vez, ative a contagem regressiva. Quando ela dispara, todos os alvos em alcance distante ficam _Vulneráveis_ e precisam marcar 1 PF enquanto revivem seus maiores arrependimentos. Um alvo pode se libertar do arrependimento com sucesso num teste de Presença ou de Força. Quando um PJ não consegue se libertar, perde 1 Esperança."}
+    ]
+  },
+  "srd_fallen_warlord_realm_breaker": {
+    "nome": "Senhor da Guerra Caído: Destruidor de Reinos", "arma": "Chicote Farpado", "experiencias": {"Conquest": "Conquista", "History": "História", "Intimidation": "Intimidação"},
+    "descricao": "Um Deus Caído, envolto em fúria e ressentimento, com milênios de experiência em quebrar o espírito de heróis.",
+    "motivacoes": "Corromper, dominar, punir, quebrar os fracos",
+    "habilidades": [
+      {"nome": "Implacável (2)", "texto": "O Destruidor de Reinos pode ser posto em destaque até duas vezes por turno do mestre. Gaste Medo normalmente para destacá-lo."},
+      {"nome": "Armadura de Placas Fogo-Rancor", "texto": "Quando o Destruidor de Reinos sofre dano, reduza-o em **2d10**."},
+      {"nome": "Açoite Atormentador", "texto": "**Marque 1 PF** para fazer um ataque padrão contra todos os alvos em alcance muito próximo. Quando um alvo usa armadura para reduzir o dano deste ataque, precisa marcar 2 espaços de armadura."},
+      {"nome": "Fúria Devoradora", "detalhe": "Contagem Regressiva (Decrescente 8)", "texto": "Quando o Destruidor de Reinos é posto em destaque pela primeira vez, ative a contagem regressiva. Quando ela dispara, crie uma torrente de fúria encarnada que arranca a carne dos ossos. Todos os alvos em alcance distante fazem um teste de reação de Presença. Quem falhar sofre **2d6+10** de dano mágico direto. Quem tiver sucesso sofre metade do dano. Para cada PV marcado com esse dano, invoque uma Tropa de Choque dos Caídos em alcance muito próximo do alvo que marcou aquele PV. Se o valor máximo da contagem regressiva chegar a 0, o Destruidor de Reinos marca os PV restantes, e todos os alvos em alcance distante precisam marcar todos os PV restantes e fazer um movimento de morte."},
+      {"nome": "Arauto da Perdição", "texto": "Quando um alvo marca PV com um ataque do Destruidor de Reinos, todos os PJs em alcance distante do alvo perdem 1 Esperança."},
+      {"nome": "Nunca Conheci a Derrota (Mudança de Fase)", "texto": "Quando o Destruidor de Reinos marca o último PV, substitua-o pelo Campeão Invicto e ponha-o em destaque imediatamente."}
+    ]
+  },
+  "srd_fallen_warlord_undefeated_champion": {
+    "nome": "Senhor da Guerra Caído: Campeão Invicto", "arma": "Espada Estilhaça-Corações", "experiencias": {"Conquest": "Conquista", "History": "História", "Intimidation": "Intimidação"},
+    "descricao": "Aquilo que só os mais temidos têm a chance de temer.",
+    "motivacoes": "Distribuir morte sem piedade, punir os desafiadores, garantir a vitória a qualquer custo",
+    "habilidades": [
+      {"nome": "Implacável (3)", "texto": "O Campeão Invicto pode ser posto em destaque até três vezes por turno do mestre. Gaste Medo normalmente para destacá-lo."},
+      {"nome": "Armadura Vacilante", "texto": "Quando o Campeão Invicto sofre dano, reduza-o em **1d10**."},
+      {"nome": "Golpe Estilhaçador", "texto": "**Marque 1 PF** para fazer um ataque padrão contra todos os alvos em alcance muito próximo. Os PJs atingidos perdem Esperança em quantidade igual aos PV que marcaram com este ataque."},
+      {"nome": "Legiões sem Fim", "texto": "**Gaste 1 Ponto de Medo** para invocar Tropas de Choque dos Caídos em número igual ao dobro de PJs. As Tropas de Choque aparecem em alcance distante."},
+      {"nome": "Círculo da Profanação", "detalhe": "Contagem Regressiva (1d8)", "texto": "Quando o Campeão Invicto é posto em destaque pela primeira vez, ative a contagem regressiva. Quando ela dispara, ative um círculo mágico que cobre uma área em alcance distante do Campeão. Um alvo dentro da área fica _Vulnerável_ até sair do círculo. O círculo pode ser removido causando dano Grave ao Campeão Invicto."},
+      {"nome": "Embalo", "texto": "Quando o Campeão Invicto acerta um ataque contra um PJ, você ganha 1 Ponto de Medo."},
+      {"nome": "Arauto da Perdição", "texto": "Quando um alvo marca PV com um ataque do Campeão Invicto, todos os PJs em alcance distante do alvo perdem 1 Esperança."}
+    ]
+  },
+  "srd_hallowed_archer": {
+    "nome": "Arqueiro Consagrado", "arma": "Arco Longo Santificado", "experiencias": {},
+    "descricao": "Soldados espirituais com arcos santificados.",
+    "motivacoes": "Concentrar fogo, obedecer, reposicionar-se, disparar saraivadas",
+    "habilidades": [
+      {"nome": "Punir os Culpados", "texto": "O Arqueiro causa dano dobrado a alvos marcados como _Culpados_ por um Serafim Supremo."},
+      {"nome": "Saraivada Divina", "texto": "**Marque 1 PF** para fazer um ataque padrão contra até três alvos."}
+    ]
+  },
+  "srd_hallowed_soldier": {
+    "nome": "Soldado Consagrado", "arma": "Espada e Escudo", "experiencias": {},
+    "descricao": "Almas dos fiéis, elevadas com armas divinas.",
+    "motivacoes": "Obedecer, superar em manobras, punir, enxamear",
+    "habilidades": [
+      {"nome": "Lacaio (13)", "texto": "O Soldado é derrotado ao sofrer qualquer dano. Para cada 13 de dano que um PJ causar ao Soldado, derrote mais um Lacaio no alcance contra quem o ataque teria sucesso."},
+      {"nome": "Voo Divino", "texto": "Enquanto o Soldado voa, **gaste 1 Ponto de Medo** para movê-lo até alcance distante, em vez de próximo, antes de agir."},
+      {"nome": "Ataque em Grupo", "texto": "**Gaste 1 Ponto de Medo** para escolher um alvo e pôr em destaque todos os Soldados Consagrados em alcance próximo dele. Esses Lacaios vão até o alcance corpo a corpo do alvo e fazem um único teste de ataque compartilhado. Com sucesso, cada um causa 10 de dano físico. Some esse dano."}
+    ]
+  },
+  "srd_high_seraph": {
+    "nome": "Serafim Supremo", "arma": "Espada Sagrada", "experiencias": {"Divine Knowledge": "Conhecimento Divino"},
+    "descricao": "Um campeão divino, líder de uma hoste consagrada de guerreiros que impõem a vontade de seu deus.",
+    "motivacoes": "Impor o dogma, voar, pronunciar julgamentos, castigar",
+    "habilidades": [
+      {"nome": "Implacável (3)", "texto": "O Serafim pode ser posto em destaque até três vezes por turno do mestre. Gaste Medo normalmente para destacá-lo."},
+      {"nome": "Voo Divino", "texto": "Enquanto o Serafim voa, **gaste 1 Ponto de Medo** para movê-lo até alcance distante, em vez de próximo, antes de agir."},
+      {"nome": "Julgamento", "texto": "**Gaste 1 Ponto de Medo** para tornar um alvo _Culpado_ aos olhos do deus do Serafim até o Serafim ser derrotado. Enquanto _Culpado_, o alvo não ganha Esperança num resultado com Esperança. Quando o Serafim acerta um ataque padrão contra um alvo _Culpado_, causa dano Grave em vez do dano padrão. O Serafim só pode marcar um alvo por vez."},
+      {"nome": "Raios Divinos", "texto": "**Marque 1 PF** para refletir uma fagulha de divindade como um raio de luz escaldante que atinge até vinte alvos em alcance muito distante. Os alvos fazem um teste de reação de Presença, com desvantagem se estiverem marcados como _Culpados_. Quem falhar sofre **4d6+12** de dano mágico. Quem tiver sucesso sofre metade do dano."},
+      {"nome": "Somos Um", "texto": "Uma vez por cena, **gaste 1 Ponto de Medo** para pôr em destaque todos os outros adversários em alcance distante. Os ataques que eles fazem enquanto destacados desta forma causam metade do dano."}
+    ]
+  }
+}

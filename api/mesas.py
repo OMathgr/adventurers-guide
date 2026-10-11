@@ -25,6 +25,7 @@ class Permissao(str, Enum):
     VER_FICHAS = "ver_fichas"
     APLICAR_DANO = "aplicar_dano"
     APLICAR_CONDICOES = "aplicar_condicoes"
+    PREPARAR = "preparar"   # criar e editar inimigos e NPCs da mesa
 
 
 PERMISSOES_PADRAO = {p.value: True for p in Permissao}
@@ -64,7 +65,15 @@ def exigir_criador(m: MembroTabela):
 def pode(m: MembroTabela, permissao: Permissao) -> bool:
     if eh_criador(m):
         return True
-    return m.papel == MESTRE and bool(m.mesa.permissoes_mestres.get(permissao.value))
+    # mesas criadas antes de uma permissão existir usam o padrão dela
+    padrao = PERMISSOES_PADRAO[permissao.value]
+    return m.papel == MESTRE and bool(m.mesa.permissoes_mestres.get(permissao.value, padrao))
+
+
+def exigir_mestre(m: MembroTabela):
+    """Conteúdo privado do mestre (inimigos, NPCs): jogador nem sabe que existe."""
+    if not (eh_criador(m) or m.papel == MESTRE):
+        raise NaoEncontrado("Conteúdo não encontrado.")
 
 
 def exigir(m: MembroTabela, permissao: Permissao):
