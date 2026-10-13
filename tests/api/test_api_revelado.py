@@ -32,7 +32,7 @@ def encontro(cliente, mesa):
 
 
 def test_jogador_ve_so_com_encontro_a_mostra_e_sessao_em_andamento(cliente, mesa, bia, encontro):
-    vazio = {"combate": [], "npcs": []}
+    vazio = {"combate": [], "npcs": [], "lojas": []}
     assert cliente.get(url(mesa, "/revelado"), headers=bia).json() == vazio
     e = cliente.put(f"{encontro['base']}/visivel", json={"visivel": True}).json()
     assert e["visivel"] is True

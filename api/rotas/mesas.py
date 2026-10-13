@@ -59,6 +59,7 @@ class MesaSaida(BaseModel):
     codigo_convite: str        # exibido na página da mesa; o link usa o mesmo código
     medo_em_jogo: list[MedoEmJogo]   # Medo das sessões em andamento: visível para todos
     nivel_maximo: int          # personagens da mesa sobem até este nível
+    usar_moedas: bool          # regra opcional das moedas (10 moedas = 1 punhado)
     meu_papel: str
     sou_criador: bool
     permissoes_mestres: dict[str, bool]
@@ -83,10 +84,15 @@ class PermissoesMestres(BaseModel):
     aplicar_condicoes: bool
     preparar: bool = True
     nivel: bool = True
+    dar_itens: bool = True
 
 
 class NivelDaMesa(BaseModel):
     nivel_maximo: int = Field(ge=1, le=10)
+
+
+class MoedasDaMesa(BaseModel):
+    usar_moedas: bool
 
 
 def _saida(m: MembroTabela) -> MesaSaida:
@@ -94,7 +100,7 @@ def _saida(m: MembroTabela) -> MesaSaida:
     return MesaSaida(
         id=mesa.id, nome=mesa.nome, codigo_convite=mesa.codigo_convite,
         medo_em_jogo=[MedoEmJogo(**x) for x in medo_em_jogo(object_session(mesa), mesa.id)],
-        nivel_maximo=mesa.nivel_maximo, meu_papel=m.papel,
+        nivel_maximo=mesa.nivel_maximo, usar_moedas=mesa.usar_moedas, meu_papel=m.papel,
         sou_criador=eh_criador(m), permissoes_mestres=mesa.permissoes_mestres,
         minhas_permissoes=[p for p in Permissao if pode(m, p)],
         membros=[MembroSaida(usuario_id=x.usuario_id, nome=x.usuario.nome, papel=x.papel,
@@ -236,6 +242,17 @@ def definir_nivel(mesa_id: str, dados: NivelDaMesa, a: Acesso = Depends(acesso))
     m = membro(a.banco, mesa_id, a.usuario_id)
     exigir(m, Permissao.NIVEL)
     m.mesa.nivel_maximo = dados.nivel_maximo
+    a.banco.commit()
+    return _saida(m)
+
+
+@rotas.put("/{mesa_id}/moedas", response_model=MesaSaida)
+def regra_das_moedas(mesa_id: str, dados: MoedasDaMesa, a: Acesso = Depends(acesso)):
+    """Regra opcional do SRD (10 moedas = 1 punhado). Quem pode definir o nível
+    da mesa decide. Desligar não apaga as moedas de ninguém: só deixam de aparecer."""
+    m = membro(a.banco, mesa_id, a.usuario_id)
+    exigir(m, Permissao.NIVEL)
+    m.mesa.usar_moedas = dados.usar_moedas
     a.banco.commit()
     return _saida(m)
 

@@ -69,10 +69,11 @@ def montar(linha: PersonagemTabela) -> Personagem:
     for subida in linha.subidas:
         personagem.subir_de_nivel(_SUBIDA.validate_python(subida.dados))
     personagem.restaurar_estado({"equipamento": linha.equipamento, "cofre": linha.cofre,
-                                 "sessao": linha.sessao})
+                                 "sessao": linha.sessao, "inventario": linha.inventario})
     personagem.plano = [_SUBIDA.validate_python(s) for s in linha.plano or []]
     # o limite vem depois do histórico: baixar o nível da mesa não impede carregar
     personagem.nivel_limite = linha.mesa.nivel_maximo if linha.mesa else None
+    personagem.moedas_da_mesa = linha.mesa.usar_moedas if linha.mesa else None
     return personagem
 
 
@@ -83,8 +84,8 @@ def salvar(banco: Session, dono_id: str, personagem_id: str, personagem: Persona
 def gravar(banco: Session, linha: PersonagemTabela, personagem: Personagem):
     """Grava o estado atual e sincroniza as subidas de nível com o histórico."""
     estado = personagem.estado()
-    linha.equipamento, linha.cofre, linha.sessao = (
-        estado["equipamento"], estado["cofre"], estado["sessao"])
+    linha.equipamento, linha.cofre, linha.sessao, linha.inventario = (
+        estado["equipamento"], estado["cofre"], estado["sessao"], estado["inventario"])
     linha.plano = [para_json(s) for s in personagem.plano]
     salvas = {s.nivel: s for s in linha.subidas}
     no_historico = {s.nivel for s in personagem.historico}

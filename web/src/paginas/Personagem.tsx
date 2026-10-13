@@ -1,4 +1,4 @@
-// Página do personagem: foto, mesa, e as visões ficha, equipamento e linha do tempo.
+// Página do personagem: foto, mesa, e as visões ficha, equipamento, inventário e linha do tempo.
 import { useState } from 'react'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router'
 
@@ -8,13 +8,14 @@ import {
 } from '../api/consultas'
 import AbaEquipamento from '../componentes/AbaEquipamento'
 import FichaVisao from '../componentes/Ficha'
+import AbaInventario from '../componentes/inventario/AbaInventario'
 import { EnviarFoto, Foto } from '../componentes/Foto'
 import LinhaDoTempo from '../componentes/LinhaDoTempo'
 import { Abas, Aviso, Botao, Carregando, Selecao } from '../componentes/ui'
 import { useNomeDominio, useNomes } from '../lib/nomes'
 import { NOME_ESTAGIO } from '../lib/rotulos'
 
-type Visao = 'ficha' | 'equipamento' | 'tempo'
+type Visao = 'ficha' | 'equipamento' | 'inventario' | 'tempo'
 
 /** Mesa do personagem e a cópia para outra mesa (ele fica preso à mesa em que está). */
 function MesaDoPersonagem({ id, mesaId }: { id: string; mesaId: string | null | undefined }) {
@@ -63,7 +64,7 @@ export default function Personagem() {
   const { id = '' } = useParams()
   const [busca, setBusca] = useSearchParams()
   const pedida = busca.get('visao')
-  const visao: Visao = pedida === 'tempo' || pedida === 'equipamento' ? pedida : 'ficha'
+  const visao: Visao = pedida === 'tempo' || pedida === 'equipamento' || pedida === 'inventario' ? pedida : 'ficha'
   const ficha = useFicha(id)
   const tempo = useLinhaDoTempo(id)
   const lista = usePersonagens()
@@ -120,11 +121,12 @@ export default function Personagem() {
       <Aviso erro={desfazer.error ?? apagar.error ?? foto.error} />
 
       <Abas<Visao> atual={visao}
-        abas={[['ficha', 'Ficha'], ['equipamento', 'Equipamento'], ['tempo', 'Linha do tempo']]}
+        abas={[['ficha', 'Ficha'], ['equipamento', 'Equipamento'], ['inventario', 'Inventário'], ['tempo', 'Linha do tempo']]}
         aoTrocar={(nova) => setBusca(nova === 'ficha' ? {} : { visao: nova })} />
 
       {visao === 'ficha' && <FichaVisao ficha={f} personagemId={id} />}
       {visao === 'equipamento' && <AbaEquipamento personagemId={id} ficha={f} />}
+      {visao === 'inventario' && <AbaInventario personagemId={id} ficha={f} />}
       {visao === 'tempo' && (tempo.isPending ? <Carregando /> : tempo.data && (
         <LinhaDoTempo eventos={tempo.data} personagemId={id} ficha={f}
           aoDesfazer={() => desfazer.mutate()} desfazendo={desfazer.isPending} />

@@ -90,7 +90,7 @@ describe('Editor de inimigo', () => {
 
 describe('Página da mesa', () => {
   const mesa = (papel: string): MesaT => ({
-    id: 'm1', nome: 'Sombras de Haven', codigo_convite: 'ABC123', nivel_maximo: 1, meu_papel: papel, sou_criador: papel === 'mestre',
+    id: 'm1', nome: 'Sombras de Haven', codigo_convite: 'ABC123', nivel_maximo: 1, usar_moedas: false, meu_papel: papel, sou_criador: papel === 'mestre',
     medo_em_jogo: [{ sessao_id: 's1', mestre: 'Ana', medo: 3 }],
     permissoes_mestres: { ver_fichas: true, aplicar_dano: true, aplicar_condicoes: true, preparar: true },
     minhas_permissoes: papel === 'mestre' ? ['ver_fichas', 'aplicar_dano', 'aplicar_condicoes', 'preparar'] : [],

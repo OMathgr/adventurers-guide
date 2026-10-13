@@ -5,7 +5,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router'
 
 import {
-  useAncestralidades, useCartas, useClasses, useComunidades, useCriarPersonagem, useSubclasses,
+  useAncestralidades, useCartas, useClasses, useComunidades, useCriarPersonagem, useItensSrd, useSubclasses,
 } from '../api/consultas'
 import type { Ancestralidade, Caracteristica, Classe, Subclasse, TipoDano, Traco } from '../api/tipos'
 import { Aviso, Botao, Campo, Carregando, Cartao, Escolhivel, Etapas, Original, Selo } from '../componentes/ui'
@@ -15,7 +15,9 @@ import {
   comSinal, NOME_TIPO_DANO, NOME_TRACO, TRACOS, USO_TRACO,
 } from '../lib/rotulos'
 
-const ETAPAS = ['Classe', 'Subclasse', 'Herança', 'Atributos', 'Experiências', 'Cartas', 'Revisão']
+const ETAPAS = ['Classe', 'Subclasse', 'Herança', 'Atributos', 'Experiências', 'Cartas', 'Itens', 'Revisão']
+// Passo 5 do SRD: além destes, o motor dá tocha, corda, suprimentos e 1 punhado de ouro
+const POCOES = ['core_consumable_minor_health_potion', 'core_consumable_minor_stamina_potion']
 // Única subclasse do SRD 1.0 com companheiro (a API recusa se faltar ou sobrar)
 const BEASTBOUND = 'core_subclass_beastbound'
 
@@ -31,6 +33,8 @@ type Rascunho = {
   experiencias: [string, string]
   proposito?: string
   cartas: string[]
+  pocao?: string
+  item_de_classe?: string
   nome: string
 }
 
@@ -64,6 +68,7 @@ export default function NovoPersonagem() {
     distribuicaoCompleta(r.tracos),
     exps.every(Boolean) && exps[0] !== exps[1] && (!temProposito || exps.includes(r.proposito ?? '')),
     r.cartas.length === 2,
+    !!r.pocao && !!r.item_de_classe,
     r.nome.trim() !== '',
   ]
 
@@ -78,7 +83,8 @@ export default function NovoPersonagem() {
       {etapa === 3 && <EtapaTracos r={r} atualizar={atualizar} />}
       {etapa === 4 && <EtapaExperiencias r={r} atualizar={atualizar} temProposito={temProposito} />}
       {etapa === 5 && <EtapaCartas r={r} atualizar={atualizar} />}
-      {etapa === 6 && <EtapaRevisao r={r} atualizar={atualizar} temCompanheiro={temCompanheiro} temProposito={temProposito} />}
+      {etapa === 6 && <EtapaItens r={r} atualizar={atualizar} />}
+      {etapa === 7 && <EtapaRevisao r={r} atualizar={atualizar} temCompanheiro={temCompanheiro} temProposito={temProposito} />}
 
       <div className="flex justify-between pt-2">
         <Botao variante="secundario" onClick={() => setEtapa((e) => e - 1)} disabled={etapa === 0}>Voltar</Botao>
@@ -100,7 +106,7 @@ function EtapaClasse({ r, atualizar }: PropsEtapa) {
     <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
       {classes.data?.map((c) => (
         <Escolhivel key={c.id} selecionado={r.classe?.id === c.id}
-          onClick={() => atualizar({ classe: c, subclasse: undefined, cartas: [] })}>
+          onClick={() => atualizar({ classe: c, subclasse: undefined, cartas: [], item_de_classe: undefined })}>
           <p className="font-titulo text-lg">{c.nome}<Original nome={c.nome} original={c.nome_original} /></p>
           <p className="mt-1 text-sm text-texto-suave">{c.dominios.map(dominio).join(' & ')}</p>
           <p className="mt-2 flex gap-2"><Selo>Evasão {c.evasao_inicial}</Selo><Selo>PV {c.pv_iniciais}</Selo></p>
@@ -324,11 +330,51 @@ function EtapaCartas({ r, atualizar }: PropsEtapa) {
   )
 }
 
+function EtapaItens({ r, atualizar }: PropsEtapa) {
+  const itens = useItensSrd()
+  if (itens.isPending) return <Carregando />
+  const porId = (id: string) => itens.data?.find((i) => i.id === id)
+  const comuns = itens.data?.filter((i) => i.tipo === 'COMUM') ?? []
+
+  return (
+    <div className="space-y-4">
+      <p className="text-sm text-texto-suave">
+        Todo personagem começa com {comuns.map((i) => i.nome.toLowerCase()).join(', ')} e 1 punhado de ouro.
+      </p>
+      <div>
+        <h2 className="mb-2 text-sm font-semibold">Escolha uma poção</h2>
+        <div className="grid gap-3 sm:grid-cols-2">
+          {POCOES.map((id) => {
+            const p = porId(id)
+            return p && (
+              <Escolhivel key={id} selecionado={r.pocao === id} onClick={() => atualizar({ pocao: id })}>
+                <span className="font-medium">{p.nome}<Original nome={p.nome} original={p.nome_original} /></span>
+                <span className="block text-sm text-texto-suave">{p.texto}</span>
+              </Escolhivel>
+            )
+          })}
+        </div>
+      </div>
+      <div>
+        <h2 className="mb-2 text-sm font-semibold">Escolha um item da classe</h2>
+        <div className="grid gap-3 sm:grid-cols-2">
+          {r.classe?.itens.map((id) => (
+            <Escolhivel key={id} selecionado={r.item_de_classe === id} onClick={() => atualizar({ item_de_classe: id })}>
+              <span className="font-medium">{porId(id)?.nome ?? id}</span>
+            </Escolhivel>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function EtapaRevisao({ r, atualizar, temCompanheiro, temProposito }:
   PropsEtapa & { temCompanheiro: boolean; temProposito: boolean }) {
   const criar = useCriarPersonagem()
   const navegar = useNavigate()
   const cartas = useCartas()
+  const itens = useItensSrd()
 
   function confirmar() {
     criar.mutate({
@@ -342,6 +388,8 @@ function EtapaRevisao({ r, atualizar, temCompanheiro, temProposito }:
       experiencias: r.experiencias.map((e) => e.trim()),
       experiencia_proposito: temProposito ? r.proposito : null,
       cartas: r.cartas,
+      pocao_inicial: r.pocao,
+      item_de_classe: r.item_de_classe,
       companheiro: temCompanheiro ? {
         nome: r.companheiro.nome.trim(),
         experiencias: r.companheiro.experiencias.map((e) => e.trim()),
@@ -364,6 +412,7 @@ function EtapaRevisao({ r, atualizar, temCompanheiro, temProposito }:
         {linha('Atributos', TRACOS.map((t) => `${NOME_TRACO[t]} ${comSinal(r.tracos[t] ?? 0)}`).join(', '))}
         {linha('Experiências', r.experiencias.join(', '))}
         {linha('Cartas', r.cartas.map((id) => cartas.data?.find((c) => c.id === id)?.nome ?? id).join(', '))}
+        {linha('Itens', [r.pocao, r.item_de_classe].map((id) => itens.data?.find((i) => i.id === id)?.nome ?? id).join(', '))}
         {temCompanheiro && linha('Companheiro', r.companheiro.nome)}
       </Cartao>
       <Cartao titulo="Como se chama?">

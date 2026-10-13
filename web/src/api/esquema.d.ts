@@ -147,6 +147,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/srd/itens": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Itens
+         * @description Saque, consumíveis, itens iniciais e de classe (em ordem de tipo e da tabela d60).
+         */
+        get: operations["itens_srd_itens_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/srd/armaduras": {
         parameters: {
             query?: never;
@@ -943,6 +963,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/mesas/{mesa_id}/moedas": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Regra Das Moedas
+         * @description Regra opcional do SRD (10 moedas = 1 punhado). Quem pode definir o nível
+         *     da mesa decide. Desligar não apaga as moedas de ninguém: só deixam de aparecer.
+         */
+        put: operations["regra_das_moedas_mesas__mesa_id__moedas_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/mesas/{mesa_id}/personagens/{personagem_id}": {
         parameters: {
             query?: never;
@@ -1564,6 +1605,392 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/personagens/{personagem_id}/inventario": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Ver */
+        get: operations["ver_personagens__personagem_id__inventario_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/personagens/{personagem_id}/inventario/ouro": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Mudar Ouro */
+        post: operations["mudar_ouro_personagens__personagem_id__inventario_ouro_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/personagens/{personagem_id}/inventario/itens": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Adicionar Item */
+        post: operations["adicionar_item_personagens__personagem_id__inventario_itens_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/personagens/{personagem_id}/inventario/itens/{item_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Remover Item */
+        delete: operations["remover_item_personagens__personagem_id__inventario_itens__item_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/personagens/{personagem_id}/inventario/itens/{item_id}/usar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Usar */
+        post: operations["usar_personagens__personagem_id__inventario_itens__item_id__usar_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/personagens/{personagem_id}/inventario/livres": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Adicionar Livre */
+        post: operations["adicionar_livre_personagens__personagem_id__inventario_livres_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/personagens/{personagem_id}/inventario/livres/{livre_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Remover Livre */
+        delete: operations["remover_livre_personagens__personagem_id__inventario_livres__livre_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/personagens/{personagem_id}/inventario/armas": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Guardar Arma */
+        post: operations["guardar_arma_personagens__personagem_id__inventario_armas_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/personagens/{personagem_id}/inventario/armas/{indice}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Descartar Arma */
+        delete: operations["descartar_arma_personagens__personagem_id__inventario_armas__indice__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/personagens/{personagem_id}/inventario/armas/{indice}/trocar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Trocar Arma */
+        post: operations["trocar_arma_personagens__personagem_id__inventario_armas__indice__trocar_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/personagens/{personagem_id}/inventario/moedas": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Usar Moedas
+         * @description Regra opcional das moedas para um personagem sem mesa (na mesa, quem decide é ela).
+         */
+        put: operations["usar_moedas_personagens__personagem_id__inventario_moedas_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/personagens/{personagem_id}/inventario/reliquia": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Experiencia Da Reliquia */
+        put: operations["experiencia_da_reliquia_personagens__personagem_id__inventario_reliquia_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/mesas/{mesa_id}/personagens/{personagem_id}/inventario": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Ver Na Mesa */
+        get: operations["ver_na_mesa_mesas__mesa_id__personagens__personagem_id__inventario_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/mesas/{mesa_id}/personagens/{personagem_id}/inventario/ouro": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Mudar Ouro Na Mesa */
+        post: operations["mudar_ouro_na_mesa_mesas__mesa_id__personagens__personagem_id__inventario_ouro_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/mesas/{mesa_id}/personagens/{personagem_id}/inventario/itens": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Dar Item */
+        post: operations["dar_item_mesas__mesa_id__personagens__personagem_id__inventario_itens_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/mesas/{mesa_id}/personagens/{personagem_id}/inventario/itens/{item_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Tirar Item */
+        delete: operations["tirar_item_mesas__mesa_id__personagens__personagem_id__inventario_itens__item_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/mesas/{mesa_id}/personagens/{personagem_id}/inventario/livres": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Dar Livre */
+        post: operations["dar_livre_mesas__mesa_id__personagens__personagem_id__inventario_livres_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/mesas/{mesa_id}/personagens/{personagem_id}/inventario/livres/{livre_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Tirar Livre */
+        delete: operations["tirar_livre_mesas__mesa_id__personagens__personagem_id__inventario_livres__livre_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/mesas/{mesa_id}/personagens/{personagem_id}/inventario/armas": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Dar Arma */
+        post: operations["dar_arma_mesas__mesa_id__personagens__personagem_id__inventario_armas_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/mesas/{mesa_id}/sessoes/{sessao_id}/lojas": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Listar */
+        get: operations["listar_mesas__mesa_id__sessoes__sessao_id__lojas_get"];
+        put?: never;
+        /** Criar */
+        post: operations["criar_mesas__mesa_id__sessoes__sessao_id__lojas_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/mesas/{mesa_id}/sessoes/{sessao_id}/lojas/{loja_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Salvar
+         * @description Salva a loja inteira (nome, à mostra, itens com preço e estoque).
+         */
+        put: operations["salvar_mesas__mesa_id__sessoes__sessao_id__lojas__loja_id__put"];
+        post?: never;
+        /** Apagar */
+        delete: operations["apagar_mesas__mesa_id__sessoes__sessao_id__lojas__loja_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/mesas/{mesa_id}/sessoes/{sessao_id}/lojas/{loja_id}/vender": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Vender
+         * @description Cobra o ouro do personagem, entrega o item e baixa o estoque, tudo junto:
+         *     se o motor recusar (ouro, espaço, limite), nada muda.
+         */
+        post: operations["vender_mesas__mesa_id__sessoes__sessao_id__lojas__loja_id__vender_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1706,6 +2133,26 @@ export interface components {
              * @default
              */
             nome_original: string;
+        };
+        /** ArmaEntrada */
+        ArmaEntrada: {
+            /** Arma Id */
+            arma_id: string;
+        };
+        /** ArmaGuardada */
+        ArmaGuardada: {
+            /** Indice */
+            indice: number;
+            /** Id */
+            id: string;
+            /** Nome */
+            nome: string;
+            /** Principal */
+            principal: boolean;
+            /** Duas Maos */
+            duas_maos: boolean;
+            /** Tier */
+            tier: number;
         };
         /** Armadura */
         Armadura: {
@@ -1909,6 +2356,11 @@ export interface components {
              * @default
              */
             nome_original: string;
+            /**
+             * Itens
+             * @default []
+             */
+            itens: string[];
         };
         /** CombatenteSaida */
         CombatenteSaida: {
@@ -2023,6 +2475,10 @@ export interface components {
             /** Experiencia Proposito */
             experiencia_proposito?: string | null;
             companheiro?: components["schemas"]["Companheiro"] | null;
+            /** Pocao Inicial */
+            pocao_inicial?: string | null;
+            /** Item De Classe */
+            item_de_classe?: string | null;
         };
         /** DadosDaSessao */
         DadosDaSessao: {
@@ -2128,6 +2584,31 @@ export interface components {
          * @enum {string}
          */
         Efeito: "FORTIFICADA" | "DOLOROSA" | "ESPERANCOSA" | "REFORCADA" | "RESILIENTE" | "IMPENETRAVEL" | "SO_FISICO" | "SO_MAGICO" | "PROTEGIDA" | "CURA" | "VIGOR" | "FOLEGO" | "AGIL" | "PROPOSITO" | "CASCO" | "EFICIENTE" | "TRANSE";
+        /**
+         * EfeitoConsumivel
+         * @description O que um consumível faz na ficha, lido do texto do SRD.
+         *
+         *     Cada quantidade é um dado ("1d4+1"), um número ou "tudo". Com `escolha`,
+         *     só um entre PV e PF é limpo (Sweet Moss: "1d4 HP or 1d4 Stress").
+         */
+        EfeitoConsumivel: {
+            /** Limpa Pv */
+            limpa_pv?: string | null;
+            /** Limpa Pf */
+            limpa_pf?: string | null;
+            /** Ganha Esperanca */
+            ganha_esperanca?: string | null;
+            /**
+             * Marca Pf
+             * @default 0
+             */
+            marca_pf: number;
+            /**
+             * Escolha
+             * @default false
+             */
+            escolha: boolean;
+        };
         /** EncontroResumo */
         EncontroResumo: {
             /** Id */
@@ -2484,6 +2965,152 @@ export interface components {
             /** Condicoes */
             condicoes: string[];
         };
+        /** InventarioSaida */
+        InventarioSaida: {
+            ouro: components["schemas"]["Ouro"];
+            /** Itens */
+            itens: components["schemas"]["ItemNoInventario"][];
+            /** Livres */
+            livres: components["schemas"]["ItemLivreSaida"][];
+            /** Armas */
+            armas: components["schemas"]["ArmaGuardada"][];
+            /** Experiencia Da Reliquia */
+            experiencia_da_reliquia: string | null;
+            /** Usa Moedas */
+            usa_moedas: boolean;
+            /** Moedas Pela Mesa */
+            moedas_pela_mesa: boolean;
+        };
+        /** Item */
+        Item: {
+            /** Id */
+            id: string;
+            /** Nome */
+            nome: string;
+            tipo: components["schemas"]["TipoDeItem"];
+            /**
+             * Texto
+             * @default
+             */
+            texto: string;
+            /**
+             * Nome Original
+             * @default
+             */
+            nome_original: string;
+            /** Rolagem */
+            rolagem?: number | null;
+            efeito?: components["schemas"]["EfeitoConsumivel"] | null;
+            /** Reliquia */
+            reliquia?: components["schemas"]["Traco"] | string | null;
+        };
+        /** ItemDaLojaEntrada */
+        ItemDaLojaEntrada: {
+            /**
+             * Id
+             * @default
+             */
+            id: string;
+            tipo: components["schemas"]["TipoNaLoja"];
+            /** Ref */
+            ref?: string | null;
+            /**
+             * Nome
+             * @default
+             */
+            nome: string;
+            /**
+             * Descricao
+             * @default
+             */
+            descricao: string;
+            /**
+             * Preco
+             * @description Em punhados (1 bolsa = 10, 1 baú = 100).
+             */
+            preco: number;
+            /**
+             * Moedas
+             * @description Regra opcional das moedas.
+             * @default 0
+             */
+            moedas: number;
+            /** Estoque */
+            estoque?: number | null;
+        };
+        /** ItemDaLojaSaida */
+        ItemDaLojaSaida: {
+            /** Id */
+            id: string;
+            tipo: components["schemas"]["TipoNaLoja"];
+            /** Ref */
+            ref: string | null;
+            /** Nome */
+            nome: string;
+            /** Texto */
+            texto: string;
+            preco: components["schemas"]["Ouro"];
+            /** Estoque */
+            estoque: number | null;
+        };
+        /** ItemEntrada */
+        ItemEntrada: {
+            /** Item Id */
+            item_id: string;
+            /**
+             * Quantidade
+             * @default 1
+             */
+            quantidade: number;
+        };
+        /** ItemLivreEntrada */
+        ItemLivreEntrada: {
+            /** Nome */
+            nome: string;
+            /**
+             * Descricao
+             * @default
+             */
+            descricao: string;
+            /**
+             * Quantidade
+             * @default 1
+             */
+            quantidade: number;
+        };
+        /** ItemLivreSaida */
+        ItemLivreSaida: {
+            /** Id */
+            id: string;
+            /** Nome */
+            nome: string;
+            /** Descricao */
+            descricao: string;
+            /** Quantidade */
+            quantidade: number;
+        };
+        /** ItemNoInventario */
+        ItemNoInventario: {
+            /** Id */
+            id: string;
+            /** Nome */
+            nome: string;
+            /** Nome Original */
+            nome_original: string;
+            tipo: components["schemas"]["TipoDeItem"];
+            /** Texto */
+            texto: string;
+            /** Quantidade */
+            quantidade: number;
+            /** Efeito Automatico */
+            efeito_automatico: boolean;
+            /** Dado */
+            dado: string | null;
+            /** Escolha */
+            escolha: boolean;
+            /** Reliquia */
+            reliquia: string | null;
+        };
         /** ItemNoQuadro */
         ItemNoQuadro: {
             /** Nome */
@@ -2518,6 +3145,43 @@ export interface components {
             de_ponto?: string | null;
             /** Para Ponto */
             para_ponto?: string | null;
+        };
+        /** LojaEntrada */
+        LojaEntrada: {
+            /** Nome */
+            nome: string;
+            /**
+             * Visivel
+             * @default false
+             */
+            visivel: boolean;
+            /**
+             * Itens
+             * @default []
+             */
+            itens: components["schemas"]["ItemDaLojaEntrada"][];
+        };
+        /** LojaSaida */
+        LojaSaida: {
+            /** Id */
+            id: string;
+            /** Nome */
+            nome: string;
+            /** Visivel */
+            visivel: boolean;
+            /** Itens */
+            itens: components["schemas"]["ItemDaLojaSaida"][];
+        };
+        /** LojaVisivel */
+        LojaVisivel: {
+            /** Id */
+            id: string;
+            /** Nome */
+            nome: string;
+            /** Mestre */
+            mestre: string;
+            /** Itens */
+            itens: components["schemas"]["ItemDaLojaSaida"][];
         };
         /** Marcas */
         Marcas: {
@@ -2572,6 +3236,8 @@ export interface components {
             medo_em_jogo: components["schemas"]["MedoEmJogo"][];
             /** Nivel Maximo */
             nivel_maximo: number;
+            /** Usar Moedas */
+            usar_moedas: boolean;
             /** Meu Papel */
             meu_papel: string;
             /** Sou Criador */
@@ -2599,12 +3265,32 @@ export interface components {
             /** Igual A */
             igual_a?: components["schemas"]["Traco"] | components["schemas"]["Referencia"] | null;
         };
+        /** MoedasDaMesa */
+        MoedasDaMesa: {
+            /** Usar Moedas */
+            usar_moedas: boolean;
+        };
         /**
          * Movimento
          * @description Movimentos de descanso (downtime). Cada descanso permite dois.
          * @enum {string}
          */
         Movimento: "CUIDAR_FERIDAS" | "ALIVIAR_ESTRESSE" | "REPARAR_ARMADURA" | "PREPARAR" | "PREPARAR_EM_GRUPO" | "PROJETO";
+        /** MudarOuro */
+        MudarOuro: {
+            /**
+             * Punhados
+             * @description Positivo ganha, negativo gasta.
+             * @default 0
+             */
+            punhados: number;
+            /**
+             * Moedas
+             * @description Regra opcional; mesmo sinal dos punhados.
+             * @default 0
+             */
+            moedas: number;
+        };
         /** NivelDaMesa */
         NivelDaMesa: {
             /** Nivel Maximo */
@@ -2612,6 +3298,11 @@ export interface components {
         };
         /** NomeEncontro */
         NomeEncontro: {
+            /** Nome */
+            nome: string;
+        };
+        /** NomeLoja */
+        NomeLoja: {
             /** Nome */
             nome: string;
         };
@@ -2811,6 +3502,24 @@ export interface components {
              */
             dano_extra: boolean;
         };
+        /** Ouro */
+        Ouro: {
+            /** Baus */
+            baus: number;
+            /** Bolsas */
+            bolsas: number;
+            /** Punhados */
+            punhados: number;
+            /** Total */
+            total: number;
+            /** Maximo */
+            maximo: number;
+            /**
+             * Moedas
+             * @default 0
+             */
+            moedas: number;
+        };
         /** Papel */
         Papel: {
             /** Papel */
@@ -2820,7 +3529,7 @@ export interface components {
          * Permissao
          * @enum {string}
          */
-        Permissao: "ver_fichas" | "aplicar_dano" | "aplicar_condicoes" | "preparar" | "nivel";
+        Permissao: "ver_fichas" | "aplicar_dano" | "aplicar_condicoes" | "preparar" | "nivel" | "dar_itens";
         /** PermissoesMestres */
         PermissoesMestres: {
             /** Ver Fichas */
@@ -2839,6 +3548,11 @@ export interface components {
              * @default true
              */
             nivel: boolean;
+            /**
+             * Dar Itens
+             * @default true
+             */
+            dar_itens: boolean;
         };
         /** PersonagemCriado */
         PersonagemCriado: {
@@ -2984,6 +3698,11 @@ export interface components {
         RegrasDaMesa: {
             /** Dano Massivo */
             dano_massivo: boolean;
+        };
+        /** ReliquiaEntrada */
+        ReliquiaEntrada: {
+            /** Experiencia */
+            experiencia: string | null;
         };
         /**
          * Requisito
@@ -3149,6 +3868,11 @@ export interface components {
          */
         TipoDano: "PHYSICAL" | "MAGICAL" | "PHYSICAL_OR_MAGICAL";
         /**
+         * TipoDeItem
+         * @enum {string}
+         */
+        TipoDeItem: "SAQUE" | "CONSUMIVEL" | "COMUM" | "CLASSE";
+        /**
          * TipoHabilidade
          * @enum {string}
          */
@@ -3158,6 +3882,11 @@ export interface components {
          * @enum {string}
          */
         TipoItem: "npc" | "inimigo" | "encontro" | "personagem";
+        /**
+         * TipoNaLoja
+         * @enum {string}
+         */
+        TipoNaLoja: "ITEM" | "ARMA" | "ARMADURA" | "LIVRE";
         /** Token */
         Token: {
             /** Access Token */
@@ -3180,6 +3909,30 @@ export interface components {
             /** Experiencia */
             experiencia?: string | null;
             alvo?: components["schemas"]["AlvoFeroz"] | null;
+        };
+        /** Troca */
+        Troca: {
+            /** Em Perigo */
+            em_perigo: boolean;
+        };
+        /** Usar */
+        Usar: {
+            /** Rolagem */
+            rolagem?: number | null;
+            /** Escolha */
+            escolha?: ("PV" | "PF") | null;
+        };
+        /** UsarMoedas */
+        UsarMoedas: {
+            /** Usar */
+            usar: boolean;
+        };
+        /** UsoSaida */
+        UsoSaida: {
+            /** Notas */
+            notas: string[];
+            inventario: components["schemas"]["InventarioSaida"];
+            ficha: components["schemas"]["Ficha"];
         };
         /** Usuario */
         Usuario: {
@@ -3208,6 +3961,25 @@ export interface components {
             /** Valor */
             valor: number;
         };
+        /** Venda */
+        Venda: {
+            /** Item Id */
+            item_id: string;
+            /** Personagem Id */
+            personagem_id: string;
+            /**
+             * Quantidade
+             * @default 1
+             */
+            quantidade: number;
+        };
+        /** VendaSaida */
+        VendaSaida: {
+            /** Notas */
+            notas: string[];
+            loja: components["schemas"]["LojaSaida"];
+            inventario: components["schemas"]["InventarioSaida"];
+        };
         /** VinculoMesa */
         VinculoMesa: {
             /** Mesa Id */
@@ -3224,6 +3996,11 @@ export interface components {
             combate: components["schemas"]["EncontroVisivel"][];
             /** Npcs */
             npcs: components["schemas"]["NpcConhecido"][];
+            /**
+             * Lojas
+             * @default []
+             */
+            lojas: components["schemas"]["LojaVisivel"][];
         };
     };
     responses: never;
@@ -3447,6 +4224,37 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Arma"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    itens_srd_itens_get: {
+        parameters: {
+            query?: {
+                tipo?: components["schemas"]["TipoDeItem"] | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Item"][];
                 };
             };
             /** @description Validation Error */
@@ -5083,6 +5891,41 @@ export interface operations {
             };
         };
     };
+    regra_das_moedas_mesas__mesa_id__moedas_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mesa_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MoedasDaMesa"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MesaSaida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     ficha_na_mesa_mesas__mesa_id__personagens__personagem_id__get: {
         parameters: {
             query?: never;
@@ -6674,6 +7517,838 @@ export interface operations {
                 };
                 content: {
                     "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    ver_personagens__personagem_id__inventario_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                personagem_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InventarioSaida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    mudar_ouro_personagens__personagem_id__inventario_ouro_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                personagem_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MudarOuro"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InventarioSaida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    adicionar_item_personagens__personagem_id__inventario_itens_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                personagem_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ItemEntrada"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InventarioSaida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    remover_item_personagens__personagem_id__inventario_itens__item_id__delete: {
+        parameters: {
+            query?: {
+                quantidade?: number;
+            };
+            header?: never;
+            path: {
+                personagem_id: string;
+                item_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InventarioSaida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    usar_personagens__personagem_id__inventario_itens__item_id__usar_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                personagem_id: string;
+                item_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Usar"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UsoSaida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    adicionar_livre_personagens__personagem_id__inventario_livres_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                personagem_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ItemLivreEntrada"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InventarioSaida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    remover_livre_personagens__personagem_id__inventario_livres__livre_id__delete: {
+        parameters: {
+            query?: {
+                quantidade?: number;
+            };
+            header?: never;
+            path: {
+                personagem_id: string;
+                livre_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InventarioSaida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    guardar_arma_personagens__personagem_id__inventario_armas_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                personagem_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ArmaEntrada"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InventarioSaida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    descartar_arma_personagens__personagem_id__inventario_armas__indice__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                personagem_id: string;
+                indice: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InventarioSaida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    trocar_arma_personagens__personagem_id__inventario_armas__indice__trocar_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                personagem_id: string;
+                indice: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Troca"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Ficha"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    usar_moedas_personagens__personagem_id__inventario_moedas_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                personagem_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UsarMoedas"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InventarioSaida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    experiencia_da_reliquia_personagens__personagem_id__inventario_reliquia_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                personagem_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReliquiaEntrada"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InventarioSaida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    ver_na_mesa_mesas__mesa_id__personagens__personagem_id__inventario_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mesa_id: string;
+                personagem_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InventarioSaida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    mudar_ouro_na_mesa_mesas__mesa_id__personagens__personagem_id__inventario_ouro_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mesa_id: string;
+                personagem_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MudarOuro"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InventarioSaida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    dar_item_mesas__mesa_id__personagens__personagem_id__inventario_itens_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mesa_id: string;
+                personagem_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ItemEntrada"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InventarioSaida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    tirar_item_mesas__mesa_id__personagens__personagem_id__inventario_itens__item_id__delete: {
+        parameters: {
+            query?: {
+                quantidade?: number;
+            };
+            header?: never;
+            path: {
+                mesa_id: string;
+                personagem_id: string;
+                item_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InventarioSaida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    dar_livre_mesas__mesa_id__personagens__personagem_id__inventario_livres_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mesa_id: string;
+                personagem_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ItemLivreEntrada"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InventarioSaida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    tirar_livre_mesas__mesa_id__personagens__personagem_id__inventario_livres__livre_id__delete: {
+        parameters: {
+            query?: {
+                quantidade?: number;
+            };
+            header?: never;
+            path: {
+                mesa_id: string;
+                personagem_id: string;
+                livre_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InventarioSaida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    dar_arma_mesas__mesa_id__personagens__personagem_id__inventario_armas_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mesa_id: string;
+                personagem_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ArmaEntrada"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InventarioSaida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    listar_mesas__mesa_id__sessoes__sessao_id__lojas_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mesa_id: string;
+                sessao_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LojaSaida"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    criar_mesas__mesa_id__sessoes__sessao_id__lojas_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mesa_id: string;
+                sessao_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NomeLoja"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LojaSaida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    salvar_mesas__mesa_id__sessoes__sessao_id__lojas__loja_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mesa_id: string;
+                sessao_id: string;
+                loja_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LojaEntrada"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LojaSaida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    apagar_mesas__mesa_id__sessoes__sessao_id__lojas__loja_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mesa_id: string;
+                sessao_id: string;
+                loja_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    vender_mesas__mesa_id__sessoes__sessao_id__lojas__loja_id__vender_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mesa_id: string;
+                sessao_id: string;
+                loja_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Venda"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VendaSaida"];
                 };
             };
             /** @description Validation Error */

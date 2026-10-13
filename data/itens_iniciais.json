@@ -1,0 +1,10 @@
+{
+  "_fonte": "Daggerheart SRD 1.0, Step 5: Choose Your Starting Equipment",
+  "itens": [
+    {"id": "core_item_torch", "name": "Torch"},
+    {"id": "core_item_rope", "name": "50 feet of rope"},
+    {"id": "core_item_basic_supplies", "name": "Basic supplies"}
+  ],
+  "pocoes": ["core_consumable_minor_health_potion", "core_consumable_minor_stamina_potion"],
+  "punhados_de_ouro": 1
+}

@@ -5,6 +5,7 @@
   derrotado; nunca os PV) e condições. Nada de dano, habilidades, Dificuldade
   ou outros números.
 - NPCs conhecidos: nome, foto e descrição (nunca notas nem motivações).
+- Lojas à mostra (`visivel`) de sessões em andamento: itens, preços e estoque.
 """
 
 from fastapi import APIRouter, Depends
@@ -14,7 +15,8 @@ from motor.encontro import Combatente
 
 from ..autenticacao import Acesso, acesso
 from ..mesas import membro
-from ..tabelas import EncontroTabela, NpcTabela, SessaoTabela
+from ..tabelas import EncontroTabela, LojaTabela, NpcTabela, SessaoTabela
+from .lojas import ItemDaLojaSaida, itens_saida
 
 rotas = APIRouter(prefix="/mesas/{mesa_id}", tags=["Para os jogadores"])
 _COMBATENTES = TypeAdapter(list[Combatente])
@@ -42,9 +44,17 @@ class NpcConhecido(BaseModel):
     descricao: str
 
 
+class LojaVisivel(BaseModel):
+    id: str
+    nome: str
+    mestre: str
+    itens: list[ItemDaLojaSaida]
+
+
 class VistaDosJogadores(BaseModel):
     combate: list[EncontroVisivel]
     npcs: list[NpcConhecido]
+    lojas: list[LojaVisivel] = []
 
 
 @rotas.get("/revelado", response_model=VistaDosJogadores)
@@ -64,5 +74,13 @@ def revelado(mesa_id: str, a: Acesso = Depends(acesso)):
                                        inimigos=inimigos))
     npcs = (a.banco.query(NpcTabela).filter(NpcTabela.mesa_id == mesa_id, NpcTabela.revelado.is_(True))
             .order_by(NpcTabela.nome))
-    return VistaDosJogadores(combate=combate, npcs=[NpcConhecido(id=n.id, nome=n.nome, foto=n.foto, descricao=n.descricao)
-                                          for n in npcs])
+    lojas = (a.banco.query(LojaTabela, SessaoTabela)
+             .join(SessaoTabela, LojaTabela.sessao_id == SessaoTabela.id)
+             .filter(LojaTabela.mesa_id == mesa_id, LojaTabela.visivel.is_(True),
+                     SessaoTabela.status == "em_andamento")
+             .order_by(LojaTabela.criado_em))
+    return VistaDosJogadores(
+        combate=combate,
+        npcs=[NpcConhecido(id=n.id, nome=n.nome, foto=n.foto, descricao=n.descricao) for n in npcs],
+        lojas=[LojaVisivel(id=loja.id, nome=loja.nome, mestre=sessao.responsavel.nome, itens=itens_saida(loja.itens))
+               for loja, sessao in lojas])

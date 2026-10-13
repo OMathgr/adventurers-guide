@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router'
 
 import {
-  useApagarMesa, useClasses, useCopiarParaMesa, useMudarPapel, useNivelDaMesa, useNovoCodigo,
+  useApagarMesa, useClasses, useCopiarParaMesa, useMoedasDaMesa, useMudarPapel, useNivelDaMesa, useNovoCodigo,
   usePermissoesMestres, usePersonagens, useRemoverMembro, useSairDaMesa, useVincularMesa,
 } from '../../api/consultas'
 import type { Mesa, Permissao, PermissoesMestres } from '../../api/tipos'
@@ -108,9 +108,10 @@ function Permissoes({ mesa }: { mesa: Mesa }) {
 
 function NivelDaMesa({ mesa }: { mesa: Mesa }) {
   const mudar = useNivelDaMesa(mesa.id)
+  const moedas = useMoedasDaMesa(mesa.id)
   const pode = mesa.minhas_permissoes.includes('nivel')
   return (
-    <Cartao titulo="Nível da mesa">
+    <Cartao titulo="Nível e regras da mesa">
       <p className="mb-3 text-sm text-texto-suave">
         Os personagens desta mesa sobem até o nível <b className="text-texto">{mesa.nivel_maximo}</b>.
         {pode && ' Baixar não desfaz níveis: quem já passou só não sobe até a mesa alcançar.'}
@@ -120,7 +121,15 @@ function NivelDaMesa({ mesa }: { mesa: Mesa }) {
           onChange={(e) => mudar.mutate(Number(e.target.value))}
           opcoes={Array.from({ length: 10 }, (_, i): [string, string] => [String(i + 1), `Nível ${i + 1}`])} />
       )}
-      <Aviso erro={mudar.error} />
+      <label className="mt-3 flex items-start gap-2 text-sm">
+        <input type="checkbox" className="mt-1" checked={mesa.usar_moedas} disabled={!pode || moedas.isPending}
+          onChange={(e) => moedas.mutate(e.target.checked)} />
+        <span>
+          Regra opcional das moedas
+          <span className="block text-xs text-texto-suave">10 moedas valem 1 punhado, para contar o ouro com mais detalhe.</span>
+        </span>
+      </label>
+      <Aviso erro={mudar.error ?? moedas.error} />
     </Cartao>
   )
 }

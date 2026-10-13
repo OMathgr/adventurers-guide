@@ -229,6 +229,7 @@ class Classe:
     evasao_inicial: int
     pv_iniciais: int
     nome_original: str = ""
+    itens: tuple[str, ...] = ()   # ids dos itens de classe ("escolha um" na criação)
 
 
 @dataclass(frozen=True)
@@ -311,6 +312,80 @@ class Comunidade:
     nome_original: str = ""
 
 
+class TipoDeItem(str, Enum):
+    SAQUE = "SAQUE"            # Loot: reutilizável
+    CONSUMIVEL = "CONSUMIVEL"  # Consumable: some ao usar; no máximo 5 de cada
+    COMUM = "COMUM"            # itens iniciais (tocha, corda, suprimentos)
+    CLASSE = "CLASSE"          # item de classe ("escolha um" do guia)
+
+
+@dataclass(frozen=True)
+class EfeitoConsumivel:
+    """O que um consumível faz na ficha, lido do texto do SRD.
+
+    Cada quantidade é um dado ("1d4+1"), um número ou "tudo". Com `escolha`,
+    só um entre PV e PF é limpo (Sweet Moss: "1d4 HP or 1d4 Stress").
+    """
+
+    limpa_pv: str | None = None
+    limpa_pf: str | None = None
+    ganha_esperanca: str | None = None
+    marca_pf: int = 0
+    escolha: bool = False
+
+    @property
+    def dado(self) -> str | None:
+        """O dado a rolar ao usar (no SRD, nunca mais de um por consumível)."""
+        return next((q for q in (self.limpa_pv, self.limpa_pf, self.ganha_esperanca)
+                     if q and re.fullmatch(r"\d+d\d+(?:\+\d+)?", q)), None)
+
+
+@dataclass(frozen=True)
+class Item:
+    id: str
+    nome: str
+    tipo: TipoDeItem
+    texto: str = ""
+    nome_original: str = ""
+    rolagem: int | None = None                 # número na tabela do SRD (d60)
+    efeito: EfeitoConsumivel | None = None     # só consumíveis com efeito simples
+    reliquia: Traco | str | None = None        # relíquia: atributo +1, ou "EXPERIENCIA"
+
+
+_QUANTIDADE = r"(\d+d\d+(?:\+\d+)?|\d+|a|all)"
+
+
+def _quantidade(texto: str) -> str:
+    return {"a": "1", "all": "tudo"}.get(texto.lower(), texto.lower())
+
+
+def _efeito_consumivel(texto: str) -> EfeitoConsumivel | None:
+    """Efeitos simples de PV, PF e Esperança. O resto é só texto (o jogador narra)."""
+    t = texto.strip()
+    if m := re.fullmatch(rf"Clear {_QUANTIDADE} (HP|Stress)\.", t):
+        q = _quantidade(m.group(1))
+        return EfeitoConsumivel(limpa_pv=q) if m.group(2) == "HP" else EfeitoConsumivel(limpa_pf=q)
+    if m := re.search(rf"immediately gain {_QUANTIDADE} Hope", t):
+        return EfeitoConsumivel(ganha_esperanca=_quantidade(m.group(1)))
+    if re.fullmatch(r"Mark a Stress and clear a HP\.", t):
+        return EfeitoConsumivel(marca_pf=1, limpa_pv="1")
+    if m := re.search(rf"clear {_QUANTIDADE} HP or {_QUANTIDADE} Stress", t):
+        return EfeitoConsumivel(limpa_pv=_quantidade(m.group(1)), limpa_pf=_quantidade(m.group(2)), escolha=True)
+    if m := re.search(rf"clear all HP and Stress and gain {_QUANTIDADE} Hope", t):
+        return EfeitoConsumivel(limpa_pv="tudo", limpa_pf="tudo", ganha_esperanca=_quantidade(m.group(1)))
+    if re.search(r"You clear all Stress upon waking", t):
+        return EfeitoConsumivel(limpa_pf="tudo")
+    return None
+
+
+def _reliquia(texto: str) -> Traco | str | None:
+    if "You can only carry one relic" not in texto:
+        return None
+    if m := re.search(r"\+1 bonus to your (\w+)\.", texto):
+        return Traco(m.group(1).upper())
+    return "EXPERIENCIA" if "an Experience of your choice" in texto else None
+
+
 class Biblioteca:
     """Todo o conteúdo do SRD, indexado por id.
 
@@ -332,9 +407,26 @@ class Biblioteca:
                 dominios=tuple(c["domains"]),
                 evasao_inicial=c["startingEvasion"],
                 pv_iniciais=c["startingHitPoints"],
+                itens=tuple(f"{c['id']}_item_{n}" for n in range(1, len(c.get("classItems", [])) + 1)),
             )
             for c in self._ler(srd / "classes.json")
         }
+        self.itens: dict[str, Item] = {}
+        for c in self._ler(srd / "classes.json"):
+            for n, item in enumerate(c.get("classItems", []), 1):
+                nome = _texto(item)
+                self.itens[f"{c['id']}_item_{n}"] = Item(f"{c['id']}_item_{n}", nome, TipoDeItem.CLASSE,
+                                                         nome_original=nome)
+        self.itens_iniciais = self._ler(pasta / "itens_iniciais.json")
+        for item in self.itens_iniciais["itens"]:
+            self.itens[item["id"]] = Item(item["id"], item["name"], TipoDeItem.COMUM, nome_original=item["name"])
+        for arquivo, tipo in (("loot.json", TipoDeItem.SAQUE), ("consumables.json", TipoDeItem.CONSUMIVEL)):
+            for item in self._ler(srd / arquivo):
+                self.itens[item["id"]] = Item(
+                    id=item["id"], nome=item["name"], tipo=tipo, texto=item["description"],
+                    nome_original=item["name"], rolagem=item["roll"],
+                    efeito=_efeito_consumivel(item["description"]) if tipo is TipoDeItem.CONSUMIVEL else None,
+                    reliquia=_reliquia(item["description"]))
         self.subclasses = {
             s["id"]: Subclasse(
                 id=s["id"],
@@ -412,6 +504,7 @@ class Biblioteca:
 
     def _traduzir(self, pasta: Path):
         herancas = self._ler(pasta / "herancas.json")
+        itens = self._ler(pasta / "itens.json")
         carac = self._ler(pasta / "caracteristicas.json")
         equip = self._ler(pasta / "equipamento.json")
         cartas: dict = {}
@@ -475,6 +568,19 @@ class Biblioteca:
             i: dataclasses.replace(a, nome=nome_equipamento(equip["armaduras"], "core_armor_", i, a.nome),
                                    caracteristicas=tuple(traduzir_carac(c) for c in a.caracteristicas))
             for i, a in self.armaduras.items()}
+
+        def item(i: str, it: Item) -> Item:
+            if it.tipo is TipoDeItem.CLASSE:   # traduzidos pelo texto (o id é nosso, não do SRD)
+                return dataclasses.replace(it, nome=nome_de(itens["itens_de_classe"], it.nome_original, it.nome))
+            if it.tipo is TipoDeItem.COMUM:
+                return dataclasses.replace(it, nome=nome_de(itens["iniciais"], i, it.nome))
+            novo = itens["saque" if it.tipo is TipoDeItem.SAQUE else "consumiveis"].get(i)
+            if novo is None:
+                faltando.append(i)
+                return it
+            return dataclasses.replace(it, nome=novo["nome"], texto=novo["texto"])
+
+        self.itens = {i: item(i, it) for i, it in self.itens.items()}
 
         adversarios: dict = {}
         for arquivo in sorted((pasta / "adversarios").glob("*.json")):

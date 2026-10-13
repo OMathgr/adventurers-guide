@@ -1,7 +1,9 @@
 // O que o mestre revelou aos jogadores: inimigos em combate (nome, foto,
 // estado de vitalidade e condições; nunca os PV nem os números da ficha) e
-// NPCs conhecidos (nome, foto e descrição).
+// NPCs conhecidos (nome, foto e descrição) e lojas à mostra (itens, preços e
+// estoque; quem vende é o mestre).
 import { useRevelado } from '../api/consultas'
+import { formatarOuro } from '../lib/ouro'
 import { condicao, NOME_VITALIDADE } from '../lib/rotulos'
 import { Foto } from './Foto'
 import TextoRico from './TextoRico'
@@ -31,7 +33,7 @@ export default function VistaDosJogadores({ mesaId }: { mesaId: string }) {
   const revelado = useRevelado(mesaId)
   if (revelado.isError) return <Aviso erro={revelado.error} />
   const v = revelado.data
-  if (!v || (v.combate.length === 0 && v.npcs.length === 0)) return null
+  if (!v || (v.combate.length === 0 && v.npcs.length === 0 && (v.lojas ?? []).length === 0)) return null
 
   return (
     <>
@@ -55,6 +57,26 @@ export default function VistaDosJogadores({ mesaId }: { mesaId: string }) {
                     </p>
                   )}
                 </div>
+              </li>
+            ))}
+          </ul>
+        </Cartao>
+      ))}
+      {(v.lojas ?? []).map((l) => (
+        <Cartao key={l.id} titulo={`Loja: ${l.nome}`} className="lg:col-span-2">
+          <p className="mb-3 text-xs text-texto-suave">Sessão de {l.mestre}. Para comprar, fale com o mestre.</p>
+          {l.itens.length === 0 && <p className="text-sm text-texto-suave">Nada à venda.</p>}
+          <ul className="grid gap-2 sm:grid-cols-2">
+            {l.itens.map((i) => (
+              <li key={i.id} className={`rounded-xl border border-borda bg-fundo/60 p-3 text-sm ${i.estoque === 0 ? 'opacity-50' : ''}`}>
+                <p className="flex items-center justify-between gap-2">
+                  <span className="font-medium">{i.nome}</span>
+                  <span className="text-esperanca">{i.preco.total === 0 && !i.preco.moedas ? 'de graça' : formatarOuro(i.preco.total, i.preco.moedas ?? 0)}</span>
+                </p>
+                {i.texto && <p className="mt-1 text-xs text-texto-suave">{i.texto}</p>}
+                {i.estoque !== null && i.estoque !== undefined && (
+                  <p className="mt-1 text-xs text-texto-suave">{i.estoque === 0 ? 'Esgotado' : `${i.estoque} em estoque`}</p>
+                )}
               </li>
             ))}
           </ul>

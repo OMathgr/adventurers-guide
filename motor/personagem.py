@@ -13,18 +13,32 @@ Isso dá de graça:
 
 import copy
 import dataclasses
+import re
 from dataclasses import dataclass, field
 from enum import Enum
 
 from .companheiro import (Companheiro, FichaCompanheiro, OpcaoTreino, Treino,
                           aplicar_treino, criar_companheiro, nova_experiencia)
 from .erros import RegraViolada
+from .inventario import Inventario, inventario_inicial
 from .numeros import metade
 from .sessao import Sessao
 from .srd import (Alvo, Arma, Armadura, Biblioteca, Caracteristica, CartaDeDominio, Efeito,
-                  Modificador, Referencia, Subclasse, TipoDano, Traco)
+                  Modificador, Referencia, Subclasse, TipoDano, TipoDeItem, Traco)
 
 DISTRIBUICAO_TRACOS = sorted([2, 1, 1, 0, 0, -1])
+
+
+def _rolar(dado: str, rolagem: int | None, rng) -> int:
+    """Resolve "1d4+1". `rolagem` é a soma dos dados que a pessoa rolou na mesa
+    (sem o +1); sem ela, o motor rola."""
+    m = re.fullmatch(r"(\d+)d(\d+)(?:\+(\d+))?", dado)
+    n, faces, bonus = int(m.group(1)), int(m.group(2)), int(m.group(3) or 0)
+    if rolagem is None:
+        rolagem = sum(rng.randint(1, faces) for _ in range(n))
+    elif not n <= rolagem <= n * faces:
+        raise RegraViolada(f"Resultado impossível para {n}d{faces}: {rolagem}.")
+    return rolagem + bonus
 ESTAGIOS_SUBCLASSE = ["fundacao", "especializacao", "maestria"]
 
 
@@ -72,6 +86,10 @@ class Criacao:
     segunda_ancestralidade: str | None = None
     experiencia_proposito: str | None = None   # Purposeful Design (Clank): qual Experiência ganha +1
     companheiro: Companheiro | None = None     # obrigatório para o Beastbound
+    # Passo 5 (itens iniciais): a poção escolhida e um dos itens da classe.
+    # Sem eles (personagens antigos), o inventário começa vazio.
+    pocao_inicial: str | None = None
+    item_de_classe: str | None = None
 
 
 @dataclass
@@ -215,7 +233,15 @@ class Personagem:
         # Níveis planejados (ainda não aplicados), em ordem a partir do próximo.
         # Vêm de uma cópia para uma mesa de nível menor.
         self.plano: list[SubidaDeNivel] = []
+        # Ouro, itens e armas guardadas (estado atual; motor/inventario.py)
+        self.inventario = Inventario()
+        # Regra opcional das moedas definida pela mesa (None: sem mesa, vale a
+        # escolha do próprio inventário). Como o nível limite, quem carrega define.
+        self.moedas_da_mesa: bool | None = None
         self._ficha_inicial = self._criar(criacao)
+        if criacao.pocao_inicial or criacao.item_de_classe:
+            self.inventario = inventario_inicial(biblioteca, criacao.classe, criacao.pocao_inicial or "",
+                                                 criacao.item_de_classe or "")
         self.sessao = Sessao(self, esperanca=self._ficha_inicial.esperanca)
 
     # --- API pública -------------------------------------------------------
@@ -294,8 +320,8 @@ class Personagem:
 
     def copia(self, nivel_maximo: int | None = None) -> "Personagem":
         """Cópia para outra mesa: mesma criação e histórico até `nivel_maximo`;
-        os níveis acima (e o plano que já existia) viram plano. Equipamento e
-        reserva vão junto quando ainda valem; marcas de sessão começam zeradas."""
+        os níveis acima (e o plano que já existia) viram plano. Equipamento,
+        reserva e inventário vão junto quando ainda valem; marcas de sessão começam zeradas."""
         nova = Personagem(self.bib, self.criacao)
         corte = nivel_maximo if nivel_maximo is not None else len(self.historico) + 1
         for s in self.historico:
@@ -308,6 +334,7 @@ class Personagem:
             pass   # ex.: arma mágica sem a multiclasse que ficou no plano: vai sem equipamento
         nova.cofre = [c for c in self.cofre if c in nova._ficha_base().cartas]
         nova._ajustar_cofre()
+        nova.inventario = copy.deepcopy(self.inventario)
         nova.nivel_limite = nivel_maximo
         return nova
 
@@ -345,15 +372,108 @@ class Personagem:
             "equipamento": dataclasses.asdict(self.equipamento),
             "cofre": list(self.cofre),
             "sessao": self.sessao.estado(),
+            "inventario": self.inventario.estado(),
         }
 
     def restaurar_estado(self, estado: dict):
         """Inverso de estado(). O equipamento passa por equipar(), então
         continua valendo a validação (ex.: arma mágica, Pompous)."""
+        self.inventario = Inventario.de_estado(estado.get("inventario"))
         self.equipar(**estado["equipamento"])
         self.cofre = list(estado["cofre"])
         self._ajustar_cofre()
         self.sessao.restaurar(estado["sessao"])
+
+    # --- inventário ----------------------------------------------------------------
+
+    @property
+    def usa_moedas(self) -> bool:
+        return self.moedas_da_mesa if self.moedas_da_mesa is not None else self.inventario.usar_moedas
+
+    def usar_consumivel(self, item_id: str, rolagem: int | None = None,
+                        escolha: str | None = None) -> list[str]:
+        """Usa 1 consumível. Os de efeito simples (PV, PF, Esperança) já mexem
+        na ficha: `rolagem` é o resultado do dado (sem ela, o motor rola) e
+        `escolha` ("PV" ou "PF") decide quando o item dá uma ou outra.
+        Devolve o que aconteceu, para mostrar na tela. Erro não muda nada."""
+        item = self.bib.itens.get(item_id)
+        if item is None or item.tipo is not TipoDeItem.CONSUMIVEL:
+            raise RegraViolada("Isso não é um consumível.")
+        if self.inventario.itens.get(item_id, 0) < 1:
+            raise RegraViolada(f"Você não tem {item.nome}.")
+        ef, s = item.efeito, self.sessao
+        notas = [f"Usou {item.nome}."]
+        if ef is None:
+            self.inventario.remover(self.bib, item_id)
+            return notas
+        pv, pf = ef.limpa_pv, ef.limpa_pf
+        if ef.escolha:
+            if escolha not in ("PV", "PF"):
+                raise RegraViolada(f"{item.nome}: escolha limpar PV ou PF.")
+            pv, pf = (pv, None) if escolha == "PV" else (None, pf)
+        dado = dataclasses.replace(ef, limpa_pv=pv, limpa_pf=pf).dado   # só o lado escolhido
+        valor_dado = _rolar(dado, rolagem, s.rng) if dado else None
+        if ef.marca_pf and s.estresse_livre < ef.marca_pf:
+            raise RegraViolada(f"Fadiga insuficiente: {item.nome} custa {ef.marca_pf} PF.")
+
+        def quanto(q: str, maximo: int) -> int:
+            if q == "tudo":
+                return maximo
+            return valor_dado if q == dado else int(q)
+
+        if ef.marca_pf:
+            s.pagar_estresse(ef.marca_pf)
+            notas.append(f"Marcou {ef.marca_pf} PF.")
+        if pv:
+            n = min(quanto(pv, s.pv_marcados), s.pv_marcados)
+            s.limpar_pv(n)
+            notas.append(f"Limpou {n} PV.")
+        if pf:
+            n = min(quanto(pf, s.estresse_marcado), s.estresse_marcado)
+            s.limpar_estresse(n)
+            notas.append(f"Limpou {n} PF.")
+        if ef.ganha_esperanca:
+            antes = s.esperanca
+            s.ganhar_esperanca(quanto(ef.ganha_esperanca, 0))
+            notas.append(f"Ganhou {s.esperanca - antes} de Esperança.")
+        if valor_dado is not None:
+            notas.insert(1, f"Rolagem: {dado} = {valor_dado}.")
+        self.inventario.remover(self.bib, item_id)
+        return notas
+
+    def trocar_arma(self, indice: int, em_perigo: bool) -> Ficha:
+        """Troca a arma de inventário `indice` pela arma ativa do mesmo tipo
+        (principal ou secundária). SRD: só entre armas da mesma empunhadura;
+        grátis num descanso ou momento de calma, senão marca 1 PF."""
+        inv = self.inventario
+        if not 0 <= indice < len(inv.armas):
+            raise RegraViolada("Não há arma nessa posição do inventário.")
+        guardada = self.bib.armas[inv.armas[indice]]
+        eq = self.equipamento
+        lugar = "principal" if guardada.primaria else "secundaria"
+        ativa_id = getattr(eq, lugar)
+        if ativa_id and self.bib.armas[ativa_id].duas_maos != guardada.duas_maos:
+            raise RegraViolada("Só dá para trocar por uma arma ativa da mesma empunhadura "
+                               "(uma mão por uma mão, duas mãos por duas mãos).")
+        if em_perigo and self.sessao.estresse_livre < 1:
+            raise RegraViolada("Fadiga insuficiente: trocar de arma em perigo custa 1 PF.")
+        novo = dataclasses.replace(eq, **{lugar: guardada.id})
+        self.equipar(**dataclasses.asdict(novo))   # valida (arma mágica, duas mãos...)
+        if ativa_id:
+            inv.armas[indice] = ativa_id
+        else:
+            del inv.armas[indice]
+        if em_perigo:
+            self.sessao.pagar_estresse(1)
+        return self.ficha()
+
+    def vestir_armadura_nova(self, armadura_id: str) -> Ficha:
+        """Armadura comprada: vai direto para o corpo (o SRD não deixa carregar
+        armadura no inventário) e a antiga fica para trás. Começa sem marcas."""
+        eq = dataclasses.replace(self.equipamento, armadura=armadura_id)
+        self.equipar(**dataclasses.asdict(eq))
+        self.sessao.armadura_marcada = 0
+        return self.ficha()
 
     def desfazer_ultimo_nivel(self) -> None:
         if not self.historico:
@@ -931,6 +1051,7 @@ class Personagem:
         """
         armas = [self.bib.armas[a] for a in (eq.principal, eq.secundaria) if a]
         armadura = self.bib.armaduras[eq.armadura] if eq.armadura else None
+        self._aplicar_reliquia(f)
 
         if armadura:
             f.limiar_maior = armadura.limiar_maior + f.nivel
@@ -957,6 +1078,16 @@ class Personagem:
                                     f.tracos[sub.traco_conjuracao] + bonus_conjuracao)
                          for sub in self._subclasses(f) if sub.traco_conjuracao]
         return f
+
+    def _aplicar_reliquia(self, f: Ficha):
+        """Relíquia carregada: +1 num atributo, ou numa Experiência escolhida (Honing Relic)."""
+        reliquia = self.inventario.reliquia(self.bib)
+        if reliquia is None:
+            return
+        if isinstance(reliquia.reliquia, Traco):
+            f.tracos[reliquia.reliquia] += 1
+        elif (exp := self.inventario.experiencia_da_reliquia) in f.experiencias:
+            f.experiencias[exp] += 1
 
     @staticmethod
     def _modificar(f: Ficha, m: Modificador):

@@ -86,6 +86,7 @@ export const NOME_PERMISSAO: Record<Permissao, string> = {
   aplicar_condicoes: 'Aplicar e remover condições',
   preparar: 'Criar e editar inimigos, NPCs e encontros',
   nivel: 'Definir o nível da mesa',
+  dar_itens: 'Dar itens e ouro (e vender nas lojas)',
 }
 
 export const TIPOS_ADVERSARIO: TipoAdversario[] = [

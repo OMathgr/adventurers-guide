@@ -6,8 +6,8 @@ from .personagem import (Ataque, Conjuracao, Criacao, Equipamento, Escolha, Fich
                          Personagem, ProximoNivel, RegraViolada, SubidaDeNivel)
 from .sessao import Condicao, Gravidade, Movimento, ResultadoDano, ResultadoMovimento, Sessao
 from .srd import (Alvo, Ancestralidade, Arma, Armadura, Biblioteca, Caracteristica,
-                  CartaDeDominio, Classe, Comunidade, Efeito, Modificador, Referencia,
-                  Requisito, Subclasse, TipoDano, Traco)
+                  CartaDeDominio, Classe, Comunidade, Efeito, EfeitoConsumivel, Item, Modificador,
+                  Referencia, Requisito, Subclasse, TipoDano, TipoDeItem, Traco)
 
 __all__ = ["Biblioteca", "Traco", "Arma", "Armadura", "Caracteristica",
            "Modificador", "Alvo", "Referencia", "Requisito", "Criacao", "Escolha",
@@ -15,4 +15,5 @@ __all__ = ["Biblioteca", "Traco", "Arma", "Armadura", "Caracteristica",
            "RegraViolada", "SubidaDeNivel", "Sessao", "Gravidade", "Movimento",
            "ResultadoDano", "ResultadoMovimento", "Efeito", "TipoDano",
            "Companheiro", "FichaCompanheiro", "OpcaoTreino", "Treino", "AlvoFeroz",
-           "ProximoNivel", "Adversario", "Habilidade", "TipoAdversario", "TipoHabilidade", "Condicao", "Classe", "Subclasse", "Ancestralidade", "Comunidade", "CartaDeDominio"]
+           "ProximoNivel", "Adversario", "Habilidade", "TipoAdversario", "TipoHabilidade", "Condicao", "Classe", "Subclasse", "Ancestralidade", "Comunidade", "CartaDeDominio",
+           "Item", "TipoDeItem", "EfeitoConsumivel"]

@@ -42,6 +42,8 @@ class MesaTabela(Base):
     # nível máximo dos personagens da mesa: mesa nova começa no 1; as que já
     # existiam ficaram no 10 (a migração não trava ninguém)
     nivel_maximo: Mapped[int] = mapped_column(Integer, default=1, server_default="10")
+    # regra opcional do SRD: 10 moedas = 1 punhado
+    usar_moedas: Mapped[bool] = mapped_column(Boolean, default=False, server_default=false())
     criado_em: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_agora)
 
     membros: Mapped[list["MembroTabela"]] = relationship(
@@ -142,6 +144,22 @@ class EncontroTabela(Base):
     atualizado_em: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_agora, onupdate=_agora)
 
 
+class LojaTabela(Base):
+    """Loja de uma sessão: itens à venda (motor.loja.ItemDaLoja) com preço e
+    estoque. Os jogadores veem quando o responsável mostra, com a sessão em andamento."""
+
+    __tablename__ = "lojas"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    mesa_id: Mapped[str] = mapped_column(ForeignKey("mesas.id", ondelete="CASCADE"), index=True)
+    sessao_id: Mapped[str] = mapped_column(ForeignKey("sessoes.id", ondelete="CASCADE"), index=True)
+    nome: Mapped[str] = mapped_column(String(120))
+    itens: Mapped[list] = mapped_column(JSON, default=list)
+    visivel: Mapped[bool] = mapped_column(Boolean, default=False, server_default=false())
+    criado_em: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_agora)
+    atualizado_em: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_agora, onupdate=_agora)
+
+
 class PersonagemTabela(Base):
     __tablename__ = "personagens"
 
@@ -155,6 +173,7 @@ class PersonagemTabela(Base):
     equipamento: Mapped[dict] = mapped_column(JSON)      # motor.Equipamento
     cofre: Mapped[list] = mapped_column(JSON)            # ids das cartas no cofre
     sessao: Mapped[dict] = mapped_column(JSON)           # marcas atuais (motor.Sessao)
+    inventario: Mapped[dict] = mapped_column(JSON, default=dict, server_default="{}")   # motor.Inventario
     # níveis planejados (motor.SubidaDeNivel), vindos de uma cópia para mesa de nível menor
     plano: Mapped[list] = mapped_column(JSON, default=list, server_default="[]")
     foto: Mapped[str | None] = mapped_column(String(36), nullable=True)   # id em `imagens`

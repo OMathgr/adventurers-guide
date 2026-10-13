@@ -3,8 +3,8 @@ as listas de escolha."""
 
 from fastapi import APIRouter, HTTPException
 
-from motor import (Adversario, Ancestralidade, Arma, Armadura, CartaDeDominio, Classe, Comunidade,
-                   Subclasse, TipoAdversario)
+from motor import (Adversario, Ancestralidade, Arma, Armadura, CartaDeDominio, Classe, Comunidade, Item,
+                   Subclasse, TipoAdversario, TipoDeItem)
 
 from ..repositorio import biblioteca
 
@@ -37,6 +37,14 @@ def comunidades():
 @rotas.get("/armas", response_model=list[Arma])
 def armas(tier: int | None = None):
     return [a for a in biblioteca().armas.values() if tier is None or a.tier == tier]
+
+
+@rotas.get("/itens", response_model=list[Item])
+def itens(tipo: TipoDeItem | None = None):
+    """Saque, consumíveis, itens iniciais e de classe (em ordem de tipo e da tabela d60)."""
+    ordem = list(TipoDeItem)
+    lista = [i for i in biblioteca().itens.values() if tipo is None or i.tipo is tipo]
+    return sorted(lista, key=lambda i: (ordem.index(i.tipo), i.rolagem or 0, i.nome))
 
 
 @rotas.get("/armaduras", response_model=list[Armadura])

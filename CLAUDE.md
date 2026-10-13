@@ -19,7 +19,10 @@ planejamento e encontros com Guia de Batalha), revelar aos jogadores
 (vitalidade e condições dos inimigos, NPCs conhecidos) e quadros de mapa
 mental (um por sessão; o revelado vai para o quadro da campanha) e ao vivo
 (avisos por SSE sem dados, presença online) prontos). App mobile como PWA
-(instalável, todas as telas em 360 px) pronto. Leia `docs/ARQUITETURA.md` antes de mudar a modelagem. O
+(instalável, todas as telas em 360 px) pronto. Inventário (ouro, saque e
+consumíveis do SRD, relíquias, armas guardadas, itens iniciais) e lojas da
+sessão (o mestre vende, cobrando o ouro), com a regra opcional das moedas
+por mesa, prontos. Leia `docs/ARQUITETURA.md` antes de mudar a modelagem. O
 personagem é guardado como criação + histórico de subidas de nível; a ficha
 é sempre recalculada.
 

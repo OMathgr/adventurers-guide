@@ -1,12 +1,14 @@
 // Personagens da mesa durante a sessão, do ponto de vista do mestre: lê a
 // ficha (ver_fichas), aplica dano (aplicar_dano) e condições
-// (aplicar_condicoes). O resto do personagem continua sendo do jogador.
+// (aplicar_condicoes) e dá itens e ouro (dar_itens). O resto do personagem
+// continua sendo do jogador.
 import { useState } from 'react'
 
 import { useAcaoNoPersonagem, useFichaNaMesa } from '../../api/consultas'
 import type { Mesa, ResultadoDano } from '../../api/tipos'
 import Condicoes from '../../componentes/Condicoes'
 import { Foto } from '../../componentes/Foto'
+import InventarioNaMesa from '../../componentes/inventario/InventarioNaMesa'
 import { Aviso, Botao, Campo, Carregando, Espacos, Esperanca } from '../../componentes/ui'
 import { NOME_GRAVIDADE } from '../../lib/rotulos'
 
@@ -66,6 +68,7 @@ function CartaoPersonagem({ mesa, pid, nome, jogador, foto }:
         aoAplicar={pode('aplicar_condicoes') ? (condicao) => acao.mutate({ tipo: 'condicao', condicao }) : undefined}
         aoTirar={pode('aplicar_condicoes') ? (condicao) => acao.mutate({ tipo: 'tirar_condicao', condicao }) : undefined} />
       <Aviso erro={acao.error} />
+      <InventarioNaMesa mesaId={mesa.id} pid={pid} nome={nome} podeDar={pode('dar_itens')} />
     </article>
   )
 }

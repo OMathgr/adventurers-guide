@@ -103,6 +103,7 @@ docs/ARQUITETURA.md
 4. ~~Workspace da mesa (mapa mental por sessão + quadro da campanha com o revelado)~~
 5. ~~Colaboração em tempo real (avisos ao vivo e quem está online)~~
 6. ~~App mobile (PWA: instalável pelo navegador, todas as telas no celular)~~
+7. ~~Inventário (ouro, saque, consumíveis, armas guardadas) e lojas da sessão~~
 
 ## Licença do conteúdo
 

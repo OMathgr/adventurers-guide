@@ -62,6 +62,55 @@ equipamento de hoje.
 No banco, o equipamento vira colunas (ou tabela) do `personagem`, não de
 `subida_de_nivel`.
 
+## Inventário (`motor/inventario.py`, estado atual)
+
+Decisões do projeto (2026-10-13): consumíveis de efeito simples já aplicam na
+ficha; o mestre com a permissão `dar_itens` dá e tira ouro e itens; entram as
+armas de inventário; os itens iniciais são um passo da criação; cada sessão
+tem lojas (várias, com nome) que o mestre monta e vende.
+
+- **Catálogo**: `data/srd/loot.json` e `consumables.json` (60 + 60, extraídos
+  do texto do SRD, com o número da tabela d60), `data/itens_iniciais.json`
+  (tocha, corda, suprimentos, poções do passo 5, 1 punhado) e os itens de
+  classe do `classes.json` (`<classe>_item_<n>`). Tudo em `Biblioteca.itens`
+  (`TipoDeItem`: SAQUE, CONSUMIVEL, COMUM, CLASSE).
+- **Ouro** guardado em punhados (`em_punhados`/`decompor`): 10 punhados = 1
+  bolsa, 10 bolsas = 1 baú, no máximo 1 baú (199 punhados). Gastar troca uma
+  bolsa por punhados quando precisa (o SRD não diz; é o natural).
+- **Moedas** (regra opcional do SRD, 10 moedas = 1 punhado): ligada por mesa
+  (`mesas.usar_moedas`, quem tem a permissão `nivel` decide) ou, sem mesa,
+  pelo próprio personagem (`Inventario.usar_moedas`). Ficam em
+  `Inventario.moedas` (0 a 9); as contas de ouro são feitas em moedas. Sem a
+  regra, mandar moedas dá erro; desligar não apaga as moedas, só as esconde.
+  Preço de loja pode ter moedas (0 a 9) quando a mesa usa a regra.
+- **Consumível**: no máximo 5 de cada; usar gasta 1. `EfeitoConsumivel` é lido
+  do texto em inglês (como as características): "Clear 1d4+1 HP", "gain 2
+  Hope", "Mark a Stress and clear a HP" (o PF é custo: precisa de espaço),
+  "clear 1d4 HP or 1d4 Stress" (escolha), "clear all...". São 11; os outros
+  só mostram o texto. A rolagem é a soma dos dados que a pessoa rolou (sem o
+  bônus); sem ela, o motor rola.
+- **Relíquia**: só uma; +1 no atributo (aplicado em `_vestir`, então vale nos
+  ataques e requisitos), ou +1 numa Experiência escolhida (Honing Relic).
+  Gemas, pedras e o resto do saque ficam como texto.
+- **Armas de inventário**: até 2. `trocar_arma` só troca por arma ativa da
+  mesma empunhadura; grátis na calma, 1 PF (custo) em perigo; mão vazia só
+  equipa. Armadura não vai para o inventário (SRD).
+- **Itens livres** (`ItemLivre`): nome e descrição criados na mesa.
+- **Criação**: `Criacao.pocao_inicial` e `item_de_classe` montam o
+  inventário inicial; sem eles (personagens antigos) começa vazio.
+- **Loja** (`motor/loja.py`): `ItemDaLoja` (ITEM, ARMA, ARMADURA ou LIVRE;
+  preço em punhados; estoque opcional). `vender` cobra, entrega (arma vai para
+  as armas guardadas; armadura é vestida na hora, sem marcas, e a antiga fica
+  para trás) e baixa o estoque. Se algo for recusado, a API não salva nada.
+- `Inventario.de_estado` faz cópia profunda: o estado vem do JSON do banco, e
+  mexer nele por baixo fazia o SQLAlchemy achar que nada mudou.
+- API: `/personagens/{id}/inventario/...` (dono; usar e trocar arma são só
+  dele), `/mesas/{m}/personagens/{p}/inventario/...` (mestre: ver com
+  `ver_fichas`, dar e tirar com `dar_itens`), `/mesas/{m}/sessoes/{s}/lojas`
+  (só o responsável monta; vender exige também `dar_itens`). Lojas à mostra
+  de sessões em andamento vão para `/revelado` (com preço e estoque). Coluna
+  `personagens.inventario` e tabela `lojas`.
+
 ### Características de armas e armaduras
 
 O SRD só traz texto. A `Biblioteca` extrai os **bônus fixos** dele
@@ -652,6 +701,9 @@ A API usa pt-BR; o motor e os testes dele usam o inglês.
   `improved_/advanced_/legendary_` são compostos (Espada Larga + Aprimorada).
 - `cartas/<DOMINIO>.json`: nome e texto de cada carta (grimórios com o nome
   de cada magia; listas com "•").
+- `itens.json`: saque e consumíveis (nomes do livro básico brasileiro,
+  descrições traduzidas por nós do SRD), itens iniciais e itens de classe
+  (pelo texto em inglês).
 - `adversarios/lote*.json`: por id do adversário, nome, arma, descrição,
   motivações, experiências (inglês → português) e características **na mesma
   ordem e quantidade** do SRD (senão o id conta como faltando).
@@ -707,5 +759,4 @@ brasileiro (pp. 14-16; conferido em 2026-10-13, travado em `test_traducao.py`):
     below"). A ficha diz "any from the previous tier".
 - Existe um SRD 2.0 (agosto/2026) com classes novas. Os JSON atuais são do 1.0.
   Como o motor só fala com a `Biblioteca`, a troca fica isolada em `srd.py`.
-- Inventário (itens, ouro, consumíveis) ainda não existe.
 - Desfazer o nível da multiclasse não revalida uma arma mágica já equipada.

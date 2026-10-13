@@ -7,7 +7,7 @@ import type {
   Adversario, Ancestralidade, Arma, Armadura, Cartao, CartaDeDominio, Equipamento, Ligacao, QuadroDaSessao, QuadroSaida, Classe, Comunidade, Criacao, Encontro, Escolha,
   EventoLinhaDoTempo, Ficha, GuiaDeBatalha, InimigoResumo, Mesa, MesaResumo, Npc, NpcEntrada, OpcoesDoGuia, PermissoesMestres, DadosDaSessao, Sessao, SessaoResumo,
   PersonagemCriado, PersonagemResumo, ProximoNivel, ResultadoDano, ResultadoDanoAdversario, Subclasse, VistaDosJogadores,
-  SubidaDeNivel,
+  SubidaDeNivel, Item, Inventario, UsoDeConsumivel, Loja, ItemDaLojaEntrada, Venda,
 } from './tipos'
 
 const UMA_HORA = 60 * 60 * 1000
@@ -269,6 +269,10 @@ export const useMudarPapel = (id: string) =>
 
 export const useRemoverMembro = (id: string) =>
   useMutacaoMesa((usuarioId: string) => chamar<Mesa>(`/mesas/${id}/membros/${usuarioId}`, { metodo: 'DELETE' }))
+
+/** Regra opcional das moedas (10 moedas = 1 punhado). */
+export const useMoedasDaMesa = (id: string) =>
+  useMutacaoMesa((usar_moedas: boolean) => chamar<Mesa>(`/mesas/${id}/moedas`, { metodo: 'PUT', corpo: { usar_moedas } }))
 
 export const useNivelDaMesa = (id: string) =>
   useMutacaoMesa((nivel_maximo: number) => chamar<Mesa>(`/mesas/${id}/nivel`, { metodo: 'PUT', corpo: { nivel_maximo } }))
@@ -577,3 +581,127 @@ export function useAcaoNoPersonagem(mesaId: string, pid: string) {
 
 export const useApagarNpc = (mesaId: string) =>
   useMutacaoNpc(mesaId, (npcId: string) => chamar<void>(`/mesas/${mesaId}/npcs/${npcId}`, { metodo: 'DELETE' }))
+
+// --- Inventário --------------------------------------------------------------------------------
+
+export const useItensSrd = () =>
+  useQuery({ queryKey: ['srd', 'itens'], queryFn: () => chamar<Item[]>('/srd/itens'), staleTime: UMA_HORA })
+
+const chaveInventario = (id: string) => ['personagens', id, 'inventario'] as const
+const chaveInventarioNaMesa = (mesaId: string, pid: string) => ['mesas', mesaId, 'personagens', pid, 'inventario'] as const
+
+export const useInventario = (id: string) =>
+  useQuery({ queryKey: chaveInventario(id), queryFn: () => chamar<Inventario>(`/personagens/${id}/inventario`) })
+
+/** Ações que mudam o inventário (do dono ou do mestre com "dar_itens"). */
+export type AcaoNoInventario =
+  | { tipo: 'ouro'; punhados: number; moedas: number }
+  | { tipo: 'usar_moedas'; usar: boolean }
+  | { tipo: 'item'; item_id: string; quantidade: number }
+  | { tipo: 'tirar_item'; item_id: string; quantidade: number }
+  | { tipo: 'livre'; nome: string; descricao: string; quantidade: number }
+  | { tipo: 'tirar_livre'; id: string; quantidade: number }
+  | { tipo: 'arma'; arma_id: string }
+  | { tipo: 'tirar_arma'; indice: number }
+  | { tipo: 'reliquia'; experiencia: string | null }
+
+function chamarInventario(base: string, a: AcaoNoInventario) {
+  switch (a.tipo) {
+    case 'ouro': return chamar<Inventario>(`${base}/ouro`, { corpo: { punhados: a.punhados, moedas: a.moedas } })
+    case 'usar_moedas': return chamar<Inventario>(`${base}/moedas`, { metodo: 'PUT', corpo: { usar: a.usar } })
+    case 'item': return chamar<Inventario>(`${base}/itens`, { corpo: { item_id: a.item_id, quantidade: a.quantidade } })
+    case 'tirar_item': return chamar<Inventario>(`${base}/itens/${a.item_id}?quantidade=${a.quantidade}`, { metodo: 'DELETE' })
+    case 'livre': return chamar<Inventario>(`${base}/livres`,
+      { corpo: { nome: a.nome, descricao: a.descricao, quantidade: a.quantidade } })
+    case 'tirar_livre': return chamar<Inventario>(`${base}/livres/${a.id}?quantidade=${a.quantidade}`, { metodo: 'DELETE' })
+    case 'arma': return chamar<Inventario>(`${base}/armas`, { corpo: { arma_id: a.arma_id } })
+    case 'tirar_arma': return chamar<Inventario>(`${base}/armas/${a.indice}`, { metodo: 'DELETE' })
+    case 'reliquia': return chamar<Inventario>(`${base}/reliquia`, { metodo: 'PUT', corpo: { experiencia: a.experiencia } })
+  }
+}
+
+export function useAcaoNoInventario(id: string) {
+  const cliente = useQueryClient()
+  return useMutation({
+    mutationFn: (a: AcaoNoInventario) => chamarInventario(`/personagens/${id}/inventario`, a),
+    onSuccess: (inv) => {
+      cliente.setQueryData(chaveInventario(id), inv)
+      // relíquia muda atributo/Experiência na ficha
+      return cliente.invalidateQueries({ queryKey: chaves.ficha(id) })
+    },
+  })
+}
+
+export function useUsarConsumivel(id: string) {
+  const cliente = useQueryClient()
+  return useMutation({
+    mutationFn: ({ item_id, rolagem, escolha }: { item_id: string; rolagem: number | null; escolha: 'PV' | 'PF' | null }) =>
+      chamar<UsoDeConsumivel>(`/personagens/${id}/inventario/itens/${item_id}/usar`, { corpo: { rolagem, escolha } }),
+    onSuccess: (r) => {
+      cliente.setQueryData(chaveInventario(id), r.inventario)
+      cliente.setQueryData(chaves.ficha(id), r.ficha)
+    },
+  })
+}
+
+export function useTrocarArma(id: string) {
+  const invalidar = useInvalidarPersonagem()
+  return useMutation({
+    mutationFn: ({ indice, em_perigo }: { indice: number; em_perigo: boolean }) =>
+      chamar<Ficha>(`/personagens/${id}/inventario/armas/${indice}/trocar`, { corpo: { em_perigo } }),
+    onSuccess: () => invalidar(id),
+  })
+}
+
+export const useInventarioNaMesa = (mesaId: string, pid: string, ativo = true) =>
+  useQuery({
+    queryKey: chaveInventarioNaMesa(mesaId, pid),
+    queryFn: () => chamar<Inventario>(`/mesas/${mesaId}/personagens/${pid}/inventario`),
+    enabled: ativo,
+  })
+
+/** Mestre com "dar_itens": dá ou tira ouro e itens de um personagem da mesa. */
+export function useDarNoInventario(mesaId: string, pid: string) {
+  const cliente = useQueryClient()
+  return useMutation({
+    mutationFn: (a: AcaoNoInventario) => chamarInventario(`/mesas/${mesaId}/personagens/${pid}/inventario`, a),
+    onSuccess: (inv) => cliente.setQueryData(chaveInventarioNaMesa(mesaId, pid), inv),
+  })
+}
+
+// --- Lojas da sessão -----------------------------------------------------------------------------
+
+const chaveLojas = (mesaId: string, sid: string) => ['mesas', mesaId, 'sessoes', sid, 'lojas'] as const
+
+export const useLojas = (mesaId: string, sid: string) =>
+  useQuery({ queryKey: chaveLojas(mesaId, sid), queryFn: () => chamar<Loja[]>(`${urlSessao(mesaId, sid)}/lojas`) })
+
+export type AcaoNaLoja =
+  | { tipo: 'criar'; nome: string }
+  | { tipo: 'salvar'; id: string; nome: string; visivel: boolean; itens: ItemDaLojaEntrada[] }
+  | { tipo: 'apagar'; id: string }
+
+export function useAcaoNaLoja(mesaId: string, sid: string) {
+  const cliente = useQueryClient()
+  const base = `${urlSessao(mesaId, sid)}/lojas`
+  return useMutation({
+    mutationFn: (a: AcaoNaLoja): Promise<Loja | void> => {
+      if (a.tipo === 'criar') return chamar<Loja>(base, { corpo: { nome: a.nome } })
+      if (a.tipo === 'apagar') return chamar<void>(`${base}/${a.id}`, { metodo: 'DELETE' })
+      return chamar<Loja>(`${base}/${a.id}`, { metodo: 'PUT', corpo: { nome: a.nome, visivel: a.visivel, itens: a.itens } })
+    },
+    onSuccess: () => cliente.invalidateQueries({ queryKey: chaveLojas(mesaId, sid) }),
+  })
+}
+
+export function useVender(mesaId: string, sid: string, lojaId: string) {
+  const cliente = useQueryClient()
+  return useMutation({
+    mutationFn: (v: { item_id: string; personagem_id: string; quantidade: number }) =>
+      chamar<Venda>(`${urlSessao(mesaId, sid)}/lojas/${lojaId}/vender`, { corpo: v }),
+    onSuccess: (r, v) => {
+      cliente.setQueryData(chaveInventarioNaMesa(mesaId, v.personagem_id), r.inventario)
+      return cliente.invalidateQueries({ queryKey: chaveLojas(mesaId, sid) })
+    },
+  })
+}

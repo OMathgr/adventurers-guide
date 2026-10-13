@@ -6,7 +6,7 @@ próprias permissões. Assim nada chega a quem não poderia ler.
 
 Quem gera os avisos é um gancho no banco (`before_flush`/`after_commit` da
 sessão do SQLAlchemy): ele vê o que cada commit tocou (mesa, membro, inimigo,
-NPC, sessão, encontro, personagem, nível) e avisa os membros daquela mesa e o
+NPC, sessão, encontro, loja, personagem, nível) e avisa os membros daquela mesa e o
 dono do personagem. Rotas novas ficam cobertas sem precisar lembrar de avisar.
 
 Limite: a central vive na memória de UM processo. Com vários servidores,
@@ -23,7 +23,7 @@ from itertools import chain
 from sqlalchemy import event, inspect, select
 from sqlalchemy.orm import Session
 
-from .tabelas import (EncontroTabela, InimigoTabela, MembroTabela, MesaTabela, NpcTabela, PersonagemTabela,
+from .tabelas import (EncontroTabela, InimigoTabela, LojaTabela, MembroTabela, MesaTabela, NpcTabela, PersonagemTabela,
                       SessaoTabela, SubidaTabela)
 
 Evento = dict
@@ -71,7 +71,7 @@ central = Central()
 
 # --- Gancho no banco ----------------------------------------------------------------------
 
-_POR_MESA = (InimigoTabela, NpcTabela, SessaoTabela, EncontroTabela)
+_POR_MESA = (InimigoTabela, NpcTabela, SessaoTabela, EncontroTabela, LojaTabela)
 
 
 def _pendentes(sessao: Session) -> dict:
