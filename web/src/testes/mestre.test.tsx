@@ -51,7 +51,7 @@ describe('Ficha do inimigo', () => {
     expect(screen.getByText(/Distante/)).toHaveTextContent('2d10+4 mágico')
     expect(screen.getByText('Conhecimento Mágico +2', { exact: false })).toBeInTheDocument()
     expect(screen.getByText('Gaste 1 Ponto de Medo').tagName).toBe('STRONG')
-    expect(screen.getByRole('img', { name: 'Pontos de Fadiga: 0 de 6 marcados' })).toBeInTheDocument()
+    expect(screen.getByRole('img', { name: 'Pontos de Fadiga restantes: 6 de 6' })).toBeInTheDocument()
   })
 
   it('lacaio não tem limiares e horda mostra integrantes por PV', () => {
@@ -116,6 +116,7 @@ describe('Página da mesa', () => {
       opcoes: { pjs: 4, patamar: 2, mais_facil: false, mais_dificil: false, dano_extra: false }, base: 14,
       ajustes: [{ descricao: 'Sem brutamonte, horda, líder ou solo', valor: 1, automatico: true }], total: 15,
       gastos: [{ tipo: 'ATIRADOR', quantidade: 1, custo: 2 }], gasto: 2, saldo: 13,
+      custos: { LACAIO: 1, SOCIAL: 1, SUPORTE: 1, HORDA: 2, ATIRADOR: 2, ESPREITADOR: 2, PADRAO: 2, LIDER: 3, BRUTAMONTES: 4, SOLO: 5 },
     }
     const encontro = { id: 'e1', nome: 'Emboscada na ponte', combatentes: [lobo], guia }
     const comPv = (pv: number) => ({ ...encontro, combatentes: [{ ...lobo, pv_marcados: pv, derrotado: pv >= 4 }] })
@@ -131,7 +132,8 @@ describe('Página da mesa', () => {
       [`${base}/encontros/e1/combatentes/c1/marcas`]: comPv(2),
       [`${base}/encontros/e1/combatentes/c1/dano`]: {
         resultado: { dano: 12, gravidade: 2, pv_marcados: 2, derrotado: true }, encontro: comPv(4) },
-      '/mesas/m1/npcs': [], '/mesas/m1/inimigos': [],
+      '/mesas/m1/npcs': [], '/mesas/m1/inimigos': [{ id: 'i1', nome: 'Ogro', patamar: 1, tipo: 'BRUTAMONTES', base_id: null }],
+      [`${base}/encontros/e1/guia/simular`]: { ...guia, gasto: 6, total: 17, saldo: 11 },
     })
     vi.stubGlobal('fetch', fetch)
     montarEm('/mesas/m1?aba=sessao', <Mesa />, '/mesas/:id')
@@ -147,6 +149,11 @@ describe('Página da mesa', () => {
     const painel = await screen.findByRole('region', { name: 'Guia de Batalha' })
     expect(painel).toHaveTextContent('2 de 15 PB gastos · sobram 13 PB')
     expect(painel).toHaveTextContent('1 Atiradores2 PB')
+
+    // ao escolher um inimigo, o custo aparece antes de adicionar (simulado pela API)
+    expect(await screen.findByRole('option', { name: 'Ogro (P1, Brutamonte · 4 PB)' })).toBeInTheDocument()
+    await userEvent.selectOptions(screen.getByLabelText('Ficha'), 'i1')
+    expect(await screen.findByText((_, el) => el?.tagName === 'P' && !!el.textContent?.startsWith('Esta escolha custa'))).toHaveTextContent('Esta escolha custa 4 PB e muda o total em +2 PB (patamar) · sobrariam 11 PB')
 
     await userEvent.click(await screen.findByRole('button', { name: 'PV restantes de Lobo 1 2' }))
     expect(fetch).toHaveBeenCalledWith(`/api${base}/encontros/e1/combatentes/c1/marcas`, expect.objectContaining({

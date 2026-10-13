@@ -139,14 +139,18 @@ export function Selo({ children, destaque }: { children: ReactNode; destaque?: b
   )
 }
 
-/** Quadradinhos de PV/Fadiga/armadura: `marcados` de `total`. */
-export function Espacos({ total, marcados, rotulo, cor = 'esperanca' }:
-  { total: number; marcados: number; rotulo: string; cor?: 'esperanca' | 'medo' | 'perigo' }) {
+/** Quadradinhos de PV/Fadiga/armadura. Com `restantes`, o padrão do projeto
+    para PV/PF (PJs e inimigos): começam cheios e esvaziam com o dano
+    (quadradinho cheio = o que resta). A API continua contando os marcados. */
+export function Espacos({ total, marcados, rotulo, cor = 'esperanca', restantes }:
+  { total: number; marcados: number; rotulo: string; cor?: 'esperanca' | 'medo' | 'perigo'; restantes?: boolean }) {
   const fundo = { esperanca: 'bg-esperanca', medo: 'bg-medo', perigo: 'bg-perigo' }[cor]
+  const cheios = restantes ? total - marcados : marcados
+  const descricao = restantes ? `${rotulo} restantes: ${cheios} de ${total}` : `${rotulo}: ${marcados} de ${total} marcados`
   return (
-    <div className="flex flex-wrap gap-1" role="img" aria-label={`${rotulo}: ${marcados} de ${total} marcados`}>
+    <div className="flex flex-wrap gap-1" role="img" aria-label={descricao}>
       {Array.from({ length: total }, (_, i) => (
-        <span key={i} className={juntar('h-4 w-6 rounded-sm border border-borda', i < marcados && fundo)} />
+        <span key={i} className={juntar('h-4 w-6 rounded-sm border border-borda', i < cheios && fundo)} />
       ))}
     </div>
   )

@@ -96,12 +96,13 @@ def _gravar(a: Acesso, linha: EncontroTabela, encontro: Encontro):
 
 
 def _opcoes_do_guia(a: Acesso, linha: EncontroTabela) -> OpcoesDoGuia:
-    """As escolhas salvas no encontro ou, se ainda não houver, o padrão da mesa:
-    nº de PJs = personagens da mesa (4 se não tiver nenhum) e o patamar do nível da mesa."""
-    if linha.guia:
-        return _OPCOES.validate_python(linha.guia)
+    """As escolhas salvas no encontro (ou o padrão: nº de PJs = personagens da
+    mesa, 4 se não tiver nenhum). O patamar do grupo vem SEMPRE do nível da mesa:
+    se o mestre subir o nível da mesa, o guia acompanha."""
     mesa = a.banco.get(MesaTabela, linha.mesa_id)
-    return OpcoesDoGuia(pjs=len(mesa.personagens) or 4, patamar=biblioteca().tier_do_nivel(mesa.nivel_maximo))
+    opcoes = _OPCOES.validate_python(linha.guia) if linha.guia else OpcoesDoGuia(pjs=len(mesa.personagens) or 4)
+    opcoes.patamar = biblioteca().tier_do_nivel(mesa.nivel_maximo)
+    return opcoes
 
 
 def _saida(a: Acesso, linha: EncontroTabela, encontro: Encontro) -> EncontroSaida:
@@ -186,14 +187,29 @@ def renomear_encontro(mesa_id: str, sessao_id: str, encontro_id: str, dados: Nom
 @rotas.put("/encontros/{encontro_id}/guia", response_model=EncontroSaida)
 def guia_de_batalha(mesa_id: str, sessao_id: str, encontro_id: str, opcoes: OpcoesDoGuia,
                     a: Acesso = Depends(acesso)):
-    """Escolhas do Guia de Batalha (nº de PJs, patamar do grupo, luta mais fácil
-    ou difícil, dano extra). Os ajustes de composição são calculados sozinhos."""
+    """Escolhas do Guia de Batalha (nº de PJs, luta mais fácil ou difícil, dano
+    extra). O patamar do grupo vem do nível da mesa (o enviado é ignorado) e os
+    ajustes de composição são calculados sozinhos."""
     sessao_do_mestre(a, mesa_id, sessao_id, editar=True)
     validar_opcoes(opcoes)
     linha = _linha(a, sessao_id, encontro_id)
     linha.guia = _OPCOES.dump_python(opcoes, mode="json")
     a.banco.commit()
     return _saida(a, linha, _montar(linha))
+
+
+@rotas.post("/encontros/{encontro_id}/guia/simular", response_model=GuiaDeBatalha)
+def simular_guia(mesa_id: str, sessao_id: str, encontro_id: str, pedido: NovosCombatentes,
+                 a: Acesso = Depends(acesso)):
+    """Como ficaria o Guia de Batalha se estes inimigos entrassem (nada é salvo):
+    a tela mostra quanto a escolha custa antes de adicionar."""
+    sessao_do_mestre(a, mesa_id, sessao_id, editar=True)
+    ficha = _ficha_de_origem(a, mesa_id, pedido)
+    linha = _linha(a, sessao_id, encontro_id)
+    encontro = _montar(linha)
+    encontro.adicionar(ficha, pedido.quantidade)   # só em memória: valida a quantidade
+    return calcular(_opcoes_do_guia(a, linha),
+                    [(c.adversario.tipo, c.adversario.patamar) for c in encontro.combatentes])
 
 
 @rotas.delete("/encontros/{encontro_id}", status_code=204)

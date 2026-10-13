@@ -334,8 +334,14 @@ junto com o encontro: PB iniciais (3 × PJs + 2), ajustes (os de composição �
 2+ solos, patamar inferior, sem brutamonte/horda/líder/solo — são automáticos),
 gastos por tipo e saldo. Lacaios contam por grupo do tamanho do grupo de PJs,
 arredondando para cima. É só auxílio: passar do orçamento não é bloqueado.
-Sem escolhas salvas, o padrão vem da mesa (nº de personagens, ou 4; patamar do
-nível da mesa). Tipos com os nomes da edição brasileira: comum, oportunista,
+Sem escolhas salvas, o nº de PJs vem da mesa (nº de personagens, ou 4). O
+**patamar do grupo vem sempre do nível da mesa** (não é escolha do mestre).
+
+**Regra da casa** (2026-10-12), no lugar do "+1 se escolher adversário de
+patamar inferior" do SRD: cada adversário dá +1 PB por patamar abaixo do grupo
+e −1 PB por patamar acima (lacaios contam por grupo). O guia traz `custos` por
+tipo e `POST .../guia/simular` devolve o guia como ficaria com uma escolha (nada
+é salvo): a tela mostra, ao escolher, quanto ela custa e quanto muda o total. Tipos com os nomes da edição brasileira: comum, oportunista,
 manipulador, assistente, brutamonte.
 
 ### Nível da mesa, cópia e plano
@@ -432,9 +438,10 @@ manipulador, assistente, brutamonte.
   cima, `motor.numeros.metade`: convenção do projeto para toda metade) antes
   de comparar; lacaio cai com qualquer dano; marcar o último PV
   derrota. Clicar nos quadradinhos usa `definir_marcas` (valores absolutos).
-  Na tela, o inimigo **começa cheio** e o mestre vai esvaziando (quadradinho
-  cheio = ponto que resta); a API continua guardando os marcados, como a
-  ficha do livro e os PJs.
+  Na tela, PV e PF (inimigos **e PJs**, armadura e companheiro também)
+  **começam cheios** e esvaziam com o dano (quadradinho cheio = o que resta;
+  `Espacos restantes` em `ui.tsx`); a API continua guardando os marcados, como
+  a ficha do livro.
   O dano massivo (regra opcional) ficou de fora.
 - Encontro guardado como JSON (`encontros.combatentes`), com `ON DELETE
   CASCADE` da sessão e da mesa.

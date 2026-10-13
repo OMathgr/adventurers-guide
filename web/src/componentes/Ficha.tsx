@@ -60,17 +60,17 @@ export default function FichaVisao({ ficha, personagemId }: { ficha: Ficha; pers
           <span className="text-texto-suave">Grave</span>
         </div>
         {ficha.pontuacao_armadura > 0 && (
-          <div className="mt-3"><p className="mb-1 text-xs text-texto-suave">Espaços de armadura</p>
-            <Espacos total={ficha.pontuacao_armadura} marcados={ficha.armadura_marcada} rotulo="Armadura" cor="medo" /></div>
+          <div className="mt-3"><p className="mb-1 text-xs text-texto-suave">Espaços de armadura livres ({ficha.pontuacao_armadura - ficha.armadura_marcada}/{ficha.pontuacao_armadura})</p>
+            <Espacos total={ficha.pontuacao_armadura} marcados={ficha.armadura_marcada} rotulo="Armadura" cor="medo" restantes /></div>
         )}
       </Cartao>
 
       <Cartao titulo="Vida e ânimo" className="lg:col-span-2">
         <div className="space-y-3">
-          <div><p className="mb-1 text-sm">Pontos de Vida <span className="text-texto-suave">({ficha.pv_marcados}/{ficha.pv_max})</span></p>
-            <Espacos total={ficha.pv_max} marcados={ficha.pv_marcados} rotulo="Pontos de Vida" cor="perigo" /></div>
-          <div><p className="mb-1 text-sm">Fadiga <span className="text-texto-suave">({ficha.estresse_marcado}/{ficha.estresse_max})</span></p>
-            <Espacos total={ficha.estresse_max} marcados={ficha.estresse_marcado} rotulo="Fadiga" cor="medo" /></div>
+          <div><p className="mb-1 text-sm">Pontos de Vida <span className="text-texto-suave">(restam {ficha.pv_max - ficha.pv_marcados}/{ficha.pv_max})</span></p>
+            <Espacos total={ficha.pv_max} marcados={ficha.pv_marcados} rotulo="Pontos de Vida" restantes /></div>
+          <div><p className="mb-1 text-sm">Fadiga <span className="text-texto-suave">(restam {ficha.estresse_max - ficha.estresse_marcado}/{ficha.estresse_max})</span></p>
+            <Espacos total={ficha.estresse_max} marcados={ficha.estresse_marcado} rotulo="Fadiga" cor="medo" restantes /></div>
           <div><p className="mb-1.5 text-sm">Esperança <span className="text-texto-suave">({ficha.esperanca}/{ficha.esperanca_max})</span></p>
             <Esperanca atual={ficha.esperanca} maximo={ficha.esperanca_max} /></div>
           {ficha.condicoes.length > 0 && (
@@ -136,7 +136,7 @@ export default function FichaVisao({ ficha, personagemId }: { ficha: Ficha; pers
           </div>
           <p className="mb-1 mt-3 text-sm">Fadiga</p>
           <Espacos total={ficha.companheiro.estresse_max} marcados={ficha.companheiro.estresse_marcado}
-            rotulo="Fadiga do companheiro" cor="medo" />
+            rotulo="Fadiga do companheiro" cor="medo" restantes />
           <ul className="mt-3 space-y-1 text-sm">
             {Object.entries(ficha.companheiro.experiencias).map(([nome, v]) => (
               <li key={nome} className="flex justify-between"><span>{nome}</span><b className="text-esperanca">{comSinal(v)}</b></li>

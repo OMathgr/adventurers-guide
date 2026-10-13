@@ -36,13 +36,13 @@ function CartaoPersonagem({ mesa, pid, nome, jogador, foto }:
           <p className="text-xs text-texto-suave">{jogador} · Evasão {f.evasao} · Limiares {f.limiar_maior}/{f.limiar_grave}</p>
         </div>
       </header>
-      <p className="text-xs text-texto-suave">PV</p>
-      <Espacos total={f.pv_max} marcados={f.pv_marcados} rotulo={`PV de ${nome}`} cor="perigo" />
-      <p className="text-xs text-texto-suave">PF</p>
-      <Espacos total={f.estresse_max} marcados={f.estresse_marcado} rotulo={`PF de ${nome}`} cor="medo" />
+      <p className="text-xs text-texto-suave">PV restantes: {f.pv_max - f.pv_marcados}/{f.pv_max}</p>
+      <Espacos total={f.pv_max} marcados={f.pv_marcados} rotulo={`PV de ${nome}`} restantes />
+      <p className="text-xs text-texto-suave">PF restantes: {f.estresse_max - f.estresse_marcado}/{f.estresse_max}</p>
+      <Espacos total={f.estresse_max} marcados={f.estresse_marcado} rotulo={`PF de ${nome}`} cor="medo" restantes />
       {f.pontuacao_armadura > 0 && <>
-        <p className="text-xs text-texto-suave">Armadura</p>
-        <Espacos total={f.pontuacao_armadura} marcados={f.armadura_marcada} rotulo={`Armadura de ${nome}`} />
+        <p className="text-xs text-texto-suave">Armadura livre: {f.pontuacao_armadura - f.armadura_marcada}/{f.pontuacao_armadura}</p>
+        <Espacos total={f.pontuacao_armadura} marcados={f.armadura_marcada} rotulo={`Armadura de ${nome}`} cor="medo" restantes />
       </>}
       <Esperanca atual={f.esperanca} maximo={f.esperanca_max} />
 

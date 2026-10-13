@@ -168,6 +168,23 @@ def test_guia_de_batalha(cliente, mesa, sessao, bia):
     assert cliente.put(f"{base}/guia", json={"pjs": 3}, headers=_so_auth(bia)).status_code == 404   # jogadora
 
 
+def test_simular_quanto_custa_antes_de_adicionar(cliente, mesa, sessao):
+    e = cliente.post(s_url(mesa, sessao, "/encontros"), json={"nome": "Toca"}).json()
+    base = s_url(mesa, sessao, f"/encontros/{e['id']}")
+    cliente.put(f"{base}/guia", json={"pjs": 4, "patamar": 1})      # o patamar enviado é ignorado...
+    assert cliente.get(base).json()["guia"]["opcoes"]["patamar"] == 1
+    cliente.put(url(mesa, "/nivel"), json={"nivel_maximo": 7})       # ...ele vem do nível da mesa
+    assert cliente.get(base).json()["guia"]["opcoes"]["patamar"] == 3
+    sim =cliente.post(f"{base}/guia/simular", json={"origem": "srd", "id": "srd_giant_rat", "quantidade": 8}).json()
+    # 8 lacaios (patamar 1) com 4 PJs: 2 grupos = 2 PB; regra da casa: +2 por grupo
+    assert sim["gasto"] == 2
+    assert any(a["valor"] == 4 and "inferior" in a["descricao"] for a in sim["ajustes"])
+    assert sim["custos"]["SOLO"] == 5
+    assert cliente.get(base).json()["combatentes"] == []          # nada foi salvo
+    assert cliente.post(f"{base}/guia/simular", json={"origem": "srd", "id": "srd_giant_rat",
+                                                      "quantidade": 99}).status_code == 422
+
+
 def test_encontro_de_outra_sessao(cliente, mesa, sessao):
     outra = cliente.post(url(mesa, "/sessoes"), json={"titulo": "Sessão 2"}).json()
     e = cliente.post(s_url(mesa, sessao, "/encontros"), json={"nome": "Toca"}).json()

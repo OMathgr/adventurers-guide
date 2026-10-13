@@ -164,4 +164,9 @@ describe('Espaços', () => {
     render(<Espacos total={6} marcados={2} rotulo="Estresse" />)
     expect(screen.getByRole('img', { name: 'Estresse: 2 de 6 marcados' })).toBeInTheDocument()
   })
+
+  it('padrão de PV/PF: começa cheio e esvazia com o dano', () => {
+    render(<Espacos total={6} marcados={2} rotulo="Pontos de Vida" restantes />)
+    expect(screen.getByRole('img', { name: 'Pontos de Vida restantes: 4 de 6' })).toBeInTheDocument()
+  })
 })

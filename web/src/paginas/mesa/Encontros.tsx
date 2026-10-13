@@ -6,9 +6,11 @@ import { useMemo, useState } from 'react'
 
 import {
   useAcaoNoEncontro, useAdversariosSrd, useApagarEncontro, useCriarEncontro, useDanoEmCombatente,
-  useEncontro, useInimigos, useNpcs,
+  useEncontro, useInimigos, useNpcs, useSimularGuia,
 } from '../../api/consultas'
-import type { Combatente, ResultadoDanoAdversario, Sessao } from '../../api/tipos'
+import type {
+  Combatente, GuiaDeBatalha as GuiaDeBatalhaT, ResultadoDanoAdversario, Sessao, TipoAdversario,
+} from '../../api/tipos'
 import Condicoes from '../../componentes/Condicoes'
 import FichaInimigo from '../../componentes/FichaInimigo'
 import { Foto } from '../../componentes/Foto'
@@ -107,7 +109,16 @@ function CartaoCombatente({ mesaId, sid, encontroId, podeEditar, c }: Alvo & { c
 
 type Origem = 'inimigo' | 'npc' | 'srd'
 
-function AdicionarCombatentes({ mesaId, sid, encontroId }: Alvo) {
+/** "2 PB" ao lado de cada opção (lacaio: por grupo do tamanho do grupo de PJs). */
+function custoDoTipo(guia: GuiaDeBatalhaT, tipo: TipoAdversario) {
+  const custo = guia.custos?.[tipo]
+  if (custo === undefined) return ''
+  return tipo === 'LACAIO' ? `${custo} PB a cada ${guia.opcoes.pjs}` : `${custo} PB`
+}
+
+const sinal = (n: number) => (n > 0 ? `+${n}` : `${n}`)
+
+function AdicionarCombatentes({ mesaId, sid, encontroId, guia }: Alvo & { guia: GuiaDeBatalhaT }) {
   const [origem, setOrigem] = useState<Origem>('inimigo')
   const [id, setId] = useState('')
   const [busca, setBusca] = useState('')
@@ -116,15 +127,26 @@ function AdicionarCombatentes({ mesaId, sid, encontroId }: Alvo) {
   const npcs = useNpcs(mesaId)
   const srd = useAdversariosSrd(origem === 'srd')
   const acao = useAcaoNoEncontro(mesaId, sid, encontroId)
+  // quanto a escolha custa: a API simula o guia com ela (as contas são do motor)
+  const simulado = useSimularGuia(mesaId, sid, encontroId, id ? { origem, id, quantidade } : null)
 
   const opcoes: [string, string][] = useMemo(() => {
-    if (origem === 'inimigo') return (inimigos.data ?? []).map((i) => [i.id, `${i.nome} (P${i.patamar})`])
-    if (origem === 'npc') return (npcs.data ?? []).filter((n) => n.ficha_combate).map((n) => [n.id, n.nome])
+    const rotulo = (nome: string, patamar: number, tipo: TipoAdversario) =>
+      `${nome} (P${patamar}, ${[NOME_TIPO_ADVERSARIO[tipo], custoDoTipo(guia, tipo)].filter(Boolean).join(' · ')})`
+    if (origem === 'inimigo') return (inimigos.data ?? []).map((i) => [i.id, rotulo(i.nome, i.patamar, i.tipo as TipoAdversario)])
+    if (origem === 'npc') {
+      return (npcs.data ?? []).filter((n) => n.ficha_combate)
+        .map((n) => [n.id, rotulo(n.nome, n.ficha_combate!.patamar, n.ficha_combate!.tipo)])
+    }
     const termo = busca.trim().toLocaleLowerCase('pt-BR')
     return (srd.data ?? [])
       .filter((a) => !termo || a.nome.toLocaleLowerCase('pt-BR').includes(termo) || a.nome_original.toLowerCase().includes(termo))
-      .map((a) => [a.id, `${a.nome} (P${a.patamar}, ${NOME_TIPO_ADVERSARIO[a.tipo]})`])
-  }, [origem, inimigos.data, npcs.data, srd.data, busca])
+      .map((a) => [a.id, rotulo(a.nome, a.patamar, a.tipo)])
+  }, [origem, inimigos.data, npcs.data, srd.data, busca, guia])
+
+  const s = simulado.data
+  const custo = s ? s.gasto - guia.gasto : 0
+  const ajuste = s ? s.total - guia.total : 0
 
   return (
     <form className="space-y-2 rounded-2xl border border-dashed border-borda p-4" onSubmit={(e) => {
@@ -147,11 +169,20 @@ function AdicionarCombatentes({ mesaId, sid, encontroId }: Alvo) {
           onChange={(e) => setQuantidade(Number(e.target.value) || 1)} />
         <Botao type="submit" disabled={!id || acao.isPending}>Adicionar</Botao>
       </div>
-      <Aviso erro={acao.error} />
+      {s && (
+        <p className="text-sm" aria-live="polite">
+          Esta escolha custa <b>{custo} PB</b>
+          {ajuste !== 0 && <> e muda o total em <b>{sinal(ajuste)} PB</b> (patamar)</>}
+          {' · '}
+          <span className={s.saldo < 0 ? 'text-perigo' : 'text-sucesso'}>
+            {s.saldo < 0 ? `ficaria ${-s.saldo} PB acima` : `sobrariam ${s.saldo} PB`}
+          </span>
+        </p>
+      )}
+      <Aviso erro={acao.error ?? simulado.error} />
     </form>
   )
 }
-
 function EncontroAtual(alvo: Alvo) {
   const encontro = useEncontro(alvo.mesaId, alvo.sid, alvo.encontroId)
   if (encontro.isPending) return <Carregando />
@@ -168,7 +199,7 @@ function EncontroAtual(alvo: Alvo) {
       </div>
       {/* montar o encontro: o guia ao lado de onde se põem os inimigos (é só auxílio) */}
       <GuiaDeBatalha mesaId={alvo.mesaId} sid={alvo.sid} encontroId={e.id} guia={e.guia} podeEditar={alvo.podeEditar} />
-      {alvo.podeEditar && <AdicionarCombatentes {...alvo} />}
+      {alvo.podeEditar && <AdicionarCombatentes {...alvo} guia={e.guia} />}
     </div>
   )
 }

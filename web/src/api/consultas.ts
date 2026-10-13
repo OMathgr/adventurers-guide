@@ -5,7 +5,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { chamar } from './cliente'
 import type {
   Adversario, Ancestralidade, Arma, Armadura, CartaDeDominio, Equipamento, Classe, Comunidade, Criacao, Encontro, Escolha,
-  EventoLinhaDoTempo, Ficha, InimigoResumo, Mesa, MesaResumo, Npc, NpcEntrada, OpcoesDoGuia, PermissoesMestres, DadosDaSessao, Sessao, SessaoResumo,
+  EventoLinhaDoTempo, Ficha, GuiaDeBatalha, InimigoResumo, Mesa, MesaResumo, Npc, NpcEntrada, OpcoesDoGuia, PermissoesMestres, DadosDaSessao, Sessao, SessaoResumo,
   PersonagemCriado, PersonagemResumo, ProximoNivel, ResultadoDano, ResultadoDanoAdversario, Subclasse,
   SubidaDeNivel,
 } from './tipos'
@@ -468,6 +468,15 @@ export function useAcaoNoEncontro(mesaId: string, sid: string, encontroId: strin
     }
   }, (e) => e)
 }
+
+/** Como ficaria o guia com estes inimigos (nada é salvo): mostra o custo antes de adicionar. */
+export const useSimularGuia = (mesaId: string, sid: string, encontroId: string,
+  pedido: { origem: 'inimigo' | 'npc' | 'srd'; id: string; quantidade: number } | null) =>
+  useQuery({
+    queryKey: [...chaveEncontro(mesaId, sid, encontroId), 'simular', pedido],
+    queryFn: () => chamar<GuiaDeBatalha>(`${urlSessao(mesaId, sid)}/encontros/${encontroId}/guia/simular`, { corpo: pedido }),
+    enabled: !!pedido,
+  })
 
 /** Escolhas do Guia de Batalha; a API devolve o encontro com o guia recalculado. */
 export const useGuiaDeBatalha = (mesaId: string, sid: string, encontroId: string) =>

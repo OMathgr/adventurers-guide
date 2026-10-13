@@ -4,7 +4,7 @@
 import { useGuiaDeBatalha } from '../api/consultas'
 import type { GuiaDeBatalha as Guia, OpcoesDoGuia } from '../api/tipos'
 import { PLURAL_TIPO_ADVERSARIO, comSinal } from '../lib/rotulos'
-import { Aviso, Campo, Selecao } from './ui'
+import { Aviso, Campo } from './ui'
 
 export default function GuiaDeBatalha({ mesaId, sid, encontroId, guia, podeEditar }:
   { mesaId: string; sid: string; encontroId: string; guia: Guia; podeEditar: boolean }) {
@@ -51,9 +51,10 @@ export default function GuiaDeBatalha({ mesaId, sid, encontroId, guia, podeEdita
           <div className="grid grid-cols-2 gap-2">
             <Campo rotulo="PJs no combate" type="number" min={1} max={12} value={o.pjs} disabled={travado}
               onChange={(e) => Number(e.target.value) >= 1 && mudar({ pjs: Number(e.target.value) })} />
-            <Selecao rotulo="Patamar do grupo" value={String(o.patamar)} disabled={travado}
-              onChange={(e) => mudar({ patamar: Number(e.target.value) })}
-              opcoes={[1, 2, 3, 4].map((p): [string, string] => [String(p), `Patamar ${p}`])} />
+            <div className="flex flex-col gap-1 text-sm">
+              <span className="font-medium text-texto-suave">Patamar do grupo</span>
+              <span className="py-2">Patamar {o.patamar} <span className="text-xs text-texto-suave">(do nível da mesa)</span></span>
+            </div>
           </div>
           <p className="text-xs text-texto-suave">PB iniciais: 3 × {o.pjs} PJs + 2 = <b className="text-texto">{guia.base}</b></p>
           {escolha('Luta mais fácil ou curta', -1, !!o.mais_facil, 'mais_facil')}

@@ -55,8 +55,8 @@ export default function FichaInimigo({ adversario: a, acoes }: { adversario: Adv
       </dl>
 
       <div className="mt-2 grid gap-1.5 sm:grid-cols-2">
-        <Espacos total={a.pv} marcados={0} rotulo="Pontos de Vida" />
-        <Espacos total={a.pf} marcados={0} rotulo="Pontos de Fadiga" cor="medo" />
+        <Espacos total={a.pv} marcados={0} rotulo="Pontos de Vida" restantes />
+        <Espacos total={a.pf} marcados={0} rotulo="Pontos de Fadiga" cor="medo" restantes />
       </div>
 
       <p className="mt-3 text-sm">

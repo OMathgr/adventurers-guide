@@ -1264,6 +1264,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/mesas/{mesa_id}/sessoes/{sessao_id}/encontros/{encontro_id}/guia/simular": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Simular Guia
+         * @description Como ficaria o Guia de Batalha se estes inimigos entrassem (nada é salvo):
+         *     a tela mostra quanto a escolha custa antes de adicionar.
+         */
+        post: operations["simular_guia_mesas__mesa_id__sessoes__sessao_id__encontros__encontro_id__guia_simular_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/mesas/{mesa_id}/sessoes/{sessao_id}/encontros/{encontro_id}/combatentes": {
         parameters: {
             query?: never;
@@ -2202,6 +2223,10 @@ export interface components {
              * @default 0
              */
             saldo: number;
+            /** Custos */
+            custos?: {
+                [key: string]: number;
+            };
         };
         /** HTTPValidationError */
         HTTPValidationError: {
@@ -5727,6 +5752,43 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["EncontroSaida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    simular_guia_mesas__mesa_id__sessoes__sessao_id__encontros__encontro_id__guia_simular_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mesa_id: string;
+                sessao_id: string;
+                encontro_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NovosCombatentes"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GuiaDeBatalha"];
                 };
             };
             /** @description Validation Error */
