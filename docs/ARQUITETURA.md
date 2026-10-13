@@ -603,6 +603,39 @@ secundária; salvar manda tudo de uma vez (`PUT /equipamento`) e o motor valida
 Ainda não na interface: estado de sessão do próprio jogador (marcar
 PV/Fadiga, descansos) — a API já tem.
 
+### App no celular (PWA, `web/public/sw.js` e `web/src/lib/pwa.ts`)
+
+Decisões do projeto (2026-10-13): app instalável (PWA) a partir do próprio
+site, com todas as telas adaptadas ao celular. Descartados: empacotar a web
+num app de loja (Capacitor), que pede contas nas lojas e um Mac para o iOS, e
+um app nativo (React Native), que seria uma segunda interface para manter.
+
+- **Instalação**: `manifest.webmanifest` + ícones em `public/icones/`
+  (192/512, um "maskable" com o desenho na zona segura para o Android recortar,
+  e o `apple-touch-icon` do iPhone). No Chrome/Edge aparece "Instalar app" no
+  topo (`beforeinstallprompt`); no iPhone é Compartilhar → "Adicionar à Tela
+  de Início". Só instala em HTTPS (ou `localhost`).
+- **Service worker escrito à mão** (sem `vite-plugin-pwa`/Workbox: são ~60
+  linhas e uma dependência a menos). Guarda só a casca do app: páginas pela
+  rede com a casca de reserva sem rede, `/assets/*` (nome com hash) do cache,
+  ícones e fontes do cache atualizando por trás. **Nunca intercepta `/api`**:
+  dados de jogo vêm sempre do servidor com as permissões de quem pede, e o
+  fluxo ao vivo não pode ficar preso em cache. A decisão por pedido está em
+  `estrategia()`, testada em `pwa.test.ts`. Mudou a forma de guardar? Troque
+  `VERSAO` no `sw.js` (o antigo é apagado ao ativar).
+- Registro só no build (`import.meta.env.PROD`): no `npm run dev` o cache
+  atrapalharia o recarregamento do Vite. Para testar: `npm run build` e
+  `npx vite preview` (usa o mesmo proxy `/api`).
+- **Sem conexão**: o app abre e mostra "Sem conexão" no topo; nada é salvo
+  offline (sem fila de mudanças: mestre e jogadores mexem nas mesmas fichas e
+  uma fila sem rede criaria conflitos). Quando a rede volta, o fluxo ao vivo
+  reconecta e a tela recarrega tudo.
+- **Telas**: as abas rolam para os lados (a escolhida sempre à vista); colunas
+  com campo de texto usam `minmax(0,1fr)` para não estourar a largura; no toque
+  (`pointer: coarse`) os pontos de ligação do quadro ficam maiores, e apagar
+  no quadro tem botão no painel (celular não tem tecla Delete). Conferido sem
+  rolagem lateral em 360 px e 390 px.
+
 ## Tradução pt-BR (`data/traducoes/pt-BR/`)
 
 Tradução **não oficial** do SRD, feita pelo projeto. É só de exibição: o

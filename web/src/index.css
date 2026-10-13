@@ -71,3 +71,11 @@
     outline-offset: 2px;
   }
 }
+
+/* No toque (celular/tablet) os pontos de ligação do quadro ficam maiores para o dedo acertar. */
+@media (pointer: coarse) {
+  .react-flow__handle {
+    width: 1rem !important;
+    height: 1rem !important;
+  }
+}

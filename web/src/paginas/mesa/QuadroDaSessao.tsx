@@ -175,7 +175,9 @@ function Editor({ mesa, sessao, inicial }: { mesa: Mesa; sessao: Sessao; inicial
         </div>
         {!somenteLeitura && (
           <p className="text-xs text-texto-suave">
-            Arraste de um dos pontos (em cima, embaixo ou nos lados) de um cartão até qualquer parte de outro para ligar. Delete apaga o que estiver selecionado.
+            Arraste de um dos pontos (em cima, embaixo ou nos lados) de um cartão até qualquer parte de outro para ligar;
+            no celular, também dá para tocar num ponto e depois num ponto do outro cartão. Para apagar, selecione e use o
+            botão no painel (ou a tecla Delete).
           </p>
         )}
       </div>

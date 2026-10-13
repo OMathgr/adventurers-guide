@@ -69,9 +69,9 @@ function Catalogo<T extends { id: string; nome: string; nome_original: string; t
   }, [itens, busca, tier])
   return (
     <div className="space-y-2">
-      <div className="grid grid-cols-[1fr_8rem] gap-2">
+      <div className="grid grid-cols-[minmax(0,1fr)_8rem] gap-2">
         <input value={busca} onChange={(e) => setBusca(e.target.value)} placeholder="Buscar (português ou inglês)"
-          aria-label="Buscar no catálogo" className="rounded-lg border border-borda bg-fundo px-3 py-2 text-sm" />
+          aria-label="Buscar no catálogo" className="min-w-0 rounded-lg border border-borda bg-fundo px-3 py-2 text-sm" />
         <Selecao rotulo="" aria-label="Patamar" value={tier} onChange={(e) => setTier(e.target.value)}
           opcoes={[['', 'Todos'], ...[1, 2, 3, 4].map((p): [string, string] => [String(p), `Patamar ${p}`])]} />
       </div>

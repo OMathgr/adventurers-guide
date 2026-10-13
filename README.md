@@ -47,6 +47,11 @@ npm run dev                      # http://localhost:5173 (usa a API acima)
 npm test
 ```
 
+**No celular**: o site é um app instalável (PWA). Em produção (HTTPS), abra no
+Chrome do Android e toque em "Instalar app" (ou no menu ⋮ → Instalar), ou no
+Safari do iPhone em Compartilhar → "Adicionar à Tela de Início". Para testar
+no computador: `npm run build` e `npx vite preview` dentro de `web/`.
+
 Na página `/docs`, cadastre-se em `POST /auth/cadastro` e use o botão
 **Authorize** (e-mail no campo `username`) para testar as rotas protegidas.
 
@@ -97,7 +102,7 @@ docs/ARQUITETURA.md
    ~~sessão de jogo (encontros, Medo, PV/PF dos inimigos)~~, ~~revelar informações aos jogadores~~
 4. ~~Workspace da mesa (mapa mental por sessão + quadro da campanha com o revelado)~~
 5. ~~Colaboração em tempo real (avisos ao vivo e quem está online)~~
-6. App mobile
+6. ~~App mobile (PWA: instalável pelo navegador, todas as telas no celular)~~
 
 ## Licença do conteúdo
 

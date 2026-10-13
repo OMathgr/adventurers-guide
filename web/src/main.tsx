@@ -8,6 +8,7 @@ import { BrowserRouter, Navigate, Outlet, Route, Routes, useLocation } from 'rea
 import { ErroApi } from './api/cliente'
 import { ProvedorAutenticacao, useAutenticacao } from './auth/Autenticacao'
 import Layout from './componentes/Layout'
+import { registrarServiceWorker } from './lib/pwa'
 import { Cadastro, Entrar } from './paginas/Acesso'
 import Convite from './paginas/Convite'
 import Mesa from './paginas/Mesa'
@@ -32,6 +33,8 @@ function SoLogado() {
   // guarda para onde ia (ex.: link de convite) para voltar depois de entrar
   return logado ? <Outlet /> : <Navigate to="/entrar" replace state={{ de: local.pathname }} />
 }
+
+registrarServiceWorker()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

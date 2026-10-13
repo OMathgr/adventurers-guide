@@ -4,6 +4,7 @@ import { Link, NavLink, Outlet } from 'react-router'
 import { useAoVivo } from '../api/aoVivo'
 import { token } from '../api/cliente'
 import { useAutenticacao } from '../auth/Autenticacao'
+import { useInstalar, useOnline } from '../lib/pwa'
 
 const CHAVE_TEMA = 'ag.tema'
 
@@ -35,6 +36,8 @@ export default function Layout() {
   // só aparece logado: enquanto estiver aberto, recebe os avisos ao vivo
   useAoVivo(token.ler())
   const [tema, alternarTema] = useTema()
+  const instalar = useInstalar()
+  const online = useOnline()
 
   return (
     <div className="min-h-screen">
@@ -54,11 +57,19 @@ export default function Layout() {
               aria-label={tema === 'escuro' ? 'Usar tema claro' : 'Usar tema escuro'}>
               {tema === 'escuro' ? '☀' : '☾'}
             </button>
+            {instalar && (
+              <button onClick={instalar} className="text-esperanca hover:text-esperanca-forte">Instalar app</button>
+            )}
             {usuario && <span className="hidden text-texto-suave sm:inline">{usuario.nome}</span>}
             <button onClick={sair} className="text-texto-suave hover:text-perigo">Sair</button>
           </nav>
         </div>
       </header>
+      {!online && (
+        <p role="status" className="bg-perigo/15 px-4 py-2 text-center text-sm text-perigo">
+          Sem conexão: dá para ver o que já estava aberto, mas nada é salvo até a rede voltar.
+        </p>
+      )}
       <main className="mx-auto max-w-5xl px-4 py-6">
         <Outlet />
       </main>

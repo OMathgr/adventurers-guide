@@ -36,8 +36,8 @@ export default function FichaVisao({ ficha, personagemId }: { ficha: Ficha; pers
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
           {TRACOS.map((t) => (
             <div key={t} className="rounded-xl border border-borda bg-fundo/60 p-3">
-              <div className="flex items-baseline justify-between">
-                <span className="font-semibold">{NOME_TRACO[t]}</span>
+              <div className="flex items-baseline justify-between gap-2">
+                <span className="min-w-0 truncate font-semibold">{NOME_TRACO[t]}</span>
                 <span className="font-titulo text-2xl text-esperanca">{comSinal(ficha.tracos[t] ?? 0)}</span>
               </div>
               <p className="text-xs text-texto-suave">{USO_TRACO[t]}</p>

@@ -1,7 +1,7 @@
 // Peças visuais reutilizadas em todas as telas.
 import {
   type ButtonHTMLAttributes, type InputHTMLAttributes, type ReactNode, type SelectHTMLAttributes,
-  type TextareaHTMLAttributes, useId,
+  type TextareaHTMLAttributes, useEffect, useId, useRef,
 } from 'react'
 
 import { ErroApi } from '../api/cliente'
@@ -96,15 +96,26 @@ export function Selecao({ rotulo, opcoes, className, ...props }:
   )
 }
 
-/** Abas simples (botões com aria-selected). */
+/** Abas simples (botões com aria-selected). No celular a barra rola para os lados. */
 export function Abas<T extends string>({ abas, atual, aoTrocar }:
   { abas: [T, string][]; atual: T; aoTrocar: (aba: T) => void }) {
+  const barra = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    // a aba escolhida não pode ficar cortada na borda (só rola a barra, nunca a página)
+    const b = barra.current
+    const aba = b?.querySelector<HTMLElement>('[aria-selected="true"]')
+    if (!b || !aba) return
+    if (aba.offsetLeft < b.scrollLeft) b.scrollLeft = aba.offsetLeft
+    else if (aba.offsetLeft + aba.offsetWidth > b.scrollLeft + b.clientWidth) {
+      b.scrollLeft = aba.offsetLeft + aba.offsetWidth - b.clientWidth
+    }
+  }, [atual])
   return (
-    <div role="tablist" className="flex gap-1 border-b border-borda">
+    <div ref={barra} role="tablist" className="relative flex gap-1 overflow-x-auto shadow-[inset_0_-1px_0_var(--borda)] [scrollbar-width:none]">
       {abas.map(([id, nome]) => (
         <button key={id} role="tab" type="button" aria-selected={id === atual} onClick={() => aoTrocar(id)}
           className={juntar(
-            '-mb-px border-b-2 px-4 py-2 text-sm transition',
+            'shrink-0 whitespace-nowrap border-b-2 px-3 py-2 text-sm transition sm:px-4',
             id === atual ? 'border-esperanca text-esperanca' : 'border-transparent text-texto-suave hover:text-texto',
           )}>
           {nome}
