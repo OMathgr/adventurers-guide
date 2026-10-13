@@ -12,35 +12,35 @@
     "core_class_wizard": "Mago"
   },
   "subclasses": {
-    "core_subclass_beastbound": "Vínculo Animal",
-    "core_subclass_call_of_the_brave": "Chamado dos Bravos",
-    "core_subclass_call_of_the_slayer": "Chamado do Matador",
+    "core_subclass_beastbound": "Treinador",
+    "core_subclass_call_of_the_brave": "Escolhido da Bravura",
+    "core_subclass_call_of_the_slayer": "Escolhido da Matança",
     "core_subclass_divine_wielder": "Portador Divino",
-    "core_subclass_elemental_origin": "Origem Elemental",
-    "core_subclass_nightwalker": "Andarilho da Noite",
-    "core_subclass_primal_origin": "Origem Primordial",
-    "core_subclass_school_of_knowledge": "Escola do Conhecimento",
-    "core_subclass_school_of_war": "Escola da Guerra",
-    "core_subclass_stalwart": "Inabalável",
-    "core_subclass_syndicate": "Sindicato",
+    "core_subclass_elemental_origin": "Elementalista",
+    "core_subclass_nightwalker": "Gatuno",
+    "core_subclass_primal_origin": "Primordialista",
+    "core_subclass_school_of_knowledge": "Discípulo do Conhecimento",
+    "core_subclass_school_of_war": "Discípulo da Guerra",
+    "core_subclass_stalwart": "Baluarte",
+    "core_subclass_syndicate": "Mafioso",
     "core_subclass_troubadour": "Trovador",
-    "core_subclass_vengeance": "Vingança",
-    "core_subclass_warden_of_renewal": "Guardião da Renovação",
-    "core_subclass_warden_of_the_elements": "Guardião dos Elementos",
-    "core_subclass_wayfinder": "Desbravador",
+    "core_subclass_vengeance": "Vingador",
+    "core_subclass_warden_of_renewal": "Protetor da Renovação",
+    "core_subclass_warden_of_the_elements": "Protetor dos Elementos",
+    "core_subclass_wayfinder": "Rastreador",
     "core_subclass_winged_sentinel": "Sentinela Alada",
-    "core_subclass_wordsmith": "Mestre das Palavras"
+    "core_subclass_wordsmith": "Beletrista"
   },
   "comunidades": {
-    "core_community_highborne": "Nobreza",
-    "core_community_loreborne": "Sabedoria",
-    "core_community_orderborne": "Ordem",
-    "core_community_ridgeborne": "Serra",
-    "core_community_seaborne": "Mar",
-    "core_community_slyborne": "Astúcia",
-    "core_community_underborne": "Subterrâneo",
-    "core_community_wanderborne": "Andança",
-    "core_community_wildborne": "Selva"
+    "core_community_highborne": "Aristocrática",
+    "core_community_loreborne": "Erudita",
+    "core_community_orderborne": "Disciplinada",
+    "core_community_ridgeborne": "Montanhesa",
+    "core_community_seaborne": "Marítima",
+    "core_community_slyborne": "Fora da lei",
+    "core_community_underborne": "Subterrânea",
+    "core_community_wanderborne": "Nômade",
+    "core_community_wildborne": "Silvestre"
   },
   "dominios": {
     "ARCANA": "Arcano",
@@ -55,7 +55,7 @@
   },
   "ancestralidades": {
     "core_ancestry_clank": {
-      "nome": "Autômato",
+      "nome": "Clank",
       "caracteristicas": [
         {
           "nome": "Projeto com Propósito",
@@ -68,7 +68,7 @@
       ]
     },
     "core_ancestry_drakona": {
-      "nome": "Dracônico",
+      "nome": "Drakona",
       "caracteristicas": [
         {
           "nome": "Escamas",
@@ -159,7 +159,7 @@
       ]
     },
     "core_ancestry_galapa": {
-      "nome": "Galápago",
+      "nome": "Galapa",
       "caracteristicas": [
         {
           "nome": "Casco",
@@ -198,7 +198,7 @@
       ]
     },
     "core_ancestry_halfling": {
-      "nome": "Halfling",
+      "nome": "Pequenino",
       "caracteristicas": [
         {
           "nome": "Traz-Sorte",
@@ -224,7 +224,7 @@
       ]
     },
     "core_ancestry_infernis": {
-      "nome": "Infernal",
+      "nome": "Infernis",
       "caracteristicas": [
         {
           "nome": "Destemido",
@@ -263,7 +263,7 @@
       ]
     },
     "core_ancestry_ribbet": {
-      "nome": "Ribbet",
+      "nome": "Quacho",
       "caracteristicas": [
         {
           "nome": "Anfíbio",

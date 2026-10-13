@@ -295,7 +295,7 @@ class Sessao:
         longos = set()
         if movimento_longo is not None:
             if Efeito.EFICIENTE not in self.personagem.efeitos_ativos():
-                raise RegraViolada("Só Eficiente (Autômato) troca um movimento curto por um longo.")
+                raise RegraViolada("Só Eficiente (Clank) troca um movimento curto por um longo.")
             if not 0 <= movimento_longo < len(movimentos):
                 raise RegraViolada("Índice de movimento inválido.")
             longos.add(movimento_longo)

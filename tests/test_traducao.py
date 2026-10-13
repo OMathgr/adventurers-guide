@@ -26,6 +26,24 @@ def test_nomes_traduzidos_e_original_guardado(pt):
     assert pt.nome_dominio("BLADE") == "Lâmina"
 
 
+def test_nomes_da_heranca_seguem_a_edicao_brasileira(pt):
+    """Subclasses, ancestralidades e comunidades com os nomes do livro básico
+    brasileiro (pp. 14-16); só os nomes, nunca o texto."""
+    esperado = {
+        "core_subclass_wordsmith": "Beletrista", "core_subclass_beastbound": "Treinador",
+        "core_subclass_nightwalker": "Gatuno", "core_subclass_syndicate": "Mafioso",
+        "core_subclass_call_of_the_slayer": "Escolhido da Matança", "core_subclass_stalwart": "Baluarte",
+        "core_subclass_warden_of_the_elements": "Protetor dos Elementos",
+        "core_subclass_school_of_war": "Discípulo da Guerra", "core_subclass_elemental_origin": "Elementalista",
+        "core_ancestry_clank": "Clank", "core_ancestry_halfling": "Pequenino", "core_ancestry_ribbet": "Quacho",
+        "core_ancestry_infernis": "Infernis", "core_ancestry_galapa": "Galapa", "core_ancestry_drakona": "Drakona",
+        "core_community_highborne": "Aristocrática", "core_community_slyborne": "Fora da lei",
+        "core_community_wanderborne": "Nômade", "core_community_underborne": "Subterrânea",
+    }
+    todos = {**pt.subclasses, **pt.ancestralidades, **pt.comunidades}
+    assert {i: todos[i].nome for i in esperado} == esperado
+
+
 def test_texto_das_cartas_inclui_listas_e_magias(pt):
     assert "• +1 nos seus testes de Conjuração" in pt.cartas["core_domain_card_arcana_touched"].texto
     assert pt.cartas["core_domain_card_book_of_ava"].texto.startswith("Empurrão de Poder:")

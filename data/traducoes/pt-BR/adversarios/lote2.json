@@ -119,7 +119,7 @@
   },
   "srd_patchwork_zombie_hulk": {
     "nome": "Zumbi Colosso Remendado", "arma": "Braços Demais", "experiencias": {"Intimidation": "Intimidação", "Tear Things Apart": "Despedaçar Coisas"},
-    "descricao": "Um amálgama imenso de cadáveres que se move como um só, com membros do tamanho de um tronco humano e punhos do tamanho de um halfling adulto.",
+    "descricao": "Um amálgama imenso de cadáveres que se move como um só, com membros do tamanho de um tronco humano e punhos do tamanho de um pequenino adulto.",
     "motivacoes": "Absorver cadáveres, debater-se, ter fome, aterrorizar",
     "habilidades": [
       {"nome": "Destrutível", "texto": "Quando o Zumbi sofre dano Maior ou pior, marca 1 PV adicional."},

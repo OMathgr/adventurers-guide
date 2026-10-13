@@ -683,6 +683,20 @@ Glossário (alinhado à edição brasileira quando conhecida):
 | Social (adversary) | Manipulador | | Battle Points | Pontos de Batalha (PB) |
 | Loop (countdown) | Ciclo | | Group Attack | Ataque em Grupo |
 
+Nomes de subclasses, ancestralidades e comunidades seguem o livro básico
+brasileiro (pp. 14-16; conferido em 2026-10-13, travado em `test_traducao.py`):
+
+| SRD | pt-BR | | SRD | pt-BR |
+|---|---|---|---|---|
+| Wordsmith / Troubadour | Beletrista / Trovador | | Warden of the Elements / of Renewal | Protetor dos Elementos / da Renovação |
+| Elemental / Primal Origin | Elementalista / Primordialista | | Stalwart / Vengeance | Baluarte / Vingador |
+| Call of the Brave / Slayer | Escolhido da Bravura / da Matança | | Nightwalker / Syndicate | Gatuno / Mafioso |
+| School of Knowledge / War | Discípulo do Conhecimento / da Guerra | | Wayfinder / Beastbound | Rastreador / Treinador |
+| Divine Wielder / Winged Sentinel | Portador Divino / Sentinela Alada | | Halfling / Ribbet | Pequenino / Quacho |
+| Clank, Drakona, Galapa, Infernis | (mesmos nomes) | | Simiah | Símio |
+| Highborne / Loreborne / Orderborne | Aristocrática / Erudita / Disciplinada | | Ridgeborne / Seaborne / Slyborne | Montanhesa / Marítima / Fora da lei |
+| Underborne / Wanderborne / Wildborne | Subterrânea / Nômade / Silvestre | | | |
+
 ## Pendências conhecidas
 
 - `progressao.json` conferido (2026-10-09) com o SRD e a ficha oficial.

@@ -671,7 +671,7 @@ class Personagem:
                 raise RegraViolada("Projeto com Propósito: escolha uma das suas Experiências para ganhar +1.")
             f.experiencias[c.experiencia_proposito] += 1
         elif c.experiencia_proposito is not None:
-            raise RegraViolada("Só Projeto com Propósito (Autômato) dá +1 numa Experiência na criação.")
+            raise RegraViolada("Só Projeto com Propósito (Clank) dá +1 numa Experiência na criação.")
 
     def _ganhar_companheiro(self, sub: Subclasse, dados: Companheiro | None) -> FichaCompanheiro | None:
         """Beastbound exige os dados do companheiro; outras subclasses não aceitam."""
