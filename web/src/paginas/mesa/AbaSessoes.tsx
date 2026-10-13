@@ -2,7 +2,7 @@
 // planejamento (resumo, notas privadas, NPCs e inimigos que devem aparecer),
 // o Medo da sessão e os encontros. Outros mestres só veem se o responsável
 // compartilhar, e só para leitura. Jogador nunca vê (só o Medo em jogo, na aba Mesa).
-import { useState } from 'react'
+import { lazy, Suspense, useState } from 'react'
 
 import {
   useApagarSessao, useCompartilharSessao, useCriarSessao, useEditarSessao, useInimigos, useMedo, useNpcs,
@@ -11,9 +11,10 @@ import {
 import type { Mesa, Sessao } from '../../api/tipos'
 import { useAutenticacao } from '../../auth/Autenticacao'
 import MedoDoMestre from '../../componentes/MedoDoMestre'
-import { Area, Aviso, Botao, Campo, Cartao, Carregando, Escolhivel, Selecao, Selo } from '../../componentes/ui'
+import { Abas, Area, Aviso, Botao, Campo, Cartao, Carregando, Escolhivel, Selecao, Selo } from '../../componentes/ui'
 import Encontros from './Encontros'
 import PersonagensNaSessao from './PersonagensNaSessao'
+
 
 const NOME_STATUS: Record<string, string> = {
   planejada: 'Planejada', em_andamento: 'Em andamento', encerrada: 'Encerrada',
@@ -124,6 +125,7 @@ function SessaoAberta({ mesa, sid, aoApagar }: { mesa: Mesa; sid: string; aoApag
   const status = useStatusDaSessao(mesa.id, sid)
   const medo = useMedo(mesa.id, sid)
   const apagar = useApagarSessao(mesa.id)
+  const [parte, setParte] = useState<ParteDaSessao>('planejamento')
 
   if (sessao.isPending) return <Carregando />
   if (sessao.isError) return <Aviso erro={sessao.error} />
@@ -160,16 +162,26 @@ function SessaoAberta({ mesa, sid, aoApagar }: { mesa: Mesa; sid: string; aoApag
       <MedoDoMestre medo={s.medo} titulo="Medo da sessão" ocupado={medo.isPending} erro={medo.error}
         aoMudar={minha ? (m) => medo.mutate(m) : undefined} />
 
-      <div className="grid gap-4 lg:grid-cols-[1fr_20rem]">
-        <Planejamento key={s.id} mesaId={mesa.id} sessao={s} />
-        {minha && <Compartilhar mesa={mesa} sessao={s} />}
-      </div>
+      <Abas<ParteDaSessao> atual={parte} aoTrocar={setParte}
+        abas={[['planejamento', 'Planejamento'], ['quadro', 'Quadro'], ['encontros', 'Encontros'], ['personagens', 'Personagens']]} />
 
-      <Encontros mesaId={mesa.id} sessao={s} />
-      <PersonagensNaSessao mesa={mesa} />
+      {parte === 'planejamento' && (
+        <div className="grid gap-4 lg:grid-cols-[1fr_20rem]">
+          <Planejamento key={s.id} mesaId={mesa.id} sessao={s} />
+          {minha && <Compartilhar mesa={mesa} sessao={s} />}
+        </div>
+      )}
+      {parte === 'quadro' && <Suspense fallback={<Carregando />}><QuadroDaSessao mesa={mesa} sessao={s} /></Suspense>}
+      {parte === 'encontros' && <Encontros mesaId={mesa.id} sessao={s} />}
+      {parte === 'personagens' && <PersonagensNaSessao mesa={mesa} />}
     </div>
   )
 }
+
+type ParteDaSessao = 'planejamento' | 'quadro' | 'encontros' | 'personagens'
+
+// o quadro usa o React Flow (pesado): só carrega quando alguém abre a aba
+const QuadroDaSessao = lazy(() => import('./QuadroDaSessao'))
 
 export default function AbaSessoes({ mesa, podePreparar }: { mesa: Mesa; podePreparar: boolean }) {
   const sessoes = useSessoes(mesa.id)

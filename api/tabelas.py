@@ -113,6 +113,8 @@ class SessaoTabela(Base):
     compartilhada_com: Mapped[list] = mapped_column(JSON, default=list)   # ids de mestres que podem ver
     npcs: Mapped[list] = mapped_column(JSON, default=list)            # NPCs da mesa que devem aparecer
     inimigos: Mapped[list] = mapped_column(JSON, default=list)        # inimigos da mesa que devem aparecer
+    # mapa mental da sessão (motor.quadro.Quadro); o revelado vai para o quadro da campanha
+    quadro: Mapped[dict] = mapped_column(JSON, default=dict, server_default="{}")
     criado_em: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_agora)
     atualizado_em: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_agora, onupdate=_agora)
 

@@ -11,7 +11,7 @@ from motor import RegraViolada
 
 from .mesas import SemPermissao
 from .repositorio import NaoEncontrado
-from .rotas import auth, conteudo, encontros, imagens, mesas, personagens, revelado, sessao, sessoes, srd
+from .rotas import auth, conteudo, encontros, imagens, mesas, personagens, quadro, revelado, sessao, sessoes, srd
 
 app = FastAPI(
     title="Adventurer's Guide",
@@ -28,6 +28,7 @@ app.include_router(sessoes.rotas)
 app.include_router(encontros.rotas)
 app.include_router(imagens.rotas)
 app.include_router(revelado.rotas)
+app.include_router(quadro.rotas)
 
 
 @app.exception_handler(RegraViolada)

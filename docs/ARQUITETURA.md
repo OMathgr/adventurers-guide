@@ -325,6 +325,34 @@ Documentação interativa em `/docs`.
   montar/gravar o personagem (`montar`, `gravar`), para dono e mestre usarem
   o mesmo caminho.
 
+### Quadros: mapa mental da sessão e da campanha (`motor/quadro.py`, `api/rotas/quadro.py`)
+
+Decisões do projeto (2026-10-13):
+- **Um quadro por sessão** (`sessoes.quadro`, JSON de `motor.quadro.Quadro`):
+  cartões `nota` (título, texto com **negrito**/_itálico_, cor), `item` (NPC,
+  inimigo, encontro ou personagem da mesa; a API devolve nome e foto em
+  `itens`) e `imagem` (id de /imagens, com legenda), ligados por setas com
+  texto opcional. Cada cartão tem um ponto de ligação em cada lado e qualquer
+  lado liga em qualquer lado (modo "solto" do React Flow; soltar em qualquer
+  parte do cartão encaixa no lado mais perto); a ligação guarda o lado de cada
+  ponta (`de_ponto`/`para_ponto`: topo, direita, baixo, esquerda). Só o mestre responsável edita (a sessão compartilhada só lê).
+  A tela salva o quadro inteiro sozinha, 800 ms depois da última mudança.
+- Cada cartão é privado até o mestre marcar **"Mostrar aos jogadores"**
+  (`revelado`). `so_revelado` (motor) é o que os jogadores podem ver: os
+  cartões revelados e só as ligações **entre dois revelados** (uma seta para um
+  cartão escondido entregaria que ele existe).
+- **Quadro da campanha** (`GET /mesas/{id}/quadro-da-campanha`, qualquer
+  membro): junta o revelado de todas as sessões, uma região por sessão (ids
+  prefixados pela sessão; layout em `web/src/lib/quadro.ts`). Não se edita
+  direto: enche conforme os mestres revelam. A tela recarrega a cada 10 s.
+- Validação no motor: ids únicos, ligações para cartões existentes, até 300
+  cartões e 600 ligações, cores conhecidas, item e imagem preenchidos.
+- Interface: React Flow (`@xyflow/react`, MIT) para zoom, arrastar e ligar
+  (sem minimapa).
+  Carregado sob demanda (`lazy`): só baixa quem abre um quadro. A sessão
+  aberta ganhou sub-abas (Planejamento, Quadro, Encontros, Personagens) e a
+  mesa tem a aba "Quadro da campanha" para todos.
+
 ### Revelar aos jogadores (`api/rotas/revelado.py`)
 
 Decisões do projeto (2026-10-13):

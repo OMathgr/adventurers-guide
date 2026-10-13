@@ -4,7 +4,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 import { chamar } from './cliente'
 import type {
-  Adversario, Ancestralidade, Arma, Armadura, CartaDeDominio, Equipamento, Classe, Comunidade, Criacao, Encontro, Escolha,
+  Adversario, Ancestralidade, Arma, Armadura, Cartao, CartaDeDominio, Equipamento, Ligacao, QuadroDaSessao, QuadroSaida, Classe, Comunidade, Criacao, Encontro, Escolha,
   EventoLinhaDoTempo, Ficha, GuiaDeBatalha, InimigoResumo, Mesa, MesaResumo, Npc, NpcEntrada, OpcoesDoGuia, PermissoesMestres, DadosDaSessao, Sessao, SessaoResumo,
   PersonagemCriado, PersonagemResumo, ProximoNivel, ResultadoDano, ResultadoDanoAdversario, Subclasse, VistaDosJogadores,
   SubidaDeNivel,
@@ -482,6 +482,35 @@ export const useRevelado = (mesaId: string) =>
     queryKey: ['mesas', mesaId, 'revelado'],
     queryFn: () => chamar<VistaDosJogadores>(`/mesas/${mesaId}/revelado`),
     refetchInterval: 5000,
+  })
+
+// --- Quadros (mapa mental) -------------------------------------------------------------------
+
+const chaveQuadro = (mesaId: string, sid: string) => ['mesas', mesaId, 'sessoes', sid, 'quadro'] as const
+
+export const useQuadro = (mesaId: string, sid: string) =>
+  useQuery({ queryKey: chaveQuadro(mesaId, sid), queryFn: () => chamar<QuadroSaida>(`${urlSessao(mesaId, sid)}/quadro`) })
+
+/** Grava o quadro inteiro. A tela mantém o próprio estado (para não pular
+    enquanto se arrasta); da resposta só aproveita os itens resolvidos. */
+export function useSalvarQuadro(mesaId: string, sid: string) {
+  const cliente = useQueryClient()
+  return useMutation({
+    mutationFn: (q: { cartoes: Cartao[]; ligacoes: Ligacao[] }) =>
+      chamar<QuadroSaida>(`${urlSessao(mesaId, sid)}/quadro`, { metodo: 'PUT', corpo: q }),
+    onSuccess: (q) => {
+      cliente.setQueryData(chaveQuadro(mesaId, sid), q)
+      return cliente.invalidateQueries({ queryKey: ['mesas', mesaId, 'quadro-da-campanha'] })
+    },
+  })
+}
+
+/** O revelado de todas as sessões (qualquer membro). Recarrega a cada 10 s. */
+export const useQuadroDaCampanha = (mesaId: string) =>
+  useQuery({
+    queryKey: ['mesas', mesaId, 'quadro-da-campanha'],
+    queryFn: () => chamar<QuadroDaSessao[]>(`/mesas/${mesaId}/quadro-da-campanha`),
+    refetchInterval: 10000,
   })
 
 /** Torna um NPC conhecido (ou não) pelos jogadores. */

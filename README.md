@@ -21,7 +21,9 @@ mesas, a área do mestre e as sessões de jogo (cada uma de um mestre, com
 planejamento, Medo próprio e encontros com várias cópias de inimigos, Guia de
 Batalha, PV/PF/condições por clique, dano e condições nos personagens). O
 mestre revela aos jogadores o estado de vitalidade e as condições dos inimigos
-(nunca os números) e os NPCs que eles já conhecem.
+(nunca os números) e os NPCs que eles já conhecem. Cada sessão tem um quadro
+de mapa mental (notas, itens da mesa, imagens e setas); o que o mestre revela
+vai para o quadro da campanha, que todos veem.
 Também tem aba de equipamento, nível máximo por mesa (o personagem fica preso
 à mesa; para levar a outra, faz-se uma cópia e os níveis acima viram plano)
 e fotos de personagens, NPCs e inimigos.
@@ -91,9 +93,9 @@ docs/ARQUITETURA.md
 1. ~~Motor de regras~~
 2. ~~API (FastAPI) + banco: personagens salvos, usuários e login, mesas e papéis~~
 3. Interface web: ~~construtor (ficha + linha do tempo)~~, ~~mesas e área do mestre (inimigos e NPCs)~~,
-   ~~sessão de jogo (encontros, Medo, PV/PF dos inimigos)~~ e revelar informações aos jogadores (próximo)
-4. Workspace da mesa (mapa mental com visibilidade por papel)
-5. Colaboração em tempo real
+   ~~sessão de jogo (encontros, Medo, PV/PF dos inimigos)~~, ~~revelar informações aos jogadores~~
+4. ~~Workspace da mesa (mapa mental por sessão + quadro da campanha com o revelado)~~
+5. Colaboração em tempo real (próximo: hoje as telas recarregam de tempos em tempos)
 6. App mobile
 
 ## Licença do conteúdo

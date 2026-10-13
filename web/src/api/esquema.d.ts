@@ -1506,6 +1506,47 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/mesas/{mesa_id}/sessoes/{sessao_id}/quadro": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Ver Quadro */
+        get: operations["ver_quadro_mesas__mesa_id__sessoes__sessao_id__quadro_get"];
+        /**
+         * Salvar Quadro
+         * @description Grava o quadro inteiro (a tela salva sozinha depois de cada mudança).
+         */
+        put: operations["salvar_quadro_mesas__mesa_id__sessoes__sessao_id__quadro_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/mesas/{mesa_id}/quadro-da-campanha": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Quadro Da Campanha
+         * @description O revelado de todas as sessões, uma região por sessão (na ordem em que foram criadas).
+         */
+        get: operations["quadro_da_campanha_mesas__mesa_id__quadro_da_campanha_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1782,6 +1823,47 @@ export interface components {
              * @default
              */
             nome_original: string;
+        };
+        /** Cartao */
+        Cartao: {
+            /** Id */
+            id: string;
+            tipo: components["schemas"]["TipoCartao"];
+            /**
+             * X
+             * @default 0
+             */
+            x: number;
+            /**
+             * Y
+             * @default 0
+             */
+            y: number;
+            /**
+             * Titulo
+             * @default
+             */
+            titulo: string;
+            /**
+             * Texto
+             * @default
+             */
+            texto: string;
+            /**
+             * Cor
+             * @default padrao
+             */
+            cor: string;
+            item_tipo?: components["schemas"]["TipoItem"] | null;
+            /** Item Id */
+            item_id?: string | null;
+            /** Imagem */
+            imagem?: string | null;
+            /**
+             * Revelado
+             * @default false
+             */
+            revelado: boolean;
         };
         /**
          * CategoriaArma
@@ -2385,6 +2467,41 @@ export interface components {
             /** Condicoes */
             condicoes: string[];
         };
+        /** ItemNoQuadro */
+        ItemNoQuadro: {
+            /** Nome */
+            nome: string;
+            /** Foto */
+            foto?: string | null;
+            /**
+             * Descricao
+             * @default
+             */
+            descricao: string;
+            /**
+             * Existe
+             * @default true
+             */
+            existe: boolean;
+        };
+        /** Ligacao */
+        Ligacao: {
+            /** Id */
+            id: string;
+            /** De */
+            de: string;
+            /** Para */
+            para: string;
+            /**
+             * Rotulo
+             * @default
+             */
+            rotulo: string;
+            /** De Ponto */
+            de_ponto?: string | null;
+            /** Para Ponto */
+            para_ponto?: string | null;
+        };
         /** Marcas */
         Marcas: {
             /** Pv Marcados */
@@ -2777,12 +2894,45 @@ export interface components {
              */
             planejado: boolean;
         };
+        /** Quadro */
+        Quadro: {
+            /** Cartoes */
+            cartoes?: components["schemas"]["Cartao"][];
+            /** Ligacoes */
+            ligacoes?: components["schemas"]["Ligacao"][];
+        };
+        /** QuadroDaSessao */
+        QuadroDaSessao: {
+            /** Cartoes */
+            cartoes: components["schemas"]["Cartao"][];
+            /** Ligacoes */
+            ligacoes: components["schemas"]["Ligacao"][];
+            /** Itens */
+            itens: {
+                [key: string]: components["schemas"]["ItemNoQuadro"];
+            };
+            /** Sessao Id */
+            sessao_id: string;
+            /** Titulo */
+            titulo: string;
+        };
         /** QuadroDeAvanco */
         QuadroDeAvanco: {
             /** Tier */
             tier: number;
             /** Opcoes */
             opcoes: components["schemas"]["OpcaoNoQuadro"][];
+        };
+        /** QuadroSaida */
+        QuadroSaida: {
+            /** Cartoes */
+            cartoes: components["schemas"]["Cartao"][];
+            /** Ligacoes */
+            ligacoes: components["schemas"]["Ligacao"][];
+            /** Itens */
+            itens: {
+                [key: string]: components["schemas"]["ItemNoQuadro"];
+            };
         };
         /** Quantidade */
         Quantidade: {
@@ -2967,6 +3117,11 @@ export interface components {
          */
         TipoAdversario: "SOLO" | "BRUTAMONTES" | "LACAIO" | "LIDER" | "ESPREITADOR" | "PADRAO" | "ATIRADOR" | "SOCIAL" | "SUPORTE" | "HORDA";
         /**
+         * TipoCartao
+         * @enum {string}
+         */
+        TipoCartao: "nota" | "item" | "imagem";
+        /**
          * TipoDano
          * @enum {string}
          */
@@ -2976,6 +3131,11 @@ export interface components {
          * @enum {string}
          */
         TipoHabilidade: "PASSIVA" | "ACAO" | "REACAO";
+        /**
+         * TipoItem
+         * @enum {string}
+         */
+        TipoItem: "npc" | "inimigo" | "encontro" | "personagem";
         /** Token */
         Token: {
             /** Access Token */
@@ -6362,6 +6522,105 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["VistaDosJogadores"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    ver_quadro_mesas__mesa_id__sessoes__sessao_id__quadro_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mesa_id: string;
+                sessao_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["QuadroSaida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    salvar_quadro_mesas__mesa_id__sessoes__sessao_id__quadro_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mesa_id: string;
+                sessao_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Quadro"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["QuadroSaida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    quadro_da_campanha_mesas__mesa_id__quadro_da_campanha_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mesa_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["QuadroDaSessao"][];
                 };
             };
             /** @description Validation Error */

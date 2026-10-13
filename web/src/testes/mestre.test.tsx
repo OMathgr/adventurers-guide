@@ -164,7 +164,8 @@ describe('Página da mesa', () => {
       method: 'POST', body: JSON.stringify({ delta: 1 }) }))
     expect(await screen.findByRole('group', { name: 'Medo da sessão: 4 de 12' })).toBeInTheDocument()
 
-    // encontros não têm ordem: o mestre abre o que acontecer
+    // encontros não têm ordem: o mestre abre o que acontecer (na sub-aba Encontros da sessão)
+    await userEvent.click(screen.getByRole('tab', { name: 'Encontros' }))
     await userEvent.click(screen.getByRole('button', { name: /Emboscada na ponte/ }))
     const painel = await screen.findByRole('region', { name: 'Guia de Batalha' })
     expect(painel).toHaveTextContent('2 de 15 PB gastos · sobram 13 PB')
