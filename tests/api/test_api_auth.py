@@ -19,7 +19,7 @@ def test_cadastro_e_login(anonimo):
     r = cadastrar(anonimo, email="Bia@Exemplo.com")
     assert r.status_code == 201
     assert r.json()["email"] == "bia@exemplo.com"           # e-mail sempre minúsculo
-    assert "senha" not in r.text and "hash" not in r.text   # nada de senha na resposta
+    assert "senha-forte" not in r.text and "hash" not in r.text and "argon2" not in r.text   # nada de senha na resposta
     token = login(anonimo, email="BIA@exemplo.com").json()["access_token"]
     eu = anonimo.get("/auth/eu", headers={"Authorization": f"Bearer {token}"}).json()
     assert (eu["email"], eu["nome"]) == ("bia@exemplo.com", "Bia")

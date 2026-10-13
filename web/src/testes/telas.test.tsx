@@ -26,7 +26,8 @@ afterEach(() => vi.unstubAllGlobals())
 
 describe('Entrar', () => {
   it('mostra a mensagem da API quando o login falha', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(
+    // uma resposta nova a cada chamada (a tela também pergunta /auth/provedores)
+    vi.stubGlobal('fetch', vi.fn().mockImplementation(async () =>
       new Response(JSON.stringify({ detail: 'E-mail ou senha incorretos.' }), { status: 401 })))
     montar(<Entrar />)
     await userEvent.type(screen.getByLabelText('E-mail'), 'ana@exemplo.com')

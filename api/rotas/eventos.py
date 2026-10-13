@@ -8,15 +8,14 @@ comentário (`: ping`) para manter a conexão viva atrás de proxies.
 import asyncio
 import json
 
-from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi import APIRouter, Depends, Request
 from fastapi.concurrency import run_in_threadpool
 from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 
 from ..db import sessao_do_banco
 from ..eventos import avisar_presenca, central
-from ..seguranca import TokenInvalido, usuario_do_token
-from ..tabelas import UsuarioTabela
+from ..autenticacao import usuario_do_acesso
 
 rotas = APIRouter(tags=["Ao vivo"])
 INTERVALO_PING = 15.0  # segundos (os testes diminuem)
@@ -31,12 +30,8 @@ def _presenca(engine, usuario_id: str):
 
 @rotas.get("/eventos")
 async def eventos(request: Request, token: str, banco: Session = Depends(sessao_do_banco)):
-    try:
-        usuario_id = usuario_do_token(token)
-    except TokenInvalido:
-        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Token inválido ou expirado.")
-    if await run_in_threadpool(banco.get, UsuarioTabela, usuario_id) is None:
-        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Usuário não existe mais.")
+    # mesma validação das rotas (inclui sessões derrubadas pela troca de senha)
+    usuario_id = (await run_in_threadpool(usuario_do_acesso, banco, token)).id
     engine = banco.get_bind()   # a sessão da requisição fecha antes do fim do fluxo
 
     fila: asyncio.Queue = asyncio.Queue()

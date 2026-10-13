@@ -58,6 +58,19 @@ Na página `/docs`, cadastre-se em `POST /auth/cadastro` e use o botão
 Em produção, defina `JWT_SECRET` (chave longa e aleatória). Sem ela, a API
 gera uma chave temporária e os logins caem a cada reinício.
 
+**E-mail (esqueci minha senha)**: defina `SMTP_HOST`, `SMTP_PORTA` (587),
+`SMTP_USUARIO`, `SMTP_SENHA`, `SMTP_REMETENTE` e `APP_URL` (endereço da
+interface, usado no link). Com o Gmail, use uma "senha de app". Sem
+`SMTP_HOST`, o e-mail aparece no log da API (bom para testar).
+
+**Login com o Google**: no Google Cloud Console, em APIs e serviços >
+Credenciais, crie um "ID do cliente OAuth" do tipo "Aplicativo da Web" e
+cadastre o URI de redirecionamento `{API_URL}/auth/google/retorno`
+(em desenvolvimento: `http://localhost:5173/api/auth/google/retorno`). Depois
+defina `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` e, em produção, `API_URL`
+(endereço público da API) e `APP_URL`. Sem as duas primeiras, o botão do
+Google não aparece.
+
 Para usar PostgreSQL: instale um driver (ex.: `pip install "psycopg[binary]"`),
 defina `DATABASE_URL=postgresql+psycopg://usuario:senha@servidor/adventurers`
 e rode `alembic upgrade head`.

@@ -9,7 +9,8 @@ import { ErroApi } from './api/cliente'
 import { ProvedorAutenticacao, useAutenticacao } from './auth/Autenticacao'
 import Layout from './componentes/Layout'
 import { registrarServiceWorker } from './lib/pwa'
-import { Cadastro, Entrar } from './paginas/Acesso'
+import { Cadastro, Entrar, EntrarComGoogle, RecuperarSenha, RedefinirSenha } from './paginas/Acesso'
+import Conta from './paginas/Conta'
 import Convite from './paginas/Convite'
 import Mesa from './paginas/Mesa'
 import Mesas from './paginas/Mesas'
@@ -44,6 +45,9 @@ createRoot(document.getElementById('root')!).render(
           <Routes>
             <Route path="/entrar" element={<Entrar />} />
             <Route path="/cadastro" element={<Cadastro />} />
+            <Route path="/entrar/google" element={<EntrarComGoogle />} />
+            <Route path="/recuperar-senha" element={<RecuperarSenha />} />
+            <Route path="/redefinir-senha" element={<RedefinirSenha />} />
             <Route element={<SoLogado />}>
               <Route element={<Layout />}>
                 <Route path="/personagens" element={<Personagens />} />
@@ -52,6 +56,7 @@ createRoot(document.getElementById('root')!).render(
                 <Route path="/mesas" element={<Mesas />} />
                 <Route path="/mesas/:id" element={<Mesa />} />
                 <Route path="/convite/:codigo" element={<Convite />} />
+                <Route path="/conta" element={<Conta />} />
               </Route>
             </Route>
             <Route path="*" element={<Navigate to="/personagens" replace />} />

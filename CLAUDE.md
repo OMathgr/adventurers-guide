@@ -22,7 +22,8 @@ mental (um por sessão; o revelado vai para o quadro da campanha) e ao vivo
 (instalável, todas as telas em 360 px) pronto. Inventário (ouro, saque e
 consumíveis do SRD, relíquias, armas guardadas, itens iniciais) e lojas da
 sessão (o mestre vende, cobrando o ouro), com a regra opcional das moedas
-por mesa, prontos. Leia `docs/ARQUITETURA.md` antes de mudar a modelagem. O
+por mesa, prontos. Conta: esqueci minha senha (link por e-mail via SMTP) e login
+com o Google (contas com o mesmo e-mail se juntam) prontos. Leia `docs/ARQUITETURA.md` antes de mudar a modelagem. O
 personagem é guardado como criação + histórico de subidas de nível; a ficha
 é sempre recalculada.
 

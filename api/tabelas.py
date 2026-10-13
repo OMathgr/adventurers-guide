@@ -23,11 +23,37 @@ class UsuarioTabela(Base):
     id: Mapped[str] = mapped_column(String(36), primary_key=True)
     email: Mapped[str] = mapped_column(String(254), unique=True, index=True)   # sempre minúsculo
     nome: Mapped[str] = mapped_column(String(120))
-    senha_hash: Mapped[str] = mapped_column(String(255))
+    senha_hash: Mapped[str] = mapped_column(String(255))   # vazio: conta só com o Google (sem senha)
     criado_em: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_agora)
+    # trocar a senha derruba as sessões abertas: tokens emitidos antes disto não valem
+    tokens_validos_desde: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     personagens: Mapped[list["PersonagemTabela"]] = relationship(
         back_populates="dono", cascade="all, delete-orphan", passive_deletes=True)
+
+
+class RecuperacaoTabela(Base):
+    """Pedido de "esqueci minha senha". Guarda só o hash do token (quem lê o
+    banco não consegue usar o link); vale 1 hora e uma vez só."""
+
+    __tablename__ = "recuperacoes_de_senha"
+
+    token_hash: Mapped[str] = mapped_column(String(64), primary_key=True)   # sha256 do token
+    usuario_id: Mapped[str] = mapped_column(ForeignKey("usuarios.id", ondelete="CASCADE"), index=True)
+    criado_em: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_agora)
+    expira_em: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+
+class IdentidadeTabela(Base):
+    """Conta numa plataforma de login (hoje, só o Google) ligada a um usuário."""
+
+    __tablename__ = "identidades"
+
+    provedor: Mapped[str] = mapped_column(String(20), primary_key=True)   # "google"
+    sub: Mapped[str] = mapped_column(String(255), primary_key=True)       # id da pessoa na plataforma
+    usuario_id: Mapped[str] = mapped_column(ForeignKey("usuarios.id", ondelete="CASCADE"), index=True)
+    email: Mapped[str] = mapped_column(String(254), default="")
+    criado_em: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_agora)
 
 
 class MesaTabela(Base):

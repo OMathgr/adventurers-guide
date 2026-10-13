@@ -348,6 +348,48 @@ Documentação interativa em `/docs`.
   errada.
 - `Base.metadata` tem convenção de nomes para índices e restrições (o
   Alembic precisa deles para alterar tabelas no SQLite).
+- **Migrações no SQLite**: coluna nova em tabela que outras apontam com
+  `ON DELETE CASCADE` (`usuarios`, `mesas`, `personagens`...) entra com
+  `op.add_column` direto, nunca com `batch_alter_table`. O "batch" recria a
+  tabela e, com `PRAGMA foreign_keys=ON`, apagar a antiga apaga em cascata
+  tudo o que depende dela. Padrão de coluna como texto (`server_default='0'`),
+  não `sa.text(...)`, senão o Alembic recria. `tests/api/test_migracoes.py`
+  migra um banco com dados para frente e para trás e confere que nada some.
+
+### Recuperação de senha e login com o Google (`api/rotas/auth.py`)
+
+Decisões do projeto (2026-10-13): só Google por enquanto; e-mail por SMTP
+configurável; mesmo e-mail (verificado pelo Google) junta as contas; quem
+entrou só pelo Google cria senha pelo "esqueci minha senha".
+
+- **Esqueci minha senha**: `POST /auth/recuperar` responde sempre a mesma coisa
+  (e o e-mail sai depois da resposta, em segundo plano), para ninguém descobrir
+  quem tem conta. O token do link é aleatório; o banco guarda só o sha256
+  (`recuperacoes_de_senha`), vale 1 hora e uma vez só; pedir de novo invalida o
+  anterior e há no máximo um e-mail por minuto por conta. `POST /auth/redefinir`
+  troca a senha e já entra.
+- **Sessões antigas caem** ao trocar a senha: `usuarios.tokens_validos_desde`, e
+  token com `iat` anterior recebe 401 (o `iat` tem fração de segundo, para valer
+  até no mesmo segundo). Vale também para o fluxo ao vivo.
+- **E-mail** (`api/correio.py`): SMTP de qualquer provedor (`SMTP_HOST`,
+  `SMTP_PORTA`, `SMTP_SEGURANCA`, `SMTP_USUARIO`, `SMTP_SENHA`,
+  `SMTP_REMETENTE`; links com `APP_URL`). Sem `SMTP_HOST`, o e-mail vai para o
+  log (desenvolvimento).
+- **Google** (`api/google.py`): OpenID Connect com código + PKCE. `GET
+  /auth/google` guarda estado e verificador num cookie assinado de 10 minutos
+  (httpOnly, SameSite=Lax) e vai ao Google; `/auth/google/retorno` confere o
+  estado, troca o código no servidor e confere emissor, público, validade e
+  e-mail verificado do `id_token` (veio direto do Google por HTTPS, então a
+  assinatura não precisa ser conferida). Entra na conta ligada (`identidades`:
+  provedor + sub); senão na conta do mesmo e-mail verificado (junta); senão cria
+  uma conta sem senha (`senha_hash` vazio; a tabela `usuarios` não precisou
+  mudar). Volta ao app com o token no fragmento (`/entrar/google#token=...`),
+  que não passa por servidor nem log.
+- Ligar o Google a uma conta logada: `POST /auth/google/ligar` dá um bilhete de
+  5 minutos (o token de acesso não vai na URL). Desligar exige ter senha.
+- Tokens internos (`assinar`/`ler_assinado`, com `typ`) nunca servem de acesso.
+- `GET /auth/provedores` diz o que está configurado: sem `GOOGLE_CLIENT_ID` e
+  `GOOGLE_CLIENT_SECRET`, o botão nem aparece.
 
 ### Mesas (`api/mesas.py` e `api/rotas/mesas.py`)
 
@@ -549,7 +591,7 @@ manipulador, assistente, brutamonte.
   condições pelas permissões `ver_fichas`, `aplicar_dano`,
   `aplicar_condicoes`). Na aba Mesa, todos veem o Medo das sessões em andamento.
 
-Ainda não: renovação de token (refresh) e "esqueci minha senha", jogadores
+Ainda não: renovação de token (refresh), jogadores
 verem as fichas uns dos outros, controle de concorrência entre duas edições
 simultâneas do mesmo personagem (ex.: mestre aplica dano enquanto o jogador
 descansa).

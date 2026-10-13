@@ -58,9 +58,14 @@ export default function Layout() {
               {tema === 'escuro' ? '☀' : '☾'}
             </button>
             {instalar && (
-              <button onClick={instalar} className="text-esperanca hover:text-esperanca-forte">Instalar app</button>
+              <button onClick={instalar} className="text-esperanca hover:text-esperanca-forte">Instalar<span className="hidden sm:inline"> app</span></button>
             )}
-            {usuario && <span className="hidden text-texto-suave sm:inline">{usuario.nome}</span>}
+            {usuario && (
+              <NavLink to="/conta" aria-label="Conta"
+                className={({ isActive }) => (isActive ? 'text-esperanca' : 'text-texto-suave hover:text-texto')}>
+                <span className="hidden sm:inline">{usuario.nome}</span><span className="sm:hidden">Conta</span>
+              </NavLink>
+            )}
             <button onClick={sair} className="text-texto-suave hover:text-perigo">Sair</button>
           </nav>
         </div>

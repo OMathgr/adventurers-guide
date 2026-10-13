@@ -10,6 +10,8 @@ type Autenticacao = {
   logado: boolean
   usuario: Usuario | undefined
   entrar: (email: string, senha: string) => Promise<void>
+  /** Token que já veio pronto (login com o Google, senha redefinida). */
+  entrarComToken: (accessToken: string) => void
   cadastrar: (dados: { email: string; nome: string; senha: string }) => Promise<void>
   sair: () => void
 }
@@ -41,14 +43,19 @@ export function ProvedorAutenticacao({ children }: { children: ReactNode }) {
     setTokenAtual(t.access_token)
   }, [])
 
+  const entrarComToken = useCallback((accessToken: string) => {
+    token.gravar(accessToken)
+    setTokenAtual(accessToken)
+  }, [])
+
   const cadastrar = useCallback(async (dados: { email: string; nome: string; senha: string }) => {
     await chamar<Usuario>('/auth/cadastro', { corpo: dados })
     await entrar(dados.email, dados.senha)
   }, [entrar])
 
   const valor = useMemo(
-    () => ({ logado: !!tokenAtual, usuario: usuario.data, entrar, cadastrar, sair }),
-    [tokenAtual, usuario.data, entrar, cadastrar, sair],
+    () => ({ logado: !!tokenAtual, usuario: usuario.data, entrar, entrarComToken, cadastrar, sair }),
+    [tokenAtual, usuario.data, entrar, entrarComToken, cadastrar, sair],
   )
   return <Contexto.Provider value={valor}>{children}</Contexto.Provider>
 }

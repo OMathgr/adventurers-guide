@@ -62,6 +62,107 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/auth/recuperar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Pedir Recuperacao
+         * @description Manda o link para criar uma senha nova. A resposta é sempre a mesma (e o
+         *     e-mail sai depois da resposta): ninguém descobre por aqui quem tem conta.
+         *     Serve também para quem entrou pelo Google criar uma senha.
+         */
+        post: operations["pedir_recuperacao_auth_recuperar_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/redefinir": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Redefinir Senha
+         * @description Troca a senha com o link do e-mail (uma vez só) e já entra. Derruba as
+         *     sessões abertas: quem estava logado com a senha antiga precisa entrar de novo.
+         */
+        post: operations["redefinir_senha_auth_redefinir_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/provedores": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Provedores
+         * @description Quais plataformas de login estão configuradas (a tela só mostra essas).
+         */
+        get: operations["provedores_auth_provedores_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/google/ligar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Link Para Ligar Google
+         * @description Para ligar o Google a uma conta já logada: um bilhete de 5 minutos (o
+         *     token de acesso não vai na URL).
+         */
+        post: operations["link_para_ligar_google_auth_google_ligar_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/google": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Desligar Google */
+        delete: operations["desligar_google_auth_google_delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/srd/classes": {
         parameters: {
             query?: never;
@@ -3146,6 +3247,11 @@ export interface components {
             /** Para Ponto */
             para_ponto?: string | null;
         };
+        /** LinkDeLogin */
+        LinkDeLogin: {
+            /** Url */
+            url: string;
+        };
         /** LojaEntrada */
         LojaEntrada: {
             /** Nome */
@@ -3310,6 +3416,13 @@ export interface components {
         NovaMesa: {
             /** Nome */
             nome: string;
+        };
+        /** NovaSenha */
+        NovaSenha: {
+            /** Token */
+            token: string;
+            /** Senha */
+            senha: string;
         };
         /** NovaSessao */
         NovaSessao: {
@@ -3525,6 +3638,14 @@ export interface components {
             /** Papel */
             papel: string;
         };
+        /** PedidoDeRecuperacao */
+        PedidoDeRecuperacao: {
+            /**
+             * Email
+             * Format: email
+             */
+            email: string;
+        };
         /**
          * Permissao
          * @enum {string}
@@ -3591,6 +3712,11 @@ export interface components {
             mesa_id?: string | null;
             /** Foto */
             foto?: string | null;
+        };
+        /** Provedores */
+        Provedores: {
+            /** Google */
+            google: boolean;
         };
         /**
          * ProximoNivelSaida
@@ -3942,6 +4068,16 @@ export interface components {
             email: string;
             /** Nome */
             nome: string;
+            /**
+             * Tem Senha
+             * @default true
+             */
+            tem_senha: boolean;
+            /**
+             * Google
+             * @default false
+             */
+            google: boolean;
         };
         /** ValidationError */
         ValidationError: {
@@ -4112,6 +4248,132 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    pedir_recuperacao_auth_recuperar_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PedidoDeRecuperacao"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    redefinir_senha_auth_redefinir_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NovaSenha"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Token"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    provedores_auth_provedores_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Provedores"];
+                };
+            };
+        };
+    };
+    link_para_ligar_google_auth_google_ligar_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LinkDeLogin"];
+                };
+            };
+        };
+    };
+    desligar_google_auth_google_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Usuario"];
+                };
             };
         };
     };

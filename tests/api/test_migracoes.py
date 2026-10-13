@@ -29,7 +29,7 @@ def test_migrar_nao_apaga_dados(tmp_path, monkeypatch):
     url = f"sqlite:///{(tmp_path / 'dados.db').as_posix()}"
     monkeypatch.setenv("DATABASE_URL", url)
     config = Config("alembic.ini")
-    command.upgrade(config, "ce777afa6c3f")   # antes do inventário e das lojas
+    command.upgrade(config, "ce777afa6c3f")   # antes do inventário (e de tudo o que veio depois)
     engine = criar_engine(url)
     with engine.begin() as c:
         c.execute(text("INSERT INTO usuarios (id, email, nome, senha_hash, criado_em) "
