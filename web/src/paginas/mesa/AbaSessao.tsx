@@ -10,6 +10,7 @@ import {
 import type { Combatente, Mesa, ResultadoDanoAdversario } from '../../api/tipos'
 import Condicoes from '../../componentes/Condicoes'
 import FichaInimigo from '../../componentes/FichaInimigo'
+import { Foto } from '../../componentes/Foto'
 import MedoDoMestre from '../../componentes/MedoDoMestre'
 import { Aviso, Botao, Campo, Carregando, EspacosClicaveis, Escolhivel, Selecao, Selo } from '../../componentes/ui'
 import { NOME_GRAVIDADE, NOME_TIPO_ADVERSARIO } from '../../lib/rotulos'
@@ -36,24 +37,33 @@ function CartaoCombatente({ mesaId, encontroId, c, podePreparar }:
     <article aria-label={c.rotulo}
       className={`space-y-3 rounded-2xl border p-4 ${c.derrotado ? 'border-borda bg-superficie/40 opacity-60' : 'border-borda bg-superficie'}`}>
       <header className="flex flex-wrap items-start justify-between gap-2">
-        <div>
-          <h3 className="font-titulo text-base">{c.rotulo}</h3>
-          <p className="text-xs text-texto-suave">
-            Patamar {a.patamar} · {NOME_TIPO_ADVERSARIO[a.tipo]} · Dificuldade {a.dificuldade} · Limiares {limiares}
-          </p>
-          <p className="text-xs text-texto-suave">ATQ {a.ataque} · {a.arma} · {a.dano}</p>
+        <div className="flex gap-3">
+          {a.foto && <Foto id={a.foto} nome={c.rotulo} tamanho="p" />}
+          <div>
+            <h3 className="font-titulo text-base">{c.rotulo}</h3>
+            <p className="text-xs text-texto-suave">
+              Patamar {a.patamar} · {NOME_TIPO_ADVERSARIO[a.tipo]} · Dificuldade {a.dificuldade} · Limiares {limiares}
+            </p>
+            <p className="text-xs text-texto-suave">ATQ {a.ataque} · {a.arma} · {a.dano}</p>
+          </div>
         </div>
         {c.derrotado && <Selo>Derrotado</Selo>}
       </header>
 
+      {/* inimigo começa cheio e o mestre vai esvaziando: quadradinho cheio = ponto que resta
+          (a API guarda os marcados, como na ficha do livro) */}
       <div className="space-y-1.5">
-        <p className="text-xs text-texto-suave">PV</p>
-        <EspacosClicaveis total={a.pv} marcados={c.pv_marcados} rotulo={`PV de ${c.rotulo}`} desabilitado={ocupado}
-          aoMudar={(pv) => acao.mutate({ tipo: 'marcas', combatente: c.id, pv_marcados: pv, pf_marcados: c.pf_marcados })} />
+        <p className="text-xs text-texto-suave">PV restantes: {a.pv - c.pv_marcados}/{a.pv}</p>
+        <EspacosClicaveis total={a.pv} marcados={a.pv - c.pv_marcados} rotulo={`PV restantes de ${c.rotulo}`}
+          sufixo="" desabilitado={ocupado}
+          aoMudar={(restam) => acao.mutate({
+            tipo: 'marcas', combatente: c.id, pv_marcados: a.pv - restam, pf_marcados: c.pf_marcados })} />
         {a.pf > 0 && <>
-          <p className="text-xs text-texto-suave">PF</p>
-          <EspacosClicaveis total={a.pf} marcados={c.pf_marcados} rotulo={`PF de ${c.rotulo}`} cor="medo" desabilitado={ocupado}
-            aoMudar={(pf) => acao.mutate({ tipo: 'marcas', combatente: c.id, pv_marcados: c.pv_marcados, pf_marcados: pf })} />
+          <p className="text-xs text-texto-suave">PF restantes: {a.pf - c.pf_marcados}/{a.pf}</p>
+          <EspacosClicaveis total={a.pf} marcados={a.pf - c.pf_marcados} rotulo={`PF restantes de ${c.rotulo}`}
+            cor="medo" sufixo="" desabilitado={ocupado}
+            aoMudar={(restam) => acao.mutate({
+              tipo: 'marcas', combatente: c.id, pv_marcados: c.pv_marcados, pf_marcados: a.pf - restam })} />
         </>}
       </div>
 

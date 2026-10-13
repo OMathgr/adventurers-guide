@@ -74,6 +74,7 @@ class Adversario:
     base_id: str | None = None       # adversário do SRD em que foi baseado
     nome_original: str = ""
     arma_original: str = ""
+    foto: str | None = None          # id da imagem enviada (só exibição; o motor não usa)
 
 
 _DANO = re.compile(r"(\d+|\d*d\d+([+-]\d+)?)")

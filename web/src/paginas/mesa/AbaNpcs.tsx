@@ -6,13 +6,14 @@ import { useApagarNpc, useNpcs, useSalvarNpc } from '../../api/consultas'
 import type { Npc, NpcEntrada } from '../../api/tipos'
 import EditorInimigo from '../../componentes/EditorInimigo'
 import FichaInimigo from '../../componentes/FichaInimigo'
+import { EnviarFoto, Foto } from '../../componentes/Foto'
 import TextoRico from '../../componentes/TextoRico'
 import { Area, Aviso, Botao, Campo, Carregando, Escolhivel, Selo } from '../../componentes/ui'
 import { INIMIGO_EM_BRANCO } from '../../lib/inimigo'
 
 type Rascunho = NpcEntrada & { id?: string }
 
-const NPC_EM_BRANCO: Rascunho = { nome: '', descricao: '', motivacoes: '', notas: '', ficha_combate: null }
+const NPC_EM_BRANCO: Rascunho = { nome: '', descricao: '', motivacoes: '', notas: '', ficha_combate: null, foto: null }
 
 function Editor({ inicial, aoSalvar, aoCancelar, salvando, erro }: {
   inicial: Rascunho; aoSalvar: (r: Rascunho) => void; aoCancelar: () => void; salvando: boolean; erro: unknown
@@ -24,6 +25,10 @@ function Editor({ inicial, aoSalvar, aoCancelar, salvando, erro }: {
     <form className="space-y-4 rounded-2xl border border-borda bg-superficie p-4 sm:p-5"
       onSubmit={(e) => { e.preventDefault(); aoSalvar(r) }}>
       <h2 className="text-lg text-esperanca">{r.id ? `Editar ${inicial.nome}` : 'Novo NPC'}</h2>
+      <div className="flex items-center gap-3">
+        <Foto id={r.foto} nome={r.nome || '?'} />
+        <EnviarFoto temFoto={!!r.foto} aoMudar={(foto) => mudar({ foto })} />
+      </div>
       <Campo rotulo="Nome" value={r.nome} required maxLength={120} onChange={(e) => mudar({ nome: e.target.value })} />
       <Area rotulo="Descrição" value={r.descricao} maxLength={4000} onChange={(e) => mudar({ descricao: e.target.value })} />
       <Area rotulo="Motivações" rows={2} value={r.motivacoes} maxLength={2000}
@@ -56,7 +61,10 @@ function Detalhe({ npc, acoes }: { npc: Npc; acoes?: React.ReactNode }) {
     <div className="space-y-4">
       <article className="space-y-3 rounded-2xl border border-borda bg-superficie p-4 sm:p-5">
         <header className="flex flex-wrap items-start justify-between gap-2">
-          <h2 className="text-xl text-esperanca">{npc.nome}</h2>
+          <div className="flex items-center gap-3">
+            <Foto id={npc.foto} nome={npc.nome} />
+            <h2 className="text-xl text-esperanca">{npc.nome}</h2>
+          </div>
           {acoes && <div className="flex gap-2">{acoes}</div>}
         </header>
         {npc.descricao && <TextoRico texto={npc.descricao} className="text-sm" />}
@@ -100,7 +108,8 @@ export default function AbaNpcs({ mesaId, podeEditar }: { mesaId: string; podeEd
               <Escolhivel selecionado={n.id === selecionado && !rascunho}
                 onClick={() => { setRascunho(null); setSelecionado(n.id) }}>
                 <span className="flex items-center justify-between gap-2">
-                  <span className="font-medium">{n.nome}</span>
+                  <span className="flex items-center gap-2"><Foto id={n.foto} nome={n.nome} tamanho="p" />
+                    <span className="font-medium">{n.nome}</span></span>
                   {n.ficha_combate && <Selo>combate</Selo>}
                 </span>
               </Escolhivel>

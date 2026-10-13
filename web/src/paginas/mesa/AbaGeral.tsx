@@ -3,10 +3,11 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router'
 
 import {
-  useApagarMesa, useClasses, useMudarPapel, useNovoCodigo, usePermissoesMestres, usePersonagens,
-  useRemoverMembro, useSairDaMesa, useVincularMesa,
+  useApagarMesa, useClasses, useCopiarParaMesa, useMudarPapel, useNivelDaMesa, useNovoCodigo,
+  usePermissoesMestres, usePersonagens, useRemoverMembro, useSairDaMesa, useVincularMesa,
 } from '../../api/consultas'
 import type { Mesa, Permissao, PermissoesMestres } from '../../api/tipos'
+import { Foto } from '../../componentes/Foto'
 import MedoDoMestre from '../../componentes/MedoDoMestre'
 import { Aviso, Botao, Cartao, Selecao, Selo } from '../../componentes/ui'
 import { NOME_PAPEL, NOME_PERMISSAO } from '../../lib/rotulos'
@@ -101,44 +102,77 @@ function Permissoes({ mesa }: { mesa: Mesa }) {
   )
 }
 
+function NivelDaMesa({ mesa }: { mesa: Mesa }) {
+  const mudar = useNivelDaMesa(mesa.id)
+  const pode = mesa.minhas_permissoes.includes('nivel')
+  return (
+    <Cartao titulo="Nível da mesa">
+      <p className="mb-3 text-sm text-texto-suave">
+        Os personagens desta mesa sobem até o nível <b className="text-texto">{mesa.nivel_maximo}</b>.
+        {pode && ' Baixar não desfaz níveis: quem já passou só não sobe até a mesa alcançar.'}
+      </p>
+      {pode && (
+        <Selecao rotulo="Nível máximo" className="max-w-40" value={String(mesa.nivel_maximo)} disabled={mudar.isPending}
+          onChange={(e) => mudar.mutate(Number(e.target.value))}
+          opcoes={Array.from({ length: 10 }, (_, i): [string, string] => [String(i + 1), `Nível ${i + 1}`])} />
+      )}
+      <Aviso erro={mudar.error} />
+    </Cartao>
+  )
+}
+
+/** Personagens da mesa e como trazer um seu: um sem mesa e dentro do nível entra
+    direto; os outros entram por cópia (o original fica onde está). */
 function Personagens({ mesa }: { mesa: Mesa }) {
   const meus = usePersonagens()
   const classes = useClasses()
   const vincular = useVincularMesa()
+  const copiar = useCopiarParaMesa()
   const [escolhido, setEscolhido] = useState('')
   const nomeClasse = (id: string) => classes.data?.find((c) => c.id === id)?.nome ?? ''
-  const meusIds = new Set(meus.data?.map((p) => p.id))
-  const livres = meus.data?.filter((p) => !p.mesa_id) ?? []
+  const candidatos = meus.data?.filter((p) => p.mesa_id !== mesa.id) ?? []
+  const p = candidatos.find((c) => c.id === escolhido)
+  const direto = !!p && !p.mesa_id && p.nivel <= mesa.nivel_maximo
 
   return (
     <Cartao titulo="Personagens">
       {mesa.personagens.length === 0 && <p className="text-sm text-texto-suave">Nenhum personagem nesta mesa ainda.</p>}
       <ul className="divide-y divide-borda">
-        {mesa.personagens.map((p) => (
-          <li key={p.id} className="flex flex-wrap items-center justify-between gap-2 py-2">
+        {mesa.personagens.map((x) => (
+          <li key={x.id} className="flex items-center gap-3 py-2">
+            <Foto id={x.foto} nome={x.nome || '?'} tamanho="p" />
             <span>
-              <span className="font-medium">{p.nome || 'Sem nome'}</span>
-              <span className="ml-2 text-sm text-texto-suave">Nível {p.nivel} · {nomeClasse(p.classe)} · {p.jogador}</span>
+              <span className="font-medium">{x.nome || 'Sem nome'}</span>
+              <span className="ml-2 text-sm text-texto-suave">Nível {x.nivel} · {nomeClasse(x.classe)} · {x.jogador}</span>
             </span>
-            {meusIds.has(p.id) && (
-              <Botao variante="fantasma" disabled={vincular.isPending}
-                onClick={() => vincular.mutate({ personagemId: p.id, mesaId: null })}>Tirar da mesa</Botao>
-            )}
           </li>
         ))}
       </ul>
-      {livres.length > 0 && (
-        <form className="mt-3 flex flex-wrap items-end gap-2" onSubmit={(e) => {
+      {candidatos.length > 0 && (
+        <form className="mt-3 space-y-2" onSubmit={(e) => {
           e.preventDefault()
-          vincular.mutate({ personagemId: escolhido, mesaId: mesa.id }, { onSuccess: () => setEscolhido('') })
+          const limpar = { onSuccess: () => setEscolhido('') }
+          if (direto) vincular.mutate({ personagemId: escolhido, mesaId: mesa.id }, limpar)
+          else copiar.mutate({ personagemId: escolhido, mesaId: mesa.id }, limpar)
         }}>
-          <Selecao rotulo="Trazer um personagem seu" className="min-w-48 flex-1" value={escolhido}
-            onChange={(e) => setEscolhido(e.target.value)}
-            opcoes={[['', 'Escolha…'], ...livres.map((p): [string, string] => [p.id, `${p.nome || 'Sem nome'} (nível ${p.nivel})`])]} />
-          <Botao type="submit" variante="secundario" disabled={!escolhido || vincular.isPending}>Trazer</Botao>
+          <div className="flex flex-wrap items-end gap-2">
+            <Selecao rotulo="Trazer um personagem seu" className="min-w-48 flex-1" value={escolhido}
+              onChange={(e) => setEscolhido(e.target.value)}
+              opcoes={[['', 'Escolha…'], ...candidatos.map((c): [string, string] =>
+                [c.id, `${c.nome || 'Sem nome'} (nível ${c.nivel}${c.mesa_id ? ', em outra mesa' : ''})`])]} />
+            <Botao type="submit" variante="secundario" disabled={!escolhido || vincular.isPending || copiar.isPending}>
+              {direto || !p ? 'Trazer' : 'Trazer uma cópia'}
+            </Botao>
+          </div>
+          {p && !direto && (
+            <p className="text-xs text-texto-suave">
+              {p.mesa_id ? 'Ele está em outra mesa' : `Ele está acima do nível da mesa (${mesa.nivel_maximo})`}:
+              entra uma cópia. {p.nivel > mesa.nivel_maximo && 'Os níveis acima viram plano, aplicado quando o mestre liberar.'}
+            </p>
+          )}
         </form>
       )}
-      <Aviso erro={vincular.error} />
+      <Aviso erro={vincular.error ?? copiar.error} />
     </Cartao>
   )
 }
@@ -157,6 +191,7 @@ export default function AbaGeral({ mesa }: { mesa: Mesa }) {
       <Convite mesa={mesa} />
       <Membros mesa={mesa} />
       <Personagens mesa={mesa} />
+      <NivelDaMesa mesa={mesa} />
       {mesa.sou_criador && <Permissoes mesa={mesa} />}
       <div className="lg:col-span-2">
         {mesa.sou_criador ? (

@@ -38,6 +38,8 @@ class PersonagemNaMesa(BaseModel):
     nivel: int
     classe: str
     jogador: str
+    dono_id: str
+    foto: str | None = None
 
 
 class MesaSaida(BaseModel):
@@ -45,6 +47,7 @@ class MesaSaida(BaseModel):
     nome: str
     codigo_convite: str        # exibido na página da mesa; o link usa o mesmo código
     medo: int                  # Pontos de Medo do mestre: visíveis para todos
+    nivel_maximo: int          # personagens da mesa sobem até este nível
     meu_papel: str
     sou_criador: bool
     permissoes_mestres: dict[str, bool]
@@ -68,19 +71,26 @@ class PermissoesMestres(BaseModel):
     aplicar_dano: bool
     aplicar_condicoes: bool
     preparar: bool = True
+    nivel: bool = True
+
+
+class NivelDaMesa(BaseModel):
+    nivel_maximo: int = Field(ge=1, le=10)
 
 
 def _saida(m: MembroTabela) -> MesaSaida:
     mesa = m.mesa
     return MesaSaida(
-        id=mesa.id, nome=mesa.nome, codigo_convite=mesa.codigo_convite, medo=mesa.medo, meu_papel=m.papel,
+        id=mesa.id, nome=mesa.nome, codigo_convite=mesa.codigo_convite, medo=mesa.medo,
+        nivel_maximo=mesa.nivel_maximo, meu_papel=m.papel,
         sou_criador=eh_criador(m), permissoes_mestres=mesa.permissoes_mestres,
         minhas_permissoes=[p for p in Permissao if pode(m, p)],
         membros=[MembroSaida(usuario_id=x.usuario_id, nome=x.usuario.nome, papel=x.papel,
                              criador=x.usuario_id == mesa.criador_id)
                  for x in sorted(mesa.membros, key=lambda x: x.entrou_em)],
         personagens=[PersonagemNaMesa(id=p.id, nome=p.nome, nivel=1 + len(p.subidas),
-                                      classe=p.criacao["classe"], jogador=p.dono.nome)
+                                      classe=p.criacao["classe"], jogador=p.dono.nome,
+                                      dono_id=p.dono_id, foto=p.foto)
                      for p in mesa.personagens],
     )
 
@@ -203,6 +213,17 @@ def permissoes(mesa_id: str, dados: PermissoesMestres, a: Acesso = Depends(acess
     m = membro(a.banco, mesa_id, a.usuario_id)
     exigir_criador(m)
     m.mesa.permissoes_mestres = dados.model_dump()
+    a.banco.commit()
+    return _saida(m)
+
+
+@rotas.put("/{mesa_id}/nivel", response_model=MesaSaida)
+def definir_nivel(mesa_id: str, dados: NivelDaMesa, a: Acesso = Depends(acesso)):
+    """Nível máximo dos personagens da mesa. Baixar não desfaz níveis de ninguém:
+    quem já passou só não sobe mais até a mesa alcançar."""
+    m = membro(a.banco, mesa_id, a.usuario_id)
+    exigir(m, Permissao.NIVEL)
+    m.mesa.nivel_maximo = dados.nivel_maximo
     a.banco.commit()
     return _saida(m)
 

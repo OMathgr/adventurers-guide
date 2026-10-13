@@ -4,11 +4,59 @@
 // marcar no próximo e só para consulta nos futuros.
 import { useEffect, useRef } from 'react'
 
-import { useProximoNivel } from '../api/consultas'
-import type { EventoLinhaDoTempo, Ficha } from '../api/tipos'
+import { useAplicarPlano, useDescartarPlano, useProximoNivel } from '../api/consultas'
+import type { EventoLinhaDoTempo, Ficha, ProximoNivel } from '../api/tipos'
 import EscolhaDeNivel from './EscolhaDeNivel'
 import QuadroAvanco from './QuadroAvanco'
-import { Aviso, Botao, Carregando } from './ui'
+import { Aviso, Botao, Carregando, Selo } from './ui'
+
+function Itens({ itens, apagado }: { itens: string[]; apagado?: boolean }) {
+  return (
+    <ul className={`space-y-1 text-sm ${apagado ? 'text-texto-suave' : 'text-texto'}`}>
+      {itens.map((item, j) => <li key={j}>• {item}</li>)}
+    </ul>
+  )
+}
+
+/** Próximo nível: travado pela mesa, com plano (vindo de uma cópia) ou para escolher. */
+function ProximoNivelColuna({ evento, proximo, personagemId, ficha }:
+  { evento: EventoLinhaDoTempo; proximo: ProximoNivel; personagemId: string; ficha: Ficha }) {
+  const aplicar = useAplicarPlano(personagemId)
+  const descartar = useDescartarPlano(personagemId)
+
+  if (proximo.bloqueado_pela_mesa) {
+    return (
+      <div className="space-y-3">
+        <p className="rounded-xl border border-medo/50 bg-medo/10 p-3 text-sm">
+          A mesa está no nível {proximo.limite_mesa}. O mestre ainda não liberou o nível {proximo.nivel}.
+        </p>
+        {proximo.planejado && <Itens itens={evento.itens} apagado />}
+        <div className="space-y-2 opacity-60">
+          {evento.quadros.map((q) => <QuadroAvanco key={q.tier} quadro={q} />)}
+        </div>
+      </div>
+    )
+  }
+  if (proximo.planejado) {
+    return (
+      <div className="space-y-3">
+        <p className="text-sm text-texto-suave">Este nível já está planejado (veio da cópia do personagem):</p>
+        <Itens itens={evento.itens} />
+        <Aviso erro={aplicar.error ?? descartar.error} />
+        <div className="flex flex-wrap gap-2">
+          <Botao disabled={aplicar.isPending || descartar.isPending} onClick={() => aplicar.mutate()}>
+            {aplicar.isPending ? 'Aplicando…' : `Aplicar o plano do nível ${proximo.nivel}`}
+          </Botao>
+          <Botao variante="secundario" disabled={aplicar.isPending || descartar.isPending}
+            onClick={() => descartar.mutate(proximo.nivel)}>
+            Escolher outra coisa
+          </Botao>
+        </div>
+      </div>
+    )
+  }
+  return <EscolhaDeNivel key={proximo.nivel} id={personagemId} ficha={ficha} proximo={proximo} quadros={evento.quadros} />
+}
 
 type Props = {
   eventos: EventoLinhaDoTempo[]
@@ -63,6 +111,12 @@ export default function LinhaDoTempo({ eventos, personagemId, ficha, aoDesfazer,
                 ehProximo ? 'border-esperanca bg-superficie' : feito ? 'border-borda bg-superficie' : 'border-dashed border-borda'}`}>
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <h3 className={`text-base ${feito || ehProximo ? 'text-texto' : 'text-texto-suave'}`}>{e.titulo}</h3>
+                  {!feito && (e.planejado || e.bloqueado_pela_mesa) && (
+                    <span className="flex gap-1">
+                      {e.planejado && <Selo destaque>planejado</Selo>}
+                      {e.bloqueado_pela_mesa && <Selo>acima da mesa</Selo>}
+                    </span>
+                  )}
                   {feito && e.nivel === ultimoFeito && e.nivel > 1 && (
                     <Botao variante="fantasma" onClick={aoDesfazer} disabled={desfazendo} className="!px-2 !py-1">
                       {desfazendo ? 'Desfazendo…' : 'Desfazer este nível'}
@@ -72,14 +126,11 @@ export default function LinhaDoTempo({ eventos, personagemId, ficha, aoDesfazer,
 
                 {ehProximo ? (
                   proximo.isPending ? <Carregando /> : proximo.error ? <Aviso erro={proximo.error} /> : proximo.data && (
-                    <EscolhaDeNivel key={proximo.data.nivel} id={personagemId} ficha={ficha}
-                      proximo={proximo.data} quadros={e.quadros} />
+                    <ProximoNivelColuna evento={e} proximo={proximo.data} personagemId={personagemId} ficha={ficha} />
                   )
                 ) : (
                   <>
-                    <ul className={`space-y-1 text-sm ${feito ? 'text-texto' : 'text-texto-suave'}`}>
-                      {e.itens.map((item, j) => <li key={j}>• {item}</li>)}
-                    </ul>
+                    <Itens itens={e.itens} apagado={!feito} />
                     <div className={`space-y-2 ${feito ? '' : 'opacity-60'}`}>
                       {e.quadros.map((q) => <QuadroAvanco key={q.tier} quadro={q} />)}
                     </div>

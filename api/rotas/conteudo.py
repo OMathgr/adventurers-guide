@@ -18,6 +18,7 @@ from ..autenticacao import Acesso, acesso
 from ..mesas import Permissao, exigir, exigir_mestre, membro
 from ..repositorio import NaoEncontrado, biblioteca
 from ..tabelas import InimigoTabela, NpcTabela
+from .imagens import imagem_valida
 
 rotas = APIRouter(prefix="/mesas/{mesa_id}", tags=["Conteúdo do mestre"])
 _ADVERSARIO = TypeAdapter(Adversario)
@@ -72,6 +73,7 @@ def listar_inimigos(mesa_id: str, a: Acesso = Depends(acesso)):
 def criar_inimigo(mesa_id: str, inimigo: Adversario, a: Acesso = Depends(acesso)):
     """Inimigo criado do zero (mesmo formato dos adversários do SRD)."""
     _mestre(a, mesa_id, editar=True)
+    imagem_valida(a, inimigo.foto)
     novo_id = str(uuid.uuid4())
     linha = InimigoTabela(id=novo_id, mesa_id=mesa_id, dados=_salvavel(inimigo, novo_id))
     a.banco.add(linha)
@@ -105,6 +107,7 @@ def ver_inimigo(mesa_id: str, inimigo_id: str, a: Acesso = Depends(acesso)):
 def editar_inimigo(mesa_id: str, inimigo_id: str, inimigo: Adversario, a: Acesso = Depends(acesso)):
     _mestre(a, mesa_id, editar=True)
     linha = _inimigo(a, mesa_id, inimigo_id)
+    imagem_valida(a, inimigo.foto)
     inimigo.base_id = linha.dados.get("base_id")   # a origem não muda ao editar
     linha.dados = _salvavel(inimigo, inimigo_id)
     a.banco.commit()
@@ -127,6 +130,7 @@ class NpcEntrada(BaseModel):
     motivacoes: str = Field("", max_length=2000)
     notas: str = Field("", max_length=8000, description="Anotações privadas do mestre")
     ficha_combate: Adversario | None = None
+    foto: str | None = Field(None, description="Id devolvido por POST /imagens")
 
 
 class Npc(NpcEntrada):
@@ -142,11 +146,12 @@ def _npc(a: Acesso, mesa_id: str, npc_id: str) -> NpcTabela:
 
 def _npc_saida(linha: NpcTabela) -> Npc:
     return Npc(id=linha.id, nome=linha.nome, descricao=linha.descricao, motivacoes=linha.motivacoes,
-               notas=linha.notas, ficha_combate=linha.ficha_combate)
+               notas=linha.notas, ficha_combate=linha.ficha_combate, foto=linha.foto)
 
 
-def _aplicar_npc(linha: NpcTabela, dados: NpcEntrada):
+def _aplicar_npc(a: Acesso, linha: NpcTabela, dados: NpcEntrada):
     linha.nome = dados.nome.strip()
+    linha.foto = imagem_valida(a, dados.foto)
     linha.descricao, linha.motivacoes, linha.notas = dados.descricao, dados.motivacoes, dados.notas
     linha.ficha_combate = None
     if dados.ficha_combate is not None:
@@ -165,7 +170,7 @@ def listar_npcs(mesa_id: str, a: Acesso = Depends(acesso)):
 def criar_npc(mesa_id: str, dados: NpcEntrada, a: Acesso = Depends(acesso)):
     _mestre(a, mesa_id, editar=True)
     linha = NpcTabela(id=str(uuid.uuid4()), mesa_id=mesa_id)
-    _aplicar_npc(linha, dados)
+    _aplicar_npc(a, linha, dados)
     a.banco.add(linha)
     a.banco.commit()
     return _npc_saida(linha)
@@ -181,7 +186,7 @@ def ver_npc(mesa_id: str, npc_id: str, a: Acesso = Depends(acesso)):
 def editar_npc(mesa_id: str, npc_id: str, dados: NpcEntrada, a: Acesso = Depends(acesso)):
     _mestre(a, mesa_id, editar=True)
     linha = _npc(a, mesa_id, npc_id)
-    _aplicar_npc(linha, dados)
+    _aplicar_npc(a, linha, dados)
     a.banco.commit()
     return _npc_saida(linha)
 

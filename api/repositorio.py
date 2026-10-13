@@ -48,6 +48,17 @@ def criar(banco: Session, dono_id: str, criacao: Criacao) -> tuple[str, Personag
     return linha.id, personagem
 
 
+def criar_copia(banco: Session, original: PersonagemTabela, mesa_id: str, nivel_maximo: int) -> tuple[str, Personagem]:
+    """Cópia do personagem presa à mesa `mesa_id`: níveis acima do limite viram plano."""
+    copia = montar(original).copia(nivel_maximo)
+    linha = PersonagemTabela(id=str(uuid.uuid4()), dono_id=original.dono_id, mesa_id=mesa_id,
+                             nome=original.nome, criacao=dict(original.criacao), foto=original.foto,
+                             **copia.estado())
+    banco.add(linha)
+    gravar(banco, linha, copia)   # subidas e plano
+    return linha.id, copia
+
+
 def carregar(banco: Session, dono_id: str, personagem_id: str) -> Personagem:
     return montar(_linha(banco, dono_id, personagem_id))
 
@@ -59,6 +70,9 @@ def montar(linha: PersonagemTabela) -> Personagem:
         personagem.subir_de_nivel(_SUBIDA.validate_python(subida.dados))
     personagem.restaurar_estado({"equipamento": linha.equipamento, "cofre": linha.cofre,
                                  "sessao": linha.sessao})
+    personagem.plano = [_SUBIDA.validate_python(s) for s in linha.plano or []]
+    # o limite vem depois do histórico: baixar o nível da mesa não impede carregar
+    personagem.nivel_limite = linha.mesa.nivel_maximo if linha.mesa else None
     return personagem
 
 
@@ -71,6 +85,7 @@ def gravar(banco: Session, linha: PersonagemTabela, personagem: Personagem):
     estado = personagem.estado()
     linha.equipamento, linha.cofre, linha.sessao = (
         estado["equipamento"], estado["cofre"], estado["sessao"])
+    linha.plano = [para_json(s) for s in personagem.plano]
     salvas = {s.nivel: s for s in linha.subidas}
     no_historico = {s.nivel for s in personagem.historico}
     for nivel, subida in salvas.items():

@@ -49,7 +49,7 @@ function quadroTier2(onde: 'antes' | 'neste'): QuadroDeAvanco {
 
 const PROXIMO: ProximoNivel = {
   nivel: 3, tier: 2, nova_experiencia: false, limpa_marcas_tracos: false, experiencia_companheiro: false,
-  avancos: 2, tracos_marcados: [], treinos: 0, treinos_extra_com_subclasse: 0,
+  avancos: 2, tracos_marcados: [], treinos: 0, treinos_extra_com_subclasse: 0, bloqueado_pela_mesa: false, planejado: false,
   opcoes: [
     { tier: 2, opcao: 'TRACOS', restantes: 3, custo: 1 }, { tier: 2, opcao: 'PV', restantes: 1, custo: 1 },
     { tier: 2, opcao: 'ESTRESSE', restantes: 2, custo: 1 }, { tier: 2, opcao: 'EXPERIENCIAS', restantes: 1, custo: 1 },
@@ -59,10 +59,10 @@ const PROXIMO: ProximoNivel = {
 
 describe('Linha do tempo', () => {
   const eventos: EventoLinhaDoTempo[] = [
-    { nivel: 1, tier: 1, status: 'feito', titulo: 'Criação', itens: ['Classe: Bardo'], quadros: [] },
-    { nivel: 2, tier: 2, status: 'feito', titulo: 'Nível 2', itens: ['Avanço: PV'], quadros: [quadroTier2('neste')] },
-    { nivel: 3, tier: 2, status: 'futuro', titulo: 'Nível 3', itens: [], quadros: [quadroTier2('antes')] },
-    { nivel: 4, tier: 2, status: 'futuro', titulo: 'Nível 4', itens: ['Escolher 2 avanços'], quadros: [quadroTier2('antes')] },
+    { nivel: 1, tier: 1, status: 'feito', titulo: 'Criação', itens: ['Classe: Bardo'], quadros: [], planejado: false, bloqueado_pela_mesa: false },
+    { nivel: 2, tier: 2, status: 'feito', titulo: 'Nível 2', itens: ['Avanço: PV'], quadros: [quadroTier2('neste')], planejado: false, bloqueado_pela_mesa: false },
+    { nivel: 3, tier: 2, status: 'futuro', titulo: 'Nível 3', itens: [], quadros: [quadroTier2('antes')], planejado: false, bloqueado_pela_mesa: false },
+    { nivel: 4, tier: 2, status: 'futuro', titulo: 'Nível 4', itens: ['Escolher 2 avanços'], quadros: [quadroTier2('antes')], planejado: false, bloqueado_pela_mesa: false },
   ]
   const fichaCom = (ativas: string[]) => ({
     nome: 'Lia', experiencias: { Diplomata: 2 }, cartas: ativas, cartas_ativas: ativas, cartas_cofre: [],

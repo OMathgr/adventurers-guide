@@ -3,6 +3,7 @@
 // e características.
 import type { Adversario } from '../api/tipos'
 import { NOME_ALCANCE, NOME_TIPO_ADVERSARIO, NOME_TIPO_DANO, NOME_TIPO_HABILIDADE, comSinal } from '../lib/rotulos'
+import { Foto } from './Foto'
 import TextoRico from './TextoRico'
 import { Espacos, Original } from './ui'
 
@@ -27,13 +28,16 @@ export default function FichaInimigo({ adversario: a, acoes }: { adversario: Adv
   return (
     <article className="rounded-2xl border border-borda bg-superficie p-4 sm:p-5" aria-label={`Ficha de ${a.nome}`}>
       <header className="flex flex-wrap items-start justify-between gap-2">
-        <div>
-          <h2 className="text-xl text-esperanca">
-            {a.nome}<Original nome={a.nome} original={a.nome_original} />
-          </h2>
-          <p className="text-sm font-medium uppercase tracking-wide text-texto-suave">
-            Patamar {a.patamar} · {tipo}
-          </p>
+        <div className="flex items-center gap-3">
+          {a.foto && <Foto id={a.foto} nome={a.nome} />}
+          <div>
+            <h2 className="text-xl text-esperanca">
+              {a.nome}<Original nome={a.nome} original={a.nome_original} />
+            </h2>
+            <p className="text-sm font-medium uppercase tracking-wide text-texto-suave">
+              Patamar {a.patamar} · {tipo}
+            </p>
+          </div>
         </div>
         {acoes && <div className="flex flex-wrap gap-2">{acoes}</div>}
       </header>

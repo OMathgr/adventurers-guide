@@ -4,7 +4,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 import { chamar } from './cliente'
 import type {
-  Adversario, Ancestralidade, CartaDeDominio, Classe, Comunidade, Criacao, Encontro, EncontroResumo, Escolha,
+  Adversario, Ancestralidade, Arma, Armadura, CartaDeDominio, Equipamento, Classe, Comunidade, Criacao, Encontro, EncontroResumo, Escolha,
   EventoLinhaDoTempo, Ficha, InimigoResumo, Mesa, MesaResumo, Npc, NpcEntrada, PermissoesMestres,
   PersonagemCriado, PersonagemResumo, ProximoNivel, ResultadoDano, ResultadoDanoAdversario, Subclasse,
   SubidaDeNivel,
@@ -123,6 +123,76 @@ export function useDesfazerNivel(id: string) {
   })
 }
 
+// --- Equipamento ---------------------------------------------------------------------------
+
+export const useArmas = () =>
+  useQuery({ queryKey: ['srd', 'armas'], queryFn: () => chamar<Arma[]>('/srd/armas'), staleTime: UMA_HORA })
+
+export const useArmaduras = () =>
+  useQuery({ queryKey: ['srd', 'armaduras'], queryFn: () => chamar<Armadura[]>('/srd/armaduras'), staleTime: UMA_HORA })
+
+export const useEquipamento = (id: string) =>
+  useQuery({ queryKey: ['personagens', id, 'equipamento'], queryFn: () => chamar<Equipamento>(`/personagens/${id}/equipamento`) })
+
+export function useEquipar(id: string) {
+  const invalidar = useInvalidarPersonagem()
+  return useMutation({
+    mutationFn: (eq: Equipamento) => chamar<Ficha>(`/personagens/${id}/equipamento`, { metodo: 'PUT', corpo: eq }),
+    onSuccess: () => invalidar(id),
+  })
+}
+
+// --- Plano, cópia e foto do personagem -----------------------------------------------------
+
+export function useAplicarPlano(id: string) {
+  const invalidar = useInvalidarPersonagem()
+  return useMutation({
+    mutationFn: () => chamar<Ficha>(`/personagens/${id}/plano/aplicar`, { metodo: 'POST' }),
+    onSuccess: () => invalidar(id),
+  })
+}
+
+export function useDescartarPlano(id: string) {
+  const invalidar = useInvalidarPersonagem()
+  return useMutation({
+    mutationFn: (nivel: number) => chamar<void>(`/personagens/${id}/plano/${nivel}`, { metodo: 'DELETE' }),
+    onSuccess: () => invalidar(id),
+  })
+}
+
+/** Cópia do personagem para outra mesa (o original fica); devolve o novo. */
+export function useCopiarParaMesa() {
+  const cliente = useQueryClient()
+  return useMutation({
+    mutationFn: ({ personagemId, mesaId }: { personagemId: string; mesaId: string }) =>
+      chamar<PersonagemCriado>(`/personagens/${personagemId}/copia`, { corpo: { mesa_id: mesaId } }),
+    onSuccess: () => Promise.all([
+      cliente.invalidateQueries({ queryKey: chaves.lista }),
+      cliente.invalidateQueries({ queryKey: ['mesas'] }),
+    ]),
+  })
+}
+
+/** Envia uma foto e devolve o id para guardar no personagem, NPC ou inimigo. */
+export const useEnviarImagem = () =>
+  useMutation({
+    mutationFn: (arquivo: File) => {
+      const dados = new FormData()
+      dados.append('arquivo', arquivo)
+      return chamar<{ id: string; url: string }>('/imagens', { metodo: 'POST', multipart: dados })
+    },
+  })
+
+export function useFotoDoPersonagem(id: string) {
+  const invalidar = useInvalidarPersonagem()
+  const cliente = useQueryClient()
+  return useMutation({
+    mutationFn: (imagemId: string | null) =>
+      chamar<PersonagemResumo>(`/personagens/${id}/foto`, { metodo: 'PUT', corpo: { imagem_id: imagemId } }),
+    onSuccess: () => Promise.all([invalidar(id), cliente.invalidateQueries({ queryKey: ['mesas'] })]),
+  })
+}
+
 /** Manda uma carta da mão para a reserva (sem custo). */
 export function useGuardarCarta(id: string) {
   const invalidar = useInvalidarPersonagem()
@@ -147,7 +217,7 @@ export function useRecuperarCarta(id: string) {
 export function useVincularMesa() {
   const cliente = useQueryClient()
   return useMutation({
-    mutationFn: ({ personagemId, mesaId }: { personagemId: string; mesaId: string | null }) =>
+    mutationFn: ({ personagemId, mesaId }: { personagemId: string; mesaId: string }) =>
       chamar<PersonagemResumo>(`/personagens/${personagemId}/mesa`, { metodo: 'PUT', corpo: { mesa_id: mesaId } }),
     onSuccess: () => Promise.all([
       cliente.invalidateQueries({ queryKey: chaves.lista }),
@@ -199,6 +269,9 @@ export const useMudarPapel = (id: string) =>
 
 export const useRemoverMembro = (id: string) =>
   useMutacaoMesa((usuarioId: string) => chamar<Mesa>(`/mesas/${id}/membros/${usuarioId}`, { metodo: 'DELETE' }))
+
+export const useNivelDaMesa = (id: string) =>
+  useMutacaoMesa((nivel_maximo: number) => chamar<Mesa>(`/mesas/${id}/nivel`, { metodo: 'PUT', corpo: { nivel_maximo } }))
 
 export const usePermissoesMestres = (id: string) =>
   useMutacaoMesa((p: PermissoesMestres) => chamar<Mesa>(`/mesas/${id}/permissoes`, { metodo: 'PUT', corpo: p }))

@@ -6,6 +6,7 @@ import { useState } from 'react'
 import { useAcaoNoPersonagem, useFichaNaMesa } from '../../api/consultas'
 import type { Mesa, ResultadoDano } from '../../api/tipos'
 import Condicoes from '../../componentes/Condicoes'
+import { Foto } from '../../componentes/Foto'
 import { Aviso, Botao, Campo, Carregando, Espacos, Esperanca } from '../../componentes/ui'
 import { NOME_GRAVIDADE } from '../../lib/rotulos'
 
@@ -14,7 +15,8 @@ function descrever(r: ResultadoDano) {
     + `${r.pv_marcados} PV marcado${r.pv_marcados === 1 ? '' : 's'}${r.caiu ? '. Caiu: movimento de morte!' : '.'}`
 }
 
-function CartaoPersonagem({ mesa, pid, nome, jogador }: { mesa: Mesa; pid: string; nome: string; jogador: string }) {
+function CartaoPersonagem({ mesa, pid, nome, jogador, foto }:
+  { mesa: Mesa; pid: string; nome: string; jogador: string; foto?: string | null }) {
   const ficha = useFichaNaMesa(mesa.id, pid)
   const acao = useAcaoNoPersonagem(mesa.id, pid)
   const [dano, setDano] = useState('')
@@ -27,9 +29,12 @@ function CartaoPersonagem({ mesa, pid, nome, jogador }: { mesa: Mesa; pid: strin
 
   return (
     <article aria-label={nome || 'Sem nome'} className="space-y-2 rounded-2xl border border-borda bg-superficie p-4">
-      <header>
+      <header className="flex items-center gap-3">
+        <Foto id={foto} nome={nome || '?'} tamanho="p" />
+        <div>
         <h3 className="font-titulo text-base">{nome || 'Sem nome'}</h3>
-        <p className="text-xs text-texto-suave">{jogador} · Evasão {f.evasao} · Limiares {f.limiar_maior}/{f.limiar_grave}</p>
+          <p className="text-xs text-texto-suave">{jogador} · Evasão {f.evasao} · Limiares {f.limiar_maior}/{f.limiar_grave}</p>
+        </div>
       </header>
       <p className="text-xs text-texto-suave">PV</p>
       <Espacos total={f.pv_max} marcados={f.pv_marcados} rotulo={`PV de ${nome}`} cor="perigo" />
@@ -77,7 +82,7 @@ export default function PersonagensNaSessao({ mesa }: { mesa: Mesa }) {
       {podeVer && (
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
           {mesa.personagens.map((p) => (
-            <CartaoPersonagem key={p.id} mesa={mesa} pid={p.id} nome={p.nome} jogador={p.jogador} />
+            <CartaoPersonagem key={p.id} mesa={mesa} pid={p.id} nome={p.nome} jogador={p.jogador} foto={p.foto} />
           ))}
         </div>
       )}

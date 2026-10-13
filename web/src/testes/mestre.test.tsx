@@ -66,7 +66,7 @@ describe('Editor de inimigo', () => {
   }
 
   it('esconde os limiares para lacaio e pede integrantes para horda', async () => {
-    render(<Controlado />)
+    render(<QueryClientProvider client={new QueryClient()}><Controlado /></QueryClientProvider>)
     expect(screen.getByLabelText('Limiar Maior')).toBeInTheDocument()
     await userEvent.selectOptions(screen.getByLabelText('Tipo'), 'LACAIO')
     expect(screen.queryByLabelText('Limiar Maior')).not.toBeInTheDocument()
@@ -76,7 +76,7 @@ describe('Editor de inimigo', () => {
   })
 
   it('adiciona experiências e características', async () => {
-    render(<Controlado />)
+    render(<QueryClientProvider client={new QueryClient()}><Controlado /></QueryClientProvider>)
     await userEvent.click(screen.getByRole('button', { name: 'Adicionar experiência' }))
     await userEvent.type(screen.getByLabelText('Experiência'), 'Emboscada')
     expect(screen.getByLabelText('Bônus')).toHaveValue(2)
@@ -87,7 +87,7 @@ describe('Editor de inimigo', () => {
 
 describe('Página da mesa', () => {
   const mesa = (papel: string): MesaT => ({
-    id: 'm1', nome: 'Sombras de Haven', codigo_convite: 'ABC123', medo: 3, meu_papel: papel, sou_criador: papel === 'mestre',
+    id: 'm1', nome: 'Sombras de Haven', codigo_convite: 'ABC123', medo: 3, nivel_maximo: 1, meu_papel: papel, sou_criador: papel === 'mestre',
     permissoes_mestres: { ver_fichas: true, aplicar_dano: true, aplicar_condicoes: true, preparar: true },
     minhas_permissoes: papel === 'mestre' ? ['ver_fichas', 'aplicar_dano', 'aplicar_condicoes', 'preparar'] : [],
     membros: [{ usuario_id: 'u1', nome: 'Ana', papel, criador: papel === 'mestre' }],
@@ -124,10 +124,10 @@ describe('Página da mesa', () => {
     await userEvent.click(await screen.findByRole('button', { name: 'Ganhar 1' }))
     expect(await screen.findByRole('group', { name: 'Medo: 4 de 12' })).toBeInTheDocument()
 
-    await userEvent.click(await screen.findByRole('button', { name: 'PV de Lobo 1 2' }))
+    await userEvent.click(await screen.findByRole('button', { name: 'PV restantes de Lobo 1 2' }))
     expect(fetch).toHaveBeenCalledWith('/api/mesas/m1/encontros/e1/combatentes/c1/marcas', expect.objectContaining({
       method: 'PUT', body: JSON.stringify({ pv_marcados: 2, pf_marcados: 0 }) }))
-    expect(await screen.findByRole('group', { name: 'PV de Lobo 1: 2 de 4 marcados' })).toBeInTheDocument()
+    expect(await screen.findByRole('group', { name: 'PV restantes de Lobo 1: 2 de 4' })).toBeInTheDocument()
 
     await userEvent.type(screen.getByLabelText('Dano em Lobo 1'), '12')
     await userEvent.click(screen.getByRole('button', { name: 'Aplicar dano' }))

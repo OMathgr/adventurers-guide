@@ -45,6 +45,9 @@ class ProximoNivelSaida(BaseModel):
     tracos_marcados: list[Traco]
     treinos: int
     treinos_extra_com_subclasse: int
+    limite_mesa: int | None = None
+    bloqueado_pela_mesa: bool = False
+    planejado: bool = False
 
 
 class OpcaoNoQuadro(BaseModel):
@@ -70,6 +73,8 @@ class EventoLinhaDoTempo(BaseModel):
     titulo: str
     itens: list[str]
     quadros: list[QuadroDeAvanco] = []   # vazio no nível 1 (criação)
+    planejado: bool = False              # nível futuro com plano (itens começam com "Planejado:")
+    bloqueado_pela_mesa: bool = False    # acima do nível máximo da mesa
 
 
 class PersonagemCriado(BaseModel):
@@ -93,10 +98,19 @@ class PersonagemResumo(BaseModel):
     nivel: int
     classe: str
     mesa_id: str | None = None
+    foto: str | None = None
 
 
 class VinculoMesa(BaseModel):
-    mesa_id: str | None
+    mesa_id: str
+
+
+class CopiaParaMesa(BaseModel):
+    mesa_id: str
+
+
+class FotoEntrada(BaseModel):
+    imagem_id: str | None = Field(description="Id devolvido por POST /imagens; null tira a foto")
 
 
 class CondicaoEntrada(BaseModel):

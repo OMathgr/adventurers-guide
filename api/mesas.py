@@ -26,6 +26,7 @@ class Permissao(str, Enum):
     APLICAR_DANO = "aplicar_dano"
     APLICAR_CONDICOES = "aplicar_condicoes"
     PREPARAR = "preparar"   # criar e editar inimigos, NPCs e encontros da mesa
+    NIVEL = "nivel"         # definir o nível máximo dos personagens da mesa
 
 
 PERMISSOES_PADRAO = {p.value: True for p in Permissao}

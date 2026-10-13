@@ -27,7 +27,7 @@ def test_personagem_inexistente(cliente):
 
 def test_listar(cliente, bardo_id):
     assert cliente.get("/personagens").json() == [
-        {"id": bardo_id, "nome": "Lira", "nivel": 1, "classe": "core_class_bard", "mesa_id": None}]
+        {"id": bardo_id, "nome": "Lira", "nivel": 1, "classe": "core_class_bard", "mesa_id": None, "foto": None}]
 
 
 def test_subir_de_nivel_persiste(cliente, bardo_id):
@@ -89,6 +89,8 @@ def test_equipar_persiste_e_valida(cliente, bardo_id):
                        json={"principal": "core_weapon_longsword", "secundaria": "core_weapon_shortsword"})
     assert ruim.status_code == 422
     assert cliente.get(f"/personagens/{bardo_id}").json()["ataques"][0]["arma"] == "Espada Larga"
+    assert cliente.get(f"/personagens/{bardo_id}/equipamento").json() == {
+        "principal": "core_weapon_broadsword", "secundaria": None, "armadura": "core_armor_leather_armor"}
 
 
 def test_guardar_e_recuperar_carta(cliente, bardo_id):

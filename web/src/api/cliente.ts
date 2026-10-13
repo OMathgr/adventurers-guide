@@ -38,7 +38,12 @@ type Opcoes = {
   metodo?: 'GET' | 'POST' | 'PUT' | 'DELETE'
   corpo?: unknown
   formulario?: Record<string, string>
+  /** Envio de arquivo (multipart); o navegador põe o Content-Type com o boundary. */
+  multipart?: FormData
 }
+
+/** Endereço de uma foto enviada (para <img src>; a leitura não precisa de token). */
+export const urlDaImagem = (id: string) => `${BASE}/imagens/${id}`
 
 export async function chamar<T>(caminho: string, opcoes: Opcoes = {}): Promise<T> {
   const cabecalhos: Record<string, string> = {}
@@ -46,7 +51,9 @@ export async function chamar<T>(caminho: string, opcoes: Opcoes = {}): Promise<T
   if (t) cabecalhos.Authorization = `Bearer ${t}`
 
   let body: BodyInit | undefined
-  if (opcoes.formulario) {
+  if (opcoes.multipart) {
+    body = opcoes.multipart
+  } else if (opcoes.formulario) {
     body = new URLSearchParams(opcoes.formulario)
   } else if (opcoes.corpo !== undefined) {
     cabecalhos['Content-Type'] = 'application/json'

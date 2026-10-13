@@ -42,7 +42,8 @@ def test_criar_mesa(mesa):
     assert (mesa["meu_papel"], mesa["sou_criador"]) == ("mestre", True)
     assert len(mesa["codigo_convite"]) == 8
     assert mesa["permissoes_mestres"] == {"ver_fichas": True, "aplicar_dano": True,
-                                          "aplicar_condicoes": True, "preparar": True}
+                                          "aplicar_condicoes": True, "preparar": True, "nivel": True}
+    assert mesa["nivel_maximo"] == 1   # mesa nova começa no nível 1
     assert [m["nome"] for m in mesa["membros"]] == ["Ana"]
 
 
@@ -74,17 +75,16 @@ def test_novo_codigo_invalida_o_antigo(cliente, mesa, bia):
 
 def test_personagem_aparece_na_mesa(cliente, mesa, lira_na_mesa):
     personagens = cliente.get(f"/mesas/{mesa['id']}").json()["personagens"]
-    assert personagens == [{"id": lira_na_mesa, "nome": "Lira", "nivel": 1,
-                            "classe": "core_class_bard", "jogador": "Bia"}]
+    assert [{k: p[k] for k in ("id", "nome", "nivel", "classe", "jogador", "foto")} for p in personagens] == [
+        {"id": lira_na_mesa, "nome": "Lira", "nivel": 1, "classe": "core_class_bard", "jogador": "Bia", "foto": None}]
 
 
-def test_uma_mesa_por_vez(cliente, mesa, bia, lira_na_mesa):
+def test_personagem_fica_preso_a_mesa(cliente, mesa, bia, lira_na_mesa):
     outra = cliente.post("/mesas", json={"nome": "Outra"}, headers=bia).json()
     r = cliente.put(f"/personagens/{lira_na_mesa}/mesa", json={"mesa_id": outra["id"]}, headers=bia)
-    assert r.status_code == 422 and "desvincule" in r.json()["detail"]
-    cliente.put(f"/personagens/{lira_na_mesa}/mesa", json={"mesa_id": None}, headers=bia)
-    r = cliente.put(f"/personagens/{lira_na_mesa}/mesa", json={"mesa_id": outra["id"]}, headers=bia)
-    assert r.json()["mesa_id"] == outra["id"]
+    assert r.status_code == 422 and "cópia" in r.json()["detail"]
+    # não dá para simplesmente tirar da mesa
+    assert cliente.put(f"/personagens/{lira_na_mesa}/mesa", json={"mesa_id": None}, headers=bia).status_code == 422
 
 
 def test_so_leva_para_mesa_que_participa(cliente, mesa, bia):
@@ -137,7 +137,7 @@ def test_permissoes_valem_para_todos_os_mestres(cliente, mesa, carlos, lira_na_m
     assert cliente.post(url(mesa, lira_na_mesa, "/dano"), json={"dano": 1},
                         headers=carlos).status_code == 403
     assert cliente.get(f"/mesas/{mesa['id']}", headers=carlos).json()["minhas_permissoes"] == [
-        "ver_fichas", "aplicar_condicoes", "preparar"]
+        "ver_fichas", "aplicar_condicoes", "preparar", "nivel"]
     # o criador continua podendo tudo
     assert cliente.post(url(mesa, lira_na_mesa, "/dano"), json={"dano": 1}).status_code == 200
 

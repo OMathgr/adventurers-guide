@@ -10,10 +10,11 @@ from motor import CartaDeDominio, Criacao, Personagem, RegraViolada, SubidaDeNiv
 
 from .. import repositorio
 from ..autenticacao import Acesso, acesso
-from ..esquemas import (EquipamentoEntrada, EventoLinhaDoTempo, FichaSaida, OpcoesDeCarta, PersonagemCriado,
-                        PersonagemResumo, ProximoNivelSaida, RecuperarCarta, VinculoMesa,
-                        ficha_saida)
+from ..esquemas import (CopiaParaMesa, EquipamentoEntrada, EventoLinhaDoTempo, FichaSaida, FotoEntrada,
+                        OpcoesDeCarta, PersonagemCriado, PersonagemResumo, ProximoNivelSaida, RecuperarCarta,
+                        VinculoMesa, ficha_saida)
 from ..mesas import membro
+from .imagens import imagem_valida
 
 rotas = APIRouter(prefix="/personagens", tags=["Personagens"])
 T = TypeVar("T")
@@ -37,9 +38,7 @@ def criar(criacao: Criacao, a: Acesso = Depends(acesso)):
 @rotas.get("", response_model=list[PersonagemResumo])
 def listar(a: Acesso = Depends(acesso)):
     # resumo direto do banco, sem refazer cada personagem
-    return [PersonagemResumo(id=p.id, nome=p.nome, nivel=1 + len(p.subidas),
-                             classe=p.criacao["classe"], mesa_id=p.mesa_id)
-            for p in repositorio.listar(a.banco, a.usuario_id)]
+    return [_resumo(p) for p in repositorio.listar(a.banco, a.usuario_id)]
 
 
 @rotas.get("/{personagem_id}", response_model=FichaSaida)
@@ -104,6 +103,13 @@ def desfazer_nivel(personagem_id: str, a: Acesso = Depends(acesso)):
 
 # --- Estado atual: equipamento e cartas ------------------------------------------------
 
+@rotas.get("/{personagem_id}/equipamento", response_model=EquipamentoEntrada)
+def equipamento_atual(personagem_id: str, a: Acesso = Depends(acesso)):
+    """Ids do que está equipado agora (a ficha só traz os nomes)."""
+    eq = repositorio.carregar(a.banco, a.usuario_id, personagem_id).equipamento
+    return EquipamentoEntrada(principal=eq.principal, secundaria=eq.secundaria, armadura=eq.armadura)
+
+
 @rotas.put("/{personagem_id}/equipamento", response_model=FichaSaida)
 def equipar(personagem_id: str, equipamento: EquipamentoEntrada,
             a: Acesso = Depends(acesso)):
@@ -127,17 +133,63 @@ def recuperar_carta(personagem_id: str, carta: str, pedido: RecuperarCarta,
 
 # --- Mesa ----------------------------------------------------------------------------------
 
+def _resumo(linha) -> PersonagemResumo:
+    return PersonagemResumo(id=linha.id, nome=linha.nome, nivel=1 + len(linha.subidas),
+                            classe=linha.criacao["classe"], mesa_id=linha.mesa_id, foto=linha.foto)
+
+
 @rotas.put("/{personagem_id}/mesa", response_model=PersonagemResumo)
 def vincular_mesa(personagem_id: str, pedido: VinculoMesa, a: Acesso = Depends(acesso)):
-    """Leva o personagem para uma mesa da qual você participa (`mesa_id`), ou
-    tira de qualquer mesa (`mesa_id: null`). Uma mesa por vez: para trocar,
-    desvincule antes."""
+    """Leva um personagem SEM mesa para uma mesa da qual você participa. Dali em
+    diante ele fica preso a ela: para jogar em outra, faça uma cópia
+    (POST /personagens/{id}/copia). Só entra quem está no nível da mesa ou abaixo."""
     linha = repositorio.linha_do_dono(a.banco, a.usuario_id, personagem_id)
-    if pedido.mesa_id is not None:
-        membro(a.banco, pedido.mesa_id, a.usuario_id)   # precisa participar da mesa
-        if linha.mesa_id not in (None, pedido.mesa_id):
-            raise RegraViolada("O personagem já está em outra mesa; desvincule antes.")
-    linha.mesa_id = pedido.mesa_id
+    mesa = membro(a.banco, pedido.mesa_id, a.usuario_id).mesa   # precisa participar da mesa
+    if linha.mesa_id == mesa.id:
+        return _resumo(linha)
+    if linha.mesa_id is not None:
+        raise RegraViolada("O personagem já pertence a outra mesa. Para jogar nesta, faça uma cópia dele.")
+    nivel = 1 + len(linha.subidas)
+    if nivel > mesa.nivel_maximo:
+        raise RegraViolada(f"{linha.nome or 'O personagem'} está no nível {nivel} e a mesa no "
+                           f"{mesa.nivel_maximo}. Faça uma cópia: os níveis acima viram plano.")
+    linha.mesa_id = mesa.id
     a.banco.commit()
-    return PersonagemResumo(id=linha.id, nome=linha.nome, nivel=1 + len(linha.subidas),
-                            classe=linha.criacao["classe"], mesa_id=linha.mesa_id)
+    return _resumo(linha)
+
+
+@rotas.post("/{personagem_id}/copia", status_code=201, response_model=PersonagemCriado)
+def copiar_para_mesa(personagem_id: str, pedido: CopiaParaMesa, a: Acesso = Depends(acesso)):
+    """Cópia do personagem para outra mesa (o original fica onde está). A cópia
+    respeita o nível da mesa nova: os níveis acima viram plano, aplicado quando
+    o mestre liberar."""
+    original = repositorio.linha_do_dono(a.banco, a.usuario_id, personagem_id)
+    mesa = membro(a.banco, pedido.mesa_id, a.usuario_id).mesa
+    if original.mesa_id == mesa.id:
+        raise RegraViolada("O personagem já está nesta mesa.")
+    novo_id, copia = repositorio.criar_copia(a.banco, original, mesa.id, mesa.nivel_maximo)
+    return PersonagemCriado(id=novo_id, ficha=ficha_saida(copia.ficha()))
+
+
+# --- Plano (níveis futuros) ---------------------------------------------------------------
+
+@rotas.post("/{personagem_id}/plano/aplicar", response_model=FichaSaida)
+def aplicar_plano(personagem_id: str, a: Acesso = Depends(acesso)):
+    """Sobe o próximo nível com o que estava planejado (se a mesa já liberou)."""
+    return ficha_saida(executar(a, personagem_id, lambda p: p.aplicar_plano()))
+
+
+@rotas.delete("/{personagem_id}/plano/{nivel}", status_code=204)
+def descartar_plano(personagem_id: str, nivel: int, a: Acesso = Depends(acesso)):
+    executar(a, personagem_id, lambda p: p.descartar_plano(nivel))
+    return Response(status_code=204)
+
+
+# --- Foto ------------------------------------------------------------------------------------
+
+@rotas.put("/{personagem_id}/foto", response_model=PersonagemResumo)
+def definir_foto(personagem_id: str, pedido: FotoEntrada, a: Acesso = Depends(acesso)):
+    linha = repositorio.linha_do_dono(a.banco, a.usuario_id, personagem_id)
+    linha.foto = imagem_valida(a, pedido.imagem_id)
+    a.banco.commit()
+    return _resumo(linha)

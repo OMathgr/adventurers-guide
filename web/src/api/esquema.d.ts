@@ -394,7 +394,11 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /**
+         * Equipamento Atual
+         * @description Ids do que está equipado agora (a ficha só traz os nomes).
+         */
+        get: operations["equipamento_atual_personagens__personagem_id__equipamento_get"];
         /** Equipar */
         put: operations["equipar_personagens__personagem_id__equipamento_put"];
         post?: never;
@@ -448,11 +452,87 @@ export interface paths {
         get?: never;
         /**
          * Vincular Mesa
-         * @description Leva o personagem para uma mesa da qual você participa (`mesa_id`), ou
-         *     tira de qualquer mesa (`mesa_id: null`). Uma mesa por vez: para trocar,
-         *     desvincule antes.
+         * @description Leva um personagem SEM mesa para uma mesa da qual você participa. Dali em
+         *     diante ele fica preso a ela: para jogar em outra, faça uma cópia
+         *     (POST /personagens/{id}/copia). Só entra quem está no nível da mesa ou abaixo.
          */
         put: operations["vincular_mesa_personagens__personagem_id__mesa_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/personagens/{personagem_id}/copia": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Copiar Para Mesa
+         * @description Cópia do personagem para outra mesa (o original fica onde está). A cópia
+         *     respeita o nível da mesa nova: os níveis acima viram plano, aplicado quando
+         *     o mestre liberar.
+         */
+        post: operations["copiar_para_mesa_personagens__personagem_id__copia_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/personagens/{personagem_id}/plano/aplicar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Aplicar Plano
+         * @description Sobe o próximo nível com o que estava planejado (se a mesa já liberou).
+         */
+        post: operations["aplicar_plano_personagens__personagem_id__plano_aplicar_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/personagens/{personagem_id}/plano/{nivel}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Descartar Plano */
+        delete: operations["descartar_plano_personagens__personagem_id__plano__nivel__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/personagens/{personagem_id}/foto": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Definir Foto */
+        put: operations["definir_foto_personagens__personagem_id__foto_put"];
         post?: never;
         delete?: never;
         options?: never;
@@ -842,6 +922,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/mesas/{mesa_id}/nivel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Definir Nivel
+         * @description Nível máximo dos personagens da mesa. Baixar não desfaz níveis de ninguém:
+         *     quem já passou só não sobe mais até a mesa alcançar.
+         */
+        put: operations["definir_nivel_mesas__mesa_id__nivel_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/mesas/{mesa_id}/personagens/{personagem_id}": {
         parameters: {
             query?: never;
@@ -1170,6 +1271,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/imagens": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Enviar */
+        post: operations["enviar_imagens_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/imagens/{imagem_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Ver */
+        get: operations["ver_imagens__imagem_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1235,6 +1370,8 @@ export interface components {
              * @default
              */
             arma_original: string;
+            /** Foto */
+            foto?: string | null;
         };
         /** AjusteMedo */
         AjusteMedo: {
@@ -1346,6 +1483,11 @@ export interface components {
              * @default
              */
             arma_original: string;
+        };
+        /** Body_enviar_imagens_post */
+        Body_enviar_imagens_post: {
+            /** Arquivo */
+            arquivo: string;
         };
         /** Body_login_auth_login_post */
         Body_login_auth_login_post: {
@@ -1526,6 +1668,11 @@ export interface components {
             traco: components["schemas"]["Traco"];
             /** Bonus */
             bonus: number;
+        };
+        /** CopiaParaMesa */
+        CopiaParaMesa: {
+            /** Mesa Id */
+            mesa_id: string;
         };
         /** Criacao */
         Criacao: {
@@ -1724,6 +1871,16 @@ export interface components {
              * @default []
              */
             quadros: components["schemas"]["QuadroDeAvanco"][];
+            /**
+             * Planejado
+             * @default false
+             */
+            planejado: boolean;
+            /**
+             * Bloqueado Pela Mesa
+             * @default false
+             */
+            bloqueado_pela_mesa: boolean;
         };
         /** Ficha */
         Ficha: {
@@ -1840,6 +1997,14 @@ export interface components {
              */
             fora_de_cena: boolean;
         };
+        /** FotoEntrada */
+        FotoEntrada: {
+            /**
+             * Imagem Id
+             * @description Id devolvido por POST /imagens; null tira a foto
+             */
+            imagem_id: string | null;
+        };
         /** GastarEsperanca */
         GastarEsperanca: {
             /**
@@ -1881,6 +2046,13 @@ export interface components {
              * @default
              */
             nome_original: string;
+        };
+        /** ImagemEnviada */
+        ImagemEnviada: {
+            /** Id */
+            id: string;
+            /** Url */
+            url: string;
         };
         /** InimigoResumo */
         InimigoResumo: {
@@ -1937,6 +2109,8 @@ export interface components {
             codigo_convite: string;
             /** Medo */
             medo: number;
+            /** Nivel Maximo */
+            nivel_maximo: number;
             /** Meu Papel */
             meu_papel: string;
             /** Sou Criador */
@@ -1970,6 +2144,11 @@ export interface components {
          * @enum {string}
          */
         Movimento: "CUIDAR_FERIDAS" | "ALIVIAR_ESTRESSE" | "REPARAR_ARMADURA" | "PREPARAR" | "PREPARAR_EM_GRUPO" | "PROJETO";
+        /** NivelDaMesa */
+        NivelDaMesa: {
+            /** Nivel Maximo */
+            nivel_maximo: number;
+        };
         /** NomeEncontro */
         NomeEncontro: {
             /** Nome */
@@ -2019,6 +2198,11 @@ export interface components {
              */
             notas: string;
             ficha_combate?: components["schemas"]["Adversario"] | null;
+            /**
+             * Foto
+             * @description Id devolvido por POST /imagens
+             */
+            foto?: string | null;
             /** Id */
             id: string;
         };
@@ -2043,6 +2227,11 @@ export interface components {
              */
             notas: string;
             ficha_combate?: components["schemas"]["Adversario"] | null;
+            /**
+             * Foto
+             * @description Id devolvido por POST /imagens
+             */
+            foto?: string | null;
         };
         /**
          * Opcao
@@ -2111,7 +2300,7 @@ export interface components {
          * Permissao
          * @enum {string}
          */
-        Permissao: "ver_fichas" | "aplicar_dano" | "aplicar_condicoes" | "preparar";
+        Permissao: "ver_fichas" | "aplicar_dano" | "aplicar_condicoes" | "preparar" | "nivel";
         /** PermissoesMestres */
         PermissoesMestres: {
             /** Ver Fichas */
@@ -2125,6 +2314,11 @@ export interface components {
              * @default true
              */
             preparar: boolean;
+            /**
+             * Nivel
+             * @default true
+             */
+            nivel: boolean;
         };
         /** PersonagemCriado */
         PersonagemCriado: {
@@ -2144,6 +2338,10 @@ export interface components {
             classe: string;
             /** Jogador */
             jogador: string;
+            /** Dono Id */
+            dono_id: string;
+            /** Foto */
+            foto?: string | null;
         };
         /** PersonagemResumo */
         PersonagemResumo: {
@@ -2157,6 +2355,8 @@ export interface components {
             classe: string;
             /** Mesa Id */
             mesa_id?: string | null;
+            /** Foto */
+            foto?: string | null;
         };
         /**
          * ProximoNivelSaida
@@ -2183,6 +2383,18 @@ export interface components {
             treinos: number;
             /** Treinos Extra Com Subclasse */
             treinos_extra_com_subclasse: number;
+            /** Limite Mesa */
+            limite_mesa?: number | null;
+            /**
+             * Bloqueado Pela Mesa
+             * @default false
+             */
+            bloqueado_pela_mesa: boolean;
+            /**
+             * Planejado
+             * @default false
+             */
+            planejado: boolean;
         };
         /** QuadroDeAvanco */
         QuadroDeAvanco: {
@@ -2381,7 +2593,7 @@ export interface components {
         /** VinculoMesa */
         VinculoMesa: {
             /** Mesa Id */
-            mesa_id: string | null;
+            mesa_id: string;
         };
     };
     responses: never;
@@ -3077,6 +3289,37 @@ export interface operations {
             };
         };
     };
+    equipamento_atual_personagens__personagem_id__equipamento_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                personagem_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EquipamentoEntrada"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     equipar_personagens__personagem_id__equipamento_put: {
         parameters: {
             query?: never;
@@ -3192,6 +3435,137 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["VinculoMesa"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PersonagemResumo"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    copiar_para_mesa_personagens__personagem_id__copia_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                personagem_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CopiaParaMesa"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PersonagemCriado"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    aplicar_plano_personagens__personagem_id__plano_aplicar_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                personagem_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Ficha"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    descartar_plano_personagens__personagem_id__plano__nivel__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                personagem_id: string;
+                nivel: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    definir_foto_personagens__personagem_id__foto_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                personagem_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FotoEntrada"];
             };
         };
         responses: {
@@ -4021,6 +4395,41 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["PermissoesMestres"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MesaSaida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    definir_nivel_mesas__mesa_id__nivel_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mesa_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NivelDaMesa"];
             };
         };
         responses: {
@@ -4976,6 +5385,70 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["EncontroSaida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    enviar_imagens_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_enviar_imagens_post"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ImagemEnviada"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    ver_imagens__imagem_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                imagem_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
                 };
             };
             /** @description Validation Error */

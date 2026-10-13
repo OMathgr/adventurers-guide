@@ -7,7 +7,7 @@ e sessão são o estado atual e ficam como JSON na própria linha do personagem.
 
 from datetime import datetime, timezone
 
-from sqlalchemy import JSON, DateTime, ForeignKey, Integer, String, UniqueConstraint
+from sqlalchemy import JSON, DateTime, ForeignKey, Integer, LargeBinary, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .db import Base
@@ -41,6 +41,9 @@ class MesaTabela(Base):
     permissoes_mestres: Mapped[dict] = mapped_column(JSON)
     # Pontos de Medo do mestre (0 a 12); passam de uma sessão para a outra
     medo: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
+    # nível máximo dos personagens da mesa: mesa nova começa no 1; as que já
+    # existiam ficaram no 10 (a migração não trava ninguém)
+    nivel_maximo: Mapped[int] = mapped_column(Integer, default=1, server_default="10")
     criado_em: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_agora)
 
     membros: Mapped[list["MembroTabela"]] = relationship(
@@ -86,6 +89,7 @@ class NpcTabela(Base):
     motivacoes: Mapped[str] = mapped_column(String(2000), default="")
     notas: Mapped[str] = mapped_column(String(8000), default="")
     ficha_combate: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    foto: Mapped[str | None] = mapped_column(String(36), nullable=True)   # id em `imagens`
     criado_em: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_agora)
     atualizado_em: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_agora, onupdate=_agora)
 
@@ -117,6 +121,9 @@ class PersonagemTabela(Base):
     equipamento: Mapped[dict] = mapped_column(JSON)      # motor.Equipamento
     cofre: Mapped[list] = mapped_column(JSON)            # ids das cartas no cofre
     sessao: Mapped[dict] = mapped_column(JSON)           # marcas atuais (motor.Sessao)
+    # níveis planejados (motor.SubidaDeNivel), vindos de uma cópia para mesa de nível menor
+    plano: Mapped[list] = mapped_column(JSON, default=list, server_default="[]")
+    foto: Mapped[str | None] = mapped_column(String(36), nullable=True)   # id em `imagens`
     criado_em: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_agora)
     atualizado_em: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_agora,
                                                     onupdate=_agora)
@@ -126,6 +133,19 @@ class PersonagemTabela(Base):
     subidas: Mapped[list["SubidaTabela"]] = relationship(
         back_populates="personagem", order_by="SubidaTabela.nivel",
         cascade="all, delete-orphan", passive_deletes=True)
+
+
+class ImagemTabela(Base):
+    """Foto enviada (personagem, NPC ou inimigo). Fica no banco para funcionar
+    igual no SQLite e no PostgreSQL, sem pasta de arquivos para configurar."""
+
+    __tablename__ = "imagens"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    dono_id: Mapped[str] = mapped_column(ForeignKey("usuarios.id", ondelete="CASCADE"), index=True)
+    tipo: Mapped[str] = mapped_column(String(32))          # image/jpeg, image/png, image/webp
+    dados: Mapped[bytes] = mapped_column(LargeBinary)
+    criado_em: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_agora)
 
 
 class SubidaTabela(Base):

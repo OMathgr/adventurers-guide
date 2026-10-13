@@ -304,7 +304,8 @@ Documentação interativa em `/docs`.
 
 - Tabelas `mesas` (nome, criador, código de convite, permissões dos mestres
   em JSON) e `membros_mesa` (papel `jogador` ou `mestre`).
-  `personagens.mesa_id`: **uma mesa por vez** (apagar a mesa só desvincula).
+  `personagens.mesa_id`: **uma mesa por vez**, e o personagem fica preso a
+  ela (ver "Nível da mesa, cópia e plano"; apagar a mesa só desvincula).
 - **Entrada:** pelo código de 8 caracteres exibido na mesa (sem 0/O/1/I/L);
   o link do convite usa o mesmo código (`POST /mesas/entrar/{codigo}`). Entra
   como jogador. O criador pode gerar um código novo, invalidando o antigo.
@@ -323,6 +324,44 @@ Documentação interativa em `/docs`.
 - O repositório separa achar a linha (`linha_do_dono`, `linha_na_mesa`) de
   montar/gravar o personagem (`montar`, `gravar`), para dono e mestre usarem
   o mesmo caminho.
+
+### Nível da mesa, cópia e plano
+
+- **Nível da mesa** (`mesas.nivel_maximo`, 1 a 10): mesa nova começa no 1;
+  as que já existiam na migração ficaram no 10. Muda com `PUT /mesas/{id}/nivel`,
+  permissão `nivel` (como `preparar`: o criador sempre pode e decide pelos
+  outros mestres). Baixar não desfaz níveis: quem já passou só não sobe mais.
+- A regra fica no motor: `Personagem.nivel_limite` (estado atual, como a
+  reserva) trava `subir_de_nivel`. A API preenche com o nível da mesa ao
+  carregar, **depois** de refazer o histórico (senão baixar o nível da mesa
+  impediria carregar o personagem). `proximo_nivel()` e a linha do tempo dizem
+  `bloqueado_pela_mesa`.
+- **Personagem preso à mesa:** um personagem sem mesa entra numa mesa
+  (`PUT /personagens/{id}/mesa`) se estiver no nível dela ou abaixo; dali em
+  diante não sai nem troca de mesa. Para jogar em outra, **cópia**
+  (`POST /personagens/{id}/copia`): mesma criação, histórico até o nível da
+  mesa nova, equipamento e reserva quando ainda valem, sessão zerada. O
+  original fica onde está. Sair da mesa, ser removido ou a mesa ser apagada
+  ainda solta os personagens (ficam sem mesa).
+- **Plano** (`Personagem.plano`, coluna `personagens.plano`): os níveis da
+  cópia acima do limite viram níveis planejados. `aplicar_plano()` sobe o
+  próximo nível com o plano (validado como qualquer subida; se não valer mais,
+  o erro aparece e o plano fica); `descartar_plano(nivel)` tira um nível para
+  escolher outra coisa; subir de nível na mão supera o plano daquele nível.
+  Planejar níveis à mão (sem cópia) ainda não existe.
+
+### Fotos (`api/rotas/imagens.py`)
+
+- `POST /imagens` (com login, multipart) guarda JPG, PNG ou WebP de até 2 MB
+  na tabela `imagens` (no banco: funciona igual no SQLite e no PostgreSQL). O
+  tipo é conferido pelos primeiros bytes, não pelo nome do arquivo.
+- `GET /imagens/{id}` é aberto (a tag `<img>` não manda token); o id é um
+  UUID aleatório, então só quem tem o link abre. Cache longo: trocar a foto
+  gera outro id.
+- Personagem (`personagens.foto`, `PUT /personagens/{id}/foto`), NPC
+  (`npcs.foto`) e inimigo (`Adversario.foto`, vai junto na cópia para o
+  encontro) guardam só o id. Imagens trocadas ficam no banco (sem limpeza
+  automática por enquanto).
 
 ### Conteúdo do mestre (`motor/adversarios.py` e `api/rotas/conteudo.py`)
 
@@ -363,6 +402,9 @@ Documentação interativa em `/docs`.
   cima, `motor.numeros.metade`: convenção do projeto para toda metade) antes
   de comparar; lacaio cai com qualquer dano; marcar o último PV
   derrota. Clicar nos quadradinhos usa `definir_marcas` (valores absolutos).
+  Na tela, o inimigo **começa cheio** e o mestre vai esvaziando (quadradinho
+  cheio = ponto que resta); a API continua guardando os marcados, como a
+  ficha do livro e os PJs.
   O dano massivo (regra opcional) ficou de fora.
 - **Permissões:** encontros são privados dos mestres (jogador: 404). Montar
   (criar, apagar, pôr e tirar combatentes) exige `preparar`; conduzir a luta
@@ -435,8 +477,13 @@ do SRD com busca e filtros, "Adicionar à mesa", criar do zero, editar) e
 inimigo). A ficha do inimigo segue o bloco do SRD; textos com `**negrito**`,
 `_itálico_` e listas são lidos por `web/src/lib/texto.ts` (sem HTML cru).
 
-Ainda não na interface: estado de sessão (marcar PV/Estresse, descansos),
-equipamento (a API já tem tudo isso).
+**Equipamento** (aba do personagem): arma principal, secundária e armadura
+do catálogo do SRD, com busca e filtro por patamar; arma de duas mãos ocupa a
+secundária; salvar manda tudo de uma vez (`PUT /equipamento`) e o motor valida
+(arma mágica, requisitos). `GET /equipamento` devolve os ids equipados.
+
+Ainda não na interface: estado de sessão do próprio jogador (marcar
+PV/Fadiga, descansos) — a API já tem.
 
 ## Tradução pt-BR (`data/traducoes/pt-BR/`)
 

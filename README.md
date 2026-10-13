@@ -19,6 +19,9 @@ do zero) e NPCs (ficha simples, com ficha de combate opcional). A interface
 web cobre o construtor (criar, ficha, linha do tempo, subir de nível), as
 mesas, a área do mestre e a sessão de jogo (Medo, encontros com várias cópias
 de inimigos, PV/PF/condições por clique, dano e condições nos personagens).
+Também tem aba de equipamento, nível máximo por mesa (o personagem fica preso
+à mesa; para levar a outra, faz-se uma cópia e os níveis acima viram plano)
+e fotos de personagens, NPCs e inimigos.
 
 ## Como rodar
 

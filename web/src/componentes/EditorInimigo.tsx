@@ -7,6 +7,7 @@ import type { Adversario, Habilidade, TipoAdversario, TipoDano, TipoHabilidade }
 import {
   NOME_ALCANCE, NOME_TIPO_ADVERSARIO, NOME_TIPO_DANO, NOME_TIPO_HABILIDADE, TIPOS_ADVERSARIO,
 } from '../lib/rotulos'
+import { EnviarFoto, Foto } from './Foto'
 import { Area, Botao, Campo, Selecao } from './ui'
 
 const HABILIDADE_EM_BRANCO: Habilidade = { nome: '', tipo: 'PASSIVA', texto: '', detalhe: '', nome_original: '' }
@@ -49,6 +50,12 @@ export default function EditorInimigo({ valor, aoMudar, nomeOpcional }:
     <div className="space-y-5">
       <fieldset className="grid gap-3 sm:grid-cols-4">
         <legend className="sr-only">Identificação</legend>
+        {!nomeOpcional && (   /* a ficha de combate de NPC usa a foto do próprio NPC */
+          <div className="flex items-center gap-3 sm:col-span-4">
+            <Foto id={valor.foto} nome={valor.nome || '?'} />
+            <EnviarFoto temFoto={!!valor.foto} aoMudar={(foto) => mudar({ foto })} />
+          </div>
+        )}
         <Campo rotulo="Nome" className="sm:col-span-2" value={valor.nome} maxLength={120}
           required={!nomeOpcional} placeholder={nomeOpcional ? 'Igual ao do NPC' : undefined}
           onChange={(e) => mudar({ nome: e.target.value })} />

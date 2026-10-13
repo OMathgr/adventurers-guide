@@ -154,13 +154,16 @@ export function Espacos({ total, marcados, rotulo, cor = 'esperanca' }:
 
 /** Quadradinhos clicáveis: clicar no quadradinho N deixa N marcados; clicar
     no último marcado desmarca ele (como riscar e apagar na ficha de papel). */
-export function EspacosClicaveis({ total, marcados, rotulo, cor = 'esperanca', aoMudar, desabilitado }: {
+export function EspacosClicaveis({ total, marcados, rotulo, cor = 'esperanca', aoMudar, desabilitado, sufixo = 'marcados' }: {
   total: number; marcados: number; rotulo: string; cor?: 'esperanca' | 'medo' | 'perigo'
   aoMudar: (marcados: number) => void; desabilitado?: boolean
+  /** Fim da descrição para leitores de tela ("2 de 4 marcados"); vazio quando o rótulo já diz o que conta. */
+  sufixo?: string
 }) {
   const fundo = { esperanca: 'bg-esperanca', medo: 'bg-medo', perigo: 'bg-perigo' }[cor]
   return (
-    <div className="flex flex-wrap gap-1" role="group" aria-label={`${rotulo}: ${marcados} de ${total} marcados`}>
+    <div className="flex flex-wrap gap-1" role="group"
+      aria-label={`${rotulo}: ${marcados} de ${total}${sufixo ? ` ${sufixo}` : ''}`}>
       {Array.from({ length: total }, (_, i) => (
         <button key={i} type="button" disabled={desabilitado}
           aria-label={`${rotulo} ${i + 1}`} aria-pressed={i < marcados}

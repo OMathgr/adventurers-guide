@@ -140,6 +140,9 @@ class ProximoNivel:
     tracos_marcados: list[Traco]       # não podem subir de novo neste nível
     treinos: int                       # treinos do companheiro exigidos
     treinos_extra_com_subclasse: int   # a mais se marcar SUBCLASSE (Expert/Advanced Training)
+    limite_mesa: int | None = None     # nível máximo da mesa (None: sem limite)
+    bloqueado_pela_mesa: bool = False  # o próximo nível passa do limite da mesa
+    planejado: bool = False            # há um plano para este nível (aplicar_plano)
 
 
 @dataclass
@@ -206,6 +209,12 @@ class Personagem:
         # Cartas guardadas no cofre (estado atual, como o equipamento).
         # Toda carta que o personagem tem e não está aqui está no loadout.
         self.cofre: list[str] = []
+        # Nível máximo permitido pela mesa (None: sem mesa, sem limite). Estado
+        # atual: quem carrega o personagem define DEPOIS de refazer o histórico.
+        self.nivel_limite: int | None = None
+        # Níveis planejados (ainda não aplicados), em ordem a partir do próximo.
+        # Vêm de uma cópia para uma mesa de nível menor.
+        self.plano: list[SubidaDeNivel] = []
         self._ficha_inicial = self._criar(criacao)
         self.sessao = Sessao(self, esperanca=self._ficha_inicial.esperanca)
 
@@ -248,6 +257,9 @@ class Personagem:
         Cartas novas vão para a mão; se ela estiver cheia, para a reserva, a
         menos que `para_reserva` mande cartas antigas no lugar delas.
         """
+        if self.nivel_limite is not None and subida.nivel > self.nivel_limite:
+            raise RegraViolada(f"A mesa está no nível {self.nivel_limite}: o mestre ainda não "
+                               f"liberou o nível {subida.nivel}.")
         nova = self._vestir(self._aplicar(self._ficha_base(), subida), self.equipamento)
         # ex.: subir a Presença com uma arma Pompous equipada
         self._validar_requisitos(nova, self.equipamento)
@@ -260,7 +272,44 @@ class Personagem:
         # é refeito com uma reserva que pode diferir da real, restaurada depois)
         self.cofre += [c for c in subida.para_reserva if c not in self.cofre]
         self._ajustar_cofre()
+        # o que estava planejado para este nível (ou antes) foi superado
+        self.plano = [s for s in self.plano if s.nivel > subida.nivel]
         return self.ficha()
+
+    # --- Plano e cópia -------------------------------------------------------
+
+    def aplicar_plano(self) -> Ficha:
+        """Sobe o próximo nível com o que está planejado para ele (validado como
+        qualquer subida; se não valer mais, o plano fica e o erro sobe)."""
+        proximo = len(self.historico) + 2
+        if not self.plano or self.plano[0].nivel != proximo:
+            raise RegraViolada(f"Não há plano para o nível {proximo}.")
+        return self.subir_de_nivel(self.plano[0])
+
+    def descartar_plano(self, nivel: int):
+        """Tira do plano o nível `nivel` (para escolher outra coisa nele)."""
+        if not any(s.nivel == nivel for s in self.plano):
+            raise RegraViolada(f"Não há plano para o nível {nivel}.")
+        self.plano = [s for s in self.plano if s.nivel != nivel]
+
+    def copia(self, nivel_maximo: int | None = None) -> "Personagem":
+        """Cópia para outra mesa: mesma criação e histórico até `nivel_maximo`;
+        os níveis acima (e o plano que já existia) viram plano. Equipamento e
+        reserva vão junto quando ainda valem; marcas de sessão começam zeradas."""
+        nova = Personagem(self.bib, self.criacao)
+        corte = nivel_maximo if nivel_maximo is not None else len(self.historico) + 1
+        for s in self.historico:
+            if s.nivel <= corte:
+                nova.subir_de_nivel(copy.deepcopy(s))
+        nova.plano = [copy.deepcopy(s) for s in self.historico if s.nivel > corte] + copy.deepcopy(self.plano)
+        try:
+            nova.equipar(**dataclasses.asdict(self.equipamento))
+        except RegraViolada:
+            pass   # ex.: arma mágica sem a multiclasse que ficou no plano: vai sem equipamento
+        nova.cofre = [c for c in self.cofre if c in nova._ficha_base().cartas]
+        nova._ajustar_cofre()
+        nova.nivel_limite = nivel_maximo
+        return nova
 
     def _validar_para_reserva(self, subida: SubidaDeNivel, cartas_antes: list[str], cartas_depois: list[str]):
         if not subida.para_reserva:
@@ -409,6 +458,9 @@ class Personagem:
             tracos_marcados=[] if limpa else sorted(f.tracos_marcados, key=list(Traco).index),
             treinos=1 if tem_companheiro else 0,
             treinos_extra_com_subclasse=extra,
+            limite_mesa=self.nivel_limite,
+            bloqueado_pela_mesa=self.nivel_limite is not None and proximo > self.nivel_limite,
+            planejado=any(s.nivel == proximo for s in self.plano),
         )
 
     def opcoes_disponiveis(self) -> list[dict]:
@@ -450,6 +502,7 @@ class Personagem:
                       *(f"Carta: {self._nome(bib.cartas, c)}" for c in self.criacao.cartas)],
         }]
         feitos = {s.nivel: s for s in self.historico}
+        planejados = {s.nivel: s for s in self.plano}
         for nivel in range(2, self.bib.progressao["nivel_maximo"] + 1):
             itens = []
             if str(nivel) in conquistas:
@@ -457,19 +510,11 @@ class Personagem:
                 itens.append("Conquista de patamar: nova Experiência +2, +1 Proficiência"
                              + (", limpa marcas dos atributos" if c["limpar_marcas_tracos"] else ""))
             subida = feitos.get(nivel)
+            plano = planejados.get(nivel)
             if subida:
-                if subida.nova_experiencia:
-                    itens.append(f"Nova Experiência: {subida.nova_experiencia} +2")
-                itens += [self._descrever(e) for e in subida.escolhas]
-                if subida.experiencia_companheiro:
-                    itens.append(f"Companheiro: nova Experiência {subida.experiencia_companheiro} +2")
-                itens += [self._descrever_treino(t) for t in subida.treinos]
-                itens.append("Limiares de dano +1")
-                itens.append(f"Carta: {self._nome(bib.cartas, subida.carta)}")
-                if subida.troca_carta:
-                    antiga, nova = subida.troca_carta
-                    itens.append(f"Troca: {self._nome(bib.cartas, antiga)}"
-                                 f" → {self._nome(bib.cartas, nova)}")
+                itens += self._descrever_subida(subida)
+            elif plano:
+                itens += [f"Planejado: {i}" for i in self._descrever_subida(plano)]
             else:
                 itens += ["Escolher 2 avanços", "Limiares de dano +1", "Escolher 1 carta de domínio"]
             tier = self.bib.tier_do_nivel(nivel)
@@ -484,8 +529,26 @@ class Personagem:
                 "nivel": nivel, "tier": tier,
                 "status": "feito" if subida else "futuro",
                 "titulo": f"Nível {nivel}", "itens": itens, "quadros": quadros,
+                "planejado": plano is not None and not subida,
+                "bloqueado_pela_mesa": not subida and self.nivel_limite is not None and nivel > self.nivel_limite,
             })
         return eventos
+
+    def _descrever_subida(self, s: SubidaDeNivel) -> list[str]:
+        cartas = self.bib.cartas
+        itens = []
+        if s.nova_experiencia:
+            itens.append(f"Nova Experiência: {s.nova_experiencia} +2")
+        itens += [self._descrever(e) for e in s.escolhas]
+        if s.experiencia_companheiro:
+            itens.append(f"Companheiro: nova Experiência {s.experiencia_companheiro} +2")
+        itens += [self._descrever_treino(t) for t in s.treinos]
+        itens.append("Limiares de dano +1")
+        itens.append(f"Carta: {self._nome(cartas, s.carta)}")
+        if s.troca_carta:
+            antiga, nova = s.troca_carta
+            itens.append(f"Troca: {self._nome(cartas, antiga)} → {self._nome(cartas, nova)}")
+        return itens
 
     def quadros_de_avanco(self, nivel: int | None, tiers: set[int]) -> list[dict]:
         """Quadradinhos da página de Level Up de cada patamar em `tiers`, do mais
