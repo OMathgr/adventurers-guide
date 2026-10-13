@@ -31,6 +31,24 @@ from .sessao import Gravidade, normalizar_condicao
 MEDO_MAXIMO = 12
 MAX_COPIAS = 20
 
+# O que os jogadores veem da vida de um inimigo (nunca os PV exatos)
+VIDA_CHEIA, METADE_DA_VIDA, VIDA_BAIXA, DERROTADO = "vida_cheia", "metade_da_vida", "vida_baixa", "derrotado"
+
+
+def vitalidade(pv_total: int, pv_marcados: int) -> str:
+    """Estado de vitalidade em terços dos PV que restam (decisão do projeto):
+    mais de 2/3 restando é vida cheia; mais de 1/3, metade da vida; menos,
+    vida baixa; nenhum, derrotado. Ex.: 6 PV → 6-5 cheia, 4-3 metade, 2-1 baixa.
+    Conta em inteiros (restam × 3 contra o total × 2), sem arredondamento."""
+    restam = pv_total - pv_marcados
+    if restam <= 0:
+        return DERROTADO
+    if restam * 3 > pv_total * 2:
+        return VIDA_CHEIA
+    if restam * 3 > pv_total:
+        return METADE_DA_VIDA
+    return VIDA_BAIXA
+
 
 @dataclass
 class ResultadoDanoAdversario:
@@ -49,10 +67,15 @@ class Combatente:
     pv_marcados: int = 0
     pf_marcados: int = 0
     condicoes: list[str] = field(default_factory=list)
+    escondido: bool = False          # mesmo com o encontro à mostra, os jogadores não veem este
 
     @property
     def derrotado(self) -> bool:
         return self.pv_marcados >= self.adversario.pv
+
+    @property
+    def vitalidade(self) -> str:
+        return vitalidade(self.adversario.pv, self.pv_marcados)
 
     def gravidade(self, dano: int) -> Gravidade:
         a = self.adversario

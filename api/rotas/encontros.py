@@ -34,12 +34,15 @@ class CombatenteSaida(BaseModel):
     pf_marcados: int
     condicoes: list[str]
     derrotado: bool
+    escondido: bool                    # os jogadores não veem este, mesmo com o encontro à mostra
+    vitalidade: str                    # o que os jogadores veem da vida: vida_cheia, metade_da_vida...
 
 
 class EncontroSaida(BaseModel):
     id: str
     nome: str
     combatentes: list[CombatenteSaida]
+    visivel: bool                      # à mostra para os jogadores (com a sessão em andamento)
     guia: GuiaDeBatalha                # Pontos de Batalha: orçamento, ajustes e gastos
 
 
@@ -75,6 +78,14 @@ class Marcas(BaseModel):
     pf_marcados: int
 
 
+class Visivel(BaseModel):
+    visivel: bool
+
+
+class Escondido(BaseModel):
+    escondido: bool
+
+
 class CondicaoNova(BaseModel):
     condicao: str = Field(min_length=1, max_length=60)
 
@@ -107,10 +118,11 @@ def _opcoes_do_guia(a: Acesso, linha: EncontroTabela) -> OpcoesDoGuia:
 
 def _saida(a: Acesso, linha: EncontroTabela, encontro: Encontro) -> EncontroSaida:
     guia = calcular(_opcoes_do_guia(a, linha), [(c.adversario.tipo, c.adversario.patamar) for c in encontro.combatentes])
-    return EncontroSaida(id=linha.id, nome=linha.nome, guia=guia, combatentes=[
+    return EncontroSaida(id=linha.id, nome=linha.nome, guia=guia, visivel=bool(linha.visivel), combatentes=[
         CombatenteSaida(id=c.id, rotulo=c.rotulo, adversario=c.adversario, origem=c.origem,
                         pv_marcados=c.pv_marcados, pf_marcados=c.pf_marcados,
-                        condicoes=c.condicoes, derrotado=c.derrotado)
+                        condicoes=c.condicoes, derrotado=c.derrotado, escondido=c.escondido,
+                        vitalidade=c.vitalidade)
         for c in encontro.combatentes])
 
 
@@ -266,3 +278,22 @@ def tirar_condicao(mesa_id: str, sessao_id: str, encontro_id: str, combatente_id
                    a: Acesso = Depends(acesso)):
     return _agir(a, mesa_id, sessao_id, encontro_id,
                  acao=lambda e: e.combatente(combatente_id).remover_condicao(condicao))
+
+@rotas.put("/encontros/{encontro_id}/visivel", response_model=EncontroSaida)
+def mostrar_aos_jogadores(mesa_id: str, sessao_id: str, encontro_id: str, pedido: Visivel,
+                          a: Acesso = Depends(acesso)):
+    """Liga/desliga o encontro na tela dos jogadores (só aparece com a sessão em andamento)."""
+    sessao_do_mestre(a, mesa_id, sessao_id, editar=True)
+    linha = _linha(a, sessao_id, encontro_id)
+    linha.visivel = pedido.visivel
+    a.banco.commit()
+    return _saida(a, linha, _montar(linha))
+
+
+@rotas.put("/encontros/{encontro_id}/combatentes/{combatente_id}/escondido", response_model=EncontroSaida)
+def esconder_combatente(mesa_id: str, sessao_id: str, encontro_id: str, combatente_id: str, pedido: Escondido,
+                        a: Acesso = Depends(acesso)):
+    """Esconde um inimigo dos jogadores mesmo com o encontro à mostra (ex.: ainda Oculto)."""
+    def acao(e: Encontro):
+        e.combatente(combatente_id).escondido = pedido.escondido
+    return _agir(a, mesa_id, sessao_id, encontro_id, acao)

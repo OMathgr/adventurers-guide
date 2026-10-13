@@ -7,7 +7,7 @@ e sessão são o estado atual e ficam como JSON na própria linha do personagem.
 
 from datetime import date, datetime, timezone
 
-from sqlalchemy import JSON, Date, DateTime, ForeignKey, Integer, LargeBinary, String, UniqueConstraint
+from sqlalchemy import JSON, Boolean, Date, DateTime, ForeignKey, Integer, LargeBinary, String, UniqueConstraint, false
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .db import Base
@@ -88,6 +88,8 @@ class NpcTabela(Base):
     notas: Mapped[str] = mapped_column(String(8000), default="")
     ficha_combate: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     foto: Mapped[str | None] = mapped_column(String(36), nullable=True)   # id em `imagens`
+    # conhecido pelos jogadores: veem nome, foto e descrição (nunca notas nem motivações)
+    revelado: Mapped[bool] = mapped_column(Boolean, default=False, server_default=false())
     criado_em: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_agora)
     atualizado_em: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_agora, onupdate=_agora)
 
@@ -131,6 +133,9 @@ class EncontroTabela(Base):
     combatentes: Mapped[list] = mapped_column(JSON)
     # escolhas do Guia de Batalha (motor.guia_batalha.OpcoesDoGuia); None: padrão da mesa
     guia: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    # à mostra para os jogadores (só vale com a sessão em andamento): nome, foto,
+    # vitalidade e condições dos combatentes que não estiverem escondidos
+    visivel: Mapped[bool] = mapped_column(Boolean, default=False, server_default=false())
     criado_em: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_agora)
     atualizado_em: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_agora, onupdate=_agora)
 

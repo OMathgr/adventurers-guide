@@ -115,6 +115,7 @@ describe('Trazer personagem para a mesa', () => {
     const fetch = api({
       '/personagens': [{ id: 'p1', nome: 'Lia', nivel: 5, classe: 'x', mesa_id: null, foto: null }],
       '/personagens/p1/copia': { id: 'p2', ficha: {} },
+      '/mesas/m1/revelado': { combate: [], npcs: [] },
     })
     vi.stubGlobal('fetch', fetch)
     montar(<AbaGeral mesa={mesa} />)

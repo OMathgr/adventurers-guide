@@ -1108,6 +1108,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/mesas/{mesa_id}/npcs/{npc_id}/revelado": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Revelar Npc
+         * @description Torna o NPC conhecido pelos jogadores (nome, foto e descrição; notas e
+         *     motivações continuam só do mestre). Fica conhecido entre as sessões.
+         */
+        put: operations["revelar_npc_mesas__mesa_id__npcs__npc_id__revelado_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/mesas/{mesa_id}/sessoes": {
         parameters: {
             query?: never;
@@ -1253,8 +1274,9 @@ export interface paths {
         get?: never;
         /**
          * Guia De Batalha
-         * @description Escolhas do Guia de Batalha (nº de PJs, patamar do grupo, luta mais fácil
-         *     ou difícil, dano extra). Os ajustes de composição são calculados sozinhos.
+         * @description Escolhas do Guia de Batalha (nº de PJs, luta mais fácil ou difícil, dano
+         *     extra). O patamar do grupo vem do nível da mesa (o enviado é ignorado) e os
+         *     ajustes de composição são calculados sozinhos.
          */
         put: operations["guia_de_batalha_mesas__mesa_id__sessoes__sessao_id__encontros__encontro_id__guia_put"];
         post?: never;
@@ -1393,6 +1415,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/mesas/{mesa_id}/sessoes/{sessao_id}/encontros/{encontro_id}/visivel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Mostrar Aos Jogadores
+         * @description Liga/desliga o encontro na tela dos jogadores (só aparece com a sessão em andamento).
+         */
+        put: operations["mostrar_aos_jogadores_mesas__mesa_id__sessoes__sessao_id__encontros__encontro_id__visivel_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/mesas/{mesa_id}/sessoes/{sessao_id}/encontros/{encontro_id}/combatentes/{combatente_id}/escondido": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Esconder Combatente
+         * @description Esconde um inimigo dos jogadores mesmo com o encontro à mostra (ex.: ainda Oculto).
+         */
+        put: operations["esconder_combatente_mesas__mesa_id__sessoes__sessao_id__encontros__encontro_id__combatentes__combatente_id__escondido_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/imagens": {
         parameters: {
             query?: never;
@@ -1419,6 +1481,23 @@ export interface paths {
         };
         /** Ver */
         get: operations["ver_imagens__imagem_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/mesas/{mesa_id}/revelado": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Revelado */
+        get: operations["revelado_mesas__mesa_id__revelado_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1749,6 +1828,10 @@ export interface components {
             condicoes: string[];
             /** Derrotado */
             derrotado: boolean;
+            /** Escondido */
+            escondido: boolean;
+            /** Vitalidade */
+            vitalidade: string;
         };
         /**
          * Companheiro
@@ -1965,7 +2048,20 @@ export interface components {
             nome: string;
             /** Combatentes */
             combatentes: components["schemas"]["CombatenteSaida"][];
+            /** Visivel */
+            visivel: boolean;
             guia: components["schemas"]["GuiaDeBatalha"];
+        };
+        /** EncontroVisivel */
+        EncontroVisivel: {
+            /** Id */
+            id: string;
+            /** Nome */
+            nome: string;
+            /** Mestre */
+            mestre: string;
+            /** Inimigos */
+            inimigos: components["schemas"]["InimigoVisivel"][];
         };
         /** EquipamentoEntrada */
         EquipamentoEntrada: {
@@ -2003,6 +2099,11 @@ export interface components {
             /** Subclasse */
             subclasse?: string | null;
             companheiro?: components["schemas"]["Companheiro"] | null;
+        };
+        /** Escondido */
+        Escondido: {
+            /** Escondido */
+            escondido: boolean;
         };
         /** Estresse */
         Estresse: {
@@ -2271,6 +2372,19 @@ export interface components {
             /** Base Id */
             base_id: string | null;
         };
+        /** InimigoVisivel */
+        InimigoVisivel: {
+            /** Id */
+            id: string;
+            /** Rotulo */
+            rotulo: string;
+            /** Foto */
+            foto: string | null;
+            /** Vitalidade */
+            vitalidade: string;
+            /** Condicoes */
+            condicoes: string[];
+        };
         /** Marcas */
         Marcas: {
             /** Pv Marcados */
@@ -2420,6 +2534,22 @@ export interface components {
             foto?: string | null;
             /** Id */
             id: string;
+            /**
+             * Revelado
+             * @default false
+             */
+            revelado: boolean;
+        };
+        /** NpcConhecido */
+        NpcConhecido: {
+            /** Id */
+            id: string;
+            /** Nome */
+            nome: string;
+            /** Foto */
+            foto: string | null;
+            /** Descricao */
+            descricao: string;
         };
         /** NpcEntrada */
         NpcEntrada: {
@@ -2447,6 +2577,11 @@ export interface components {
              * @description Id devolvido por POST /imagens
              */
             foto?: string | null;
+        };
+        /** NpcRevelado */
+        NpcRevelado: {
+            /** Revelado */
+            revelado: boolean;
         };
         /**
          * Opcao
@@ -2895,6 +3030,18 @@ export interface components {
         VinculoMesa: {
             /** Mesa Id */
             mesa_id: string;
+        };
+        /** Visivel */
+        Visivel: {
+            /** Visivel */
+            visivel: boolean;
+        };
+        /** VistaDosJogadores */
+        VistaDosJogadores: {
+            /** Combate */
+            combate: components["schemas"]["EncontroVisivel"][];
+            /** Npcs */
+            npcs: components["schemas"]["NpcConhecido"][];
         };
     };
     responses: never;
@@ -5251,6 +5398,42 @@ export interface operations {
             };
         };
     };
+    revelar_npc_mesas__mesa_id__npcs__npc_id__revelado_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mesa_id: string;
+                npc_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NpcRevelado"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Npc"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     listar_mesas__mesa_id__sessoes_get: {
         parameters: {
             query?: never;
@@ -6022,6 +6205,81 @@ export interface operations {
             };
         };
     };
+    mostrar_aos_jogadores_mesas__mesa_id__sessoes__sessao_id__encontros__encontro_id__visivel_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mesa_id: string;
+                sessao_id: string;
+                encontro_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Visivel"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EncontroSaida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    esconder_combatente_mesas__mesa_id__sessoes__sessao_id__encontros__encontro_id__combatentes__combatente_id__escondido_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mesa_id: string;
+                sessao_id: string;
+                encontro_id: string;
+                combatente_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Escondido"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EncontroSaida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     enviar_imagens_post: {
         parameters: {
             query?: never;
@@ -6073,6 +6331,37 @@ export interface operations {
                 };
                 content: {
                     "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    revelado_mesas__mesa_id__revelado_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mesa_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VistaDosJogadores"];
                 };
             };
             /** @description Validation Error */

@@ -6,7 +6,7 @@ import { chamar } from './cliente'
 import type {
   Adversario, Ancestralidade, Arma, Armadura, CartaDeDominio, Equipamento, Classe, Comunidade, Criacao, Encontro, Escolha,
   EventoLinhaDoTempo, Ficha, GuiaDeBatalha, InimigoResumo, Mesa, MesaResumo, Npc, NpcEntrada, OpcoesDoGuia, PermissoesMestres, DadosDaSessao, Sessao, SessaoResumo,
-  PersonagemCriado, PersonagemResumo, ProximoNivel, ResultadoDano, ResultadoDanoAdversario, Subclasse,
+  PersonagemCriado, PersonagemResumo, ProximoNivel, ResultadoDano, ResultadoDanoAdversario, Subclasse, VistaDosJogadores,
   SubidaDeNivel,
 } from './tipos'
 
@@ -452,6 +452,8 @@ type AcaoNoEncontro =
   | { tipo: 'marcas'; combatente: string; pv_marcados: number; pf_marcados: number }
   | { tipo: 'condicao'; combatente: string; condicao: string }
   | { tipo: 'tirar_condicao'; combatente: string; condicao: string }
+  | { tipo: 'esconder'; combatente: string; escondido: boolean }
+  | { tipo: 'visivel'; visivel: boolean }
 
 /** Ações que devolvem o encontro inteiro: o cache é trocado pela resposta. */
 export function useAcaoNoEncontro(mesaId: string, sid: string, encontroId: string) {
@@ -465,8 +467,34 @@ export function useAcaoNoEncontro(mesaId: string, sid: string, encontroId: strin
       case 'condicao': return chamar<Encontro>(`${base}/${a.combatente}/condicoes`, { corpo: { condicao: a.condicao } })
       case 'tirar_condicao': return chamar<Encontro>(
         `${base}/${a.combatente}/condicoes/${encodeURIComponent(a.condicao)}`, { metodo: 'DELETE' })
+      case 'esconder': return chamar<Encontro>(`${base}/${a.combatente}/escondido`,
+        { metodo: 'PUT', corpo: { escondido: a.escondido } })
+      case 'visivel': return chamar<Encontro>(`${urlSessao(mesaId, sid)}/encontros/${encontroId}/visivel`,
+        { metodo: 'PUT', corpo: { visivel: a.visivel } })
     }
   }, (e) => e)
+}
+
+/** O que os jogadores veem (encontros à mostra e NPCs conhecidos). Sem tempo
+    real ainda: recarrega a cada 5 s para acompanhar a luta. */
+export const useRevelado = (mesaId: string) =>
+  useQuery({
+    queryKey: ['mesas', mesaId, 'revelado'],
+    queryFn: () => chamar<VistaDosJogadores>(`/mesas/${mesaId}/revelado`),
+    refetchInterval: 5000,
+  })
+
+/** Torna um NPC conhecido (ou não) pelos jogadores. */
+export function useRevelarNpc(mesaId: string) {
+  const cliente = useQueryClient()
+  return useMutation({
+    mutationFn: ({ npcId, revelado }: { npcId: string; revelado: boolean }) =>
+      chamar<Npc>(`/mesas/${mesaId}/npcs/${npcId}/revelado`, { metodo: 'PUT', corpo: { revelado } }),
+    onSuccess: () => Promise.all([
+      cliente.invalidateQueries({ queryKey: chavesMesa.npcs(mesaId) }),
+      cliente.invalidateQueries({ queryKey: ['mesas', mesaId, 'revelado'] }),
+    ]),
+  })
 }
 
 /** Como ficaria o guia com estes inimigos (nada é salvo): mostra o custo antes de adicionar. */

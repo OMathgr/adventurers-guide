@@ -325,6 +325,26 @@ Documentação interativa em `/docs`.
   montar/gravar o personagem (`montar`, `gravar`), para dono e mestre usarem
   o mesmo caminho.
 
+### Revelar aos jogadores (`api/rotas/revelado.py`)
+
+Decisões do projeto (2026-10-13):
+- **Encontro à mostra** (`encontros.visivel`, "Mostrar aos jogadores", só o
+  responsável liga) aparece para os jogadores **só com a sessão em andamento**.
+  O mestre pode esconder um inimigo específico (`Combatente.escondido`, ex.:
+  ainda Oculto).
+- Dos inimigos à mostra os jogadores veem **nome na luta, foto, vitalidade e
+  condições**; nunca PV, dano, habilidades, Dificuldade ou outros números.
+- **Vitalidade em terços** dos PV que restam (`motor.encontro.vitalidade`):
+  mais de 2/3 é vida cheia, mais de 1/3 metade da vida, menos vida baixa, zero
+  derrotado (6 PV: 6-5 cheia, 4-3 metade, 2-1 baixa). Conta em inteiros
+  (restam × 3 contra o total × 2), sem arredondamento.
+- **NPC conhecido** (`npcs.revelado`, permissão `preparar`): os jogadores veem
+  nome, foto e descrição (nunca motivações nem notas). Fica conhecido entre as
+  sessões (o que os jogadores aprenderam não some quando a sessão acaba).
+- `GET /mesas/{id}/revelado` (qualquer membro) junta os dois; a aba Mesa mostra
+  "Em combate: ..." e "NPCs conhecidos". Sem tempo real ainda: a tela recarrega
+  a cada 5 s.
+
 ### Guia de Batalha (`motor/guia_batalha.py`)
 
 Regra do SRD ("Battle Points", p. 71; p. 197 da edição brasileira). Cada

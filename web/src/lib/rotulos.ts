@@ -112,6 +112,11 @@ export const PLURAL_TIPO_ADVERSARIO: Record<TipoAdversario, string> = {
   SUPORTE: 'Assistentes', LIDER: 'Líderes', LACAIO: 'Lacaios', HORDA: 'Hordas', SOCIAL: 'Manipuladores', SOLO: 'Solos',
 }
 
+/** O que os jogadores veem da vida de um inimigo (terços dos PV que restam). */
+export const NOME_VITALIDADE: Record<string, string> = {
+  vida_cheia: 'Vida cheia', metade_da_vida: 'Metade da vida', vida_baixa: 'Vida baixa', derrotado: 'Derrotado',
+}
+
 /** Gravidade do dano (quantos PV marca, pelos limiares). */
 export const NOME_GRAVIDADE: Record<number, string> = { 0: 'sem dano', 1: 'Menor', 2: 'Maior', 3: 'Grave', 4: 'Massivo' }
 

@@ -19,7 +19,9 @@ do zero) e NPCs (ficha simples, com ficha de combate opcional). A interface
 web cobre o construtor (criar, ficha, linha do tempo, subir de nível), as
 mesas, a área do mestre e as sessões de jogo (cada uma de um mestre, com
 planejamento, Medo próprio e encontros com várias cópias de inimigos, Guia de
-Batalha, PV/PF/condições por clique, dano e condições nos personagens).
+Batalha, PV/PF/condições por clique, dano e condições nos personagens). O
+mestre revela aos jogadores o estado de vitalidade e as condições dos inimigos
+(nunca os números) e os NPCs que eles já conhecem.
 Também tem aba de equipamento, nível máximo por mesa (o personagem fica preso
 à mesa; para levar a outra, faz-se uma cópia e os níveis acima viram plano)
 e fotos de personagens, NPCs e inimigos.

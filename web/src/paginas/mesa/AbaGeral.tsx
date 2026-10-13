@@ -9,6 +9,7 @@ import {
 import type { Mesa, Permissao, PermissoesMestres } from '../../api/tipos'
 import { Foto } from '../../componentes/Foto'
 import MedoDoMestre from '../../componentes/MedoDoMestre'
+import VistaDosJogadores from '../../componentes/VistaDosJogadores'
 import { Aviso, Botao, Cartao, Selecao, Selo } from '../../componentes/ui'
 import { NOME_PAPEL, NOME_PERMISSAO } from '../../lib/rotulos'
 
@@ -185,6 +186,8 @@ export default function AbaGeral({ mesa }: { mesa: Mesa }) {
 
   return (
     <div className="grid gap-4 lg:grid-cols-2">
+      {/* o que o mestre revelou: inimigos em combate e NPCs conhecidos */}
+      <VistaDosJogadores mesaId={mesa.id} />
       {/* Medo das sessões em andamento: todos veem (quem muda é o mestre, na sessão) */}
       {mesa.medo_em_jogo.map((m) => (
         <div key={m.sessao_id} className="lg:col-span-2">

@@ -16,7 +16,7 @@ import FichaInimigo from '../../componentes/FichaInimigo'
 import { Foto } from '../../componentes/Foto'
 import GuiaDeBatalha from '../../componentes/GuiaDeBatalha'
 import { Aviso, Botao, Campo, Carregando, EspacosClicaveis, Escolhivel, Selecao, Selo } from '../../componentes/ui'
-import { NOME_GRAVIDADE, NOME_TIPO_ADVERSARIO } from '../../lib/rotulos'
+import { NOME_GRAVIDADE, NOME_TIPO_ADVERSARIO, NOME_VITALIDADE } from '../../lib/rotulos'
 
 type Alvo = { mesaId: string; sid: string; encontroId: string; podeEditar: boolean }
 
@@ -26,7 +26,7 @@ function descreverDano(r: ResultadoDanoAdversario) {
     + (r.derrotado ? '. Derrotado!' : '.')
 }
 
-function CartaoCombatente({ mesaId, sid, encontroId, podeEditar, c }: Alvo & { c: Combatente }) {
+function CartaoCombatente({ mesaId, sid, encontroId, podeEditar, c, aMostra }: Alvo & { c: Combatente; aMostra: boolean }) {
   const acao = useAcaoNoEncontro(mesaId, sid, encontroId)
   const dano = useDanoEmCombatente(mesaId, sid, encontroId)
   const [valor, setValor] = useState('')
@@ -50,7 +50,10 @@ function CartaoCombatente({ mesaId, sid, encontroId, podeEditar, c }: Alvo & { c
             <p className="text-xs text-texto-suave">ATQ {a.ataque} · {a.arma} · {a.dano}</p>
           </div>
         </div>
-        {c.derrotado && <Selo>Derrotado</Selo>}
+        <span className="flex flex-wrap gap-1">
+          {aMostra && (c.escondido ? <Selo>escondido dos jogadores</Selo> : <Selo destaque>{NOME_VITALIDADE[c.vitalidade]}</Selo>)}
+          {c.derrotado && <Selo>Derrotado</Selo>}
+        </span>
       </header>
 
       {/* inimigo começa cheio e o mestre vai esvaziando: quadradinho cheio = ponto que resta
@@ -95,6 +98,12 @@ function CartaoCombatente({ mesaId, sid, encontroId, podeEditar, c }: Alvo & { c
         <Botao variante="fantasma" className="!px-0" onClick={() => setVerFicha(!verFicha)}>
           {verFicha ? 'Esconder ficha' : 'Ver ficha completa'}
         </Botao>
+        {podeEditar && aMostra && (
+          <Botao variante="fantasma" className="!px-2" disabled={ocupado}
+            onClick={() => acao.mutate({ tipo: 'esconder', combatente: c.id, escondido: !c.escondido })}>
+            {c.escondido ? 'Mostrar aos jogadores' : 'Esconder dos jogadores'}
+          </Botao>
+        )}
         {podeEditar && (
           <Botao variante="fantasma" className="!px-2 text-perigo" disabled={ocupado}
             onClick={() => confirm(`Tirar ${c.rotulo} do encontro?`) && acao.mutate({ tipo: 'remover', combatente: c.id })}>
@@ -183,19 +192,32 @@ function AdicionarCombatentes({ mesaId, sid, encontroId, guia }: Alvo & { guia: 
     </form>
   )
 }
-function EncontroAtual(alvo: Alvo) {
+function EncontroAtual({ emAndamento, ...alvo }: Alvo & { emAndamento: boolean }) {
   const encontro = useEncontro(alvo.mesaId, alvo.sid, alvo.encontroId)
+  const mostrar = useAcaoNoEncontro(alvo.mesaId, alvo.sid, alvo.encontroId)
   if (encontro.isPending) return <Carregando />
   if (encontro.isError) return <Aviso erro={encontro.error} />
   const e = encontro.data
   const vivos = e.combatentes.filter((c) => !c.derrotado).length
   return (
     <div className="space-y-3">
-      <p className="text-sm text-texto-suave">
-        {e.combatentes.length === 0 ? 'Ninguém no encontro ainda.' : `${vivos} de ${e.combatentes.length} de pé.`}
-      </p>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <p className="text-sm text-texto-suave">
+          {e.combatentes.length === 0 ? 'Ninguém no encontro ainda.' : `${vivos} de ${e.combatentes.length} de pé.`}
+        </p>
+        {/* revelar aos jogadores: nome, foto, vitalidade e condições (nunca os números) */}
+        <label className="flex items-center gap-2 text-sm">
+          <input type="checkbox" checked={e.visivel} disabled={!alvo.podeEditar || mostrar.isPending}
+            onChange={(ev) => mostrar.mutate({ tipo: 'visivel', visivel: ev.target.checked })} />
+          Mostrar aos jogadores
+        </label>
+      </div>
+      {e.visivel && !emAndamento && (
+        <p className="text-xs text-texto-suave">Os jogadores só veem quando a sessão estiver em andamento.</p>
+      )}
+      <Aviso erro={mostrar.error} />
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-        {e.combatentes.map((c) => <CartaoCombatente key={c.id} {...alvo} c={c} />)}
+        {e.combatentes.map((c) => <CartaoCombatente key={c.id} {...alvo} c={c} aMostra={e.visivel} />)}
       </div>
       {/* montar o encontro: o guia ao lado de onde se põem os inimigos (é só auxílio) */}
       <GuiaDeBatalha mesaId={alvo.mesaId} sid={alvo.sid} encontroId={e.id} guia={e.guia} podeEditar={alvo.podeEditar} />
@@ -253,7 +275,8 @@ export default function Encontros({ mesaId, sessao }: { mesaId: string; sessao: 
               Apagar este encontro
             </Botao>
           )}
-          <EncontroAtual key={atual} mesaId={mesaId} sid={sessao.id} encontroId={atual} podeEditar={podeEditar} />
+          <EncontroAtual key={atual} mesaId={mesaId} sid={sessao.id} encontroId={atual} podeEditar={podeEditar}
+            emAndamento={sessao.status === 'em_andamento'} />
         </>
       )}
     </section>

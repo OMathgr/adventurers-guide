@@ -98,8 +98,28 @@ describe('Página da mesa', () => {
     personagens: [],
   })
 
+  it('jogador vê o que o mestre revelou: vitalidade e condições, nunca os números', async () => {
+    vi.stubGlobal('fetch', respostas({
+      '/mesas/m1': mesa('jogador'), '/personagens': [], '/srd/classes': [],
+      '/mesas/m1/revelado': {
+        combate: [{ id: 'e1', nome: 'Emboscada na ponte', mestre: 'Ana', inimigos: [
+          { id: 'c1', rotulo: 'Lobo 1', foto: null, vitalidade: 'metade_da_vida', condicoes: ['VULNERAVEL'] },
+          { id: 'c2', rotulo: 'Lobo 2', foto: null, vitalidade: 'derrotado', condicoes: [] }] }],
+        npcs: [{ id: 'n1', nome: 'Marlowe', foto: null, descricao: 'Ferreiro da vila' }],
+      },
+    }))
+    montarEm('/mesas/m1', <Mesa />, '/mesas/:id')
+    const lobo = await screen.findByRole('listitem', { name: 'Lobo 1' })
+    expect(lobo).toHaveTextContent('Metade da vida')
+    expect(lobo).toHaveTextContent('Vulnerável')
+    expect(screen.getByRole('img', { name: 'Derrotado' })).toBeInTheDocument()
+    expect(screen.getByText('Em combate: Emboscada na ponte')).toBeInTheDocument()
+    expect(screen.getByText('Ferreiro da vila')).toBeInTheDocument()
+  })
+
   it('jogador não vê a área do mestre', async () => {
-    vi.stubGlobal('fetch', respostas({ '/mesas/m1': mesa('jogador'), '/personagens': [], '/srd/classes': [] }))
+    vi.stubGlobal('fetch', respostas({
+      '/mesas/m1': mesa('jogador'), '/personagens': [], '/srd/classes': [], '/mesas/m1/revelado': { combate: [], npcs: [] } }))
     montarEm('/mesas/m1?aba=inimigos', <Mesa />, '/mesas/:id')
     expect(await screen.findByText('ABC123')).toBeInTheDocument()
     expect(screen.queryByRole('tab', { name: 'Inimigos' })).not.toBeInTheDocument()

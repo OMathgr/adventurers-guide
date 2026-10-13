@@ -2,7 +2,7 @@
 // se o mestre quiser, uma ficha de combate no formato de inimigo.
 import { useState } from 'react'
 
-import { useApagarNpc, useNpcs, useSalvarNpc } from '../../api/consultas'
+import { useApagarNpc, useNpcs, useRevelarNpc, useSalvarNpc } from '../../api/consultas'
 import type { Npc, NpcEntrada } from '../../api/tipos'
 import EditorInimigo from '../../componentes/EditorInimigo'
 import FichaInimigo from '../../componentes/FichaInimigo'
@@ -56,7 +56,23 @@ function Editor({ inicial, aoSalvar, aoCancelar, salvando, erro }: {
   )
 }
 
-function Detalhe({ npc, acoes }: { npc: Npc; acoes?: React.ReactNode }) {
+/** Conhecido pelos jogadores: eles veem nome, foto e descrição (nunca notas nem motivações). */
+function Revelar({ mesaId, npc, podeEditar }: { mesaId: string; npc: Npc; podeEditar: boolean }) {
+  const revelar = useRevelarNpc(mesaId)
+  return (
+    <div className="space-y-1">
+      <label className="flex items-center gap-2 text-sm">
+        <input type="checkbox" checked={!!npc.revelado} disabled={!podeEditar || revelar.isPending}
+          onChange={(e) => revelar.mutate({ npcId: npc.id, revelado: e.target.checked })} />
+        Conhecido pelos jogadores
+      </label>
+      <p className="text-xs text-texto-suave">Eles veem nome, foto e descrição. Motivações e notas continuam só suas.</p>
+      <Aviso erro={revelar.error} />
+    </div>
+  )
+}
+
+function Detalhe({ npc, acoes, revelar }: { npc: Npc; acoes?: React.ReactNode; revelar?: React.ReactNode }) {
   return (
     <div className="space-y-4">
       <article className="space-y-3 rounded-2xl border border-borda bg-superficie p-4 sm:p-5">
@@ -64,9 +80,11 @@ function Detalhe({ npc, acoes }: { npc: Npc; acoes?: React.ReactNode }) {
           <div className="flex items-center gap-3">
             <Foto id={npc.foto} nome={npc.nome} />
             <h2 className="text-xl text-esperanca">{npc.nome}</h2>
+            {npc.revelado && <Selo destaque>conhecido</Selo>}
           </div>
           {acoes && <div className="flex gap-2">{acoes}</div>}
         </header>
+        {revelar}
         {npc.descricao && <TextoRico texto={npc.descricao} className="text-sm" />}
         {npc.motivacoes && <p className="text-sm"><span className="font-semibold">Motivações:</span> {npc.motivacoes}</p>}
         {npc.notas && (
@@ -110,7 +128,7 @@ export default function AbaNpcs({ mesaId, podeEditar }: { mesaId: string; podeEd
                 <span className="flex items-center justify-between gap-2">
                   <span className="flex items-center gap-2"><Foto id={n.foto} nome={n.nome} tamanho="p" />
                     <span className="font-medium">{n.nome}</span></span>
-                  {n.ficha_combate && <Selo>combate</Selo>}
+                  <span className="flex gap-1">{n.revelado && <Selo destaque>conhecido</Selo>}{n.ficha_combate && <Selo>combate</Selo>}</span>
                 </span>
               </Escolhivel>
             </li>
@@ -128,7 +146,7 @@ export default function AbaNpcs({ mesaId, podeEditar }: { mesaId: string; podeEd
         ) : npc ? (
           <>
             <Aviso erro={apagar.error} />
-            <Detalhe npc={npc} acoes={podeEditar && <>
+            <Detalhe npc={npc} revelar={<Revelar mesaId={mesaId} npc={npc} podeEditar={podeEditar} />} acoes={podeEditar && <>
               <Botao variante="secundario" onClick={() => editar(npc)}>Editar</Botao>
               <Botao variante="perigo" disabled={apagar.isPending}
                 onClick={() => confirm(`Apagar ${npc.nome}?`)

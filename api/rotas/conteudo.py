@@ -135,6 +135,11 @@ class NpcEntrada(BaseModel):
 
 class Npc(NpcEntrada):
     id: str
+    revelado: bool = False             # conhecido pelos jogadores (nome, foto e descrição)
+
+
+class NpcRevelado(BaseModel):
+    revelado: bool
 
 
 def _npc(a: Acesso, mesa_id: str, npc_id: str) -> NpcTabela:
@@ -146,7 +151,8 @@ def _npc(a: Acesso, mesa_id: str, npc_id: str) -> NpcTabela:
 
 def _npc_saida(linha: NpcTabela) -> Npc:
     return Npc(id=linha.id, nome=linha.nome, descricao=linha.descricao, motivacoes=linha.motivacoes,
-               notas=linha.notas, ficha_combate=linha.ficha_combate, foto=linha.foto)
+               notas=linha.notas, ficha_combate=linha.ficha_combate, foto=linha.foto,
+               revelado=bool(linha.revelado))
 
 
 def _aplicar_npc(a: Acesso, linha: NpcTabela, dados: NpcEntrada):
@@ -197,3 +203,14 @@ def apagar_npc(mesa_id: str, npc_id: str, a: Acesso = Depends(acesso)):
     a.banco.delete(_npc(a, mesa_id, npc_id))
     a.banco.commit()
     return Response(status_code=204)
+
+
+@rotas.put("/npcs/{npc_id}/revelado", response_model=Npc)
+def revelar_npc(mesa_id: str, npc_id: str, pedido: NpcRevelado, a: Acesso = Depends(acesso)):
+    """Torna o NPC conhecido pelos jogadores (nome, foto e descrição; notas e
+    motivações continuam só do mestre). Fica conhecido entre as sessões."""
+    _mestre(a, mesa_id, editar=True)
+    linha = _npc(a, mesa_id, npc_id)
+    linha.revelado = pedido.revelado
+    a.banco.commit()
+    return _npc_saida(linha)

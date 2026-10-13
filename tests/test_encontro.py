@@ -96,3 +96,18 @@ def test_medo():
     assert definir_medo(4) == 4
     with pytest.raises(RegraViolada):
         definir_medo(13)
+
+
+def test_vitalidade_em_tercos():
+    from motor.encontro import vitalidade
+    assert [vitalidade(6, m) for m in range(7)] == [
+        "vida_cheia", "vida_cheia", "metade_da_vida", "metade_da_vida", "vida_baixa", "vida_baixa", "derrotado"]
+    assert vitalidade(1, 0) == "vida_cheia" and vitalidade(1, 1) == "derrotado"        # lacaio
+    assert [vitalidade(3, m) for m in range(4)] == ["vida_cheia", "metade_da_vida", "vida_baixa", "derrotado"]
+
+
+def test_combatente_comeca_visivel_e_tem_vitalidade(adversarios):
+    c, = Encontro("x").adicionar(adversarios["srd_acid_burrower"])
+    assert c.escondido is False and c.vitalidade == "vida_cheia"
+    c.definir_marcas(pv=c.adversario.pv, pf=0)
+    assert c.vitalidade == "derrotado"
