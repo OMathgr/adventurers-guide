@@ -109,7 +109,7 @@ describe('Foto', () => {
 describe('Trazer personagem para a mesa', () => {
   it('acima do nível da mesa, entra por cópia', async () => {
     const mesa = {
-      id: 'm1', nome: 'Mesa', codigo_convite: 'ABC', medo: 0, nivel_maximo: 2, meu_papel: 'jogador', sou_criador: false,
+      id: 'm1', nome: 'Mesa', codigo_convite: 'ABC', medo_em_jogo: [], nivel_maximo: 2, meu_papel: 'jogador', sou_criador: false,
       permissoes_mestres: {}, minhas_permissoes: [], membros: [], personagens: [],
     } as unknown as Mesa
     const fetch = api({

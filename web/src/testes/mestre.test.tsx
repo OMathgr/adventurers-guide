@@ -6,6 +6,7 @@ import { MemoryRouter, Route, Routes } from 'react-router'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import type { Adversario, Mesa as MesaT } from '../api/tipos'
+import { ProvedorAutenticacao } from '../auth/Autenticacao'
 import EditorInimigo from '../componentes/EditorInimigo'
 import { INIMIGO_EM_BRANCO } from '../lib/inimigo'
 import FichaInimigo from '../componentes/FichaInimigo'
@@ -32,7 +33,9 @@ function montarEm(caminho: string, ui: ReactNode, rota: string) {
   const cliente = new QueryClient({ defaultOptions: { queries: { retry: false } } })
   return render(
     <QueryClientProvider client={cliente}>
-      <MemoryRouter initialEntries={[caminho]}><Routes><Route path={rota} element={ui} /></Routes></MemoryRouter>
+      <ProvedorAutenticacao>
+        <MemoryRouter initialEntries={[caminho]}><Routes><Route path={rota} element={ui} /></Routes></MemoryRouter>
+      </ProvedorAutenticacao>
     </QueryClientProvider>,
   )
 }
@@ -87,7 +90,8 @@ describe('Editor de inimigo', () => {
 
 describe('Página da mesa', () => {
   const mesa = (papel: string): MesaT => ({
-    id: 'm1', nome: 'Sombras de Haven', codigo_convite: 'ABC123', medo: 3, nivel_maximo: 1, meu_papel: papel, sou_criador: papel === 'mestre',
+    id: 'm1', nome: 'Sombras de Haven', codigo_convite: 'ABC123', nivel_maximo: 1, meu_papel: papel, sou_criador: papel === 'mestre',
+    medo_em_jogo: [{ sessao_id: 's1', mestre: 'Ana', medo: 3 }],
     permissoes_mestres: { ver_fichas: true, aplicar_dano: true, aplicar_condicoes: true, preparar: true },
     minhas_permissoes: papel === 'mestre' ? ['ver_fichas', 'aplicar_dano', 'aplicar_condicoes', 'preparar'] : [],
     membros: [{ usuario_id: 'u1', nome: 'Ana', papel, criador: papel === 'mestre' }],
@@ -100,12 +104,12 @@ describe('Página da mesa', () => {
     expect(await screen.findByText('ABC123')).toBeInTheDocument()
     expect(screen.queryByRole('tab', { name: 'Inimigos' })).not.toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Sair da mesa' })).toBeInTheDocument()
-    // o Medo fica visível para os jogadores, sem botões
-    expect(screen.getByRole('img', { name: 'Medo: 3 de 12' })).toBeInTheDocument()
+    // o Medo da sessão em andamento fica visível para os jogadores, sem botões
+    expect(screen.getByRole('img', { name: 'Medo (sessão de Ana): 3 de 12' })).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Ganhar 1' })).not.toBeInTheDocument()
   })
 
-  it('sessão: mestre ganha Medo, marca PV por clique e aplica dano', async () => {
+  it('sessão: mestre ganha Medo, abre o encontro, marca PV por clique e aplica dano', async () => {
     const lobo = { id: 'c1', rotulo: 'Lobo 1', adversario: { ...MAGO, nome: 'Lobo', pv: 4, pf: 2 }, origem: 'srd:x',
       pv_marcados: 0, pf_marcados: 0, condicoes: [], derrotado: false }
     const guia = {
@@ -113,29 +117,39 @@ describe('Página da mesa', () => {
       ajustes: [{ descricao: 'Sem brutamonte, horda, líder ou solo', valor: 1, automatico: true }], total: 15,
       gastos: [{ tipo: 'ATIRADOR', quantidade: 1, custo: 2 }], gasto: 2, saldo: 13,
     }
-    const encontro = { id: 'e1', nome: 'Emboscada', combatentes: [lobo], guia }
+    const encontro = { id: 'e1', nome: 'Emboscada na ponte', combatentes: [lobo], guia }
     const comPv = (pv: number) => ({ ...encontro, combatentes: [{ ...lobo, pv_marcados: pv, derrotado: pv >= 4 }] })
+    const resumo = { id: 's1', titulo: 'A ponte', data: null, status: 'em_andamento', medo: 3,
+      responsavel_id: 'u1', responsavel: 'Ana', sou_responsavel: true }
+    const sessao = { ...resumo, resumo: '', notas: '', compartilhada_com: [], npcs: [], inimigos: [],
+      encontros: [{ id: 'e1', nome: 'Emboscada na ponte', combatentes: 1, derrotados: 0 }] }
+    const base = '/mesas/m1/sessoes/s1'
     const fetch = respostas({
-      '/mesas/m1': mesa('mestre'), '/mesas/m1/medo': { medo: 4 },
-      '/mesas/m1/encontros': [{ id: 'e1', nome: 'Emboscada', combatentes: 1, derrotados: 0 }],
-      '/mesas/m1/encontros/e1': encontro,
-      '/mesas/m1/encontros/e1/combatentes/c1/marcas': comPv(2),
-      '/mesas/m1/encontros/e1/combatentes/c1/dano': {
+      '/mesas/m1': mesa('mestre'), '/mesas/m1/sessoes': [resumo], [base]: sessao,
+      [`${base}/medo`]: { ...sessao, medo: 4 },
+      [`${base}/encontros/e1`]: encontro,
+      [`${base}/encontros/e1/combatentes/c1/marcas`]: comPv(2),
+      [`${base}/encontros/e1/combatentes/c1/dano`]: {
         resultado: { dano: 12, gravidade: 2, pv_marcados: 2, derrotado: true }, encontro: comPv(4) },
+      '/mesas/m1/npcs': [], '/mesas/m1/inimigos': [],
     })
     vi.stubGlobal('fetch', fetch)
     montarEm('/mesas/m1?aba=sessao', <Mesa />, '/mesas/:id')
 
+    expect(await screen.findByRole('tab', { name: 'Sessões' })).toHaveAttribute('aria-selected', 'true')
     await userEvent.click(await screen.findByRole('button', { name: 'Ganhar 1' }))
-    expect(await screen.findByRole('group', { name: 'Medo: 4 de 12' })).toBeInTheDocument()
+    expect(fetch).toHaveBeenCalledWith(`/api${base}/medo`, expect.objectContaining({
+      method: 'POST', body: JSON.stringify({ delta: 1 }) }))
+    expect(await screen.findByRole('group', { name: 'Medo da sessão: 4 de 12' })).toBeInTheDocument()
 
-    // Guia de Batalha do encontro: gasto, total e saldo vêm da API
+    // encontros não têm ordem: o mestre abre o que acontecer
+    await userEvent.click(screen.getByRole('button', { name: /Emboscada na ponte/ }))
     const painel = await screen.findByRole('region', { name: 'Guia de Batalha' })
     expect(painel).toHaveTextContent('2 de 15 PB gastos · sobram 13 PB')
     expect(painel).toHaveTextContent('1 Atiradores2 PB')
 
     await userEvent.click(await screen.findByRole('button', { name: 'PV restantes de Lobo 1 2' }))
-    expect(fetch).toHaveBeenCalledWith('/api/mesas/m1/encontros/e1/combatentes/c1/marcas', expect.objectContaining({
+    expect(fetch).toHaveBeenCalledWith(`/api${base}/encontros/e1/combatentes/c1/marcas`, expect.objectContaining({
       method: 'PUT', body: JSON.stringify({ pv_marcados: 2, pf_marcados: 0 }) }))
     expect(await screen.findByRole('group', { name: 'PV restantes de Lobo 1: 2 de 4' })).toBeInTheDocument()
 
@@ -145,6 +159,21 @@ describe('Página da mesa', () => {
     expect(screen.getByText('Derrotado')).toBeInTheDocument()
   })
 
+  it('sessão compartilhada é só leitura', async () => {
+    const resumo = { id: 's2', titulo: 'Do Carlos', data: null, status: 'planejada', medo: 2,
+      responsavel_id: 'u2', responsavel: 'Carlos', sou_responsavel: false }
+    const sessao = { ...resumo, resumo: 'Segredo', notas: '', compartilhada_com: ['u1'], npcs: [], inimigos: [], encontros: [] }
+    vi.stubGlobal('fetch', respostas({
+      '/mesas/m1': mesa('mestre'), '/mesas/m1/sessoes': [resumo], '/mesas/m1/sessoes/s2': sessao,
+      '/mesas/m1/npcs': [], '/mesas/m1/inimigos': [],
+    }))
+    montarEm('/mesas/m1?aba=sessao', <Mesa />, '/mesas/:id')
+    expect(await screen.findByText(/Sessão de Carlos \(só leitura\)/)).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Ganhar 1' })).not.toBeInTheDocument()
+    expect(screen.getByLabelText('Resumo e objetivos')).toBeDisabled()
+    expect(screen.queryByRole('button', { name: 'Salvar planejamento' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Apagar sessão' })).not.toBeInTheDocument()
+  })
   it('mestre copia um adversário do SRD para a mesa', async () => {
     const fetch = respostas({
       '/mesas/m1': mesa('mestre'), '/mesas/m1/inimigos': [], '/srd/adversarios': [{ ...MAGO, id: 'srd_war_wizard' }],

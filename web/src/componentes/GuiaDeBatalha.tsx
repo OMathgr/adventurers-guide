@@ -6,9 +6,9 @@ import type { GuiaDeBatalha as Guia, OpcoesDoGuia } from '../api/tipos'
 import { PLURAL_TIPO_ADVERSARIO, comSinal } from '../lib/rotulos'
 import { Aviso, Campo, Selecao } from './ui'
 
-export default function GuiaDeBatalha({ mesaId, encontroId, guia, podeEditar }:
-  { mesaId: string; encontroId: string; guia: Guia; podeEditar: boolean }) {
-  const salvar = useGuiaDeBatalha(mesaId, encontroId)
+export default function GuiaDeBatalha({ mesaId, sid, encontroId, guia, podeEditar }:
+  { mesaId: string; sid: string; encontroId: string; guia: Guia; podeEditar: boolean }) {
+  const salvar = useGuiaDeBatalha(mesaId, sid, encontroId)
   const o = guia.opcoes
   const mudar = (parcial: Partial<OpcoesDoGuia>) => salvar.mutate({ ...o, ...parcial })
   const travado = !podeEditar || salvar.isPending

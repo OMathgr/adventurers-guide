@@ -14,8 +14,9 @@ criador; o mestre só lê fichas e aplica dano e condições) e biblioteca
 privada dos mestres por mesa (inimigos do SRD ou do zero, NPCs). Fase 3 em
 andamento: interface React em `web/` (construtor com equipamento, mesas com
 nível máximo, personagem preso à mesa com cópia + plano de níveis, fotos,
-área do mestre e sessão de jogo com encontros e Medo prontos; revelar aos
-jogadores e quadro de planejamento a seguir). Leia `docs/ARQUITETURA.md` antes de mudar a modelagem. O
+área do mestre e sessões de jogo (de um mestre responsável, com Medo próprio,
+planejamento e encontros com Guia de Batalha) prontas; revelar aos jogadores
+e o quadro de mapa mental dentro da sessão a seguir). Leia `docs/ARQUITETURA.md` antes de mudar a modelagem. O
 personagem é guardado como criação + histórico de subidas de nível; a ficha
 é sempre recalculada.
 

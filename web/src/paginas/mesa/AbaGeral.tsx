@@ -185,9 +185,12 @@ export default function AbaGeral({ mesa }: { mesa: Mesa }) {
 
   return (
     <div className="grid gap-4 lg:grid-cols-2">
-      <div className="lg:col-span-2">
-        <MedoDoMestre mesaId={mesa.id} medo={mesa.medo} podeMudar={mesa.meu_papel === 'mestre'} />
-      </div>
+      {/* Medo das sessões em andamento: todos veem (quem muda é o mestre, na sessão) */}
+      {mesa.medo_em_jogo.map((m) => (
+        <div key={m.sessao_id} className="lg:col-span-2">
+          <MedoDoMestre medo={m.medo} titulo={`Medo (sessão de ${m.mestre})`} />
+        </div>
+      ))}
       <Convite mesa={mesa} />
       <Membros mesa={mesa} />
       <Personagens mesa={mesa} />

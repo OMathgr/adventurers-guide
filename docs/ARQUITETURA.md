@@ -399,12 +399,29 @@ manipulador, assistente, brutamonte.
   mestre; criar/editar/apagar exige `preparar`. Revelar informações aos
   jogadores é uma entrega futura.
 
-### Sessão do mestre (`motor/encontro.py` e `api/rotas/encontros.py`)
+### Sessões do mestre (`api/sessoes.py`, `api/rotas/sessoes.py` e `api/rotas/encontros.py`)
 
-- **Medo** fica na mesa (`mesas.medo`, 0 a 12) e passa de uma sessão para a
-  outra. O livro pede que fique visível para os jogadores: vem em
-  `GET /mesas/{id}` para todos; só mestres mudam (`POST /medo` com `delta`:
-  ganhar para no 12, gastar mais do que tem é recusado; `PUT /medo` define).
+- **Sessão** (`sessoes`): planejada e conduzida por UM mestre, o
+  **responsável** (quem criou; criar exige `preparar`). Tem título, data,
+  resumo/objetivos, notas privadas, NPCs e inimigos da biblioteca que devem
+  aparecer, situação (planejada, em andamento, encerrada), o próprio **Medo** e
+  os encontros. Decisões do projeto (2026-10-12):
+  - outros mestres não veem nada, a menos que o responsável compartilhe
+    (`PUT .../compartilhar`); quem recebe só lê. Quem não pode ver recebe 404;
+    quem vê mas não é o responsável recebe 403 ao mudar algo;
+  - o Medo é **por sessão** (0 a 12, `motor.encontro.ajustar_medo`) e sempre
+    começa no número de personagens em jogo: os da mesa **sem os do mestre
+    responsável** (quem mestra uma sessão pode jogar em outra; com 1
+    personagem dele na mesa, N − 1), no máximo 12;
+  - o livro pede que o Medo fique visível: `GET /mesas/{id}` traz
+    `medo_em_jogo` das sessões **em andamento** para todos os membros, só com o
+    nome do mestre (o título pode ter spoiler).
+- **Encontros** ficam dentro da sessão (`encontros.sessao_id`, rotas em
+  `/mesas/{id}/sessoes/{sid}/encontros/...`) e seguem o acesso dela: só o
+  responsável monta e conduz. **Não têm ordem**: um encontro pode nunca
+  acontecer, conforme o caminho dos jogadores. Os encontros anteriores (de
+  teste) foram apagados na migração. Quando o quadro de mapa mental existir,
+  ele entra na sessão.
 - **Encontro** = lista de `Combatente`: uma **cópia** da ficha do adversário
   (editar o inimigo na biblioteca não mexe na luta em andamento) + PV, PF e
   condições marcados. A origem pode ser um inimigo da mesa, a ficha de combate
@@ -419,16 +436,15 @@ manipulador, assistente, brutamonte.
   cheio = ponto que resta); a API continua guardando os marcados, como a
   ficha do livro e os PJs.
   O dano massivo (regra opcional) ficou de fora.
-- **Permissões:** encontros são privados dos mestres (jogador: 404). Montar
-  (criar, apagar, pôr e tirar combatentes) exige `preparar`; conduzir a luta
-  (dano, marcas, condições, Medo) qualquer mestre pode.
 - Encontro guardado como JSON (`encontros.combatentes`), com `ON DELETE
-  CASCADE` da mesa.
-- Interface: aba **Sessão** da mesa (mestres) com o Medo, os encontros (um
-  cartão por combatente: PV/PF clicáveis, dano com "resistente", condições,
-  ficha completa) e os personagens da mesa (ficha resumida, dano e condições
-  pelas permissões `ver_fichas`, `aplicar_dano`, `aplicar_condicoes`). Na aba
-  Mesa, todos veem o Medo.
+  CASCADE` da sessão e da mesa.
+- Interface: aba **Sessões** da mesa (mestres): lista das sessões que você
+  pode ver e "Planejar sessão"; a sessão aberta tem situação, Medo,
+  planejamento (salvo de uma vez), compartilhamento, os encontros (um cartão
+  por combatente: PV/PF clicáveis, dano com "resistente", condições, ficha
+  completa, Guia de Batalha) e os personagens da mesa (ficha resumida, dano e
+  condições pelas permissões `ver_fichas`, `aplicar_dano`,
+  `aplicar_condicoes`). Na aba Mesa, todos veem o Medo das sessões em andamento.
 
 Ainda não: renovação de token (refresh) e "esqueci minha senha", jogadores
 verem as fichas uns dos outros, controle de concorrência entre duas edições

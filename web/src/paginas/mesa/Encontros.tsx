@@ -1,21 +1,22 @@
-// Sessão de jogo do mestre: Medo, encontros (cópias de inimigos com PV, PF e
-// condições marcados por clique) e os personagens da mesa. Tudo aqui é
-// privado dos mestres, menos o Medo, que os jogadores também veem.
+// Encontros de uma sessão: cópias de inimigos com PV, PF e condições marcados
+// por clique, o Guia de Batalha e como pôr inimigos. Sem ordem entre eles:
+// um encontro pode nunca acontecer, conforme o caminho dos jogadores.
+// `podeEditar` é só do mestre responsável; quem recebeu a sessão compartilhada só vê.
 import { useMemo, useState } from 'react'
 
 import {
   useAcaoNoEncontro, useAdversariosSrd, useApagarEncontro, useCriarEncontro, useDanoEmCombatente,
-  useEncontro, useEncontros, useInimigos, useNpcs,
+  useEncontro, useInimigos, useNpcs,
 } from '../../api/consultas'
-import type { Combatente, Mesa, ResultadoDanoAdversario } from '../../api/tipos'
+import type { Combatente, ResultadoDanoAdversario, Sessao } from '../../api/tipos'
 import Condicoes from '../../componentes/Condicoes'
 import FichaInimigo from '../../componentes/FichaInimigo'
-import GuiaDeBatalha from '../../componentes/GuiaDeBatalha'
 import { Foto } from '../../componentes/Foto'
-import MedoDoMestre from '../../componentes/MedoDoMestre'
+import GuiaDeBatalha from '../../componentes/GuiaDeBatalha'
 import { Aviso, Botao, Campo, Carregando, EspacosClicaveis, Escolhivel, Selecao, Selo } from '../../componentes/ui'
 import { NOME_GRAVIDADE, NOME_TIPO_ADVERSARIO } from '../../lib/rotulos'
-import PersonagensNaSessao from './PersonagensNaSessao'
+
+type Alvo = { mesaId: string; sid: string; encontroId: string; podeEditar: boolean }
 
 function descreverDano(r: ResultadoDanoAdversario) {
   if (r.dano === 0) return 'Nenhum dano depois da resistência.'
@@ -23,10 +24,9 @@ function descreverDano(r: ResultadoDanoAdversario) {
     + (r.derrotado ? '. Derrotado!' : '.')
 }
 
-function CartaoCombatente({ mesaId, encontroId, c, podePreparar }:
-  { mesaId: string; encontroId: string; c: Combatente; podePreparar: boolean }) {
-  const acao = useAcaoNoEncontro(mesaId, encontroId)
-  const dano = useDanoEmCombatente(mesaId, encontroId)
+function CartaoCombatente({ mesaId, sid, encontroId, podeEditar, c }: Alvo & { c: Combatente }) {
+  const acao = useAcaoNoEncontro(mesaId, sid, encontroId)
+  const dano = useDanoEmCombatente(mesaId, sid, encontroId)
   const [valor, setValor] = useState('')
   const [resistente, setResistente] = useState(false)
   const [verFicha, setVerFicha] = useState(false)
@@ -56,19 +56,19 @@ function CartaoCombatente({ mesaId, encontroId, c, podePreparar }:
       <div className="space-y-1.5">
         <p className="text-xs text-texto-suave">PV restantes: {a.pv - c.pv_marcados}/{a.pv}</p>
         <EspacosClicaveis total={a.pv} marcados={a.pv - c.pv_marcados} rotulo={`PV restantes de ${c.rotulo}`}
-          sufixo="" desabilitado={ocupado}
+          sufixo="" desabilitado={ocupado || !podeEditar}
           aoMudar={(restam) => acao.mutate({
             tipo: 'marcas', combatente: c.id, pv_marcados: a.pv - restam, pf_marcados: c.pf_marcados })} />
         {a.pf > 0 && <>
           <p className="text-xs text-texto-suave">PF restantes: {a.pf - c.pf_marcados}/{a.pf}</p>
           <EspacosClicaveis total={a.pf} marcados={a.pf - c.pf_marcados} rotulo={`PF restantes de ${c.rotulo}`}
-            cor="medo" sufixo="" desabilitado={ocupado}
+            cor="medo" sufixo="" desabilitado={ocupado || !podeEditar}
             aoMudar={(restam) => acao.mutate({
               tipo: 'marcas', combatente: c.id, pv_marcados: c.pv_marcados, pf_marcados: a.pf - restam })} />
         </>}
       </div>
 
-      {!c.derrotado && (
+      {podeEditar && !c.derrotado && (
         <form className="flex flex-wrap items-end gap-2" onSubmit={(e) => {
           e.preventDefault()
           dano.mutate({ combatente: c.id, dano: Number(valor), resistente }, { onSuccess: () => setValor('') })
@@ -85,15 +85,15 @@ function CartaoCombatente({ mesaId, encontroId, c, podePreparar }:
       {dano.data && <p className="text-sm text-esperanca" aria-live="polite">{descreverDano(dano.data.resultado)}</p>}
 
       <Condicoes rotulo={c.rotulo} condicoes={c.condicoes} desabilitado={ocupado}
-        aoAplicar={(condicao) => acao.mutate({ tipo: 'condicao', combatente: c.id, condicao })}
-        aoTirar={(condicao) => acao.mutate({ tipo: 'tirar_condicao', combatente: c.id, condicao })} />
+        aoAplicar={podeEditar ? (condicao) => acao.mutate({ tipo: 'condicao', combatente: c.id, condicao }) : undefined}
+        aoTirar={podeEditar ? (condicao) => acao.mutate({ tipo: 'tirar_condicao', combatente: c.id, condicao }) : undefined} />
 
       <Aviso erro={acao.error ?? dano.error} />
       <div className="flex flex-wrap gap-2">
         <Botao variante="fantasma" className="!px-0" onClick={() => setVerFicha(!verFicha)}>
           {verFicha ? 'Esconder ficha' : 'Ver ficha completa'}
         </Botao>
-        {podePreparar && (
+        {podeEditar && (
           <Botao variante="fantasma" className="!px-2 text-perigo" disabled={ocupado}
             onClick={() => confirm(`Tirar ${c.rotulo} do encontro?`) && acao.mutate({ tipo: 'remover', combatente: c.id })}>
             Tirar do encontro
@@ -107,7 +107,7 @@ function CartaoCombatente({ mesaId, encontroId, c, podePreparar }:
 
 type Origem = 'inimigo' | 'npc' | 'srd'
 
-function AdicionarCombatentes({ mesaId, encontroId }: { mesaId: string; encontroId: string }) {
+function AdicionarCombatentes({ mesaId, sid, encontroId }: Alvo) {
   const [origem, setOrigem] = useState<Origem>('inimigo')
   const [id, setId] = useState('')
   const [busca, setBusca] = useState('')
@@ -115,7 +115,7 @@ function AdicionarCombatentes({ mesaId, encontroId }: { mesaId: string; encontro
   const inimigos = useInimigos(mesaId)
   const npcs = useNpcs(mesaId)
   const srd = useAdversariosSrd(origem === 'srd')
-  const acao = useAcaoNoEncontro(mesaId, encontroId)
+  const acao = useAcaoNoEncontro(mesaId, sid, encontroId)
 
   const opcoes: [string, string][] = useMemo(() => {
     if (origem === 'inimigo') return (inimigos.data ?? []).map((i) => [i.id, `${i.nome} (P${i.patamar})`])
@@ -152,8 +152,8 @@ function AdicionarCombatentes({ mesaId, encontroId }: { mesaId: string; encontro
   )
 }
 
-function EncontroAtual({ mesaId, encontroId, podePreparar }: { mesaId: string; encontroId: string; podePreparar: boolean }) {
-  const encontro = useEncontro(mesaId, encontroId)
+function EncontroAtual(alvo: Alvo) {
+  const encontro = useEncontro(alvo.mesaId, alvo.sid, alvo.encontroId)
   if (encontro.isPending) return <Carregando />
   if (encontro.isError) return <Aviso erro={encontro.error} />
   const e = encontro.data
@@ -164,75 +164,67 @@ function EncontroAtual({ mesaId, encontroId, podePreparar }: { mesaId: string; e
         {e.combatentes.length === 0 ? 'Ninguém no encontro ainda.' : `${vivos} de ${e.combatentes.length} de pé.`}
       </p>
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-        {e.combatentes.map((c) => (
-          <CartaoCombatente key={c.id} mesaId={mesaId} encontroId={e.id} c={c} podePreparar={podePreparar} />
-        ))}
+        {e.combatentes.map((c) => <CartaoCombatente key={c.id} {...alvo} c={c} />)}
       </div>
-      {/* montar o encontro: o guia ao lado de onde se põem os inimigos */}
-      <GuiaDeBatalha mesaId={mesaId} encontroId={e.id} guia={e.guia} podeEditar={podePreparar} />
-      {podePreparar && <AdicionarCombatentes mesaId={mesaId} encontroId={e.id} />}
+      {/* montar o encontro: o guia ao lado de onde se põem os inimigos (é só auxílio) */}
+      <GuiaDeBatalha mesaId={alvo.mesaId} sid={alvo.sid} encontroId={e.id} guia={e.guia} podeEditar={alvo.podeEditar} />
+      {alvo.podeEditar && <AdicionarCombatentes {...alvo} />}
     </div>
   )
 }
 
-export default function AbaSessao({ mesa, podePreparar }: { mesa: Mesa; podePreparar: boolean }) {
-  const encontros = useEncontros(mesa.id)
-  const criar = useCriarEncontro(mesa.id)
-  const apagar = useApagarEncontro(mesa.id)
+export default function Encontros({ mesaId, sessao }: { mesaId: string; sessao: Sessao }) {
+  const podeEditar = sessao.sou_responsavel
+  const criar = useCriarEncontro(mesaId, sessao.id)
+  const apagar = useApagarEncontro(mesaId, sessao.id)
   const [escolhido, setEscolhido] = useState<string | null>(null)
   const [nome, setNome] = useState('')
-  const atual = escolhido ?? encontros.data?.at(-1)?.id ?? null   // começa no mais recente
+  const encontros = sessao.encontros
+  const atual = encontros.some((e) => e.id === escolhido) ? escolhido : null
 
   return (
-    <div className="space-y-5">
-      <MedoDoMestre mesaId={mesa.id} medo={mesa.medo} podeMudar />
-
-      <section className="space-y-3">
-        <div className="flex flex-wrap items-end justify-between gap-3">
-          <h2 className="text-lg text-esperanca">Encontros</h2>
-          {podePreparar && (
-            <form className="flex items-end gap-2" onSubmit={(e) => {
-              e.preventDefault()
-              criar.mutate(nome.trim(), { onSuccess: (novo) => { setEscolhido(novo.id); setNome('') } })
-            }}>
-              <Campo rotulo="Novo encontro" value={nome} maxLength={120} onChange={(e) => setNome(e.target.value)}
-                placeholder="Ex.: Emboscada na estrada" />
-              <Botao type="submit" variante="secundario" disabled={!nome.trim() || criar.isPending}>Criar</Botao>
-            </form>
-          )}
+    <section className="space-y-3">
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h3 className="text-lg text-esperanca">Encontros</h3>
+          <p className="text-xs text-texto-suave">Sem ordem: alguns podem não acontecer, conforme o caminho dos jogadores.</p>
         </div>
-        <Aviso erro={encontros.error ?? criar.error ?? apagar.error} />
-        {encontros.isPending && <Carregando />}
-        {encontros.data?.length === 0 && (
-          <p className="text-sm text-texto-suave">Nenhum encontro ainda. Crie um e ponha inimigos nele.</p>
+        {podeEditar && (
+          <form className="flex items-end gap-2" onSubmit={(e) => {
+            e.preventDefault()
+            criar.mutate(nome.trim(), { onSuccess: (novo) => { setEscolhido(novo.id); setNome('') } })
+          }}>
+            <Campo rotulo="Novo encontro" value={nome} maxLength={120} onChange={(e) => setNome(e.target.value)}
+              placeholder="Ex.: Emboscada na ponte" />
+            <Botao type="submit" variante="secundario" disabled={!nome.trim() || criar.isPending}>Criar</Botao>
+          </form>
         )}
-        <ul className="flex flex-wrap gap-2">
-          {encontros.data?.map((e) => (
-            <li key={e.id} className="w-56">
-              <Escolhivel selecionado={e.id === atual} onClick={() => setEscolhido(e.id)}>
-                <span className="block font-medium">{e.nome}</span>
-                <span className="text-xs text-texto-suave">
-                  {e.combatentes - e.derrotados} de pé · {e.derrotados} derrotado{e.derrotados === 1 ? '' : 's'}
-                </span>
-              </Escolhivel>
-            </li>
-          ))}
-        </ul>
-        {atual && (
-          <>
-            {podePreparar && (
-              <Botao variante="fantasma" className="!px-0 text-perigo" disabled={apagar.isPending}
-                onClick={() => confirm('Apagar este encontro?')
-                  && apagar.mutate(atual, { onSuccess: () => setEscolhido(null) })}>
-                Apagar este encontro
-              </Botao>
-            )}
-            <EncontroAtual key={atual} mesaId={mesa.id} encontroId={atual} podePreparar={podePreparar} />
-          </>
-        )}
-      </section>
-
-      <PersonagensNaSessao mesa={mesa} />
-    </div>
+      </div>
+      <Aviso erro={criar.error ?? apagar.error} />
+      {encontros.length === 0 && <p className="text-sm text-texto-suave">Nenhum encontro nesta sessão ainda.</p>}
+      <ul className="flex flex-wrap gap-2">
+        {encontros.map((e) => (
+          <li key={e.id} className="w-56">
+            <Escolhivel selecionado={e.id === atual} onClick={() => setEscolhido(e.id === atual ? null : e.id)}>
+              <span className="block font-medium">{e.nome}</span>
+              <span className="text-xs text-texto-suave">
+                {e.combatentes - e.derrotados} de pé · {e.derrotados} derrotado{e.derrotados === 1 ? '' : 's'}
+              </span>
+            </Escolhivel>
+          </li>
+        ))}
+      </ul>
+      {atual && (
+        <>
+          {podeEditar && (
+            <Botao variante="fantasma" className="!px-0 text-perigo" disabled={apagar.isPending}
+              onClick={() => confirm('Apagar este encontro?') && apagar.mutate(atual, { onSuccess: () => setEscolhido(null) })}>
+              Apagar este encontro
+            </Botao>
+          )}
+          <EncontroAtual key={atual} mesaId={mesaId} sid={sessao.id} encontroId={atual} podeEditar={podeEditar} />
+        </>
+      )}
+    </section>
   )
 }

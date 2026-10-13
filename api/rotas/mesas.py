@@ -5,6 +5,7 @@ import uuid
 
 from fastapi import APIRouter, Depends, Response
 from pydantic import BaseModel, Field
+from sqlalchemy.orm import object_session
 
 from motor import Personagem
 
@@ -14,6 +15,7 @@ from ..esquemas import CondicaoEntrada, Dano, DanoSaida, FichaSaida, ficha_saida
 from ..mesas import (JOGADOR, MESTRE, PERMISSOES_PADRAO, Permissao, SemPermissao, eh_criador,
                      exigir, exigir_criador, gerar_codigo, membro, pode)
 from ..repositorio import NaoEncontrado
+from ..sessoes import medo_em_jogo
 from ..tabelas import MembroTabela, MesaTabela, PersonagemTabela
 
 rotas = APIRouter(prefix="/mesas", tags=["Mesas"])
@@ -42,11 +44,17 @@ class PersonagemNaMesa(BaseModel):
     foto: str | None = None
 
 
+class MedoEmJogo(BaseModel):
+    sessao_id: str
+    mestre: str      # nome do mestre responsável (o título da sessão fica com ele)
+    medo: int
+
+
 class MesaSaida(BaseModel):
     id: str
     nome: str
     codigo_convite: str        # exibido na página da mesa; o link usa o mesmo código
-    medo: int                  # Pontos de Medo do mestre: visíveis para todos
+    medo_em_jogo: list[MedoEmJogo]   # Medo das sessões em andamento: visível para todos
     nivel_maximo: int          # personagens da mesa sobem até este nível
     meu_papel: str
     sou_criador: bool
@@ -81,7 +89,8 @@ class NivelDaMesa(BaseModel):
 def _saida(m: MembroTabela) -> MesaSaida:
     mesa = m.mesa
     return MesaSaida(
-        id=mesa.id, nome=mesa.nome, codigo_convite=mesa.codigo_convite, medo=mesa.medo,
+        id=mesa.id, nome=mesa.nome, codigo_convite=mesa.codigo_convite,
+        medo_em_jogo=[MedoEmJogo(**x) for x in medo_em_jogo(object_session(mesa), mesa.id)],
         nivel_maximo=mesa.nivel_maximo, meu_papel=m.papel,
         sou_criador=eh_criador(m), permissoes_mestres=mesa.permissoes_mestres,
         minhas_permissoes=[p for p in Permissao if pode(m, p)],

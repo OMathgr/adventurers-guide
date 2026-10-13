@@ -5,9 +5,9 @@ nível. A ficha nunca é salva; é recalculada ao carregar. Equipamento, cofre
 e sessão são o estado atual e ficam como JSON na própria linha do personagem.
 """
 
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 
-from sqlalchemy import JSON, DateTime, ForeignKey, Integer, LargeBinary, String, UniqueConstraint
+from sqlalchemy import JSON, Date, DateTime, ForeignKey, Integer, LargeBinary, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .db import Base
@@ -39,8 +39,6 @@ class MesaTabela(Base):
     codigo_convite: Mapped[str] = mapped_column(String(16), unique=True, index=True)
     # o que TODOS os mestres podem fazer (o criador pode tudo): {"ver_fichas": true, ...}
     permissoes_mestres: Mapped[dict] = mapped_column(JSON)
-    # Pontos de Medo do mestre (0 a 12); passam de uma sessão para a outra
-    medo: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
     # nível máximo dos personagens da mesa: mesa nova começa no 1; as que já
     # existiam ficaram no 10 (a migração não trava ninguém)
     nivel_maximo: Mapped[int] = mapped_column(Integer, default=1, server_default="10")
@@ -94,14 +92,41 @@ class NpcTabela(Base):
     atualizado_em: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_agora, onupdate=_agora)
 
 
+class SessaoTabela(Base):
+    """Sessão de jogo planejada e conduzida por UM mestre (o responsável, quem
+    criou). Os outros mestres só veem se ele compartilhar. Tem o próprio Medo
+    e os encontros que podem (ou não) acontecer."""
+
+    __tablename__ = "sessoes"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    mesa_id: Mapped[str] = mapped_column(ForeignKey("mesas.id", ondelete="CASCADE"), index=True)
+    responsavel_id: Mapped[str] = mapped_column(ForeignKey("usuarios.id", ondelete="CASCADE"), index=True)
+    titulo: Mapped[str] = mapped_column(String(120))
+    data: Mapped[date | None] = mapped_column(Date, nullable=True)
+    resumo: Mapped[str] = mapped_column(String(4000), default="")     # objetivos, o que deve acontecer
+    notas: Mapped[str] = mapped_column(String(8000), default="")      # anotações privadas do mestre
+    status: Mapped[str] = mapped_column(String(16), default="planejada")   # planejada, em_andamento, encerrada
+    medo: Mapped[int] = mapped_column(Integer, default=0)             # Pontos de Medo desta sessão (0 a 12)
+    compartilhada_com: Mapped[list] = mapped_column(JSON, default=list)   # ids de mestres que podem ver
+    npcs: Mapped[list] = mapped_column(JSON, default=list)            # NPCs da mesa que devem aparecer
+    inimigos: Mapped[list] = mapped_column(JSON, default=list)        # inimigos da mesa que devem aparecer
+    criado_em: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_agora)
+    atualizado_em: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_agora, onupdate=_agora)
+
+    responsavel: Mapped[UsuarioTabela] = relationship()
+
+
 class EncontroTabela(Base):
-    """Encontro da sessão de jogo: cópias de adversários com as marcas de cada
-    uma. `combatentes` é uma lista de motor.encontro.Combatente."""
+    """Encontro de uma sessão: cópias de adversários com as marcas de cada
+    uma. `combatentes` é uma lista de motor.encontro.Combatente. Não há ordem:
+    um encontro pode nunca acontecer, conforme o caminho dos jogadores."""
 
     __tablename__ = "encontros"
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True)
     mesa_id: Mapped[str] = mapped_column(ForeignKey("mesas.id", ondelete="CASCADE"), index=True)
+    sessao_id: Mapped[str] = mapped_column(ForeignKey("sessoes.id", ondelete="CASCADE"), index=True)
     nome: Mapped[str] = mapped_column(String(120))
     combatentes: Mapped[list] = mapped_column(JSON)
     # escolhas do Guia de Batalha (motor.guia_batalha.OpcoesDoGuia); None: padrão da mesa

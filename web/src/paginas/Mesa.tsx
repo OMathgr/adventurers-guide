@@ -1,5 +1,5 @@
 // Página da mesa. Todos veem a aba Geral (com o Medo do mestre); os mestres
-// também veem Encontros (sessão de jogo e Guia de Batalha) e a biblioteca privada (Inimigos e NPCs).
+// também veem as Sessões (planejamento, Medo e encontros) e a biblioteca privada (Inimigos e NPCs).
 import { useParams, useSearchParams } from 'react-router'
 
 import { useMesa } from '../api/consultas'
@@ -8,7 +8,7 @@ import { NOME_PAPEL } from '../lib/rotulos'
 import AbaGeral from './mesa/AbaGeral'
 import AbaInimigos from './mesa/AbaInimigos'
 import AbaNpcs from './mesa/AbaNpcs'
-import AbaSessao from './mesa/AbaSessao'
+import AbaSessoes from './mesa/AbaSessoes'
 
 type Aba = 'geral' | 'sessao' | 'inimigos' | 'npcs'
 const SO_MESTRE: Aba[] = ['sessao', 'inimigos', 'npcs']
@@ -36,12 +36,12 @@ export default function Mesa() {
 
       {mestre && (
         <Abas<Aba> atual={aba}
-          abas={[['geral', 'Mesa'], ['sessao', 'Encontros'], ['inimigos', 'Inimigos'], ['npcs', 'NPCs']]}
+          abas={[['geral', 'Mesa'], ['sessao', 'Sessões'], ['inimigos', 'Inimigos'], ['npcs', 'NPCs']]}
           aoTrocar={(nova) => setBusca(nova === 'geral' ? {} : { aba: nova }, { replace: true })} />
       )}
 
       {aba === 'geral' && <AbaGeral mesa={m} />}
-      {aba === 'sessao' && <AbaSessao mesa={m} podePreparar={podePreparar} />}
+      {aba === 'sessao' && <AbaSessoes mesa={m} podePreparar={podePreparar} />}
       {aba === 'inimigos' && <AbaInimigos mesaId={m.id} podeEditar={podePreparar} />}
       {aba === 'npcs' && <AbaNpcs mesaId={m.id} podeEditar={podePreparar} />}
     </div>

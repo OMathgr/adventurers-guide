@@ -4,8 +4,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 import { chamar } from './cliente'
 import type {
-  Adversario, Ancestralidade, Arma, Armadura, CartaDeDominio, Equipamento, Classe, Comunidade, Criacao, Encontro, EncontroResumo, Escolha,
-  EventoLinhaDoTempo, Ficha, InimigoResumo, Mesa, MesaResumo, Npc, NpcEntrada, OpcoesDoGuia, PermissoesMestres,
+  Adversario, Ancestralidade, Arma, Armadura, CartaDeDominio, Equipamento, Classe, Comunidade, Criacao, Encontro, Escolha,
+  EventoLinhaDoTempo, Ficha, InimigoResumo, Mesa, MesaResumo, Npc, NpcEntrada, OpcoesDoGuia, PermissoesMestres, DadosDaSessao, Sessao, SessaoResumo,
   PersonagemCriado, PersonagemResumo, ProximoNivel, ResultadoDano, ResultadoDanoAdversario, Subclasse,
   SubidaDeNivel,
 } from './tipos'
@@ -345,50 +345,103 @@ export const useSalvarNpc = (mesaId: string) =>
       ? chamar<Npc>(`/mesas/${mesaId}/npcs/${id}`, { metodo: 'PUT', corpo: npc })
       : chamar<Npc>(`/mesas/${mesaId}/npcs`, { corpo: npc }))
 
-// --- Sessão do mestre: Medo, encontros e ações sobre os personagens -----------------------
+// --- Sessões do mestre: planejamento, Medo e encontros ------------------------------------
 
-/** Muda o Medo (delta ou valor) e atualiza a mesa no cache: todos veem o número. */
-export function useMedo(mesaId: string) {
-  const cliente = useQueryClient()
-  return useMutation({
-    mutationFn: (p: { delta: number } | { valor: number }) =>
-      chamar<{ medo: number }>(`/mesas/${mesaId}/medo`, { metodo: 'delta' in p ? 'POST' : 'PUT', corpo: p }),
-    onSuccess: ({ medo }) =>
-      cliente.setQueryData<Mesa>(chavesMesa.mesa(mesaId), (m) => (m ? { ...m, medo } : m)),
-  })
-}
+const chaveSessoes = (mesaId: string) => ['mesas', mesaId, 'sessoes'] as const
+const chaveSessao = (mesaId: string, sid: string) => ['mesas', mesaId, 'sessoes', sid] as const
+const chaveEncontro = (mesaId: string, sid: string, id: string) => ['mesas', mesaId, 'sessoes', sid, 'encontros', id] as const
+const urlSessao = (mesaId: string, sid: string) => `/mesas/${mesaId}/sessoes/${sid}`
 
-const chaveEncontros = (mesaId: string) => ['mesas', mesaId, 'encontros'] as const
-const chaveEncontro = (mesaId: string, id: string) => ['mesas', mesaId, 'encontros', id] as const
+export const useSessoes = (mesaId: string) =>
+  useQuery({ queryKey: chaveSessoes(mesaId), queryFn: () => chamar<SessaoResumo[]>(`/mesas/${mesaId}/sessoes`) })
 
-export const useEncontros = (mesaId: string) =>
-  useQuery({ queryKey: chaveEncontros(mesaId), queryFn: () => chamar<EncontroResumo[]>(`/mesas/${mesaId}/encontros`) })
-
-export const useEncontro = (mesaId: string, id: string | null) =>
+export const useSessao = (mesaId: string, sid: string | null) =>
   useQuery({
-    queryKey: chaveEncontro(mesaId, id ?? ''),
-    queryFn: () => chamar<Encontro>(`/mesas/${mesaId}/encontros/${id}`),
-    enabled: !!id,
+    queryKey: chaveSessao(mesaId, sid ?? ''),
+    queryFn: () => chamar<Sessao>(urlSessao(mesaId, sid!)),
+    enabled: !!sid,
   })
 
-export function useCriarEncontro(mesaId: string) {
+/** Grava a sessão devolvida no cache e atualiza a lista (e a mesa, por causa do Medo em jogo). */
+function useMutacaoSessao<V>(mesaId: string, fn: (v: V) => Promise<Sessao>) {
   const cliente = useQueryClient()
   return useMutation({
-    mutationFn: (nome: string) => chamar<Encontro>(`/mesas/${mesaId}/encontros`, { corpo: { nome } }),
-    onSuccess: (e) => {
-      cliente.setQueryData(chaveEncontro(mesaId, e.id), e)
-      return cliente.invalidateQueries({ queryKey: chaveEncontros(mesaId), exact: true })
+    mutationFn: fn,
+    onSuccess: (s) => {
+      cliente.setQueryData(chaveSessao(mesaId, s.id), s)
+      return Promise.all([
+        cliente.invalidateQueries({ queryKey: chaveSessoes(mesaId), exact: true }),
+        cliente.invalidateQueries({ queryKey: chavesMesa.mesa(mesaId), exact: true }),
+      ])
     },
   })
 }
 
-export function useApagarEncontro(mesaId: string) {
+export const useCriarSessao = (mesaId: string) =>
+  useMutacaoSessao(mesaId, (dados: { titulo: string; data: string | null }) =>
+    chamar<Sessao>(`/mesas/${mesaId}/sessoes`, { corpo: dados }))
+
+export const useEditarSessao = (mesaId: string, sid: string) =>
+  useMutacaoSessao(mesaId, (dados: DadosDaSessao) => chamar<Sessao>(urlSessao(mesaId, sid), { metodo: 'PUT', corpo: dados }))
+
+export const useStatusDaSessao = (mesaId: string, sid: string) =>
+  useMutacaoSessao(mesaId, (status: string) =>
+    chamar<Sessao>(`${urlSessao(mesaId, sid)}/status`, { metodo: 'PUT', corpo: { status } }))
+
+export const useCompartilharSessao = (mesaId: string, sid: string) =>
+  useMutacaoSessao(mesaId, (mestres: string[]) =>
+    chamar<Sessao>(`${urlSessao(mesaId, sid)}/compartilhar`, { metodo: 'PUT', corpo: { mestres } }))
+
+/** Medo da sessão (delta ou valor). */
+export const useMedo = (mesaId: string, sid: string) =>
+  useMutacaoSessao(mesaId, (p: { delta: number } | { valor: number }) =>
+    chamar<Sessao>(`${urlSessao(mesaId, sid)}/medo`, { metodo: 'delta' in p ? 'POST' : 'PUT', corpo: p }))
+
+export function useApagarSessao(mesaId: string) {
   const cliente = useQueryClient()
   return useMutation({
-    mutationFn: (id: string) => chamar<void>(`/mesas/${mesaId}/encontros/${id}`, { metodo: 'DELETE' }),
+    mutationFn: (sid: string) => chamar<void>(urlSessao(mesaId, sid), { metodo: 'DELETE' }),
+    onSuccess: (_, sid) => {
+      cliente.removeQueries({ queryKey: chaveSessao(mesaId, sid) })
+      return Promise.all([
+        cliente.invalidateQueries({ queryKey: chaveSessoes(mesaId), exact: true }),
+        cliente.invalidateQueries({ queryKey: chavesMesa.mesa(mesaId), exact: true }),
+      ])
+    },
+  })
+}
+
+export const useEncontro = (mesaId: string, sid: string, id: string | null) =>
+  useQuery({
+    queryKey: chaveEncontro(mesaId, sid, id ?? ''),
+    queryFn: () => chamar<Encontro>(`${urlSessao(mesaId, sid)}/encontros/${id}`),
+    enabled: !!id,
+  })
+
+/** Mudou um encontro: troca no cache e recarrega a sessão (a lista de encontros vem com ela). */
+function useMutacaoEncontro<V, R>(mesaId: string, sid: string, fn: (v: V) => Promise<R>, encontroDe: (r: R) => Encontro | null) {
+  const cliente = useQueryClient()
+  return useMutation({
+    mutationFn: fn,
+    onSuccess: (r) => {
+      const e = encontroDe(r)
+      if (e) cliente.setQueryData(chaveEncontro(mesaId, sid, e.id), e)
+      return cliente.invalidateQueries({ queryKey: chaveSessao(mesaId, sid), exact: true })
+    },
+  })
+}
+
+export const useCriarEncontro = (mesaId: string, sid: string) =>
+  useMutacaoEncontro(mesaId, sid, (nome: string) =>
+    chamar<Encontro>(`${urlSessao(mesaId, sid)}/encontros`, { corpo: { nome } }), (e) => e)
+
+export function useApagarEncontro(mesaId: string, sid: string) {
+  const cliente = useQueryClient()
+  return useMutation({
+    mutationFn: (id: string) => chamar<void>(`${urlSessao(mesaId, sid)}/encontros/${id}`, { metodo: 'DELETE' }),
     onSuccess: (_, id) => {
-      cliente.removeQueries({ queryKey: chaveEncontro(mesaId, id) })
-      return cliente.invalidateQueries({ queryKey: chaveEncontros(mesaId), exact: true })
+      cliente.removeQueries({ queryKey: chaveEncontro(mesaId, sid, id) })
+      return cliente.invalidateQueries({ queryKey: chaveSessao(mesaId, sid), exact: true })
     },
   })
 }
@@ -401,51 +454,31 @@ type AcaoNoEncontro =
   | { tipo: 'tirar_condicao'; combatente: string; condicao: string }
 
 /** Ações que devolvem o encontro inteiro: o cache é trocado pela resposta. */
-export function useAcaoNoEncontro(mesaId: string, encontroId: string) {
-  const cliente = useQueryClient()
-  const base = `/mesas/${mesaId}/encontros/${encontroId}/combatentes`
-  return useMutation({
-    mutationFn: (a: AcaoNoEncontro) => {
-      switch (a.tipo) {
-        case 'adicionar': return chamar<Encontro>(base, { corpo: { origem: a.origem, id: a.id, quantidade: a.quantidade } })
-        case 'remover': return chamar<Encontro>(`${base}/${a.combatente}`, { metodo: 'DELETE' })
-        case 'marcas': return chamar<Encontro>(`${base}/${a.combatente}/marcas`,
-          { metodo: 'PUT', corpo: { pv_marcados: a.pv_marcados, pf_marcados: a.pf_marcados } })
-        case 'condicao': return chamar<Encontro>(`${base}/${a.combatente}/condicoes`, { corpo: { condicao: a.condicao } })
-        case 'tirar_condicao': return chamar<Encontro>(
-          `${base}/${a.combatente}/condicoes/${encodeURIComponent(a.condicao)}`, { metodo: 'DELETE' })
-      }
-    },
-    onSuccess: (e) => {
-      cliente.setQueryData(chaveEncontro(mesaId, encontroId), e)
-      return cliente.invalidateQueries({ queryKey: chaveEncontros(mesaId), exact: true })
-    },
-  })
+export function useAcaoNoEncontro(mesaId: string, sid: string, encontroId: string) {
+  const base = `${urlSessao(mesaId, sid)}/encontros/${encontroId}/combatentes`
+  return useMutacaoEncontro(mesaId, sid, (a: AcaoNoEncontro) => {
+    switch (a.tipo) {
+      case 'adicionar': return chamar<Encontro>(base, { corpo: { origem: a.origem, id: a.id, quantidade: a.quantidade } })
+      case 'remover': return chamar<Encontro>(`${base}/${a.combatente}`, { metodo: 'DELETE' })
+      case 'marcas': return chamar<Encontro>(`${base}/${a.combatente}/marcas`,
+        { metodo: 'PUT', corpo: { pv_marcados: a.pv_marcados, pf_marcados: a.pf_marcados } })
+      case 'condicao': return chamar<Encontro>(`${base}/${a.combatente}/condicoes`, { corpo: { condicao: a.condicao } })
+      case 'tirar_condicao': return chamar<Encontro>(
+        `${base}/${a.combatente}/condicoes/${encodeURIComponent(a.condicao)}`, { metodo: 'DELETE' })
+    }
+  }, (e) => e)
 }
 
 /** Escolhas do Guia de Batalha; a API devolve o encontro com o guia recalculado. */
-export function useGuiaDeBatalha(mesaId: string, encontroId: string) {
-  const cliente = useQueryClient()
-  return useMutation({
-    mutationFn: (opcoes: OpcoesDoGuia) =>
-      chamar<Encontro>(`/mesas/${mesaId}/encontros/${encontroId}/guia`, { metodo: 'PUT', corpo: opcoes }),
-    onSuccess: (e) => cliente.setQueryData(chaveEncontro(mesaId, encontroId), e),
-  })
-}
+export const useGuiaDeBatalha = (mesaId: string, sid: string, encontroId: string) =>
+  useMutacaoEncontro(mesaId, sid, (opcoes: OpcoesDoGuia) =>
+    chamar<Encontro>(`${urlSessao(mesaId, sid)}/encontros/${encontroId}/guia`, { metodo: 'PUT', corpo: opcoes }), (e) => e)
 
-export function useDanoEmCombatente(mesaId: string, encontroId: string) {
-  const cliente = useQueryClient()
-  return useMutation({
-    mutationFn: ({ combatente, dano, resistente }: { combatente: string; dano: number; resistente: boolean }) =>
-      chamar<{ resultado: ResultadoDanoAdversario; encontro: Encontro }>(
-        `/mesas/${mesaId}/encontros/${encontroId}/combatentes/${combatente}/dano`, { corpo: { dano, resistente } }),
-    onSuccess: ({ encontro }) => {
-      cliente.setQueryData(chaveEncontro(mesaId, encontroId), encontro)
-      return cliente.invalidateQueries({ queryKey: chaveEncontros(mesaId), exact: true })
-    },
-  })
-}
-
+export const useDanoEmCombatente = (mesaId: string, sid: string, encontroId: string) =>
+  useMutacaoEncontro(mesaId, sid, ({ combatente, dano, resistente }: { combatente: string; dano: number; resistente: boolean }) =>
+    chamar<{ resultado: ResultadoDanoAdversario; encontro: Encontro }>(
+      `${urlSessao(mesaId, sid)}/encontros/${encontroId}/combatentes/${combatente}/dano`, { corpo: { dano, resistente } }),
+  (r) => r.encontro)
 const chaveFichaNaMesa = (mesaId: string, pid: string) => ['mesas', mesaId, 'personagens', pid] as const
 
 /** Ficha de um personagem da mesa, como o mestre vê (permissão ver_fichas). */

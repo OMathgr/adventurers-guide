@@ -1108,7 +1108,87 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/mesas/{mesa_id}/medo": {
+    "/mesas/{mesa_id}/sessoes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Listar
+         * @description Só as sessões que você pode ver (as suas e as compartilhadas com você).
+         */
+        get: operations["listar_mesas__mesa_id__sessoes_get"];
+        put?: never;
+        /** Criar */
+        post: operations["criar_mesas__mesa_id__sessoes_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/mesas/{mesa_id}/sessoes/{sessao_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Ver */
+        get: operations["ver_mesas__mesa_id__sessoes__sessao_id__get"];
+        /** Editar */
+        put: operations["editar_mesas__mesa_id__sessoes__sessao_id__put"];
+        post?: never;
+        /**
+         * Apagar
+         * @description Apaga a sessão e os encontros dela.
+         */
+        delete: operations["apagar_mesas__mesa_id__sessoes__sessao_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/mesas/{mesa_id}/sessoes/{sessao_id}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Mudar Status */
+        put: operations["mudar_status_mesas__mesa_id__sessoes__sessao_id__status_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/mesas/{mesa_id}/sessoes/{sessao_id}/compartilhar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Compartilhar
+         * @description Com quais mestres da mesa a sessão é compartilhada (eles só veem).
+         */
+        put: operations["compartilhar_mesas__mesa_id__sessoes__sessao_id__compartilhar_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/mesas/{mesa_id}/sessoes/{sessao_id}/medo": {
         parameters: {
             query?: never;
             header?: never;
@@ -1117,16 +1197,16 @@ export interface paths {
         };
         get?: never;
         /** Definir */
-        put: operations["definir_mesas__mesa_id__medo_put"];
+        put: operations["definir_mesas__mesa_id__sessoes__sessao_id__medo_put"];
         /** Mudar Medo */
-        post: operations["mudar_medo_mesas__mesa_id__medo_post"];
+        post: operations["mudar_medo_mesas__mesa_id__sessoes__sessao_id__medo_post"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/mesas/{mesa_id}/encontros": {
+    "/mesas/{mesa_id}/sessoes/{sessao_id}/encontros": {
         parameters: {
             query?: never;
             header?: never;
@@ -1134,17 +1214,17 @@ export interface paths {
             cookie?: never;
         };
         /** Listar Encontros */
-        get: operations["listar_encontros_mesas__mesa_id__encontros_get"];
+        get: operations["listar_encontros_mesas__mesa_id__sessoes__sessao_id__encontros_get"];
         put?: never;
         /** Criar Encontro */
-        post: operations["criar_encontro_mesas__mesa_id__encontros_post"];
+        post: operations["criar_encontro_mesas__mesa_id__sessoes__sessao_id__encontros_post"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/mesas/{mesa_id}/encontros/{encontro_id}": {
+    "/mesas/{mesa_id}/sessoes/{sessao_id}/encontros/{encontro_id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -1152,18 +1232,18 @@ export interface paths {
             cookie?: never;
         };
         /** Ver Encontro */
-        get: operations["ver_encontro_mesas__mesa_id__encontros__encontro_id__get"];
+        get: operations["ver_encontro_mesas__mesa_id__sessoes__sessao_id__encontros__encontro_id__get"];
         /** Renomear Encontro */
-        put: operations["renomear_encontro_mesas__mesa_id__encontros__encontro_id__put"];
+        put: operations["renomear_encontro_mesas__mesa_id__sessoes__sessao_id__encontros__encontro_id__put"];
         post?: never;
         /** Apagar Encontro */
-        delete: operations["apagar_encontro_mesas__mesa_id__encontros__encontro_id__delete"];
+        delete: operations["apagar_encontro_mesas__mesa_id__sessoes__sessao_id__encontros__encontro_id__delete"];
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/mesas/{mesa_id}/encontros/{encontro_id}/guia": {
+    "/mesas/{mesa_id}/sessoes/{sessao_id}/encontros/{encontro_id}/guia": {
         parameters: {
             query?: never;
             header?: never;
@@ -1176,7 +1256,7 @@ export interface paths {
          * @description Escolhas do Guia de Batalha (nº de PJs, patamar do grupo, luta mais fácil
          *     ou difícil, dano extra). Os ajustes de composição são calculados sozinhos.
          */
-        put: operations["guia_de_batalha_mesas__mesa_id__encontros__encontro_id__guia_put"];
+        put: operations["guia_de_batalha_mesas__mesa_id__sessoes__sessao_id__encontros__encontro_id__guia_put"];
         post?: never;
         delete?: never;
         options?: never;
@@ -1184,7 +1264,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/mesas/{mesa_id}/encontros/{encontro_id}/combatentes": {
+    "/mesas/{mesa_id}/sessoes/{sessao_id}/encontros/{encontro_id}/combatentes": {
         parameters: {
             query?: never;
             header?: never;
@@ -1197,14 +1277,14 @@ export interface paths {
          * Adicionar Combatentes
          * @description Põe cópias de um inimigo da mesa, da ficha de combate de um NPC ou de um adversário do SRD.
          */
-        post: operations["adicionar_combatentes_mesas__mesa_id__encontros__encontro_id__combatentes_post"];
+        post: operations["adicionar_combatentes_mesas__mesa_id__sessoes__sessao_id__encontros__encontro_id__combatentes_post"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/mesas/{mesa_id}/encontros/{encontro_id}/combatentes/{combatente_id}": {
+    "/mesas/{mesa_id}/sessoes/{sessao_id}/encontros/{encontro_id}/combatentes/{combatente_id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -1215,13 +1295,13 @@ export interface paths {
         put?: never;
         post?: never;
         /** Remover Combatente */
-        delete: operations["remover_combatente_mesas__mesa_id__encontros__encontro_id__combatentes__combatente_id__delete"];
+        delete: operations["remover_combatente_mesas__mesa_id__sessoes__sessao_id__encontros__encontro_id__combatentes__combatente_id__delete"];
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/mesas/{mesa_id}/encontros/{encontro_id}/combatentes/{combatente_id}/dano": {
+    "/mesas/{mesa_id}/sessoes/{sessao_id}/encontros/{encontro_id}/combatentes/{combatente_id}/dano": {
         parameters: {
             query?: never;
             header?: never;
@@ -1231,14 +1311,14 @@ export interface paths {
         get?: never;
         put?: never;
         /** Dano Em Combatente */
-        post: operations["dano_em_combatente_mesas__mesa_id__encontros__encontro_id__combatentes__combatente_id__dano_post"];
+        post: operations["dano_em_combatente_mesas__mesa_id__sessoes__sessao_id__encontros__encontro_id__combatentes__combatente_id__dano_post"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/mesas/{mesa_id}/encontros/{encontro_id}/combatentes/{combatente_id}/marcas": {
+    "/mesas/{mesa_id}/sessoes/{sessao_id}/encontros/{encontro_id}/combatentes/{combatente_id}/marcas": {
         parameters: {
             query?: never;
             header?: never;
@@ -1250,7 +1330,7 @@ export interface paths {
          * Marcar
          * @description PV e PF marcados (valores absolutos, como clicar nos quadradinhos).
          */
-        put: operations["marcar_mesas__mesa_id__encontros__encontro_id__combatentes__combatente_id__marcas_put"];
+        put: operations["marcar_mesas__mesa_id__sessoes__sessao_id__encontros__encontro_id__combatentes__combatente_id__marcas_put"];
         post?: never;
         delete?: never;
         options?: never;
@@ -1258,7 +1338,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/mesas/{mesa_id}/encontros/{encontro_id}/combatentes/{combatente_id}/condicoes": {
+    "/mesas/{mesa_id}/sessoes/{sessao_id}/encontros/{encontro_id}/combatentes/{combatente_id}/condicoes": {
         parameters: {
             query?: never;
             header?: never;
@@ -1268,14 +1348,14 @@ export interface paths {
         get?: never;
         put?: never;
         /** Condicao Em Combatente */
-        post: operations["condicao_em_combatente_mesas__mesa_id__encontros__encontro_id__combatentes__combatente_id__condicoes_post"];
+        post: operations["condicao_em_combatente_mesas__mesa_id__sessoes__sessao_id__encontros__encontro_id__combatentes__combatente_id__condicoes_post"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/mesas/{mesa_id}/encontros/{encontro_id}/combatentes/{combatente_id}/condicoes/{condicao}": {
+    "/mesas/{mesa_id}/sessoes/{sessao_id}/encontros/{encontro_id}/combatentes/{combatente_id}/condicoes/{condicao}": {
         parameters: {
             query?: never;
             header?: never;
@@ -1286,7 +1366,7 @@ export interface paths {
         put?: never;
         post?: never;
         /** Tirar Condicao */
-        delete: operations["tirar_condicao_mesas__mesa_id__encontros__encontro_id__combatentes__combatente_id__condicoes__condicao__delete"];
+        delete: operations["tirar_condicao_mesas__mesa_id__sessoes__sessao_id__encontros__encontro_id__combatentes__combatente_id__condicoes__condicao__delete"];
         options?: never;
         head?: never;
         patch?: never;
@@ -1661,6 +1741,14 @@ export interface components {
             /** @default PHYSICAL */
             tipo_dano: components["schemas"]["TipoDano"];
         };
+        /** Compartilhar */
+        Compartilhar: {
+            /**
+             * Mestres
+             * @description Ids dos mestres da mesa que podem ver a sessão
+             */
+            mestres: string[];
+        };
         /** Comunidade */
         Comunidade: {
             /** Id */
@@ -1732,6 +1820,33 @@ export interface components {
             /** Experiencia Proposito */
             experiencia_proposito?: string | null;
             companheiro?: components["schemas"]["Companheiro"] | null;
+        };
+        /** DadosDaSessao */
+        DadosDaSessao: {
+            /** Titulo */
+            titulo: string;
+            /** Data */
+            data?: string | null;
+            /**
+             * Resumo
+             * @default
+             */
+            resumo: string;
+            /**
+             * Notas
+             * @default
+             */
+            notas: string;
+            /**
+             * Npcs
+             * @default []
+             */
+            npcs: string[];
+            /**
+             * Inimigos
+             * @default []
+             */
+            inimigos: string[];
         };
         /** Dano */
         Dano: {
@@ -2138,8 +2253,12 @@ export interface components {
             /** Pf Marcados */
             pf_marcados: number;
         };
-        /** Medo */
-        Medo: {
+        /** MedoEmJogo */
+        MedoEmJogo: {
+            /** Sessao Id */
+            sessao_id: string;
+            /** Mestre */
+            mestre: string;
             /** Medo */
             medo: number;
         };
@@ -2171,8 +2290,8 @@ export interface components {
             nome: string;
             /** Codigo Convite */
             codigo_convite: string;
-            /** Medo */
-            medo: number;
+            /** Medo Em Jogo */
+            medo_em_jogo: components["schemas"]["MedoEmJogo"][];
             /** Nivel Maximo */
             nivel_maximo: number;
             /** Meu Papel */
@@ -2222,6 +2341,13 @@ export interface components {
         NovaMesa: {
             /** Nome */
             nome: string;
+        };
+        /** NovaSessao */
+        NovaSessao: {
+            /** Titulo */
+            titulo: string;
+            /** Data */
+            data?: string | null;
         };
         /** NovosCombatentes */
         NovosCombatentes: {
@@ -2581,6 +2707,61 @@ export interface components {
             recuperado: number;
             /** Fonte */
             fonte?: string | null;
+        };
+        /** Sessao */
+        Sessao: {
+            /** Id */
+            id: string;
+            /** Titulo */
+            titulo: string;
+            /** Data */
+            data: string | null;
+            /** Status */
+            status: string;
+            /** Medo */
+            medo: number;
+            /** Responsavel Id */
+            responsavel_id: string;
+            /** Responsavel */
+            responsavel: string;
+            /** Sou Responsavel */
+            sou_responsavel: boolean;
+            /** Resumo */
+            resumo: string;
+            /** Notas */
+            notas: string;
+            /** Compartilhada Com */
+            compartilhada_com: string[];
+            /** Npcs */
+            npcs: string[];
+            /** Inimigos */
+            inimigos: string[];
+            /** Encontros */
+            encontros: components["schemas"]["EncontroResumo"][];
+        };
+        /** SessaoResumo */
+        SessaoResumo: {
+            /** Id */
+            id: string;
+            /** Titulo */
+            titulo: string;
+            /** Data */
+            data: string | null;
+            /** Status */
+            status: string;
+            /** Medo */
+            medo: number;
+            /** Responsavel Id */
+            responsavel_id: string;
+            /** Responsavel */
+            responsavel: string;
+            /** Sou Responsavel */
+            sou_responsavel: boolean;
+        };
+        /** StatusDaSessao */
+        StatusDaSessao: {
+            /** Status */
+            status: string;
         };
         /** Subclasse */
         Subclasse: {
@@ -5045,12 +5226,249 @@ export interface operations {
             };
         };
     };
-    definir_mesas__mesa_id__medo_put: {
+    listar_mesas__mesa_id__sessoes_get: {
         parameters: {
             query?: never;
             header?: never;
             path: {
                 mesa_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SessaoResumo"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    criar_mesas__mesa_id__sessoes_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mesa_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NovaSessao"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Sessao"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    ver_mesas__mesa_id__sessoes__sessao_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mesa_id: string;
+                sessao_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Sessao"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    editar_mesas__mesa_id__sessoes__sessao_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mesa_id: string;
+                sessao_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DadosDaSessao"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Sessao"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    apagar_mesas__mesa_id__sessoes__sessao_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mesa_id: string;
+                sessao_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    mudar_status_mesas__mesa_id__sessoes__sessao_id__status_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mesa_id: string;
+                sessao_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StatusDaSessao"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Sessao"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    compartilhar_mesas__mesa_id__sessoes__sessao_id__compartilhar_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mesa_id: string;
+                sessao_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Compartilhar"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Sessao"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    definir_mesas__mesa_id__sessoes__sessao_id__medo_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mesa_id: string;
+                sessao_id: string;
             };
             cookie?: never;
         };
@@ -5066,7 +5484,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["Medo"];
+                    "application/json": components["schemas"]["Sessao"];
                 };
             };
             /** @description Validation Error */
@@ -5080,12 +5498,13 @@ export interface operations {
             };
         };
     };
-    mudar_medo_mesas__mesa_id__medo_post: {
+    mudar_medo_mesas__mesa_id__sessoes__sessao_id__medo_post: {
         parameters: {
             query?: never;
             header?: never;
             path: {
                 mesa_id: string;
+                sessao_id: string;
             };
             cookie?: never;
         };
@@ -5101,7 +5520,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["Medo"];
+                    "application/json": components["schemas"]["Sessao"];
                 };
             };
             /** @description Validation Error */
@@ -5115,12 +5534,13 @@ export interface operations {
             };
         };
     };
-    listar_encontros_mesas__mesa_id__encontros_get: {
+    listar_encontros_mesas__mesa_id__sessoes__sessao_id__encontros_get: {
         parameters: {
             query?: never;
             header?: never;
             path: {
                 mesa_id: string;
+                sessao_id: string;
             };
             cookie?: never;
         };
@@ -5146,12 +5566,13 @@ export interface operations {
             };
         };
     };
-    criar_encontro_mesas__mesa_id__encontros_post: {
+    criar_encontro_mesas__mesa_id__sessoes__sessao_id__encontros_post: {
         parameters: {
             query?: never;
             header?: never;
             path: {
                 mesa_id: string;
+                sessao_id: string;
             };
             cookie?: never;
         };
@@ -5181,12 +5602,13 @@ export interface operations {
             };
         };
     };
-    ver_encontro_mesas__mesa_id__encontros__encontro_id__get: {
+    ver_encontro_mesas__mesa_id__sessoes__sessao_id__encontros__encontro_id__get: {
         parameters: {
             query?: never;
             header?: never;
             path: {
                 mesa_id: string;
+                sessao_id: string;
                 encontro_id: string;
             };
             cookie?: never;
@@ -5213,12 +5635,13 @@ export interface operations {
             };
         };
     };
-    renomear_encontro_mesas__mesa_id__encontros__encontro_id__put: {
+    renomear_encontro_mesas__mesa_id__sessoes__sessao_id__encontros__encontro_id__put: {
         parameters: {
             query?: never;
             header?: never;
             path: {
                 mesa_id: string;
+                sessao_id: string;
                 encontro_id: string;
             };
             cookie?: never;
@@ -5249,12 +5672,13 @@ export interface operations {
             };
         };
     };
-    apagar_encontro_mesas__mesa_id__encontros__encontro_id__delete: {
+    apagar_encontro_mesas__mesa_id__sessoes__sessao_id__encontros__encontro_id__delete: {
         parameters: {
             query?: never;
             header?: never;
             path: {
                 mesa_id: string;
+                sessao_id: string;
                 encontro_id: string;
             };
             cookie?: never;
@@ -5279,12 +5703,13 @@ export interface operations {
             };
         };
     };
-    guia_de_batalha_mesas__mesa_id__encontros__encontro_id__guia_put: {
+    guia_de_batalha_mesas__mesa_id__sessoes__sessao_id__encontros__encontro_id__guia_put: {
         parameters: {
             query?: never;
             header?: never;
             path: {
                 mesa_id: string;
+                sessao_id: string;
                 encontro_id: string;
             };
             cookie?: never;
@@ -5315,12 +5740,13 @@ export interface operations {
             };
         };
     };
-    adicionar_combatentes_mesas__mesa_id__encontros__encontro_id__combatentes_post: {
+    adicionar_combatentes_mesas__mesa_id__sessoes__sessao_id__encontros__encontro_id__combatentes_post: {
         parameters: {
             query?: never;
             header?: never;
             path: {
                 mesa_id: string;
+                sessao_id: string;
                 encontro_id: string;
             };
             cookie?: never;
@@ -5351,12 +5777,13 @@ export interface operations {
             };
         };
     };
-    remover_combatente_mesas__mesa_id__encontros__encontro_id__combatentes__combatente_id__delete: {
+    remover_combatente_mesas__mesa_id__sessoes__sessao_id__encontros__encontro_id__combatentes__combatente_id__delete: {
         parameters: {
             query?: never;
             header?: never;
             path: {
                 mesa_id: string;
+                sessao_id: string;
                 encontro_id: string;
                 combatente_id: string;
             };
@@ -5384,12 +5811,13 @@ export interface operations {
             };
         };
     };
-    dano_em_combatente_mesas__mesa_id__encontros__encontro_id__combatentes__combatente_id__dano_post: {
+    dano_em_combatente_mesas__mesa_id__sessoes__sessao_id__encontros__encontro_id__combatentes__combatente_id__dano_post: {
         parameters: {
             query?: never;
             header?: never;
             path: {
                 mesa_id: string;
+                sessao_id: string;
                 encontro_id: string;
                 combatente_id: string;
             };
@@ -5421,12 +5849,13 @@ export interface operations {
             };
         };
     };
-    marcar_mesas__mesa_id__encontros__encontro_id__combatentes__combatente_id__marcas_put: {
+    marcar_mesas__mesa_id__sessoes__sessao_id__encontros__encontro_id__combatentes__combatente_id__marcas_put: {
         parameters: {
             query?: never;
             header?: never;
             path: {
                 mesa_id: string;
+                sessao_id: string;
                 encontro_id: string;
                 combatente_id: string;
             };
@@ -5458,12 +5887,13 @@ export interface operations {
             };
         };
     };
-    condicao_em_combatente_mesas__mesa_id__encontros__encontro_id__combatentes__combatente_id__condicoes_post: {
+    condicao_em_combatente_mesas__mesa_id__sessoes__sessao_id__encontros__encontro_id__combatentes__combatente_id__condicoes_post: {
         parameters: {
             query?: never;
             header?: never;
             path: {
                 mesa_id: string;
+                sessao_id: string;
                 encontro_id: string;
                 combatente_id: string;
             };
@@ -5495,12 +5925,13 @@ export interface operations {
             };
         };
     };
-    tirar_condicao_mesas__mesa_id__encontros__encontro_id__combatentes__combatente_id__condicoes__condicao__delete: {
+    tirar_condicao_mesas__mesa_id__sessoes__sessao_id__encontros__encontro_id__combatentes__combatente_id__condicoes__condicao__delete: {
         parameters: {
             query?: never;
             header?: never;
             path: {
                 mesa_id: string;
+                sessao_id: string;
                 encontro_id: string;
                 combatente_id: string;
                 condicao: string;
