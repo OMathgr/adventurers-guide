@@ -325,6 +325,19 @@ Documentação interativa em `/docs`.
   montar/gravar o personagem (`montar`, `gravar`), para dono e mestre usarem
   o mesmo caminho.
 
+### Guia de Batalha (`motor/guia_batalha.py`)
+
+Regra do SRD ("Battle Points", p. 71; p. 197 da edição brasileira). Cada
+encontro guarda as escolhas do mestre (`encontros.guia`: nº de PJs, patamar do
+grupo, luta mais fácil/difícil, +1d4 no dano) e a API devolve o guia calculado
+junto com o encontro: PB iniciais (3 × PJs + 2), ajustes (os de composição —
+2+ solos, patamar inferior, sem brutamonte/horda/líder/solo — são automáticos),
+gastos por tipo e saldo. Lacaios contam por grupo do tamanho do grupo de PJs,
+arredondando para cima. É só auxílio: passar do orçamento não é bloqueado.
+Sem escolhas salvas, o padrão vem da mesa (nº de personagens, ou 4; patamar do
+nível da mesa). Tipos com os nomes da edição brasileira: comum, oportunista,
+manipulador, assistente, brutamonte.
+
 ### Nível da mesa, cópia e plano
 
 - **Nível da mesa** (`mesas.nivel_maximo`, 1 a 10): mesa nova começa no 1;
@@ -528,7 +541,8 @@ Glossário (alinhado à edição brasileira quando conhecida):
 | spotlight | pôr em destaque | | PCs | PJs |
 | Spend a Fear | gaste 1 Ponto de Medo | | mark a Stress | marque 1 PF |
 | Relentless / Momentum | Implacável / Embalo | | Minion / Horde | Lacaio / Horda |
-| Bruiser / Skulk / Ranged | Brutamontes / Espreitador / Atirador | | Leader / Support / Standard | Líder / Suporte / Padrão |
+| Bruiser / Skulk / Ranged | Brutamonte / Oportunista / Atirador | | Leader / Support / Standard | Líder / Assistente / Comum |
+| Social (adversary) | Manipulador | | Battle Points | Pontos de Batalha (PB) |
 | Loop (countdown) | Ciclo | | Group Attack | Ataque em Grupo |
 
 ## Pendências conhecidas

@@ -88,6 +88,23 @@ def test_privado_e_permissao_preparar(cliente, mesa, bia):
     assert cliente.post(url(mesa, "/medo"), json={"delta": 1}, headers=bia).json() == {"medo": 1}
 
 
+def test_guia_de_batalha(cliente, mesa, bia):
+    e = cliente.post(url(mesa, "/encontros"), json={"nome": "Toca"}).json()
+    # padrão: sem personagens na mesa conta 4 PJs; mesa nova (nível 1) é patamar 1
+    assert (e["guia"]["opcoes"]["pjs"], e["guia"]["opcoes"]["patamar"], e["guia"]["base"]) == (4, 1, 14)
+    base = url(mesa, f"/encontros/{e['id']}")
+    e = cliente.post(f"{base}/combatentes", json={"origem": "srd", "id": "srd_acid_burrower", "quantidade": 2}).json()
+    tipo = e["combatentes"][0]["adversario"]["tipo"]
+    custo = {"SOLO": 5, "BRUTAMONTES": 4, "LIDER": 3}.get(tipo, 2)
+    assert e["guia"]["gasto"] == 2 * custo
+    e = cliente.put(f"{base}/guia", json={"pjs": 3, "patamar": 1, "mais_dificil": True}).json()
+    assert e["guia"]["base"] == 11 and e["guia"]["total"] - e["guia"]["gasto"] == e["guia"]["saldo"]
+    assert cliente.get(base).json()["guia"]["opcoes"]["pjs"] == 3                     # ficou salvo
+    r = cliente.put(f"{base}/guia", json={"pjs": 3, "mais_facil": True, "mais_dificil": True})
+    assert r.status_code == 422 and r.json()["tipo"] == "regra"
+    assert cliente.put(f"{base}/guia", json={"pjs": 3}, headers=bia).status_code == 404   # jogadora
+
+
 def test_origem_invalida(cliente, mesa):
     e = cliente.post(url(mesa, "/encontros"), json={"nome": "Toca"}).json()
     npc = cliente.post(url(mesa, "/npcs"), json={"nome": "Sem combate"}).json()

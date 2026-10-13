@@ -104,6 +104,8 @@ class EncontroTabela(Base):
     mesa_id: Mapped[str] = mapped_column(ForeignKey("mesas.id", ondelete="CASCADE"), index=True)
     nome: Mapped[str] = mapped_column(String(120))
     combatentes: Mapped[list] = mapped_column(JSON)
+    # escolhas do Guia de Batalha (motor.guia_batalha.OpcoesDoGuia); None: padrão da mesa
+    guia: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     criado_em: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_agora)
     atualizado_em: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_agora, onupdate=_agora)
 

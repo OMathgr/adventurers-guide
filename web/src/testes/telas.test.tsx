@@ -93,9 +93,16 @@ describe('Linha do tempo', () => {
     expect(await screen.findAllByRole('checkbox')).not.toHaveLength(0)   // próximo nível carregou
     expect(screen.getAllByRole('region', { name: '2º patamar' })).toHaveLength(3)
     expect(screen.getByRole('img', { name: '+1 de Evasão (2º patamar): marcado neste nível' })).toBeInTheDocument()
-    await userEvent.click(screen.getByRole('button', { name: 'Desfazer este nível' }))
-    expect(desfazer).toHaveBeenCalledOnce()
     expect(screen.getAllByRole('button', { name: 'Desfazer este nível' })).toHaveLength(1)
+    // desfazer pede confirmação: cancelar não desfaz
+    const confirmar = vi.spyOn(window, 'confirm').mockReturnValueOnce(false).mockReturnValueOnce(true)
+    await userEvent.click(screen.getByRole('button', { name: 'Desfazer este nível' }))
+    expect(desfazer).not.toHaveBeenCalled()
+    // o botão da barra fica sempre à vista, mesmo com a linha rolada para o próximo nível
+    await userEvent.click(screen.getByRole('button', { name: 'Desfazer o nível 2' }))
+    expect(confirmar).toHaveBeenLastCalledWith(expect.stringContaining('Desfazer o nível 2?'))
+    expect(desfazer).toHaveBeenCalledOnce()
+    confirmar.mockRestore()
   })
 
   it('marca os avanços do próximo nível direto na caixa', async () => {

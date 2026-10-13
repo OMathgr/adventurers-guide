@@ -10,6 +10,7 @@ import {
 import type { Combatente, Mesa, ResultadoDanoAdversario } from '../../api/tipos'
 import Condicoes from '../../componentes/Condicoes'
 import FichaInimigo from '../../componentes/FichaInimigo'
+import GuiaDeBatalha from '../../componentes/GuiaDeBatalha'
 import { Foto } from '../../componentes/Foto'
 import MedoDoMestre from '../../componentes/MedoDoMestre'
 import { Aviso, Botao, Campo, Carregando, EspacosClicaveis, Escolhivel, Selecao, Selo } from '../../componentes/ui'
@@ -167,6 +168,8 @@ function EncontroAtual({ mesaId, encontroId, podePreparar }: { mesaId: string; e
           <CartaoCombatente key={c.id} mesaId={mesaId} encontroId={e.id} c={c} podePreparar={podePreparar} />
         ))}
       </div>
+      {/* montar o encontro: o guia ao lado de onde se põem os inimigos */}
+      <GuiaDeBatalha mesaId={mesaId} encontroId={e.id} guia={e.guia} podeEditar={podePreparar} />
       {podePreparar && <AdicionarCombatentes mesaId={mesaId} encontroId={e.id} />}
     </div>
   )

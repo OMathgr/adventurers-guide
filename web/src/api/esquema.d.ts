@@ -1163,6 +1163,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/mesas/{mesa_id}/encontros/{encontro_id}/guia": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Guia De Batalha
+         * @description Escolhas do Guia de Batalha (nº de PJs, patamar do grupo, luta mais fácil
+         *     ou difícil, dano extra). Os ajustes de composição são calculados sozinhos.
+         */
+        put: operations["guia_de_batalha_mesas__mesa_id__encontros__encontro_id__guia_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/mesas/{mesa_id}/encontros/{encontro_id}/combatentes": {
         parameters: {
             query?: never;
@@ -1372,6 +1393,15 @@ export interface components {
             arma_original: string;
             /** Foto */
             foto?: string | null;
+        };
+        /** Ajuste */
+        Ajuste: {
+            /** Descricao */
+            descricao: string;
+            /** Valor */
+            valor: number;
+            /** Automatico */
+            automatico: boolean;
         };
         /** AjusteMedo */
         AjusteMedo: {
@@ -1799,6 +1829,7 @@ export interface components {
             nome: string;
             /** Combatentes */
             combatentes: components["schemas"]["CombatenteSaida"][];
+            guia: components["schemas"]["GuiaDeBatalha"];
         };
         /** EquipamentoEntrada */
         EquipamentoEntrada: {
@@ -2018,12 +2049,45 @@ export interface components {
              */
             com_armadura: number;
         };
+        /** Gasto */
+        Gasto: {
+            tipo: components["schemas"]["TipoAdversario"];
+            /** Quantidade */
+            quantidade: number;
+            /** Custo */
+            custo: number;
+        };
         /**
          * Gravidade
          * @description Quantos PV um dano marca, pela comparação com os limiares.
          * @enum {integer}
          */
         Gravidade: 0 | 1 | 2 | 3 | 4;
+        /** GuiaDeBatalha */
+        GuiaDeBatalha: {
+            opcoes: components["schemas"]["OpcoesDoGuia"];
+            /** Base */
+            base: number;
+            /** Ajustes */
+            ajustes?: components["schemas"]["Ajuste"][];
+            /**
+             * Total
+             * @default 0
+             */
+            total: number;
+            /** Gastos */
+            gastos?: components["schemas"]["Gasto"][];
+            /**
+             * Gasto
+             * @default 0
+             */
+            gasto: number;
+            /**
+             * Saldo
+             * @default 0
+             */
+            saldo: number;
+        };
         /** HTTPValidationError */
         HTTPValidationError: {
             /** Detail */
@@ -2290,6 +2354,37 @@ export interface components {
             antiga?: string | null;
             /** Carta Do Nivel */
             carta_do_nivel?: string | null;
+        };
+        /**
+         * OpcoesDoGuia
+         * @description O que o mestre escolhe; o resto vem dos inimigos do encontro.
+         */
+        OpcoesDoGuia: {
+            /**
+             * Pjs
+             * @default 4
+             */
+            pjs: number;
+            /**
+             * Patamar
+             * @default 1
+             */
+            patamar: number;
+            /**
+             * Mais Facil
+             * @default false
+             */
+            mais_facil: boolean;
+            /**
+             * Mais Dificil
+             * @default false
+             */
+            mais_dificil: boolean;
+            /**
+             * Dano Extra
+             * @default false
+             */
+            dano_extra: boolean;
         };
         /** Papel */
         Papel: {
@@ -5172,6 +5267,42 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    guia_de_batalha_mesas__mesa_id__encontros__encontro_id__guia_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mesa_id: string;
+                encontro_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OpcoesDoGuia"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EncontroSaida"];
+                };
             };
             /** @description Validation Error */
             422: {

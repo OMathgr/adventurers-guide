@@ -92,17 +92,24 @@ export const TIPOS_ADVERSARIO: TipoAdversario[] = [
   'PADRAO', 'BRUTAMONTES', 'ATIRADOR', 'ESPREITADOR', 'SUPORTE', 'LIDER', 'LACAIO', 'HORDA', 'SOCIAL', 'SOLO',
 ]
 
+/** Nomes da edição brasileira (os códigos continuam os do projeto). */
 export const NOME_TIPO_ADVERSARIO: Record<TipoAdversario, string> = {
-  PADRAO: 'Padrão',
-  BRUTAMONTES: 'Brutamontes',
+  PADRAO: 'Comum',
+  BRUTAMONTES: 'Brutamonte',
   ATIRADOR: 'Atirador',
-  ESPREITADOR: 'Espreitador',
-  SUPORTE: 'Suporte',
+  ESPREITADOR: 'Oportunista',
+  SUPORTE: 'Assistente',
   LIDER: 'Líder',
   LACAIO: 'Lacaio',
   HORDA: 'Horda',
-  SOCIAL: 'Social',
+  SOCIAL: 'Manipulador',
   SOLO: 'Solo',
+}
+
+/** Plural para o Guia de Batalha ("2 Brutamontes"). */
+export const PLURAL_TIPO_ADVERSARIO: Record<TipoAdversario, string> = {
+  PADRAO: 'Comuns', BRUTAMONTES: 'Brutamontes', ATIRADOR: 'Atiradores', ESPREITADOR: 'Oportunistas',
+  SUPORTE: 'Assistentes', LIDER: 'Líderes', LACAIO: 'Lacaios', HORDA: 'Hordas', SOCIAL: 'Manipuladores', SOLO: 'Solos',
 }
 
 /** Gravidade do dano (quantos PV marca, pelos limiares). */

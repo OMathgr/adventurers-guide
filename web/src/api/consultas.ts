@@ -5,7 +5,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { chamar } from './cliente'
 import type {
   Adversario, Ancestralidade, Arma, Armadura, CartaDeDominio, Equipamento, Classe, Comunidade, Criacao, Encontro, EncontroResumo, Escolha,
-  EventoLinhaDoTempo, Ficha, InimigoResumo, Mesa, MesaResumo, Npc, NpcEntrada, PermissoesMestres,
+  EventoLinhaDoTempo, Ficha, InimigoResumo, Mesa, MesaResumo, Npc, NpcEntrada, OpcoesDoGuia, PermissoesMestres,
   PersonagemCriado, PersonagemResumo, ProximoNivel, ResultadoDano, ResultadoDanoAdversario, Subclasse,
   SubidaDeNivel,
 } from './tipos'
@@ -420,6 +420,16 @@ export function useAcaoNoEncontro(mesaId: string, encontroId: string) {
       cliente.setQueryData(chaveEncontro(mesaId, encontroId), e)
       return cliente.invalidateQueries({ queryKey: chaveEncontros(mesaId), exact: true })
     },
+  })
+}
+
+/** Escolhas do Guia de Batalha; a API devolve o encontro com o guia recalculado. */
+export function useGuiaDeBatalha(mesaId: string, encontroId: string) {
+  const cliente = useQueryClient()
+  return useMutation({
+    mutationFn: (opcoes: OpcoesDoGuia) =>
+      chamar<Encontro>(`/mesas/${mesaId}/encontros/${encontroId}/guia`, { metodo: 'PUT', corpo: opcoes }),
+    onSuccess: (e) => cliente.setQueryData(chaveEncontro(mesaId, encontroId), e),
   })
 }
 

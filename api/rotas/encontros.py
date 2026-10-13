@@ -14,15 +14,17 @@ from pydantic import BaseModel, Field, TypeAdapter
 
 from motor import Adversario
 from motor.encontro import Combatente, Encontro, ResultadoDanoAdversario, ajustar_medo, definir_medo
+from motor.guia_batalha import GuiaDeBatalha, OpcoesDoGuia, calcular, validar_opcoes
 
 from ..autenticacao import Acesso, acesso
 from ..mesas import Permissao, exigir, exigir_mestre, membro
 from ..repositorio import NaoEncontrado, biblioteca
-from ..tabelas import EncontroTabela, InimigoTabela, NpcTabela
+from ..tabelas import EncontroTabela, InimigoTabela, MesaTabela, NpcTabela
 
 rotas = APIRouter(prefix="/mesas/{mesa_id}", tags=["Sessão do mestre"])
 _COMBATENTES = TypeAdapter(list[Combatente])
 _ADVERSARIO = TypeAdapter(Adversario)
+_OPCOES = TypeAdapter(OpcoesDoGuia)
 
 
 def _mestre(a: Acesso, mesa_id: str, preparar: bool = False):
@@ -80,6 +82,7 @@ class EncontroSaida(BaseModel):
     id: str
     nome: str
     combatentes: list[CombatenteSaida]
+    guia: GuiaDeBatalha                # Pontos de Batalha: orçamento, ajustes e gastos
 
 
 class EncontroResumo(BaseModel):
@@ -134,8 +137,18 @@ def _gravar(a: Acesso, linha: EncontroTabela, encontro: Encontro):
     a.banco.commit()
 
 
-def _saida(linha: EncontroTabela, encontro: Encontro) -> EncontroSaida:
-    return EncontroSaida(id=linha.id, nome=linha.nome, combatentes=[
+def _opcoes_do_guia(a: Acesso, linha: EncontroTabela) -> OpcoesDoGuia:
+    """As escolhas salvas no encontro ou, se ainda não houver, o padrão da mesa:
+    nº de PJs = personagens da mesa (4 se não tiver nenhum) e o patamar do nível da mesa."""
+    if linha.guia:
+        return _OPCOES.validate_python(linha.guia)
+    mesa = a.banco.get(MesaTabela, linha.mesa_id)
+    return OpcoesDoGuia(pjs=len(mesa.personagens) or 4, patamar=biblioteca().tier_do_nivel(mesa.nivel_maximo))
+
+
+def _saida(a: Acesso, linha: EncontroTabela, encontro: Encontro) -> EncontroSaida:
+    guia = calcular(_opcoes_do_guia(a, linha), [(c.adversario.tipo, c.adversario.patamar) for c in encontro.combatentes])
+    return EncontroSaida(id=linha.id, nome=linha.nome, guia=guia, combatentes=[
         CombatenteSaida(id=c.id, rotulo=c.rotulo, adversario=c.adversario, origem=c.origem,
                         pv_marcados=c.pv_marcados, pf_marcados=c.pf_marcados,
                         condicoes=c.condicoes, derrotado=c.derrotado)
@@ -149,7 +162,7 @@ def _agir(a: Acesso, mesa_id: str, encontro_id: str, acao, preparar: bool = Fals
     encontro = _montar(linha)
     acao(encontro)
     _gravar(a, linha, encontro)
-    return _saida(linha, encontro)
+    return _saida(a, linha, encontro)
 
 
 def _ficha_de_origem(a: Acesso, mesa_id: str, pedido: NovosCombatentes) -> Adversario:
@@ -187,14 +200,14 @@ def criar_encontro(mesa_id: str, dados: NomeEncontro, a: Acesso = Depends(acesso
     linha = EncontroTabela(id=str(uuid.uuid4()), mesa_id=mesa_id, nome=dados.nome.strip(), combatentes=[])
     a.banco.add(linha)
     a.banco.commit()
-    return _saida(linha, _montar(linha))
+    return _saida(a, linha, _montar(linha))
 
 
 @rotas.get("/encontros/{encontro_id}", response_model=EncontroSaida)
 def ver_encontro(mesa_id: str, encontro_id: str, a: Acesso = Depends(acesso)):
     _mestre(a, mesa_id)
     linha = _linha(a, mesa_id, encontro_id)
-    return _saida(linha, _montar(linha))
+    return _saida(a, linha, _montar(linha))
 
 
 @rotas.put("/encontros/{encontro_id}", response_model=EncontroSaida)
@@ -203,7 +216,19 @@ def renomear_encontro(mesa_id: str, encontro_id: str, dados: NomeEncontro, a: Ac
     linha = _linha(a, mesa_id, encontro_id)
     linha.nome = dados.nome.strip()
     a.banco.commit()
-    return _saida(linha, _montar(linha))
+    return _saida(a, linha, _montar(linha))
+
+
+@rotas.put("/encontros/{encontro_id}/guia", response_model=EncontroSaida)
+def guia_de_batalha(mesa_id: str, encontro_id: str, opcoes: OpcoesDoGuia, a: Acesso = Depends(acesso)):
+    """Escolhas do Guia de Batalha (nº de PJs, patamar do grupo, luta mais fácil
+    ou difícil, dano extra). Os ajustes de composição são calculados sozinhos."""
+    _mestre(a, mesa_id, preparar=True)
+    validar_opcoes(opcoes)
+    linha = _linha(a, mesa_id, encontro_id)
+    linha.guia = _OPCOES.dump_python(opcoes, mode="json")
+    a.banco.commit()
+    return _saida(a, linha, _montar(linha))
 
 
 @rotas.delete("/encontros/{encontro_id}", status_code=204)

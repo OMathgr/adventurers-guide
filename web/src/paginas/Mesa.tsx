@@ -1,5 +1,5 @@
 // Página da mesa. Todos veem a aba Geral (com o Medo do mestre); os mestres
-// também veem a Sessão (encontros) e a biblioteca privada (Inimigos e NPCs).
+// também veem Encontros (sessão de jogo e Guia de Batalha) e a biblioteca privada (Inimigos e NPCs).
 import { useParams, useSearchParams } from 'react-router'
 
 import { useMesa } from '../api/consultas'
@@ -36,7 +36,7 @@ export default function Mesa() {
 
       {mestre && (
         <Abas<Aba> atual={aba}
-          abas={[['geral', 'Mesa'], ['sessao', 'Sessão'], ['inimigos', 'Inimigos'], ['npcs', 'NPCs']]}
+          abas={[['geral', 'Mesa'], ['sessao', 'Encontros'], ['inimigos', 'Inimigos'], ['npcs', 'NPCs']]}
           aoTrocar={(nova) => setBusca(nova === 'geral' ? {} : { aba: nova }, { replace: true })} />
       )}
 

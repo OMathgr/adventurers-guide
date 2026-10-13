@@ -79,11 +79,23 @@ export default function LinhaDoTempo({ eventos, personagemId, ficha, aoDesfazer,
 
   const rolar = (sentido: number) => trilho.current?.scrollBy?.({ left: sentido * 320, behavior: 'smooth' })
 
+  /** Desfazer pede confirmação: as escolhas do nível se perdem. */
+  function desfazer() {
+    if (window.confirm(`Desfazer o nível ${ultimoFeito}? As escolhas feitas nele (avanços, carta, Experiência) se perdem.`)) {
+      aoDesfazer()
+    }
+  }
+
   return (
     <div className="space-y-2">
-      <div className="flex items-center justify-between gap-2">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <p className="text-sm text-texto-suave">Role para os lados para ver todos os níveis.</p>
-        <div className="flex gap-1">
+        <div className="flex flex-wrap gap-1">
+          {ultimoFeito > 1 && (
+            <Botao variante="perigo" className="!px-3 !py-1" onClick={desfazer} disabled={desfazendo}>
+              {desfazendo ? 'Desfazendo…' : `Desfazer o nível ${ultimoFeito}`}
+            </Botao>
+          )}
           <Botao variante="secundario" className="!px-3 !py-1" aria-label="Níveis anteriores" onClick={() => rolar(-1)}>←</Botao>
           <Botao variante="secundario" className="!px-3 !py-1" aria-label="Próximos níveis" onClick={() => rolar(1)}>→</Botao>
         </div>
@@ -118,7 +130,7 @@ export default function LinhaDoTempo({ eventos, personagemId, ficha, aoDesfazer,
                     </span>
                   )}
                   {feito && e.nivel === ultimoFeito && e.nivel > 1 && (
-                    <Botao variante="fantasma" onClick={aoDesfazer} disabled={desfazendo} className="!px-2 !py-1">
+                    <Botao variante="perigo" onClick={desfazer} disabled={desfazendo} className="!px-2 !py-1 text-xs">
                       {desfazendo ? 'Desfazendo…' : 'Desfazer este nível'}
                     </Botao>
                   )}

@@ -108,7 +108,12 @@ describe('Página da mesa', () => {
   it('sessão: mestre ganha Medo, marca PV por clique e aplica dano', async () => {
     const lobo = { id: 'c1', rotulo: 'Lobo 1', adversario: { ...MAGO, nome: 'Lobo', pv: 4, pf: 2 }, origem: 'srd:x',
       pv_marcados: 0, pf_marcados: 0, condicoes: [], derrotado: false }
-    const encontro = { id: 'e1', nome: 'Emboscada', combatentes: [lobo] }
+    const guia = {
+      opcoes: { pjs: 4, patamar: 2, mais_facil: false, mais_dificil: false, dano_extra: false }, base: 14,
+      ajustes: [{ descricao: 'Sem brutamonte, horda, líder ou solo', valor: 1, automatico: true }], total: 15,
+      gastos: [{ tipo: 'ATIRADOR', quantidade: 1, custo: 2 }], gasto: 2, saldo: 13,
+    }
+    const encontro = { id: 'e1', nome: 'Emboscada', combatentes: [lobo], guia }
     const comPv = (pv: number) => ({ ...encontro, combatentes: [{ ...lobo, pv_marcados: pv, derrotado: pv >= 4 }] })
     const fetch = respostas({
       '/mesas/m1': mesa('mestre'), '/mesas/m1/medo': { medo: 4 },
@@ -123,6 +128,11 @@ describe('Página da mesa', () => {
 
     await userEvent.click(await screen.findByRole('button', { name: 'Ganhar 1' }))
     expect(await screen.findByRole('group', { name: 'Medo: 4 de 12' })).toBeInTheDocument()
+
+    // Guia de Batalha do encontro: gasto, total e saldo vêm da API
+    const painel = await screen.findByRole('region', { name: 'Guia de Batalha' })
+    expect(painel).toHaveTextContent('2 de 15 PB gastos · sobram 13 PB')
+    expect(painel).toHaveTextContent('1 Atiradores2 PB')
 
     await userEvent.click(await screen.findByRole('button', { name: 'PV restantes de Lobo 1 2' }))
     expect(fetch).toHaveBeenCalledWith('/api/mesas/m1/encontros/e1/combatentes/c1/marcas', expect.objectContaining({
