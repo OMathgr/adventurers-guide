@@ -1,6 +1,6 @@
 // Quadro da campanha: tudo o que os mestres revelaram nos quadros das sessões,
 // uma região por sessão. Só leitura, para jogadores e mestres. Enche sozinho
-// conforme os cartões são revelados (a tela recarrega a cada 10 s).
+// conforme os cartões são revelados (atualiza ao vivo).
 import '@xyflow/react/dist/style.css'
 
 import { Background, ConnectionMode, Controls, ReactFlow } from '@xyflow/react'

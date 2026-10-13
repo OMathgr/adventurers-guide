@@ -370,8 +370,7 @@ Decisões do projeto (2026-10-13):
   nome, foto e descrição (nunca motivações nem notas). Fica conhecido entre as
   sessões (o que os jogadores aprenderam não some quando a sessão acaba).
 - `GET /mesas/{id}/revelado` (qualquer membro) junta os dois; a aba Mesa mostra
-  "Em combate: ..." e "NPCs conhecidos". Sem tempo real ainda: a tela recarrega
-  a cada 5 s.
+  "Em combate: ..." e "NPCs conhecidos". Atualiza ao vivo (ver abaixo).
 
 ### Guia de Batalha (`motor/guia_batalha.py`)
 
@@ -504,7 +503,42 @@ manipulador, assistente, brutamonte.
 Ainda não: renovação de token (refresh) e "esqueci minha senha", jogadores
 verem as fichas uns dos outros, controle de concorrência entre duas edições
 simultâneas do mesmo personagem (ex.: mestre aplica dano enquanto o jogador
-descansa), atualização em tempo real.
+descansa).
+
+### Ao vivo (`api/eventos.py` e `api/rotas/eventos.py`)
+
+Decisões do projeto (2026-10-13): ficam ao vivo o combate e o Medo, a ficha
+(dano e condições do mestre aparecem para o jogador), os quadros e a mesa com
+as sessões compartilhadas; com presença (bolinha verde em quem está online).
+
+- **Server-Sent Events**, não WebSocket: o servidor só precisa avisar; as
+  mudanças continuam indo pelas rotas normais (com validação e permissões).
+  `GET /eventos?token=...` (o `EventSource` do navegador não manda cabeçalho,
+  então o token vem na URL). Comentário `: ping` a cada 15 s; o fluxo se renova
+  a cada hora e o navegador reconecta sozinho.
+- **Avisos sem dados**: só `{"tipo": "mesa", "id"}` ou
+  `{"tipo": "personagem", "id", "mesa_id"}`. A tela invalida o cache (React
+  Query) e busca de novo com as próprias permissões, então um aviso nunca vaza
+  o que o usuário não pode ler (ex.: biblioteca do mestre). Descartado: mandar
+  o dado no aviso, que obrigaria repetir as regras de visibilidade no envio.
+- **Gancho no banco**, não em cada rota: `before_flush` anota o que o commit
+  toca (mesa, membro, inimigo, NPC, sessão, encontro, personagem, nível),
+  `after_commit` avisa os membros da mesa e o dono do personagem, `after_rollback`
+  descarta. Rota nova fica coberta sem lembrar de avisar; erro não avisa ninguém.
+  Sem ninguém conectado o gancho não faz nada.
+- **Presença**: quem tem um fluxo aberto está online (`MembroSaida.online`);
+  conectar e desconectar avisa as mesas da pessoa.
+- Ao reconectar (queda de rede, servidor reiniciado) a tela recarrega tudo,
+  porque pode ter perdido avisos.
+- O quadro aberto por quem só lê (jogador, outro mestre) remonta a cada
+  mudança; o do responsável não, para não perder o que ele está arrastando.
+- Limite: a central vive na memória de **um** processo. Com vários servidores,
+  trocar por Redis (pub/sub) mantendo a mesma interface.
+- Desenvolvimento no Windows: o `--reload` do Uvicorn reinicia o processo com
+  Ctrl+C, e esse sinal se perde enquanto há um fluxo aberto (testado com um app
+  mínimo, sem o nosso código; continua travado mesmo depois que o cliente
+  desconecta). Com a página aberta, depois de mudar o Python pare a API e rode
+  de novo.
 
 ## Interface web (fase 3, `web/`)
 

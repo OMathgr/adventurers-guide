@@ -215,6 +215,8 @@ export default function QuadroDaSessao({ mesa, sessao }: { mesa: Mesa; sessao: S
   const quadro = useQuadro(mesa.id, sessao.id)
   if (quadro.isPending) return <Carregando />
   if (quadro.isError) return <Aviso erro={quadro.error} />
-  // o editor lê o quadro só ao montar e depois mantém o próprio estado
-  return <Editor key={sessao.id} mesa={mesa} sessao={sessao} inicial={quadro.data} />
+  // o editor lê o quadro só ao montar e depois mantém o próprio estado; quem só lê (sessão
+  // compartilhada) remonta a cada atualização ao vivo, para ver o que o responsável mudou
+  const chave = sessao.sou_responsavel ? sessao.id : `${sessao.id}:${quadro.dataUpdatedAt}`
+  return <Editor key={chave} mesa={mesa} sessao={sessao} inicial={quadro.data} />
 }

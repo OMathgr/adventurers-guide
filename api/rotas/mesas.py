@@ -15,6 +15,8 @@ from ..esquemas import CondicaoEntrada, Dano, DanoSaida, FichaSaida, ficha_saida
 from ..mesas import (JOGADOR, MESTRE, PERMISSOES_PADRAO, Permissao, SemPermissao, eh_criador,
                      exigir, exigir_criador, gerar_codigo, membro, pode)
 from ..repositorio import NaoEncontrado
+from ..eventos import central
+from ..eventos import central
 from ..sessoes import medo_em_jogo
 from ..tabelas import MembroTabela, MesaTabela, PersonagemTabela
 
@@ -32,6 +34,7 @@ class MembroSaida(BaseModel):
     nome: str
     papel: str
     criador: bool
+    online: bool = False       # está com o app aberto agora (avisos ao vivo conectados)
 
 
 class PersonagemNaMesa(BaseModel):
@@ -95,7 +98,7 @@ def _saida(m: MembroTabela) -> MesaSaida:
         sou_criador=eh_criador(m), permissoes_mestres=mesa.permissoes_mestres,
         minhas_permissoes=[p for p in Permissao if pode(m, p)],
         membros=[MembroSaida(usuario_id=x.usuario_id, nome=x.usuario.nome, papel=x.papel,
-                             criador=x.usuario_id == mesa.criador_id)
+                             criador=x.usuario_id == mesa.criador_id, online=central.online(x.usuario_id))
                  for x in sorted(mesa.membros, key=lambda x: x.entrou_em)],
         personagens=[PersonagemNaMesa(id=p.id, nome=p.nome, nivel=1 + len(p.subidas),
                                       classe=p.criacao["classe"], jogador=p.dono.nome,

@@ -58,6 +58,9 @@ function Membros({ mesa }: { mesa: Mesa }) {
         {mesa.membros.map((m) => (
           <li key={m.usuario_id} className="flex flex-wrap items-center justify-between gap-2 py-2">
             <span>
+              {/* presença: verde = com o app aberto agora */}
+              <span role="img" aria-label={m.online ? 'online' : 'offline'} title={m.online ? 'Online agora' : 'Offline'}
+                className={`mr-2 inline-block h-2.5 w-2.5 rounded-full ${m.online ? 'bg-sucesso' : 'bg-borda'}`} />
               {m.nome}
               <span className="ml-2"><Selo destaque={m.papel === 'mestre'}>{NOME_PAPEL[m.papel] ?? m.papel}</Selo></span>
               {m.criador && <span className="ml-2 text-xs text-texto-suave">criou a mesa</span>}

@@ -39,6 +39,7 @@ python exemplo.py                # cria uma personagem e mostra a ficha (só o m
 
 alembic upgrade head             # cria/atualiza o banco (adventurers.db)
 uvicorn api.main:app --reload    # API em http://127.0.0.1:8000 (docs em /docs)
+                                 # Windows: com a página aberta o reload trava; pare e rode de novo
 
 cd web                           # interface (precisa do Node.js 20+)
 npm install
@@ -95,7 +96,7 @@ docs/ARQUITETURA.md
 3. Interface web: ~~construtor (ficha + linha do tempo)~~, ~~mesas e área do mestre (inimigos e NPCs)~~,
    ~~sessão de jogo (encontros, Medo, PV/PF dos inimigos)~~, ~~revelar informações aos jogadores~~
 4. ~~Workspace da mesa (mapa mental por sessão + quadro da campanha com o revelado)~~
-5. Colaboração em tempo real (próximo: hoje as telas recarregam de tempos em tempos)
+5. ~~Colaboração em tempo real (avisos ao vivo e quem está online)~~
 6. App mobile
 
 ## Licença do conteúdo

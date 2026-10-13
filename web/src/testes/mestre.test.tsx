@@ -94,7 +94,7 @@ describe('Página da mesa', () => {
     medo_em_jogo: [{ sessao_id: 's1', mestre: 'Ana', medo: 3 }],
     permissoes_mestres: { ver_fichas: true, aplicar_dano: true, aplicar_condicoes: true, preparar: true },
     minhas_permissoes: papel === 'mestre' ? ['ver_fichas', 'aplicar_dano', 'aplicar_condicoes', 'preparar'] : [],
-    membros: [{ usuario_id: 'u1', nome: 'Ana', papel, criador: papel === 'mestre' }],
+    membros: [{ usuario_id: 'u1', nome: 'Ana', papel, criador: papel === 'mestre', online: true }],
     personagens: [],
   })
 

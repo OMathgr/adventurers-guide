@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { Link, NavLink, Outlet } from 'react-router'
 
+import { useAoVivo } from '../api/aoVivo'
+import { token } from '../api/cliente'
 import { useAutenticacao } from '../auth/Autenticacao'
 
 const CHAVE_TEMA = 'ag.tema'
@@ -30,6 +32,8 @@ export function Logo() {
 
 export default function Layout() {
   const { usuario, sair } = useAutenticacao()
+  // só aparece logado: enquanto estiver aberto, recebe os avisos ao vivo
+  useAoVivo(token.ler())
   const [tema, alternarTema] = useTema()
 
   return (

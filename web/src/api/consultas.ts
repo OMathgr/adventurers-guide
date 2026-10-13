@@ -475,13 +475,11 @@ export function useAcaoNoEncontro(mesaId: string, sid: string, encontroId: strin
   }, (e) => e)
 }
 
-/** O que os jogadores veem (encontros à mostra e NPCs conhecidos). Sem tempo
-    real ainda: recarrega a cada 5 s para acompanhar a luta. */
+/** O que os jogadores veem (encontros à mostra e NPCs conhecidos). Atualiza ao vivo (api/aoVivo.ts). */
 export const useRevelado = (mesaId: string) =>
   useQuery({
     queryKey: ['mesas', mesaId, 'revelado'],
     queryFn: () => chamar<VistaDosJogadores>(`/mesas/${mesaId}/revelado`),
-    refetchInterval: 5000,
   })
 
 // --- Quadros (mapa mental) -------------------------------------------------------------------
@@ -505,12 +503,11 @@ export function useSalvarQuadro(mesaId: string, sid: string) {
   })
 }
 
-/** O revelado de todas as sessões (qualquer membro). Recarrega a cada 10 s. */
+/** O revelado de todas as sessões (qualquer membro). Atualiza ao vivo (api/aoVivo.ts). */
 export const useQuadroDaCampanha = (mesaId: string) =>
   useQuery({
     queryKey: ['mesas', mesaId, 'quadro-da-campanha'],
     queryFn: () => chamar<QuadroDaSessao[]>(`/mesas/${mesaId}/quadro-da-campanha`),
-    refetchInterval: 10000,
   })
 
 /** Torna um NPC conhecido (ou não) pelos jogadores. */
