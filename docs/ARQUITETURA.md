@@ -339,8 +339,21 @@ Documentação interativa em `/docs`.
   Argon2). `personagens.dono_id` aponta para o dono; apagar a conta apaga os
   personagens dela.
 - Login (`POST /auth/login`, formulário OAuth2: e-mail em `username`) devolve
-  um JWT HS256 com o id do usuário e validade (`JWT_EXPIRA_MINUTOS`, padrão 60).
+  um JWT HS256 com o id do usuário e validade (`JWT_EXPIRA_MINUTOS`, padrão 120).
   A chave vem de `JWT_SECRET`; sem ela, uma chave temporária é gerada.
+- **Sessão por uso** (decisão de 2026-10-13): enquanto a pessoa usa o app, o
+  login se renova; parada 2 h, cai (para não ficar logado "AFK"). "Uso" é só
+  interação (clique, toque, tecla, rolagem): atualizações ao vivo não contam.
+  A interface (`web/src/auth/sessao.ts`) guarda a última interação no
+  localStorage (vale para todas as abas) e, se houve uso e o token tem mais de
+  5 minutos, troca por um novo em `POST /auth/renovar`. Sem uso pela validade
+  do token, sai e explica o motivo na tela de entrar. Nos últimos 10 minutos
+  aparece um aviso com contagem regressiva (e uma barra que encolhe); qualquer
+  interação, ou o botão "Continuar conectado", conta como uso e renova. Se a
+  renovação falhar (ex.: sem rede), tenta de novo em 30 s ou na próxima interação. Descartado: refresh token
+  separado (mais uma coisa para guardar e revogar, sem ganho aqui: o token é
+  curto e a troca de senha já derruba as sessões). A conexão ao vivo lê o token
+  na hora de conectar e, se o servidor recusar um antigo, reabre com o atual.
 - Rotas de personagem usam a dependência `acesso` (banco + usuário logado).
   O repositório filtra tudo pelo dono: personagem de outro usuário responde
   404, igual a um inexistente, para não revelar que existe.
@@ -591,8 +604,7 @@ manipulador, assistente, brutamonte.
   condições pelas permissões `ver_fichas`, `aplicar_dano`,
   `aplicar_condicoes`). Na aba Mesa, todos veem o Medo das sessões em andamento.
 
-Ainda não: renovação de token (refresh), jogadores
-verem as fichas uns dos outros, controle de concorrência entre duas edições
+Ainda não: jogadores verem as fichas uns dos outros, controle de concorrência entre duas edições
 simultâneas do mesmo personagem (ex.: mestre aplica dano enquanto o jogador
 descansa).
 

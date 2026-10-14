@@ -23,7 +23,8 @@ mental (um por sessão; o revelado vai para o quadro da campanha) e ao vivo
 consumíveis do SRD, relíquias, armas guardadas, itens iniciais) e lojas da
 sessão (o mestre vende, cobrando o ouro), com a regra opcional das moedas
 por mesa, prontos. Conta: esqueci minha senha (link por e-mail via SMTP) e login
-com o Google (contas com o mesmo e-mail se juntam) prontos. Leia `docs/ARQUITETURA.md` antes de mudar a modelagem. O
+com o Google (contas com o mesmo e-mail se juntam) e sessão por uso (renova
+enquanto se usa; cai depois de 2 h parado) prontos. Leia `docs/ARQUITETURA.md` antes de mudar a modelagem. O
 personagem é guardado como criação + histórico de subidas de nível; a ficha
 é sempre recalculada.
 

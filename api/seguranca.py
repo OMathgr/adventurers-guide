@@ -7,7 +7,9 @@ Configuração por variáveis de ambiente:
 - JWT_SECRET: chave de assinatura. OBRIGATÓRIA em produção. Sem ela, é
   gerada uma chave aleatória ao iniciar (bom para desenvolvimento, mas os
   tokens deixam de valer a cada reinício do servidor).
-- JWT_EXPIRA_MINUTOS: validade do token (padrão: 60).
+- JWT_EXPIRA_MINUTOS: validade do token (padrão: 120). É também o tempo sem
+  uso até cair: enquanto a pessoa usa, a interface renova o token
+  (POST /auth/renovar); parada por esse tempo, o token vence.
 """
 
 import logging
@@ -22,7 +24,7 @@ _log = logging.getLogger(__name__)
 _hash = PasswordHash.recommended()   # Argon2
 
 ALGORITMO = "HS256"
-EXPIRA_MINUTOS = int(os.environ.get("JWT_EXPIRA_MINUTOS", "60"))
+EXPIRA_MINUTOS = int(os.environ.get("JWT_EXPIRA_MINUTOS", "120"))
 _SEGREDO = os.environ.get("JWT_SECRET")
 if not _SEGREDO:
     _SEGREDO = secrets.token_urlsafe(32)

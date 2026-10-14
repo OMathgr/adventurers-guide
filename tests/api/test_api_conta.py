@@ -188,3 +188,31 @@ def test_token_interno_nao_serve_de_acesso(anonimo):
     from api.seguranca import assinar
     falso = assinar("ligar_google", {"sub": "qualquer"}, minutos=5)
     assert anonimo.get("/auth/eu", headers={"Authorization": f"Bearer {falso}"}).status_code == 401
+
+
+# --- Renovação do login -------------------------------------------------------------------------
+
+def test_renovar_da_um_token_novo(anonimo):
+    import jwt
+    h = entrar(anonimo, "ana@exemplo.com")
+    r = anonimo.post("/auth/renovar", headers=h)
+    assert r.status_code == 200
+    novo = r.json()["access_token"]
+    dados = jwt.decode(novo, options={"verify_signature": False})
+    assert dados["exp"] - dados["iat"] == pytest.approx(120 * 60, abs=1)   # 2 horas
+    assert anonimo.get("/auth/eu", headers={"Authorization": f"Bearer {novo}"}).status_code == 200
+
+
+def test_renovar_exige_token_valido(anonimo):
+    assert anonimo.post("/auth/renovar").status_code == 401
+    assert anonimo.post("/auth/renovar", headers={"Authorization": "Bearer lixo"}).status_code == 401
+
+
+def test_token_vencido_nao_renova(anonimo):
+    from datetime import datetime, timedelta, timezone
+
+    from api.seguranca import criar_token
+    h = entrar(anonimo, "ana@exemplo.com")
+    eu = anonimo.get("/auth/eu", headers=h).json()
+    velho = criar_token(eu["id"], agora=datetime.now(timezone.utc) - timedelta(hours=3))
+    assert anonimo.post("/auth/renovar", headers={"Authorization": f"Bearer {velho}"}).status_code == 401

@@ -5,6 +5,7 @@ import { Link, Navigate, useLocation, useNavigate, useSearchParams } from 'react
 
 import { chamar } from '../api/cliente'
 import { useAutenticacao } from '../auth/Autenticacao'
+import { motivoDaSaida } from '../auth/sessao'
 import { Logo } from '../componentes/Layout'
 import { Aviso, Botao, Campo } from '../componentes/ui'
 
@@ -71,6 +72,8 @@ export function Entrar() {
   const destino = useDestino()
   const [busca] = useSearchParams()
   const erroDoGoogle = busca.get('erro')
+  // ex.: "Você ficou 2 horas sem usar o app" (mostrado uma vez)
+  const [motivo] = useState(() => motivoDaSaida.tirar())
 
   if (logado) return <Navigate to={destino} replace />
 
@@ -97,6 +100,9 @@ export function Entrar() {
         <p className="-mt-2 text-right text-xs">
           <Link to="/recuperar-senha" className="text-texto-suave hover:text-esperanca">Esqueci minha senha</Link>
         </p>
+        {motivo && !erro && !erroDoGoogle && (
+          <p role="status" className="rounded-lg border border-borda bg-fundo px-3 py-2 text-sm text-texto-suave">{motivo}</p>
+        )}
         {erroDoGoogle && !erro && <Aviso>{erroDoGoogle}</Aviso>}
         <Aviso erro={erro} />
         <Botao type="submit" disabled={enviando} className="w-full">{enviando ? 'Entrando…' : 'Entrar'}</Botao>

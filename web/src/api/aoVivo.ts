@@ -4,6 +4,8 @@
 import { type QueryClient, useQueryClient } from '@tanstack/react-query'
 import { useEffect } from 'react'
 
+import { token } from './cliente'
+
 export type Aviso =
   | { tipo: 'conectado' }
   | { tipo: 'mesa'; id: string }
@@ -28,22 +30,43 @@ export function aplicarAviso(cliente: QueryClient, aviso: Aviso) {
   }
 }
 
-export function useAoVivo(token: string | null) {
+/** Conexão ao vivo enquanto `ativo`. O token é lido na hora de conectar: como
+    ele se renova durante o uso, a conexão não precisa reabrir a cada renovação.
+    Se o servidor recusar o token antigo (numa reconexão), reabre com o atual. */
+export function useAoVivo(ativo: boolean) {
   const cliente = useQueryClient()
   useEffect(() => {
-    if (!token || typeof EventSource === 'undefined') return
-    const fonte = new EventSource(`/api/eventos?token=${encodeURIComponent(token)}`)
+    if (!ativo || typeof EventSource === 'undefined') return
+    let fonte: EventSource | null = null
+    let espera: number | undefined
     let primeira = true
-    fonte.onmessage = (e) => {
-      const aviso = JSON.parse(e.data) as Aviso
-      if (aviso.tipo === 'conectado') {
-        // numa reconexão (rede caiu, servidor reiniciou) algo pode ter mudado sem aviso
-        if (!primeira) cliente.invalidateQueries()
-        primeira = false
-        return
+    let fechado = false
+
+    function abrir() {
+      const atual = token.ler()
+      if (fechado || !atual) return
+      fonte = new EventSource(`/api/eventos?token=${encodeURIComponent(atual)}`)
+      fonte.onmessage = (e) => {
+        const aviso = JSON.parse(e.data) as Aviso
+        if (aviso.tipo === 'conectado') {
+          // numa reconexão (rede caiu, servidor reiniciou) algo pode ter mudado sem aviso
+          if (!primeira) cliente.invalidateQueries()
+          primeira = false
+          return
+        }
+        aplicarAviso(cliente, aviso)
       }
-      aplicarAviso(cliente, aviso)
+      fonte.onerror = () => {
+        // o navegador reconecta sozinho, mas com a URL (e o token) de antes; se o
+        // servidor recusou, a conexão fecha de vez: abre outra com o token atual
+        if (fonte?.readyState === EventSource.CLOSED) espera = window.setTimeout(abrir, 5000)
+      }
     }
-    return () => fonte.close()
-  }, [token, cliente])
+    abrir()
+    return () => {
+      fechado = true
+      window.clearTimeout(espera)
+      fonte?.close()
+    }
+  }, [ativo, cliente])
 }

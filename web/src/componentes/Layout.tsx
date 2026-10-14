@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react'
 import { Link, NavLink, Outlet } from 'react-router'
 
 import { useAoVivo } from '../api/aoVivo'
-import { token } from '../api/cliente'
 import { useAutenticacao } from '../auth/Autenticacao'
 import { useInstalar, useOnline } from '../lib/pwa'
 
@@ -32,9 +31,9 @@ export function Logo() {
 }
 
 export default function Layout() {
-  const { usuario, sair } = useAutenticacao()
+  const { usuario, sair, logado } = useAutenticacao()
   // só aparece logado: enquanto estiver aberto, recebe os avisos ao vivo
-  useAoVivo(token.ler())
+  useAoVivo(logado)
   const [tema, alternarTema] = useTema()
   const instalar = useInstalar()
   const online = useOnline()

@@ -94,6 +94,13 @@ def login(form: OAuth2PasswordRequestForm = Depends(), banco: Session = Depends(
     return Token(access_token=criar_token(usuario.id))
 
 
+@rotas.post("/renovar", response_model=Token)
+def renovar(usuario: UsuarioTabela = Depends(usuario_atual)):
+    """Token novo para quem ainda tem um válido. A interface chama enquanto a
+    pessoa usa o app: assim só cai quem fica parado mais que a validade (2 h)."""
+    return Token(access_token=criar_token(usuario.id))
+
+
 @rotas.get("/eu", response_model=Usuario)
 def eu(usuario: UsuarioTabela = Depends(usuario_atual), banco: Session = Depends(sessao_do_banco)):
     return _usuario(banco, usuario)

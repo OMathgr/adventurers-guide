@@ -2,10 +2,10 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import type { ReactNode } from 'react'
-import { MemoryRouter, Route, Routes } from 'react-router'
+import { MemoryRouter, Navigate, Route, Routes } from 'react-router'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import { ProvedorAutenticacao } from '../auth/Autenticacao'
+import { ProvedorAutenticacao, useAutenticacao } from '../auth/Autenticacao'
 import { Entrar, EntrarComGoogle, RecuperarSenha, RedefinirSenha } from '../paginas/Acesso'
 
 /** fetch falso: responde por caminho (sem o /api) e guarda as chamadas. */
@@ -93,5 +93,76 @@ describe('Volta do Google', () => {
     montar(<EntrarComGoogle />, '/entrar/google')
     expect(await screen.findByText('Lista de personagens')).toBeInTheDocument()
     expect(localStorage.getItem('ag.token')).toBe('token-do-google')
+  })
+})
+
+describe('Sessão por uso', () => {
+  const jwt = (emitidoMs: number, validadeMs = 2 * 3_600_000) => {
+    const corpo = btoa(JSON.stringify({ sub: 'u', iat: emitidoMs / 1000, exp: (emitidoMs + validadeMs) / 1000 }))
+    return `x.${corpo.replace(/=+$/, '')}.y`
+  }
+
+  it('usar o app com o token já com uns minutos renova o login em silêncio', async () => {
+    localStorage.setItem('ag.token', jwt(Date.now() - 10 * 60_000))
+    const fetch = api({ '/auth/renovar': { access_token: 'renovado' }, '/auth/eu': { id: 'u', nome: 'Ana' } })
+    vi.stubGlobal('fetch', fetch)
+    montar(<p>App</p>, '/')
+    await userEvent.click(screen.getByText('App'))
+    await waitFor(() => expect(localStorage.getItem('ag.token')).toBe('renovado'))
+    expect(fetch).toHaveBeenCalledWith('/api/auth/renovar', expect.objectContaining({ method: 'POST' }))
+  })
+
+  it('com o token vencido (ficou parado), sai e explica o motivo', async () => {
+    localStorage.setItem('ag.token', jwt(Date.now() - 3 * 3_600_000))
+    vi.stubGlobal('fetch', api({ '/auth/eu': { id: 'u', nome: 'Ana' }, '/auth/provedores': { google: false } }))
+    // como no app: página de logado; ao sair, vai para /entrar (que monta de novo)
+    function SoLogado() {
+      const { logado } = useAutenticacao()
+      return logado ? <p>App</p> : <Navigate to="/entrar" replace />
+    }
+    const cliente = new QueryClient({ defaultOptions: { queries: { retry: false } } })
+    render(
+      <QueryClientProvider client={cliente}>
+        <ProvedorAutenticacao>
+          <MemoryRouter initialEntries={['/']}>
+            <Routes>
+              <Route path="/" element={<SoLogado />} />
+              <Route path="/entrar" element={<Entrar />} />
+            </Routes>
+          </MemoryRouter>
+        </ProvedorAutenticacao>
+      </QueryClientProvider>,
+    )
+    // já ao abrir: nem precisa de clique
+    expect(await screen.findByText('Você ficou 2 horas sem usar o app. Entre de novo.')).toBeInTheDocument()
+    expect(localStorage.getItem('ag.token')).toBeNull()
+  })
+})
+
+describe('Aviso antes de cair', () => {
+  const jwt = (emitidoMs: number, validadeMs = 2 * 3_600_000) => {
+    const corpo = btoa(JSON.stringify({ sub: 'u', iat: emitidoMs / 1000, exp: (emitidoMs + validadeMs) / 1000 }))
+    return `x.${corpo.replace(/=+$/, '')}.y`
+  }
+
+  it('faltando menos de 10 minutos mostra a contagem; continuar renova e o aviso some', async () => {
+    // token vence em 5 minutos e a renovação está falhando (ex.: rede caiu)
+    localStorage.setItem('ag.token', jwt(Date.now() - 115 * 60_000))
+    let renovacaoFunciona = false
+    vi.stubGlobal('fetch', vi.fn(async (url: string) => {
+      if (url === '/api/auth/renovar') {
+        return renovacaoFunciona
+          ? new Response(JSON.stringify({ access_token: jwt(Date.now()) }), { status: 200 })
+          : new Response('{}', { status: 503 })
+      }
+      return new Response(JSON.stringify({ id: 'u', nome: 'Ana' }), { status: 200 })
+    }))
+    montar(<p>App</p>, '/')
+    const aviso = await screen.findByRole('alert')
+    expect(aviso).toHaveTextContent(/Por segurança, vamos desconectar em (5:00|4:5\d)/)
+
+    renovacaoFunciona = true
+    await userEvent.click(screen.getByRole('button', { name: 'Continuar conectado' }))
+    await waitFor(() => expect(screen.queryByRole('alert')).not.toBeInTheDocument(), { timeout: 3000 })
   })
 })
