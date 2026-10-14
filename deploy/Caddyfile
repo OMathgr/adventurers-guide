@@ -1,0 +1,14 @@
+# O Caddy tira e renova o certificado HTTPS sozinho (Let's Encrypt) para o
+# domínio em DOMINIO (ex.: adventurersguide.duckdns.org).
+{$DOMINIO} {
+	encode zstd gzip
+	reverse_proxy app:8000 {
+		# o fluxo ao vivo (Server-Sent Events) não pode ficar preso em buffer
+		flush_interval -1
+	}
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+	}
+}

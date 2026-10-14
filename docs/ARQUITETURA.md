@@ -717,6 +717,25 @@ as sessões compartilhadas; com presença (bolinha verde em quem está online).
   desconecta). Com a página aberta, depois de mudar o Python pare a API e rode
   de novo.
 
+## Produção (`api/servidor.py`, `Dockerfile`, `deploy/`)
+
+Decisões do projeto (2026-10-14): VM gratuita da Oracle, HTTPS com DuckDNS +
+Caddy (Let's Encrypt), SQLite com backup diário. Descartados: Cloudflare quick
+tunnel (endereço muda e não suporta o fluxo ao vivo) e tunnel nomeado (pede
+domínio próprio).
+
+- Um processo só serve a API em `/api` e a interface (web/dist) em `/`, como
+  no desenvolvimento (lá quem junta é o proxy do Vite): mesma origem, sem
+  CORS; o ao vivo e o retorno do Google ficam iguais. Rotas do React caem no
+  `index.html`; `sw.js` e o manifesto vão sem cache (senão o app não atualiza).
+- Um único processo do uvicorn (o ao vivo guarda as conexões na memória).
+- Com `APP_URL` em https, o servidor não sobe sem um `JWT_SECRET` forte.
+- Docker em dois estágios (Node monta a interface; Python roda a API); o
+  projeto não é instalado como pacote: as dependências vêm do pyproject.toml.
+  Ao subir, aplica as migrações. Funciona em ARM (a VM da Oracle) e x86.
+- `docker-compose`: app, Caddy (`flush_interval -1` para o fluxo ao vivo) e
+  backup (`api/backup.py`, pela API de backup do SQLite, uma cópia por dia).
+
 ## Interface web (fase 3, `web/`)
 
 React 19 + TypeScript + Vite, Tailwind CSS v4, React Router e React Query.

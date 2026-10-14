@@ -10,3 +10,5 @@ __pycache__/
 # (o CLAUDE.md, na raiz, é do projeto e vai para o git)
 .claude/
 referencias/
+# segredos da produção
+deploy/.env

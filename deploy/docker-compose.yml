@@ -1,0 +1,50 @@
+# Produção numa VM (ex.: a gratuita da Oracle): o app, o Caddy (HTTPS automático
+# com Let's Encrypt) e o backup diário do banco. Na pasta deploy/:
+#     cp .env.exemplo .env   (e preencha)
+#     docker compose up -d --build
+services:
+  app:
+    build: ..
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      APP_URL: https://${DOMINIO}
+      API_URL: https://${DOMINIO}/api
+    volumes:
+      - dados:/dados
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/saude')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      DOMINIO: ${DOMINIO}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_dados:/data
+      - caddy_config:/config
+    depends_on:
+      - app
+
+  backup:
+    build: ..
+    restart: unless-stopped
+    command: ["python", "-m", "api.backup", "--a-cada", "24"]
+    environment:
+      BACKUPS_GUARDADOS: ${BACKUPS_GUARDADOS:-14}
+    volumes:
+      - dados:/dados
+    depends_on:
+      - app
+
+volumes:
+  dados:
+  caddy_dados:
+  caddy_config:

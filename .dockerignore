@@ -1,0 +1,14 @@
+# só o necessário vai para a imagem
+.git
+.venv
+.claude
+**/__pycache__
+**/*.pyc
+.pytest_cache
+*.db
+referencias/
+tests/
+docs/
+web/node_modules
+web/dist
+deploy/.env

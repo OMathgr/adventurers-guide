@@ -29,7 +29,9 @@ simplificada (quem é, PV, PF e Esperança) dos outros personagens da mesa.
 Edição simultânea protegida: ações se refazem sozinhas; formulários avisam do
 conflito (api/concorrencia.py). Repouso do grupo (o mestre abre, cada jogador
 escolhe os movimentos, inclusive em aliados) e movimentos de morte com
-cicatrizes prontos. Leia `docs/ARQUITETURA.md` antes de mudar a modelagem. O
+cicatrizes prontos. Produção: `api/servidor.py` (API em /api + interface em /),
+Dockerfile e `deploy/` (Oracle + DuckDNS + Caddy, backup diário; guia em
+deploy/README.md). Leia `docs/ARQUITETURA.md` antes de mudar a modelagem. O
 personagem é guardado como criação + histórico de subidas de nível; a ficha
 é sempre recalculada.
 

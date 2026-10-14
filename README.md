@@ -71,6 +71,10 @@ defina `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` e, em produção, `API_URL`
 (endereço público da API) e `APP_URL`. Sem as duas primeiras, o botão do
 Google não aparece.
 
+**Publicar (HTTPS)**: o passo a passo para a VM gratuita da Oracle, com
+DuckDNS + Caddy e backup diário, está em [deploy/README.md](deploy/README.md)
+(`docker compose up -d --build` na pasta `deploy/`).
+
 Para usar PostgreSQL: instale um driver (ex.: `pip install "psycopg[binary]"`),
 defina `DATABASE_URL=postgresql+psycopg://usuario:senha@servidor/adventurers`
 e rode `alembic upgrade head`.
