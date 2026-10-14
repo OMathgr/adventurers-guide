@@ -2,7 +2,7 @@ import { act, renderHook } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 
 import codigoDoServiceWorker from '../../public/sw.js?raw'
-import { useInstalar, useOnline } from './pwa'
+import { capturarConviteDeInstalacao, useInstalar, useOnline } from './pwa'
 
 type Estrategia = (url: string, modo: string, origem: string) => string | null
 
@@ -38,7 +38,22 @@ describe('service worker', () => {
   })
 })
 
+const conviteDoChrome = (prompt = vi.fn().mockResolvedValue(undefined)) => Object.assign(
+  new Event('beforeinstallprompt', { cancelable: true }), { prompt, userChoice: Promise.resolve({ outcome: 'accepted' }) })
+
 describe('useInstalar', () => {
+  capturarConviteDeInstalacao()   // como no main.tsx, antes de qualquer tela
+
+  it('o convite que chega antes da tela aparecer não se perde', async () => {
+    const convite = conviteDoChrome()
+    window.dispatchEvent(convite)   // o Chrome manda logo no começo (ex.: na tela de entrar)
+    const { result } = renderHook(() => useInstalar())   // a barra com o botão aparece depois
+    expect(result.current).toBeTypeOf('function')
+    await act(async () => { result.current!() })
+    expect(convite.prompt).toHaveBeenCalledOnce()
+    expect(result.current).toBeNull()
+  })
+
   it('só oferece instalar depois que o navegador permite, e uma vez só', async () => {
     const { result } = renderHook(() => useInstalar())
     expect(result.current).toBeNull()

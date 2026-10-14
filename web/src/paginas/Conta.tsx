@@ -8,6 +8,7 @@ import { chamar } from '../api/cliente'
 import type { Usuario } from '../api/tipos'
 import { useAutenticacao } from '../auth/Autenticacao'
 import { Aviso, Botao, Cartao, Selo } from '../componentes/ui'
+import { abertoComoApp, ehIOS, useInstalar } from '../lib/pwa'
 
 export default function Conta() {
   const { usuario } = useAutenticacao()
@@ -30,6 +31,8 @@ export default function Conta() {
     onSuccess: () => cliente.invalidateQueries({ queryKey: ['eu'] }),
   })
 
+  const instalar = useInstalar()
+
   if (!usuario) return null
   const erroDoGoogle = busca.get('erro')
 
@@ -38,6 +41,28 @@ export default function Conta() {
       <h1 className="text-2xl">Conta</h1>
       <Cartao titulo={usuario.nome}>
         <p className="text-sm text-texto-suave">{usuario.email}</p>
+      </Cartao>
+
+      <Cartao titulo="App no celular">
+        <div className="space-y-2 text-sm">
+          {abertoComoApp() ? (
+            <p>Você já está usando o app instalado.</p>
+          ) : instalar ? (
+            <>
+              <p className="text-texto-suave">Instale para abrir direto da tela inicial, em tela cheia.</p>
+              <Botao onClick={instalar}>Instalar o app</Botao>
+            </>
+          ) : ehIOS() ? (
+            <p className="text-texto-suave">
+              No iPhone, abra no <b>Safari</b>, toque em <b>Compartilhar</b> e depois em <b>Adicionar à Tela de Início</b>.
+            </p>
+          ) : (
+            <p className="text-texto-suave">
+              No Chrome do Android, toque no menu <b>⋮</b> e depois em <b>Instalar app</b> (ou <b>Adicionar à tela
+              inicial</b>). Se a opção não aparecer, o app pode já estar instalado.
+            </p>
+          )}
+        </div>
       </Cartao>
 
       <Cartao titulo="Jeitos de entrar">

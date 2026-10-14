@@ -8,7 +8,7 @@ import { BrowserRouter, Navigate, Outlet, Route, Routes, useLocation } from 'rea
 import { ErroApi } from './api/cliente'
 import { ProvedorAutenticacao, useAutenticacao } from './auth/Autenticacao'
 import Layout from './componentes/Layout'
-import { registrarServiceWorker } from './lib/pwa'
+import { capturarConviteDeInstalacao, registrarServiceWorker } from './lib/pwa'
 import { Cadastro, Entrar, EntrarComGoogle, RecuperarSenha, RedefinirSenha } from './paginas/Acesso'
 import Conta from './paginas/Conta'
 import Convite from './paginas/Convite'
@@ -35,6 +35,7 @@ function SoLogado() {
   return logado ? <Outlet /> : <Navigate to="/entrar" replace state={{ de: local.pathname }} />
 }
 
+capturarConviteDeInstalacao()   // antes das telas: o convite do Chrome vem uma vez só
 registrarServiceWorker()
 
 createRoot(document.getElementById('root')!).render(

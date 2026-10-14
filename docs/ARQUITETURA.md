@@ -811,6 +811,12 @@ um app nativo (React Native), que seria uma segunda interface para manter.
   e o `apple-touch-icon` do iPhone). No Chrome/Edge aparece "Instalar app" no
   topo (`beforeinstallprompt`); no iPhone é Compartilhar → "Adicionar à Tela
   de Início". Só instala em HTTPS (ou `localhost`).
+  O convite do Chrome (`beforeinstallprompt`) chega uma vez por carregamento,
+  logo no começo: é guardado em `capturarConviteDeInstalacao()` (no main.tsx,
+  antes das telas). Antes só a barra do topo ouvia, e quem abria o site na
+  tela de entrar perdia o convite (o botão nunca aparecia). O botão aparece no
+  topo, na tela de entrar e na página Conta (que também explica como instalar
+  pelo menu do Chrome ou pelo Safari do iPhone).
 - **Service worker escrito à mão** (sem `vite-plugin-pwa`/Workbox: são ~60
   linhas e uma dependência a menos). Guarda só a casca do app: páginas pela
   rede com a casca de reserva sem rede, `/assets/*` (nome com hash) do cache,

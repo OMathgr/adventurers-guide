@@ -8,6 +8,7 @@ import { useAutenticacao } from '../auth/Autenticacao'
 import { motivoDaSaida } from '../auth/sessao'
 import { Logo } from '../componentes/Layout'
 import { Aviso, Botao, Campo } from '../componentes/ui'
+import { useInstalar } from '../lib/pwa'
 
 /** Para onde voltar depois de entrar (ex.: link de convite aberto sem login). */
 function useDestino(): string {
@@ -50,10 +51,17 @@ function BotaoGoogle({ destino }: { destino: string }) {
 }
 
 function Moldura({ titulo, children }: { titulo: string; children: React.ReactNode }) {
+  const instalar = useInstalar()
   return (
     <div className="flex min-h-screen items-center justify-center px-4">
       <div className="w-full max-w-sm space-y-6">
         <div className="flex justify-center"><Logo /></div>
+        {instalar && (
+          <button type="button" onClick={instalar}
+            className="mx-auto block rounded-full border border-esperanca/60 px-4 py-1.5 text-sm text-esperanca hover:bg-esperanca/10">
+            Instalar o app no celular
+          </button>
+        )}
         <div className="rounded-2xl border border-borda bg-superficie p-6">
           <h1 className="mb-4 text-xl">{titulo}</h1>
           {children}
