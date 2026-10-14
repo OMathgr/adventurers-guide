@@ -7,7 +7,7 @@ import type {
   Adversario, Ancestralidade, Arma, Armadura, Cartao, CartaDeDominio, Equipamento, Ligacao, QuadroDaSessao, QuadroSaida, Classe, Comunidade, Criacao, Encontro, Escolha,
   EventoLinhaDoTempo, Ficha, GuiaDeBatalha, InimigoResumo, Mesa, MesaResumo, Npc, NpcEntrada, OpcoesDoGuia, PermissoesMestres, DadosDaSessao, Sessao, SessaoResumo,
   PersonagemCriado, PersonagemResumo, ProximoNivel, ResultadoDano, ResultadoDanoAdversario, Subclasse, VistaDosJogadores,
-  SubidaDeNivel, EquipamentoAtual, InimigoComVersao, Item, Inventario, UsoDeConsumivel, Loja, ItemDaLojaEntrada, Venda, FichaResumida,
+  SubidaDeNivel, EquipamentoAtual, InimigoComVersao, Item, Repouso, TipoDeRepouso, EscolhaDeRepouso, MovimentoDeMorte, ResultadoMorte, ImpactoDaCicatriz, Inventario, UsoDeConsumivel, Loja, ItemDaLojaEntrada, Venda, FichaResumida,
 } from './tipos'
 
 const UMA_HORA = 60 * 60 * 1000
@@ -720,3 +720,71 @@ export const useFichaResumida = (mesaId: string, pid: string, ativo = true) =>
     queryFn: () => chamar<FichaResumida>(`/mesas/${mesaId}/personagens/${pid}/resumo`),
     enabled: ativo,
   })
+
+// --- Repouso do grupo (o mestre abre, cada jogador escolhe) --------------------------------------
+
+const chaveRepouso = (mesaId: string) => ['mesas', mesaId, 'repouso'] as const
+
+/** O repouso aberto da mesa (ou o último encerrado, por meia hora). Atualiza ao vivo. */
+export const useRepouso = (mesaId: string) =>
+  useQuery({ queryKey: chaveRepouso(mesaId), queryFn: () => chamar<Repouso | null>(`/mesas/${mesaId}/repouso`) })
+
+export type AcaoNoRepouso =
+  | { tipo: 'abrir'; sessaoId: string; repouso: TipoDeRepouso; participantes?: string[] }
+  | { tipo: 'escolher'; repousoId: string; personagemId: string; escolha: EscolhaDeRepouso }
+  | { tipo: 'encerrar'; sessaoId: string; repousoId: string; interrompido: boolean; rolagem_medo: number | null }
+  | { tipo: 'cancelar'; sessaoId: string; repousoId: string }
+
+export function useAcaoNoRepouso(mesaId: string) {
+  const cliente = useQueryClient()
+  const base = `/mesas/${mesaId}`
+  return useMutation({
+    mutationFn: (a: AcaoNoRepouso): Promise<Repouso> => {
+      switch (a.tipo) {
+        case 'abrir': return chamar<Repouso>(`${base}/sessoes/${a.sessaoId}/repouso`,
+          { corpo: { tipo: a.repouso, participantes: a.participantes ?? null } })
+        case 'escolher': return chamar<Repouso>(`${base}/repouso/${a.repousoId}/escolhas/${a.personagemId}`,
+          { metodo: 'PUT', corpo: a.escolha })
+        case 'encerrar': return chamar<Repouso>(`${base}/sessoes/${a.sessaoId}/repouso/${a.repousoId}/encerrar`,
+          { corpo: { interrompido: a.interrompido, rolagem_medo: a.rolagem_medo } })
+        case 'cancelar': return chamar<Repouso>(`${base}/sessoes/${a.sessaoId}/repouso/${a.repousoId}/cancelar`,
+          { corpo: {} })
+      }
+    },
+    onSuccess: (r) => {
+      cliente.setQueryData(chaveRepouso(mesaId), r)
+      // encerrar mexe nas fichas e no Medo da sessão
+      return cliente.invalidateQueries({ queryKey: ['mesas', mesaId] })
+    },
+  })
+}
+
+// --- Morte e cicatrizes ------------------------------------------------------------------------
+
+export function useMovimentoDeMorte(personagemId: string) {
+  const cliente = useQueryClient()
+  return useMutation({
+    mutationFn: (p: { movimento: MovimentoDeMorte; rolagem_esperanca: number | null; rolagem_medo: number | null; pv: number | null }) =>
+      chamar<{ resultado: ResultadoMorte; ficha: Ficha }>(`/personagens/${personagemId}/sessao/morte`, { corpo: p }),
+    onSuccess: (r) => cliente.setQueryData(chaves.ficha(personagemId), r.ficha),
+  })
+}
+
+export function useDefinirCicatriz(personagemId: string) {
+  const cliente = useQueryClient()
+  return useMutation({
+    mutationFn: ({ indice, impacto, descricao }: { indice: number; impacto: ImpactoDaCicatriz; descricao: string }) =>
+      chamar<Ficha>(`/personagens/${personagemId}/sessao/cicatrizes/${indice}`, { metodo: 'PUT', corpo: { impacto, descricao } }),
+    onSuccess: (f) => cliente.setQueryData(chaves.ficha(personagemId), f),
+  })
+}
+
+/** O mestre cura uma cicatriz (a critério dele): o espaço de Esperança volta. */
+export function useCurarCicatriz(mesaId: string, personagemId: string) {
+  const cliente = useQueryClient()
+  return useMutation({
+    mutationFn: (indice: number) =>
+      chamar<Ficha>(`/mesas/${mesaId}/personagens/${personagemId}/cicatrizes/${indice}/curar`, { corpo: {} }),
+    onSuccess: (f) => cliente.setQueryData(['mesas', mesaId, 'personagens', personagemId], f),
+  })
+}

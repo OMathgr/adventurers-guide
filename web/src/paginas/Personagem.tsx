@@ -11,6 +11,7 @@ import FichaVisao from '../componentes/Ficha'
 import AbaInventario from '../componentes/inventario/AbaInventario'
 import { EnviarFoto, Foto } from '../componentes/Foto'
 import LinhaDoTempo from '../componentes/LinhaDoTempo'
+import Morte from '../componentes/Morte'
 import { Abas, Aviso, Botao, Carregando, Selecao } from '../componentes/ui'
 import { useNomeDominio, useNomes } from '../lib/nomes'
 import { NOME_ESTAGIO } from '../lib/rotulos'
@@ -119,6 +120,8 @@ export default function Personagem() {
       </header>
 
       <Aviso erro={desfazer.error ?? apagar.error ?? foto.error} />
+      {/* movimento de morte (ao marcar o último PV), inconsciente/morto e cicatrizes */}
+      <Morte personagemId={id} ficha={f} />
 
       <Abas<Visao> atual={visao}
         abas={[['ficha', 'Ficha'], ['equipamento', 'Equipamento'], ['inventario', 'Inventário'], ['tempo', 'Linha do tempo']]}

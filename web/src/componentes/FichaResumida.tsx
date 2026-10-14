@@ -19,6 +19,8 @@ export default function FichaResumida({ mesaId, pid }: { mesaId: string; pid: st
         {f.multiclasse && <> · Multiclasse {f.multiclasse}</>}
       </p>
       <p className="text-texto-suave">{f.ancestralidade} · {f.comunidade} · jogado por {f.jogador}</p>
+      {f.morto && <p className="font-medium text-perigo">Atravessou o véu da morte.</p>}
+      {!f.morto && f.inconsciente && <p className="font-medium text-perigo">Inconsciente.</p>}
       <div className="grid gap-2 sm:grid-cols-3">
         <div>
           <p className="text-xs text-texto-suave">Vida: {f.pv_max - f.pv_marcados}/{f.pv_max} PV</p>

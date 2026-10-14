@@ -44,6 +44,7 @@ class PersonagemNaMesa(BaseModel):
     jogador: str
     dono_id: str
     foto: str | None = None
+    morto: bool = False          # atravessou o véu da morte
 
 
 class FichaResumida(BaseModel):
@@ -67,6 +68,8 @@ class FichaResumida(BaseModel):
     estresse_marcado: int
     esperanca: int
     esperanca_max: int
+    inconsciente: bool = False
+    morto: bool = False
 
 
 class MedoEmJogo(BaseModel):
@@ -130,7 +133,7 @@ def _saida(m: MembroTabela) -> MesaSaida:
                  for x in sorted(mesa.membros, key=lambda x: x.entrou_em)],
         personagens=[PersonagemNaMesa(id=p.id, nome=p.nome, nivel=1 + len(p.subidas),
                                       classe=p.criacao["classe"], jogador=p.dono.nome,
-                                      dono_id=p.dono_id, foto=p.foto)
+                                      dono_id=p.dono_id, foto=p.foto, morto=bool((p.sessao or {}).get("morto")))
                      for p in mesa.personagens],
     )
 
@@ -307,7 +310,8 @@ def ficha_resumida(mesa_id: str, personagem_id: str, a: Acesso = Depends(acesso)
         multiclasse=bib.classes[f.multiclasse["classe"]].nome if f.multiclasse else None,
         ancestralidade=" / ".join(ancestralidades), comunidade=bib.comunidades[f.comunidade].nome,
         pv_max=f.pv_max, pv_marcados=f.pv_marcados, estresse_max=f.estresse_max,
-        estresse_marcado=f.estresse_marcado, esperanca=f.esperanca, esperanca_max=f.esperanca_max)
+        estresse_marcado=f.estresse_marcado, esperanca=f.esperanca, esperanca_max=f.esperanca_max,
+        inconsciente=f.inconsciente, morto=f.morto)
 
 
 @rotas.get("/{mesa_id}/personagens/{personagem_id}", response_model=FichaSaida)
@@ -329,6 +333,15 @@ def aplicar_condicao(mesa_id: str, personagem_id: str, pedido: CondicaoEntrada,
                      a: Acesso = Depends(acesso)):
     def acao(p: Personagem):
         p.sessao.aplicar_condicao(pedido.condicao)
+        return p.ficha()
+    return ficha_saida(_como_mestre(a, mesa_id, personagem_id, Permissao.APLICAR_CONDICOES, acao))
+
+
+@rotas.post("/{mesa_id}/personagens/{personagem_id}/cicatrizes/{indice}/curar", response_model=FichaSaida)
+def curar_cicatriz(mesa_id: str, personagem_id: str, indice: int, a: Acesso = Depends(acesso)):
+    """A critério do mestre (projeto no repouso, missão...): o espaço de Esperança volta."""
+    def acao(p: Personagem):
+        p.sessao.curar_cicatriz(indice)
         return p.ficha()
     return ficha_saida(_como_mestre(a, mesa_id, personagem_id, Permissao.APLICAR_CONDICOES, acao))
 

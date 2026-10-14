@@ -12,6 +12,7 @@ import type { Mesa, Sessao } from '../../api/tipos'
 import { useAutenticacao } from '../../auth/Autenticacao'
 import { AvisoDeConflito } from '../../componentes/Conflito'
 import MedoDoMestre from '../../componentes/MedoDoMestre'
+import PainelDeRepouso from '../../componentes/Repouso'
 import { Abas, Area, Aviso, Botao, Campo, Cartao, Carregando, Escolhivel, Selecao, Selo } from '../../componentes/ui'
 import Encontros from './Encontros'
 import Lojas from './Lojas'
@@ -177,6 +178,7 @@ function SessaoAberta({ mesa, sid, aoApagar }: { mesa: Mesa; sid: string; aoApag
 
       <MedoDoMestre medo={s.medo} titulo="Medo da sessão" ocupado={medo.isPending} erro={medo.error}
         aoMudar={minha ? (m) => medo.mutate(m) : undefined} />
+      <PainelDeRepouso mesa={mesa} sessao={s} />
 
       <Abas<ParteDaSessao> atual={parte} aoTrocar={setParte}
         abas={[['planejamento', 'Planejamento'], ['quadro', 'Quadro'], ['encontros', 'Encontros'], ['lojas', 'Lojas'], ['personagens', 'Personagens']]} />

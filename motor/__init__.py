@@ -4,7 +4,8 @@ from .adversarios import Adversario, Habilidade, TipoAdversario, TipoHabilidade
 from .companheiro import AlvoFeroz, Companheiro, FichaCompanheiro, OpcaoTreino, Treino
 from .personagem import (Ataque, Conjuracao, Criacao, Equipamento, Escolha, Ficha, Opcao,
                          Personagem, ProximoNivel, RegraViolada, SubidaDeNivel)
-from .sessao import Condicao, Gravidade, Movimento, ResultadoDano, ResultadoMovimento, Sessao
+from .sessao import (Cicatriz, Condicao, Gravidade, ImpactoDaCicatriz, Movimento, MovimentoDeMorte, ResultadoDano,
+                     ResultadoMorte, ResultadoMovimento, Sessao)
 from .srd import (Alvo, Ancestralidade, Arma, Armadura, Biblioteca, Caracteristica,
                   CartaDeDominio, Classe, Comunidade, Efeito, EfeitoConsumivel, Item, Modificador,
                   Referencia, Requisito, Subclasse, TipoDano, TipoDeItem, Traco)
@@ -16,4 +17,5 @@ __all__ = ["Biblioteca", "Traco", "Arma", "Armadura", "Caracteristica",
            "ResultadoDano", "ResultadoMovimento", "Efeito", "TipoDano",
            "Companheiro", "FichaCompanheiro", "OpcaoTreino", "Treino", "AlvoFeroz",
            "ProximoNivel", "Adversario", "Habilidade", "TipoAdversario", "TipoHabilidade", "Condicao", "Classe", "Subclasse", "Ancestralidade", "Comunidade", "CartaDeDominio",
-           "Item", "TipoDeItem", "EfeitoConsumivel"]
+           "Item", "TipoDeItem", "EfeitoConsumivel",
+           "Cicatriz", "ImpactoDaCicatriz", "MovimentoDeMorte", "ResultadoMorte"]

@@ -81,8 +81,9 @@ def salvar(banco: Session, dono_id: str, personagem_id: str, personagem: Persona
     gravar(banco, _linha(banco, dono_id, personagem_id), personagem)
 
 
-def gravar(banco: Session, linha: PersonagemTabela, personagem: Personagem):
-    """Grava o estado atual e sincroniza as subidas de nível com o histórico."""
+def gravar(banco: Session, linha: PersonagemTabela, personagem: Personagem, commit: bool = True):
+    """Grava o estado atual e sincroniza as subidas de nível com o histórico.
+    `commit=False`: para gravar vários personagens juntos (ex.: o repouso do grupo)."""
     estado = personagem.estado()
     linha.equipamento, linha.cofre, linha.sessao, linha.inventario = (
         estado["equipamento"], estado["cofre"], estado["sessao"], estado["inventario"])
@@ -98,7 +99,8 @@ def gravar(banco: Session, linha: PersonagemTabela, personagem: Personagem):
             linha.subidas.append(SubidaTabela(nivel=subida.nivel, dados=dados))
         elif salvas[subida.nivel].dados != dados:   # desfeito e refeito com outras escolhas
             salvas[subida.nivel].dados = dados
-    banco.commit()
+    if commit:
+        banco.commit()
 
 
 def listar(banco: Session, dono_id: str) -> list[PersonagemTabela]:

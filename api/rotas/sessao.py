@@ -5,7 +5,9 @@ from collections.abc import Callable
 
 from fastapi import APIRouter, Depends
 
-from motor import Personagem, Sessao
+from pydantic import BaseModel, Field
+
+from motor import ImpactoDaCicatriz, MovimentoDeMorte, Personagem, ResultadoMorte, Sessao
 
 from ..autenticacao import Acesso, acesso
 from ..esquemas import (CondicaoEntrada, Conforto, Dano, DanoCompanheiro, DanoSaida, Descanso, DescansoSaida,
@@ -91,6 +93,38 @@ def descansar(personagem_id: str, pedido: Descanso, a: Acesso = Depends(acesso))
         return resultados, p.ficha()
     resultados, ficha = executar(a, personagem_id, acao)
     return DescansoSaida(resultados=resultados, ficha=ficha_saida(ficha))
+
+
+class MovimentoDeMorteEntrada(BaseModel):
+    movimento: MovimentoDeMorte
+    rolagem_esperanca: int | None = Field(None, ge=1, le=12)   # d12 da mesa; sem ele, o app rola
+    rolagem_medo: int | None = Field(None, ge=1, le=12)
+    pv: int | None = Field(None, ge=0, description="Arriscar Tudo: quanto do Dado de Esperança vai para PV")
+
+
+class MorteSaida(BaseModel):
+    resultado: ResultadoMorte
+    ficha: FichaSaida
+
+
+class CicatrizEntrada(BaseModel):
+    impacto: ImpactoDaCicatriz
+    descricao: str = Field("", max_length=500)
+
+
+@rotas.post("/morte", response_model=MorteSaida)
+def movimento_de_morte(personagem_id: str, pedido: MovimentoDeMorteEntrada, a: Acesso = Depends(acesso)):
+    """Marcou o último PV: o jogador escolhe Sacrifício Glorioso, Evitar a Morte ou Arriscar Tudo."""
+    def acao(p: Personagem):
+        return p.sessao.movimento_de_morte(**pedido.model_dump()), p.ficha()
+    resultado, ficha = executar(a, personagem_id, acao)
+    return MorteSaida(resultado=resultado, ficha=ficha_saida(ficha))
+
+
+@rotas.put("/cicatrizes/{indice}", response_model=FichaSaida)
+def definir_cicatriz(personagem_id: str, indice: int, pedido: CicatrizEntrada, a: Acesso = Depends(acesso)):
+    """O impacto narrativo da cicatriz (física, memória dolorosa, medo paralisante ou outro)."""
+    return na_sessao(a, personagem_id, lambda s: s.definir_cicatriz(indice, pedido.impacto, pedido.descricao))
 
 
 @rotas.post("/companheiro/dano", response_model=FichaSaida)

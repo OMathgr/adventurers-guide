@@ -841,6 +841,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/personagens/{personagem_id}/sessao/morte": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Movimento De Morte
+         * @description Marcou o último PV: o jogador escolhe Sacrifício Glorioso, Evitar a Morte ou Arriscar Tudo.
+         */
+        post: operations["movimento_de_morte_personagens__personagem_id__sessao_morte_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/personagens/{personagem_id}/sessao/cicatrizes/{indice}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Definir Cicatriz
+         * @description O impacto narrativo da cicatriz (física, memória dolorosa, medo paralisante ou outro).
+         */
+        put: operations["definir_cicatriz_personagens__personagem_id__sessao_cicatrizes__indice__put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/personagens/{personagem_id}/sessao/companheiro/dano": {
         parameters: {
             query?: never;
@@ -1172,6 +1212,26 @@ export interface paths {
         put?: never;
         /** Aplicar Condicao */
         post: operations["aplicar_condicao_mesas__mesa_id__personagens__personagem_id__condicoes_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/mesas/{mesa_id}/personagens/{personagem_id}/cicatrizes/{indice}/curar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Curar Cicatriz
+         * @description A critério do mestre (projeto no repouso, missão...): o espaço de Esperança volta.
+         */
+        post: operations["curar_cicatriz_mesas__mesa_id__personagens__personagem_id__cicatrizes__indice__curar_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2135,6 +2195,109 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/mesas/{mesa_id}/repouso": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Repouso Atual
+         * @description O repouso aberto da mesa (ou o último encerrado, por meia hora, para todos
+         *     verem o resultado). Qualquer membro.
+         */
+        get: operations["repouso_atual_mesas__mesa_id__repouso_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/mesas/{mesa_id}/sessoes/{sessao_id}/repouso": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Abrir
+         * @description O mestre responsável abre o repouso: os jogadores escolhem os movimentos.
+         */
+        post: operations["abrir_mesas__mesa_id__sessoes__sessao_id__repouso_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/mesas/{mesa_id}/repouso/{repouso_id}/escolhas/{personagem_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Escolher
+         * @description O dono do personagem (ou o mestre responsável) escolhe os movimentos. A
+         *     escolha é conferida já; aplicar, só quando o mestre encerrar.
+         */
+        put: operations["escolher_mesas__mesa_id__repouso__repouso_id__escolhas__personagem_id__put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/mesas/{mesa_id}/sessoes/{sessao_id}/repouso/{repouso_id}/encerrar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Encerrar
+         * @description Aplica os movimentos de todos de uma vez e dá o Medo ao mestre. Se alguma
+         *     escolha não valer mais, nada muda.
+         */
+        post: operations["encerrar_mesas__mesa_id__sessoes__sessao_id__repouso__repouso_id__encerrar_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/mesas/{mesa_id}/sessoes/{sessao_id}/repouso/{repouso_id}/cancelar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Cancelar
+         * @description Repouso que não aconteceu (ou descanso curto interrompido): ninguém ganha nada.
+         */
+        post: operations["cancelar_mesas__mesa_id__sessoes__sessao_id__repouso__repouso_id__cancelar_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -2478,6 +2641,28 @@ export interface components {
          * @enum {string}
          */
         CategoriaArma: "PRIMARY_PHYSICAL" | "PRIMARY_MAGIC" | "SECONDARY";
+        /**
+         * Cicatriz
+         * @description Risca um espaço de Esperança para sempre (até o mestre deixar curar).
+         */
+        Cicatriz: {
+            /** @default  */
+            impacto: components["schemas"]["ImpactoDaCicatriz"];
+            /**
+             * Descricao
+             * @default
+             */
+            descricao: string;
+        };
+        /** CicatrizEntrada */
+        CicatrizEntrada: {
+            impacto: components["schemas"]["ImpactoDaCicatriz"];
+            /**
+             * Descricao
+             * @default
+             */
+            descricao: string;
+        };
         /** Classe */
         Classe: {
             /** Id */
@@ -2753,6 +2938,16 @@ export interface components {
              */
             escolha: boolean;
         };
+        /** Encerrar */
+        Encerrar: {
+            /**
+             * Interrompido
+             * @default false
+             */
+            interrompido: boolean;
+            /** Rolagem Medo */
+            rolagem_medo?: number | null;
+        };
         /** EncontroResumo */
         EncontroResumo: {
             /** Id */
@@ -2837,6 +3032,13 @@ export interface components {
             /** Subclasse */
             subclasse?: string | null;
             companheiro?: components["schemas"]["Companheiro"] | null;
+        };
+        /** EscolhaEntrada */
+        EscolhaEntrada: {
+            /** Movimentos */
+            movimentos: components["schemas"]["MovimentoEntrada"][];
+            /** Movimento Longo */
+            movimento_longo?: number | null;
         };
         /** Escondido */
         Escondido: {
@@ -2965,6 +3167,14 @@ export interface components {
             companheiro: components["schemas"]["FichaCompanheiro"] | null;
             /** Condicoes */
             condicoes: string[];
+            /** Inconsciente */
+            inconsciente: boolean;
+            /** Morto */
+            morto: boolean;
+            /** Precisa Movimento De Morte */
+            precisa_movimento_de_morte: boolean;
+            /** Cicatrizes */
+            cicatrizes: components["schemas"]["Cicatriz"][];
         };
         /** FichaCompanheiro */
         FichaCompanheiro: {
@@ -3043,6 +3253,16 @@ export interface components {
             esperanca: number;
             /** Esperanca Max */
             esperanca_max: number;
+            /**
+             * Inconsciente
+             * @default false
+             */
+            inconsciente: boolean;
+            /**
+             * Morto
+             * @default false
+             */
+            morto: boolean;
         };
         /** FotoEntrada */
         FotoEntrada: {
@@ -3138,6 +3358,12 @@ export interface components {
             /** Url */
             url: string;
         };
+        /**
+         * ImpactoDaCicatriz
+         * @description O impacto narrativo da cicatriz (o livro dá esses exemplos; o jogador escolhe).
+         * @enum {string}
+         */
+        ImpactoDaCicatriz: "" | "FISICA" | "MEMORIA" | "MEDO" | "OUTRO";
         /** InimigoComVersao */
         InimigoComVersao: {
             /**
@@ -3548,12 +3774,44 @@ export interface components {
             /** Usar Moedas */
             usar_moedas: boolean;
         };
+        /** MorteSaida */
+        MorteSaida: {
+            resultado: components["schemas"]["ResultadoMorte"];
+            ficha: components["schemas"]["Ficha"];
+        };
         /**
          * Movimento
          * @description Movimentos de descanso (downtime). Cada descanso permite dois.
          * @enum {string}
          */
         Movimento: "CUIDAR_FERIDAS" | "ALIVIAR_ESTRESSE" | "REPARAR_ARMADURA" | "PREPARAR" | "PREPARAR_EM_GRUPO" | "PROJETO";
+        /**
+         * MovimentoDeMorte
+         * @description Death moves: ao marcar o último PV, o jogador escolhe um.
+         * @enum {string}
+         */
+        MovimentoDeMorte: "SACRIFICIO_GLORIOSO" | "EVITAR_A_MORTE" | "ARRISCAR_TUDO";
+        /** MovimentoDeMorteEntrada */
+        MovimentoDeMorteEntrada: {
+            movimento: components["schemas"]["MovimentoDeMorte"];
+            /** Rolagem Esperanca */
+            rolagem_esperanca?: number | null;
+            /** Rolagem Medo */
+            rolagem_medo?: number | null;
+            /**
+             * Pv
+             * @description Arriscar Tudo: quanto do Dado de Esperança vai para PV
+             */
+            pv?: number | null;
+        };
+        /** MovimentoEntrada */
+        MovimentoEntrada: {
+            movimento: components["schemas"]["Movimento"];
+            /** Alvo */
+            alvo?: string | null;
+            /** Rolagem */
+            rolagem?: number | null;
+        };
         /** MudarOuro */
         MudarOuro: {
             /**
@@ -3602,6 +3860,12 @@ export interface components {
             titulo: string;
             /** Data */
             data?: string | null;
+        };
+        /** NovoRepouso */
+        NovoRepouso: {
+            tipo: components["schemas"]["TipoDeRepouso"];
+            /** Participantes */
+            participantes?: string[] | null;
         };
         /** NovosCombatentes */
         NovosCombatentes: {
@@ -3815,6 +4079,20 @@ export interface components {
             /** Papel */
             papel: string;
         };
+        /** Participante */
+        Participante: {
+            /** Id */
+            id: string;
+            /** Nome */
+            nome: string;
+            /** Jogador */
+            jogador: string;
+            /** Dono Id */
+            dono_id: string;
+            /** Pronto */
+            pronto: boolean;
+            escolha: components["schemas"]["EscolhaEntrada"] | null;
+        };
         /** PedidoDeRecuperacao */
         PedidoDeRecuperacao: {
             /**
@@ -3874,6 +4152,11 @@ export interface components {
             dono_id: string;
             /** Foto */
             foto?: string | null;
+            /**
+             * Morto
+             * @default false
+             */
+            morto: boolean;
         };
         /** PersonagemResumo */
         PersonagemResumo: {
@@ -4017,6 +4300,25 @@ export interface components {
             /** Experiencia */
             experiencia: string | null;
         };
+        /** RepousoSaida */
+        RepousoSaida: {
+            /** Id */
+            id: string;
+            /** Sessao Id */
+            sessao_id: string;
+            tipo: components["schemas"]["TipoDeRepouso"];
+            /** Status */
+            status: string;
+            /** Mestre */
+            mestre: string;
+            /** Sou Responsavel */
+            sou_responsavel: boolean;
+            /** Participantes */
+            participantes: components["schemas"]["Participante"][];
+            resultado?: components["schemas"]["ResultadoDoRepouso"] | null;
+            /** Medo Ganho */
+            medo_ganho?: number | null;
+        };
         /**
          * Requisito
          * @description Condição para poder usar a peça, ex.: Pompous (Presença <= 0).
@@ -4062,6 +4364,48 @@ export interface components {
             /** Derrotado */
             derrotado: boolean;
         };
+        /** ResultadoDoRepouso */
+        ResultadoDoRepouso: {
+            tipo: components["schemas"]["TipoDeRepouso"];
+            /** Por Personagem */
+            por_personagem?: {
+                [key: string]: components["schemas"]["ResultadoMovimento"][];
+            };
+            /** Notas */
+            notas?: string[];
+        };
+        /** ResultadoMorte */
+        ResultadoMorte: {
+            movimento: components["schemas"]["MovimentoDeMorte"];
+            /** Morreu */
+            morreu: boolean;
+            /**
+             * Inconsciente
+             * @default false
+             */
+            inconsciente: boolean;
+            /**
+             * Cicatriz
+             * @default false
+             */
+            cicatriz: boolean;
+            /** Rolagem Esperanca */
+            rolagem_esperanca?: number | null;
+            /** Rolagem Medo */
+            rolagem_medo?: number | null;
+            /**
+             * Pv Limpos
+             * @default 0
+             */
+            pv_limpos: number;
+            /**
+             * Pf Limpos
+             * @default 0
+             */
+            pf_limpos: number;
+            /** Notas */
+            notas?: string[];
+        };
         /** ResultadoMovimento */
         ResultadoMovimento: {
             movimento: components["schemas"]["Movimento"];
@@ -4071,6 +4415,8 @@ export interface components {
             recuperado: number;
             /** Fonte */
             fonte?: string | null;
+            /** Alvo */
+            alvo?: string | null;
         };
         /** Sessao */
         Sessao: {
@@ -4187,6 +4533,11 @@ export interface components {
          * @enum {string}
          */
         TipoDeItem: "SAQUE" | "CONSUMIVEL" | "COMUM" | "CLASSE";
+        /**
+         * TipoDeRepouso
+         * @enum {string}
+         */
+        TipoDeRepouso: "curto" | "longo";
         /**
          * TipoHabilidade
          * @enum {string}
@@ -5815,6 +6166,77 @@ export interface operations {
             };
         };
     };
+    movimento_de_morte_personagens__personagem_id__sessao_morte_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                personagem_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MovimentoDeMorteEntrada"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MorteSaida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    definir_cicatriz_personagens__personagem_id__sessao_cicatrizes__indice__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                personagem_id: string;
+                indice: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CicatrizEntrada"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Ficha"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     dano_no_companheiro_personagens__personagem_id__sessao_companheiro_dano_post: {
         parameters: {
             query?: never;
@@ -6514,6 +6936,39 @@ export interface operations {
                 "application/json": components["schemas"]["CondicaoEntrada"];
             };
         };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Ficha"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    curar_cicatriz_mesas__mesa_id__personagens__personagem_id__cicatrizes__indice__curar_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mesa_id: string;
+                personagem_id: string;
+                indice: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
         responses: {
             /** @description Successful Response */
             200: {
@@ -8864,6 +9319,180 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["VendaSaida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    repouso_atual_mesas__mesa_id__repouso_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mesa_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RepousoSaida"] | null;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    abrir_mesas__mesa_id__sessoes__sessao_id__repouso_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mesa_id: string;
+                sessao_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NovoRepouso"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RepousoSaida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    escolher_mesas__mesa_id__repouso__repouso_id__escolhas__personagem_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mesa_id: string;
+                repouso_id: string;
+                personagem_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EscolhaEntrada"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RepousoSaida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    encerrar_mesas__mesa_id__sessoes__sessao_id__repouso__repouso_id__encerrar_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mesa_id: string;
+                sessao_id: string;
+                repouso_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Encerrar"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RepousoSaida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    cancelar_mesas__mesa_id__sessoes__sessao_id__repouso__repouso_id__cancelar_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mesa_id: string;
+                sessao_id: string;
+                repouso_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RepousoSaida"];
                 };
             };
             /** @description Validation Error */

@@ -4,13 +4,13 @@
 // continua sendo do jogador.
 import { useState } from 'react'
 
-import { useAcaoNoPersonagem, useFichaNaMesa } from '../../api/consultas'
+import { useAcaoNoPersonagem, useCurarCicatriz, useFichaNaMesa } from '../../api/consultas'
 import type { Mesa, ResultadoDano } from '../../api/tipos'
 import Condicoes from '../../componentes/Condicoes'
 import { Foto } from '../../componentes/Foto'
 import InventarioNaMesa from '../../componentes/inventario/InventarioNaMesa'
 import { Aviso, Botao, Campo, Carregando, Espacos, Esperanca } from '../../componentes/ui'
-import { NOME_GRAVIDADE } from '../../lib/rotulos'
+import { NOME_GRAVIDADE, NOME_IMPACTO } from '../../lib/rotulos'
 
 function descrever(r: ResultadoDano) {
   return `${r.dano} de dano (${NOME_GRAVIDADE[r.gravidade]})${r.usou_armadura ? ', reduzido pela armadura' : ''}: `
@@ -21,6 +21,7 @@ function CartaoPersonagem({ mesa, pid, nome, jogador, foto }:
   { mesa: Mesa; pid: string; nome: string; jogador: string; foto?: string | null }) {
   const ficha = useFichaNaMesa(mesa.id, pid)
   const acao = useAcaoNoPersonagem(mesa.id, pid)
+  const curar = useCurarCicatriz(mesa.id, pid)
   const [dano, setDano] = useState('')
   const [armadura, setArmadura] = useState(false)
   const pode = (p: string) => (mesa.minhas_permissoes as string[]).includes(p)
@@ -47,6 +48,22 @@ function CartaoPersonagem({ mesa, pid, nome, jogador, foto }:
         <Espacos total={f.pontuacao_armadura} marcados={f.armadura_marcada} rotulo={`Armadura de ${nome}`} cor="medo" restantes />
       </>}
       <Esperanca atual={f.esperanca} maximo={f.esperanca_max} />
+      {f.morto && <p className="text-sm font-medium text-perigo">Atravessou o véu da morte.</p>}
+      {!f.morto && f.inconsciente && <p className="text-sm font-medium text-perigo">Inconsciente (volta a si com 1 PV limpo ou no descanso longo).</p>}
+      {!f.morto && f.precisa_movimento_de_morte && <p className="text-sm font-medium text-perigo">Marcou o último PV: o jogador escolhe o movimento de morte.</p>}
+      {(f.cicatrizes ?? []).length > 0 && (
+        <ul className="space-y-1 text-xs">
+          {(f.cicatrizes ?? []).map((c, i) => (
+            <li key={i} className="flex items-center justify-between gap-2">
+              <span>Cicatriz: {NOME_IMPACTO[c.impacto ?? '']}{c.descricao ? ` (${c.descricao})` : ''}</span>
+              {pode('aplicar_condicoes') && (
+                <Botao variante="fantasma" disabled={curar.isPending}
+                  onClick={() => confirm('Curar esta cicatriz? O espaço de Esperança volta.') && curar.mutate(i)}>Curar</Botao>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
 
       {pode('aplicar_dano') && (
         <form className="flex flex-wrap items-end gap-2" onSubmit={(e) => {

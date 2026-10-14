@@ -202,6 +202,28 @@ class LojaTabela(Base):
     atualizado_em: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_agora, onupdate=_agora)
 
 
+class RepousoTabela(Base):
+    """Repouso aberto pelo mestre responsável de uma sessão: cada jogador escolhe
+    os movimentos do seu personagem; ao encerrar, o motor aplica tudo de uma vez
+    (motor/repouso.py). `escolhas`: id do personagem -> motor.repouso.EscolhaDeRepouso."""
+
+    __tablename__ = "repousos"
+
+    versao: Mapped[int] = mapped_column(Integer, default=1, server_default="1")
+    __mapper_args__ = {"version_id_col": versao}
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    mesa_id: Mapped[str] = mapped_column(ForeignKey("mesas.id", ondelete="CASCADE"), index=True)
+    sessao_id: Mapped[str] = mapped_column(ForeignKey("sessoes.id", ondelete="CASCADE"), index=True)
+    tipo: Mapped[str] = mapped_column(String(10))                    # curto, longo
+    status: Mapped[str] = mapped_column(String(16), default="aberto")  # aberto, concluido, cancelado
+    participantes: Mapped[list] = mapped_column(JSON, default=list)   # ids de personagens
+    escolhas: Mapped[dict] = mapped_column(JSON, default=dict)
+    resultado: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    criado_em: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_agora)
+    atualizado_em: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_agora, onupdate=_agora)
+
+
 class PersonagemTabela(Base):
     __tablename__ = "personagens"
 

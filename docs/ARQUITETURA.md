@@ -209,6 +209,48 @@ excesso. A ficha mostra `pv_marcados`, `estresse_marcado`,
   característica, em texto. Duram até serem removidas. Os efeitos (vantagem,
   desvantagem, não se mover) são resolvidos na mesa.
 
+### Repouso do grupo (`motor/repouso.py`, `api/rotas/repouso.py`)
+
+Decisões do projeto (2026-10-14): o mestre responsável pela sessão abre um
+descanso curto ou longo; cada jogador escolhe os dois movimentos do seu
+personagem; Tratar Feridas e Reparar Armadura podem ser num aliado; Preparar-se
+em grupo dá +2 a cada um.
+
+- Tudo é aplicado **no fim** (o mestre encerra), de uma vez e tudo ou nada:
+  Preparar-se em grupo só vale se mais alguém se preparar em grupo (sozinho,
+  vira +1, com aviso) e um aliado pode ser tratado antes de escolher. A escolha
+  de cada um é conferida já ao confirmar (`validar_escolha`).
+- No curto, as recuperações são 1d4 + patamar de quem faz (o d4 é digitado ou o
+  app rola); no longo, limpam tudo. Projeto só no longo.
+- Curto interrompido: cancela (ninguém ganha nada). Longo interrompido: vale
+  como curto, mesmo depois de três curtos seguidos (o livro diz).
+- O mestre ganha Medo ao encerrar: 1d4 no curto, 1d4 + o número de personagens
+  no longo (limitado a 12).
+- Tabela `repousos` (um aberto por mesa); `GET /mesas/{id}/repouso` mostra o
+  aberto, ou o último encerrado por meia hora (para todos verem o resultado).
+- O descanso de um personagem só (`POST /personagens/{id}/sessao/descanso`)
+  continua existindo.
+
+### Morte e cicatrizes (`motor/sessao.py`)
+
+Decisões do projeto (2026-10-14): o jogador escolhe o movimento de morte; os
+dados vêm da mesa ou o app rola; a cicatriz risca 1 espaço de Esperança e o
+jogador escolhe o impacto narrativo; quem morre fica marcado.
+
+- Marcou o último PV (e não está inconsciente nem morto): `precisa_movimento_de_morte`.
+- **Sacrifício Glorioso**: ação final crítica (narrada) e morre.
+- **Evitar a Morte**: inconsciente até um aliado limpar 1 PV ou um descanso
+  longo; rola o Dado de Esperança: se tirar o nível ou menos, ganha uma
+  cicatriz. Sem espaços de Esperança, a jornada termina (morre).
+- **Arriscar Tudo**: Dados de Dualidade. Esperança maior limpa PV e PF somando o
+  dado (o jogador divide); Medo maior, morre; iguais, limpa todos os PV e PF.
+- Cicatriz: `impacto` (física, memória dolorosa, medo paralisante, outro) e
+  descrição, escolhidos depois; o mestre (permissão `aplicar_condicoes`) pode
+  curar, devolvendo o espaço de Esperança.
+- Quem morreu: as ações de sessão recusam, sai dos repousos e do Medo inicial
+  das sessões novas e aparece como "atravessou o véu" na mesa; a ficha fica.
+- Tudo fica no JSON da sessão do personagem (sem migração).
+
 ### Características com regra própria (`Efeito`)
 
 Não cabem em "+N to X": mudam como dano, armadura ou descanso funcionam.

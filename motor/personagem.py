@@ -22,7 +22,7 @@ from .companheiro import (Companheiro, FichaCompanheiro, OpcaoTreino, Treino,
 from .erros import RegraViolada
 from .inventario import Inventario, inventario_inicial
 from .numeros import metade
-from .sessao import Sessao
+from .sessao import Cicatriz, Sessao
 from .srd import (Alvo, Arma, Armadura, Biblioteca, Caracteristica, CartaDeDominio, Efeito,
                   Modificador, Referencia, Subclasse, TipoDano, TipoDeItem, Traco)
 
@@ -216,6 +216,11 @@ class Ficha:
     caracteristicas_ancestralidade: list[Caracteristica] = field(default_factory=list)
     companheiro: FichaCompanheiro | None = None
     condicoes: list[str] = field(default_factory=list)   # estado de sessão
+    # morte (estado de sessão): cada cicatriz risca 1 espaço de Esperança
+    inconsciente: bool = False
+    morto: bool = False
+    precisa_movimento_de_morte: bool = False
+    cicatrizes: list[Cicatriz] = field(default_factory=list)
 
 
 class Personagem:
@@ -268,6 +273,8 @@ class Personagem:
             f.limiar_maior += 2
             f.limiar_grave += 2
         f.esperanca_max = self.bib.progressao["limite_esperanca"]
+        f.inconsciente, f.morto = s.inconsciente, s.morto
+        f.cicatrizes = list(s.cicatrizes)
         if f.companheiro:
             c = f.companheiro
             if c.tem(OpcaoTreino.LUZ_NA_ESCURIDAO):
@@ -275,6 +282,8 @@ class Personagem:
             c.dano = f"{f.proficiencia}{c.dado}"   # usa a sua Proficiência
             c.estresse_marcado = min(s.companheiro_estresse, c.estresse_max)
             c.fora_de_cena = s.companheiro_fora
+        f.esperanca_max = max(f.esperanca_max - len(s.cicatrizes), 0)   # espaços riscados
+        f.precisa_movimento_de_morte = f.pv_marcados >= f.pv_max and not s.inconsciente and not s.morto
         return f
 
     def subir_de_nivel(self, subida: SubidaDeNivel) -> Ficha:

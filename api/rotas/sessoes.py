@@ -112,7 +112,8 @@ def criar(mesa_id: str, dados: NovaSessao, a: Acesso = Depends(acesso)):
     # o Medo começa no número de personagens em jogo (como o da campanha, no livro).
     # Quem mestra uma sessão pode ser jogador em outra: o personagem do próprio
     # mestre não joga a sessão dele, então não conta (com 1 personagem dele: N − 1).
-    em_jogo = [p for p in m.mesa.personagens if p.dono_id != a.usuario_id]
+    em_jogo = [p for p in m.mesa.personagens
+               if p.dono_id != a.usuario_id and not (p.sessao or {}).get("morto")]   # quem morreu não joga
     medo = min(MEDO_MAXIMO, len(em_jogo))
     s = SessaoTabela(id=str(uuid.uuid4()), mesa_id=mesa_id, responsavel_id=a.usuario_id,
                      titulo=dados.titulo.strip(), data=dados.data, medo=medo,

@@ -60,6 +60,45 @@ _RECUPERACAO = {
 }
 
 
+class MovimentoDeMorte(str, Enum):
+    """Death moves: ao marcar o último PV, o jogador escolhe um."""
+
+    SACRIFICIO_GLORIOSO = "SACRIFICIO_GLORIOSO"   # Blaze of Glory: ação final crítica, depois morre
+    EVITAR_A_MORTE = "EVITAR_A_MORTE"             # Avoid Death: inconsciente; pode ganhar cicatriz
+    ARRISCAR_TUDO = "ARRISCAR_TUDO"               # Risk It All: Dados de Dualidade decidem
+
+
+class ImpactoDaCicatriz(str, Enum):
+    """O impacto narrativo da cicatriz (o livro dá esses exemplos; o jogador escolhe)."""
+
+    A_DEFINIR = ""
+    FISICA = "FISICA"              # uma cicatriz física
+    MEMORIA = "MEMORIA"            # uma memória dolorosa
+    MEDO = "MEDO"                  # um medo paralisante
+    OUTRO = "OUTRO"                # descrito no texto
+
+
+@dataclass
+class Cicatriz:
+    """Risca um espaço de Esperança para sempre (até o mestre deixar curar)."""
+
+    impacto: ImpactoDaCicatriz = ImpactoDaCicatriz.A_DEFINIR
+    descricao: str = ""
+
+
+@dataclass
+class ResultadoMorte:
+    movimento: MovimentoDeMorte
+    morreu: bool
+    inconsciente: bool = False
+    cicatriz: bool = False
+    rolagem_esperanca: int | None = None
+    rolagem_medo: int | None = None
+    pv_limpos: int = 0
+    pf_limpos: int = 0
+    notas: list[str] = field(default_factory=list)
+
+
 @dataclass
 class ResultadoDano:
     dano: int                    # depois de reduções (ex.: Warded)
@@ -79,6 +118,7 @@ class ResultadoMovimento:
     rolagem: int | None          # d4 rolado (só no descanso curto)
     recuperado: int              # PV/Estresse/armadura limpos ou Esperança ganha
     fonte: str | None = None     # característica que gerou (ex.: "Healing")
+    alvo: str | None = None      # nome do aliado, se o movimento foi nele
 
 
 class Sessao:
@@ -100,6 +140,11 @@ class Sessao:
         self.companheiro_fora = False
         # Condições atuais: as padrão (Condicao.value) e as de características (texto)
         self.condicoes: list[str] = []
+        # Morte: Evitar a Morte deixa inconsciente (até limparem 1 PV ou um descanso
+        # longo); atravessar o véu é para sempre; cada cicatriz risca 1 de Esperança
+        self.inconsciente = False
+        self.morto = False
+        self.cicatrizes: list[Cicatriz] = []
 
     # --- Dano e PV --------------------------------------------------------------
 
@@ -177,6 +222,7 @@ class Sessao:
             self.usados_no_descanso.add(Efeito.IMPENETRAVEL)
             notas.append("Impenetrável: marcou 1 PF no lugar do último PV")
 
+        self._exigir_vivo()
         self.marcar_pv(pv)
         if pv > 0 and self.caido:
             self._vinculo(notas, rolagens_vinculo)
@@ -190,10 +236,90 @@ class Sessao:
     def limpar_pv(self, quantidade: int = 1):
         self._exigir_positivo(quantidade)
         self.pv_marcados = max(self.pv_marcados - quantidade, 0)
+        if quantidade > 0:
+            self.inconsciente = False   # um aliado limpou PV: volta a si
 
     @property
     def caido(self) -> bool:
         return self.pv_marcados >= self._ficha().pv_max
+
+    @property
+    def precisa_movimento_de_morte(self) -> bool:
+        """Marcou o último PV e ainda não escolheu o movimento de morte."""
+        return self.caido and not self.inconsciente and not self.morto
+
+    # --- Morte -------------------------------------------------------------------------
+
+    def movimento_de_morte(self, movimento: MovimentoDeMorte | str, rolagem_esperanca: int | None = None,
+                           rolagem_medo: int | None = None, pv: int | None = None) -> ResultadoMorte:
+        """Death move. As rolagens (d12) vêm da mesa ou o motor rola. `pv`: no
+        Arriscar Tudo que dá certo, quanto do Dado de Esperança vai para PV (o
+        resto vai para PF); sem ele, PV primeiro."""
+        self._exigir_vivo()
+        if not self.precisa_movimento_de_morte:
+            raise RegraViolada("Só quem marcou o último PV faz um movimento de morte.")
+        movimento = MovimentoDeMorte(movimento)
+        for r in (rolagem_esperanca, rolagem_medo):
+            if r is not None and not 1 <= r <= 12:
+                raise RegraViolada(f"Rolagem de d12 inválida: {r}.")
+        esperanca = rolagem_esperanca or self.rng.randint(1, 12)
+
+        if movimento is MovimentoDeMorte.SACRIFICIO_GLORIOSO:
+            self.morto = True
+            return ResultadoMorte(movimento, morreu=True, notas=[
+                "Faça uma ação final: com o aval do mestre, ela é um sucesso crítico. "
+                "Depois, o personagem atravessa o véu da morte."])
+
+        if movimento is MovimentoDeMorte.EVITAR_A_MORTE:
+            self.inconsciente = True
+            r = ResultadoMorte(movimento, morreu=False, inconsciente=True, rolagem_esperanca=esperanca, notas=[
+                "Inconsciente: não se move nem age e não pode ser alvo de ataques. Volta a si quando um "
+                "aliado limpar 1 PV ou mais, ou no fim de um descanso longo. Combine com o mestre como a cena piora."])
+            if esperanca <= self._ficha().nivel:
+                self.cicatrizes.append(Cicatriz())
+                r.cicatriz = True
+                r.notas.append("Ganhou uma cicatriz: um espaço de Esperança foi riscado. Escolha o impacto dela na ficha.")
+                if self._limite_esperanca <= 0:
+                    self.morto, r.morreu = True, True
+                    r.notas.append("Era o último espaço de Esperança: a jornada do personagem termina.")
+                self.ajustar()
+            return r
+
+        medo = rolagem_medo or self.rng.randint(1, 12)
+        r = ResultadoMorte(movimento, morreu=False, rolagem_esperanca=esperanca, rolagem_medo=medo)
+        if esperanca == medo:
+            r.pv_limpos, r.pf_limpos = self.pv_marcados, self.estresse_marcado
+            self.pv_marcados = self.estresse_marcado = 0
+            r.notas.append("Crítico: continua de pé e limpa todos os PV e PF.")
+        elif esperanca > medo:
+            para_pv = min(esperanca, self.pv_marcados) if pv is None else pv
+            if not 0 <= para_pv <= esperanca:
+                raise RegraViolada(f"Divida os {esperanca} do Dado de Esperança entre PV e PF.")
+            r.pv_limpos = min(para_pv, self.pv_marcados)
+            r.pf_limpos = min(esperanca - para_pv, self.estresse_marcado)
+            self.pv_marcados -= r.pv_limpos
+            self.estresse_marcado -= r.pf_limpos
+            r.notas.append(f"A Esperança venceu: continua de pé e limpa {r.pv_limpos} PV e {r.pf_limpos} PF.")
+        else:
+            self.morto, r.morreu = True, True
+            r.notas.append("O Medo venceu: o personagem atravessa o véu da morte.")
+        return r
+
+    def definir_cicatriz(self, indice: int, impacto: ImpactoDaCicatriz | str, descricao: str = ""):
+        """O jogador escolhe o impacto narrativo (física, memória, medo ou outro)."""
+        if not 0 <= indice < len(self.cicatrizes):
+            raise RegraViolada("Cicatriz não encontrada.")
+        self.cicatrizes[indice] = Cicatriz(ImpactoDaCicatriz(impacto), descricao.strip()[:500])
+
+    def curar_cicatriz(self, indice: int):
+        """A critério do mestre (projeto no repouso, missão...): o espaço de Esperança volta."""
+        if not 0 <= indice < len(self.cicatrizes):
+            raise RegraViolada("Cicatriz não encontrada.")
+        del self.cicatrizes[indice]
+
+    def _exigir_vivo(self):
+        if self.morto:
+            raise RegraViolada("Este personagem atravessou o véu da morte.")
 
     # --- Estresse ----------------------------------------------------------------
 
@@ -314,6 +440,7 @@ class Sessao:
             self.companheiro_fora = False
             self.companheiro_estresse = max(self.companheiro_estresse - 1, 0)
         resultados = self._descansar(movimentos, None, set(range(len(movimentos))))
+        self.inconsciente = False   # fim de um descanso longo: volta a si
         self.descansos_curtos_seguidos = 0
         return resultados
 
@@ -332,37 +459,57 @@ class Sessao:
 
     def _descansar(self, movimentos, rolagens, longos: set[int]) -> list[ResultadoMovimento]:
         """`longos`: índices dos movimentos feitos na versão de descanso longo."""
+        self._exigir_vivo()
         rolagens = self._validar_movimentos(movimentos, rolagens)
-        tier = self.personagem.bib.tier_do_nivel(self._ficha().nivel)
-        resultados = []
-        for i, (movimento, rolagem) in enumerate(zip(movimentos, rolagens)):
-            if movimento in _RECUPERACAO:
-                campo = _RECUPERACAO[movimento]
-                marcados = getattr(self, campo)
-                if i in longos:
-                    rolagem, potencial = None, None   # limpa tudo
-                else:
-                    rolagem = rolagem or self.rng.randint(1, 4)
-                    potencial = rolagem + tier
-                quanto = marcados if potencial is None else min(potencial, marcados)
-                setattr(self, campo, marcados - quanto)
-                if movimento is Movimento.ALIVIAR_ESTRESSE:
-                    # o companheiro limpa o mesmo número de Estresse
-                    self._companheiro_limpa(self.companheiro_estresse if potencial is None else potencial)
-            elif movimento in (Movimento.PREPARAR, Movimento.PREPARAR_EM_GRUPO):
-                antes = self.esperanca
-                self.ganhar_esperanca(2 if movimento is Movimento.PREPARAR_EM_GRUPO else 1)
-                rolagem, quanto = None, self.esperanca - antes
-            else:   # PROJETO: narrativo
-                rolagem, quanto = None, 0
-            resultados.append(ResultadoMovimento(movimento, rolagem, quanto))
+        resultados = [self.aplicar_movimento(m, i in longos, r) for i, (m, r) in enumerate(zip(movimentos, rolagens))]
+        return resultados + self.terminar_repouso(longo=False)
 
+    def aplicar_movimento(self, movimento: Movimento, longo: bool, rolagem: int | None = None,
+                          alvo: Sessao | None = None) -> ResultadoMovimento:
+        """Um movimento de descanso. Tratar Feridas e Reparar Armadura podem ser
+        num aliado (`alvo`); o tier (no curto) é sempre o de quem faz."""
+        self._exigir_vivo()
+        alvo = alvo or self
+        if alvo is not self and movimento not in (Movimento.CUIDAR_FERIDAS, Movimento.REPARAR_ARMADURA):
+            raise RegraViolada("Só Tratar Feridas e Reparar Armadura podem ser feitos num aliado.")
+        if alvo is not self and alvo.morto:
+            raise RegraViolada("Esse aliado atravessou o véu da morte.")
+        tier = self.personagem.bib.tier_do_nivel(self._ficha().nivel)
+        nome_alvo = (alvo.personagem.criacao.nome or "aliado") if alvo is not self else None
+        if movimento in _RECUPERACAO:
+            campo = _RECUPERACAO[movimento]
+            marcados = getattr(alvo, campo)
+            if longo:
+                rolagem, potencial = None, None   # limpa tudo
+            else:
+                rolagem = rolagem or self.rng.randint(1, 4)
+                potencial = rolagem + tier
+            quanto = marcados if potencial is None else min(potencial, marcados)
+            setattr(alvo, campo, marcados - quanto)
+            if movimento is Movimento.CUIDAR_FERIDAS and quanto > 0:
+                alvo.inconsciente = False   # limparam PV: volta a si
+            if movimento is Movimento.ALIVIAR_ESTRESSE:
+                # o companheiro limpa o mesmo número de Estresse
+                self._companheiro_limpa(self.companheiro_estresse if potencial is None else potencial)
+        elif movimento in (Movimento.PREPARAR, Movimento.PREPARAR_EM_GRUPO):
+            antes = self.esperanca
+            self.ganhar_esperanca(2 if movimento is Movimento.PREPARAR_EM_GRUPO else 1)
+            rolagem, quanto = None, self.esperanca - antes
+        else:   # PROJETO: narrativo
+            rolagem, quanto = None, 0
+        return ResultadoMovimento(movimento, rolagem, quanto, alvo=nome_alvo)
+
+    def terminar_repouso(self, longo: bool) -> list[ResultadoMovimento]:
+        """O que acontece no fim de qualquer descanso (e, no longo, acordar)."""
+        resultados = []
         # Healing: "during downtime, automatically clear a Hit Point"
         if Efeito.CURA in self.personagem.efeitos_ativos():
             curado = min(1, self.pv_marcados)
             self.pv_marcados -= curado
             resultados.append(ResultadoMovimento(Movimento.CUIDAR_FERIDAS, None, curado, fonte="Healing"))
         self.usados_no_descanso.clear()   # Impenetrable, Creature Comfort voltam a valer
+        if longo:
+            self.inconsciente = False   # o grupo terminou um descanso longo: volta a si
         return resultados
 
     # --- Companheiro (Beastbound) ------------------------------------------------------
@@ -465,6 +612,9 @@ class Sessao:
             "companheiro_estresse": self.companheiro_estresse,
             "companheiro_fora": self.companheiro_fora,
             "condicoes": list(self.condicoes),
+            "inconsciente": self.inconsciente,
+            "morto": self.morto,
+            "cicatrizes": [{"impacto": c.impacto.value, "descricao": c.descricao} for c in self.cicatrizes],
             "usados_no_descanso": sorted(f"{type(e).__name__}:{e.value}"
                                          for e in self.usados_no_descanso),
         }
@@ -476,6 +626,10 @@ class Sessao:
                       "companheiro_fora"):
             setattr(self, campo, estado[campo])
         self.condicoes = list(estado.get("condicoes", []))
+        self.inconsciente = bool(estado.get("inconsciente", False))
+        self.morto = bool(estado.get("morto", False))
+        self.cicatrizes = [Cicatriz(ImpactoDaCicatriz(c.get("impacto", "")), c.get("descricao", ""))
+                           for c in estado.get("cicatrizes", [])]
         self.usados_no_descanso = set()
         for item in estado["usados_no_descanso"]:
             tipo, valor = item.split(":", 1)

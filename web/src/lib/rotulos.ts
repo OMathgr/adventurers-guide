@@ -124,3 +124,37 @@ export const NOME_GRAVIDADE: Record<number, string> = { 0: 'sem dano', 1: 'Menor
 export const NOME_TIPO_HABILIDADE: Record<TipoHabilidade, string> = {
   PASSIVA: 'Passiva', ACAO: 'Ação', REACAO: 'Reação',
 }
+
+// --- Repouso e morte (nomes do livro básico brasileiro) --------------------------------------------
+
+/** Nome do movimento de repouso; no descanso longo as recuperações limpam tudo. */
+export function nomeDoMovimento(m: string, longo: boolean): string {
+  const curto: Record<string, string> = {
+    CUIDAR_FERIDAS: 'Tratar Feridas', ALIVIAR_ESTRESSE: 'Reduzir Fadiga', REPARAR_ARMADURA: 'Reparar Armadura',
+    PREPARAR: 'Preparar-se', PREPARAR_EM_GRUPO: 'Preparar-se em grupo', PROJETO: 'Trabalhar em um Projeto',
+  }
+  const dosLongos: Record<string, string> = {
+    CUIDAR_FERIDAS: 'Tratar Todas as Feridas', ALIVIAR_ESTRESSE: 'Zerar Fadiga', REPARAR_ARMADURA: 'Reparar Armadura por Completo',
+  }
+  return (longo && dosLongos[m]) || curto[m] || m
+}
+
+export function efeitoDoMovimento(m: string, longo: boolean): string {
+  const recupera = longo ? 'tudo' : '1d4 + patamar'
+  return ({
+    CUIDAR_FERIDAS: `Limpa ${recupera} de PV (seu ou de um aliado).`,
+    ALIVIAR_ESTRESSE: `Limpa ${recupera} de PF.`,
+    REPARAR_ARMADURA: `Limpa ${recupera} de espaços de armadura (sua ou de um aliado).`,
+    PREPARAR: '+1 de Esperança.',
+    PREPARAR_EM_GRUPO: '+2 de Esperança para cada um que se preparar junto (sozinho, vale +1).',
+    PROJETO: 'Avança um projeto de longo prazo (com o aval do mestre).',
+  } as Record<string, string>)[m] ?? ''
+}
+
+export const NOME_MOVIMENTO_MORTE: Record<string, string> = {
+  SACRIFICIO_GLORIOSO: 'Sacrifício Glorioso', EVITAR_A_MORTE: 'Evitar a Morte', ARRISCAR_TUDO: 'Arriscar Tudo',
+}
+
+export const NOME_IMPACTO: Record<string, string> = {
+  '': 'A definir', FISICA: 'Cicatriz física', MEMORIA: 'Memória dolorosa', MEDO: 'Medo paralisante', OUTRO: 'Outro',
+}

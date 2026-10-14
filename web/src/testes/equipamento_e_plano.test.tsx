@@ -6,6 +6,7 @@ import { MemoryRouter } from 'react-router'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import type { Arma, Armadura, EventoLinhaDoTempo, Ficha, Mesa, ProximoNivel } from '../api/tipos'
+import { ProvedorAutenticacao } from '../auth/Autenticacao'
 import AbaEquipamento from '../componentes/AbaEquipamento'
 import { EnviarFoto } from '../componentes/Foto'
 import LinhaDoTempo from '../componentes/LinhaDoTempo'
@@ -22,7 +23,11 @@ function api(rotas: Record<string, unknown>) {
 
 function montar(ui: ReactNode) {
   const cliente = new QueryClient({ defaultOptions: { queries: { retry: false } } })
-  return render(<QueryClientProvider client={cliente}><MemoryRouter>{ui}</MemoryRouter></QueryClientProvider>)
+  return render(
+    <QueryClientProvider client={cliente}>
+      <ProvedorAutenticacao><MemoryRouter>{ui}</MemoryRouter></ProvedorAutenticacao>
+    </QueryClientProvider>,
+  )
 }
 
 afterEach(() => vi.unstubAllGlobals())

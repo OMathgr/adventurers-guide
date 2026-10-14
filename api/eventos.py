@@ -23,7 +23,7 @@ from itertools import chain
 from sqlalchemy import event, inspect, select
 from sqlalchemy.orm import Session
 
-from .tabelas import (EncontroTabela, InimigoTabela, LojaTabela, MembroTabela, MesaTabela, NpcTabela, PersonagemTabela,
+from .tabelas import (EncontroTabela, InimigoTabela, LojaTabela, MembroTabela, RepousoTabela, MesaTabela, NpcTabela, PersonagemTabela,
                       SessaoTabela, SubidaTabela)
 
 Evento = dict
@@ -71,7 +71,7 @@ central = Central()
 
 # --- Gancho no banco ----------------------------------------------------------------------
 
-_POR_MESA = (InimigoTabela, NpcTabela, SessaoTabela, EncontroTabela, LojaTabela)
+_POR_MESA = (InimigoTabela, NpcTabela, SessaoTabela, EncontroTabela, LojaTabela, RepousoTabela)
 
 
 def _pendentes(sessao: Session) -> dict:

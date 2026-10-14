@@ -10,6 +10,7 @@ import type { Mesa, Permissao, PermissoesMestres } from '../../api/tipos'
 import FichaResumida from '../../componentes/FichaResumida'
 import { Foto } from '../../componentes/Foto'
 import MedoDoMestre from '../../componentes/MedoDoMestre'
+import PainelDeRepouso from '../../componentes/Repouso'
 import VistaDosJogadores from '../../componentes/VistaDosJogadores'
 import { Aviso, Botao, Cartao, Selecao, Selo } from '../../componentes/ui'
 import { NOME_PAPEL, NOME_PERMISSAO } from '../../lib/rotulos'
@@ -160,6 +161,7 @@ function Personagens({ mesa }: { mesa: Mesa }) {
               <Foto id={x.foto} nome={x.nome || '?'} tamanho="p" />
               <span className="min-w-0 flex-1">
                 <span className="font-medium">{x.nome || 'Sem nome'}</span>
+                {x.morto && <span className="ml-2 text-xs text-perigo">atravessou o véu</span>}
                 <span className="ml-2 text-sm text-texto-suave">Nível {x.nivel} · {nomeClasse(x.classe)} · {x.jogador}</span>
               </span>
               <span aria-hidden className="text-xs text-texto-suave">{aberto === x.id ? '▲' : '▼'}</span>
@@ -205,6 +207,8 @@ export default function AbaGeral({ mesa }: { mesa: Mesa }) {
 
   return (
     <div className="grid gap-4 lg:grid-cols-2">
+      {/* repouso aberto pelo mestre: cada jogador escolhe os movimentos do seu personagem */}
+      <PainelDeRepouso mesa={mesa} />
       {/* o que o mestre revelou: inimigos em combate e NPCs conhecidos */}
       <VistaDosJogadores mesaId={mesa.id} />
       {/* Medo das sessões em andamento: todos veem (quem muda é o mestre, na sessão) */}
