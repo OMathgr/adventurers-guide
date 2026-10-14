@@ -16,7 +16,7 @@ from sqlalchemy.orm import Session
 from .. import correio, google
 from ..autenticacao import usuario_atual
 from ..db import sessao_do_banco
-from ..seguranca import TokenInvalido, assinar, criar_token, gerar_hash, ler_assinado, senha_confere
+from ..seguranca import TokenInvalido, assinar, criar_token, gerar_hash, ler_assinado, verificar_senha
 from ..tabelas import IdentidadeTabela, RecuperacaoTabela, UsuarioTabela
 
 rotas = APIRouter(prefix="/auth", tags=["Conta"])
@@ -87,10 +87,14 @@ def cadastrar(dados: Cadastro, banco: Session = Depends(sessao_do_banco)):
 def login(form: OAuth2PasswordRequestForm = Depends(), banco: Session = Depends(sessao_do_banco)):
     """Formulário OAuth2 padrão: o e-mail vai no campo `username`."""
     usuario = _por_email(banco, form.username)
+    confere, novo_hash = verificar_senha(form.password, usuario.senha_hash) if usuario else (False, None)
     # mesma mensagem para e-mail inexistente e senha errada: não revela quem tem conta
-    if usuario is None or not senha_confere(form.password, usuario.senha_hash):
+    if not confere:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "E-mail ou senha incorretos.",
                             headers={"WWW-Authenticate": "Bearer"})
+    if novo_hash:   # salvo com os parâmetros antigos (pesados): regrava no formato leve
+        usuario.senha_hash = novo_hash
+        banco.commit()
     return Token(access_token=criar_token(usuario.id))
 
 

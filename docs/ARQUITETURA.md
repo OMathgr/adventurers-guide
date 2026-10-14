@@ -378,7 +378,9 @@ Documentação interativa em `/docs`.
 ### Usuários e login
 
 - Tabela `usuarios` (e-mail único, sempre minúsculo; senha só como hash
-  Argon2). `personagens.dono_id` aponta para o dono; apagar a conta apaga os
+  Argon2id com os parâmetros mínimos da OWASP: 19 MiB, 2 passadas, 1 thread;
+  o padrão da biblioteca, 64 MiB e 4 threads por login, travava a VM de 1 GB;
+  hash antigo é regravado no próximo login). `personagens.dono_id` aponta para o dono; apagar a conta apaga os
   personagens dela.
 - Login (`POST /auth/login`, formulário OAuth2: e-mail em `username`) devolve
   um JWT HS256 com o id do usuário e validade (`JWT_EXPIRA_MINUTOS`, padrão 120).

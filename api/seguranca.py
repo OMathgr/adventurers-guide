@@ -1,6 +1,10 @@
 """Senhas e tokens de acesso.
 
-- Senhas: hash Argon2 (pwdlib). A senha em texto nunca é guardada.
+- Senhas: hash Argon2id (pwdlib). A senha em texto nunca é guardada.
+  Parâmetros mínimos da OWASP (19 MiB, 2 passadas, 1 thread): seguros e leves
+  para a VM de 1 GB. O padrão da biblioteca (64 MiB e 4 threads por login)
+  travava a VM com dois logins ao mesmo tempo. Hash salvo com outros
+  parâmetros é regravado no próximo login (`verificar_senha`).
 - Tokens: JWT assinado (HS256) com o id do usuário e prazo de validade.
 
 Configuração por variáveis de ambiente:
@@ -19,9 +23,10 @@ from datetime import datetime, timedelta, timezone
 
 import jwt
 from pwdlib import PasswordHash
+from pwdlib.hashers.argon2 import Argon2Hasher
 
 _log = logging.getLogger(__name__)
-_hash = PasswordHash.recommended()   # Argon2
+_hash = PasswordHash((Argon2Hasher(time_cost=2, memory_cost=19456, parallelism=1),))
 
 ALGORITMO = "HS256"
 EXPIRA_MINUTOS = int(os.environ.get("JWT_EXPIRA_MINUTOS", "120"))
@@ -39,10 +44,12 @@ def gerar_hash(senha: str) -> str:
     return _hash.hash(senha)
 
 
-def senha_confere(senha: str, hash_salvo: str) -> bool:
+def verificar_senha(senha: str, hash_salvo: str) -> tuple[bool, str | None]:
+    """(confere?, hash novo). O hash novo vem quando o salvo usa parâmetros
+    antigos (ex.: o padrão pesado de antes): quem chamou deve gravá-lo."""
     if not hash_salvo:   # conta criada pelo Google, ainda sem senha
-        return False
-    return _hash.verify(senha, hash_salvo)
+        return False, None
+    return _hash.verify_and_update(senha, hash_salvo)
 
 
 def criar_token(usuario_id: str, agora: datetime | None = None) -> str:

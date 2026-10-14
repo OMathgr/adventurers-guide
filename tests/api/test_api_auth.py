@@ -93,3 +93,26 @@ def test_apagar_conta_apaga_os_personagens(cliente, bardo_id):
     assert cliente.get(f"/personagens/{bardo_id}").status_code == 401   # token de conta apagada
     novo = entrar(cliente, "ana@exemplo.com")                             # recria a conta
     assert cliente.get("/personagens", headers=novo).json() == []
+
+
+def test_senha_com_parametros_antigos_e_regravada_no_login(anonimo):
+    """Contas criadas com o padrão pesado antigo (64 MiB, 4 threads) continuam
+    entrando e, no primeiro login, passam para os parâmetros atuais."""
+    from pwdlib import PasswordHash
+
+    from api.db import sessao_do_banco
+    from api.main import app
+    from api.tabelas import UsuarioTabela
+
+    cadastrar(anonimo, email="velha@exemplo.com")
+    banco = next(app.dependency_overrides[sessao_do_banco]())
+    usuario = banco.query(UsuarioTabela).filter_by(email="velha@exemplo.com").one()
+    usuario.senha_hash = PasswordHash.recommended().hash("senha-forte-123")   # o padrão de antes
+    banco.commit()
+    assert "m=65536" in usuario.senha_hash
+
+    assert login(anonimo, email="velha@exemplo.com").status_code == 200
+    banco.expire_all()
+    novo = banco.query(UsuarioTabela).filter_by(email="velha@exemplo.com").one().senha_hash
+    assert "m=65536" not in novo   # regravado com os parâmetros atuais
+    assert login(anonimo, email="velha@exemplo.com").status_code == 200   # e continua entrando
