@@ -7,7 +7,7 @@ import type {
   Adversario, Ancestralidade, Arma, Armadura, Cartao, CartaDeDominio, Equipamento, Ligacao, QuadroDaSessao, QuadroSaida, Classe, Comunidade, Criacao, Encontro, Escolha,
   EventoLinhaDoTempo, Ficha, GuiaDeBatalha, InimigoResumo, Mesa, MesaResumo, Npc, NpcEntrada, OpcoesDoGuia, PermissoesMestres, DadosDaSessao, Sessao, SessaoResumo,
   PersonagemCriado, PersonagemResumo, ProximoNivel, ResultadoDano, ResultadoDanoAdversario, Subclasse, VistaDosJogadores,
-  SubidaDeNivel, Item, Inventario, UsoDeConsumivel, Loja, ItemDaLojaEntrada, Venda,
+  SubidaDeNivel, Item, Inventario, UsoDeConsumivel, Loja, ItemDaLojaEntrada, Venda, FichaResumida,
 } from './tipos'
 
 const UMA_HORA = 60 * 60 * 1000
@@ -705,3 +705,11 @@ export function useVender(mesaId: string, sid: string, lojaId: string) {
     },
   })
 }
+
+/** Ficha simplificada de um personagem da mesa (qualquer membro vê; atualiza ao vivo). */
+export const useFichaResumida = (mesaId: string, pid: string, ativo = true) =>
+  useQuery({
+    queryKey: ['mesas', mesaId, 'personagens', pid, 'resumo'],
+    queryFn: () => chamar<FichaResumida>(`/mesas/${mesaId}/personagens/${pid}/resumo`),
+    enabled: ativo,
+  })

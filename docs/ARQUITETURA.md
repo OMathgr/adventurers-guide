@@ -604,7 +604,14 @@ manipulador, assistente, brutamonte.
   condições pelas permissões `ver_fichas`, `aplicar_dano`,
   `aplicar_condicoes`). Na aba Mesa, todos veem o Medo das sessões em andamento.
 
-Ainda não: jogadores verem as fichas uns dos outros, controle de concorrência entre duas edições
+Ficha simplificada (decisão de 2026-10-13): qualquer membro da mesa vê, de
+cada personagem dela, quem é (nome, foto, jogador, nível, classe, subclasse,
+multiclasse, ancestralidade, comunidade) e PV, PF e Esperança, em `GET
+/mesas/{id}/personagens/{pid}/resumo`. Nada de atributos, cartas, equipamento
+ou inventário (a ficha completa continua só do dono e do mestre com
+`ver_fichas`). Na aba Mesa, tocar no personagem abre; atualiza ao vivo.
+
+Ainda não: controle de concorrência entre duas edições
 simultâneas do mesmo personagem (ex.: mestre aplica dano enquanto o jogador
 descansa).
 

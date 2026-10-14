@@ -24,7 +24,8 @@ consumíveis do SRD, relíquias, armas guardadas, itens iniciais) e lojas da
 sessão (o mestre vende, cobrando o ouro), com a regra opcional das moedas
 por mesa, prontos. Conta: esqueci minha senha (link por e-mail via SMTP) e login
 com o Google (contas com o mesmo e-mail se juntam) e sessão por uso (renova
-enquanto se usa; cai depois de 2 h parado) prontos. Leia `docs/ARQUITETURA.md` antes de mudar a modelagem. O
+enquanto se usa; cai depois de 2 h parado) prontos. Jogadores veem a ficha
+simplificada (quem é, PV, PF e Esperança) dos outros personagens da mesa. Leia `docs/ARQUITETURA.md` antes de mudar a modelagem. O
 personagem é guardado como criação + histórico de subidas de nível; a ficha
 é sempre recalculada.
 

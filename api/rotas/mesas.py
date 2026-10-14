@@ -16,7 +16,6 @@ from ..mesas import (JOGADOR, MESTRE, PERMISSOES_PADRAO, Permissao, SemPermissao
                      exigir, exigir_criador, gerar_codigo, membro, pode)
 from ..repositorio import NaoEncontrado
 from ..eventos import central
-from ..eventos import central
 from ..sessoes import medo_em_jogo
 from ..tabelas import MembroTabela, MesaTabela, PersonagemTabela
 
@@ -45,6 +44,29 @@ class PersonagemNaMesa(BaseModel):
     jogador: str
     dono_id: str
     foto: str | None = None
+
+
+class FichaResumida(BaseModel):
+    """O que qualquer membro da mesa vê de um personagem: quem é e PV, PF e
+    Esperança. Nada de atributos, cartas, equipamento ou inventário."""
+
+    id: str
+    nome: str
+    foto: str | None
+    jogador: str
+    nivel: int
+    classe: str
+    subclasse: str
+    estagio_subclasse: str
+    multiclasse: str | None       # nome da classe da multiclasse
+    ancestralidade: str           # "Elfo" ou "Elfo / Orc" (mista)
+    comunidade: str
+    pv_max: int
+    pv_marcados: int
+    estresse_max: int
+    estresse_marcado: int
+    esperanca: int
+    esperanca_max: int
 
 
 class MedoEmJogo(BaseModel):
@@ -267,6 +289,25 @@ def _como_mestre(a: Acesso, mesa_id: str, personagem_id: str, permissao: Permiss
     resultado = acao(personagem)
     repositorio.gravar(a.banco, linha, personagem)
     return resultado
+
+
+@rotas.get("/{mesa_id}/personagens/{personagem_id}/resumo", response_model=FichaResumida)
+def ficha_resumida(mesa_id: str, personagem_id: str, a: Acesso = Depends(acesso)):
+    """Ficha simplificada para qualquer membro da mesa (jogadores veem os
+    personagens uns dos outros)."""
+    membro(a.banco, mesa_id, a.usuario_id)
+    linha = repositorio.linha_na_mesa(a.banco, mesa_id, personagem_id)
+    f = repositorio.montar(linha).ficha()
+    bib = repositorio.biblioteca()
+    ancestralidades = [bib.ancestralidades[x].nome for x in (f.ancestralidade, f.segunda_ancestralidade) if x]
+    return FichaResumida(
+        id=linha.id, nome=f.nome, foto=linha.foto, jogador=linha.dono.nome, nivel=f.nivel,
+        classe=bib.classes[f.classe].nome, subclasse=bib.subclasses[f.subclasse].nome,
+        estagio_subclasse=f.estagio_subclasse,
+        multiclasse=bib.classes[f.multiclasse["classe"]].nome if f.multiclasse else None,
+        ancestralidade=" / ".join(ancestralidades), comunidade=bib.comunidades[f.comunidade].nome,
+        pv_max=f.pv_max, pv_marcados=f.pv_marcados, estresse_max=f.estresse_max,
+        estresse_marcado=f.estresse_marcado, esperanca=f.esperanca, esperanca_max=f.esperanca_max)
 
 
 @rotas.get("/{mesa_id}/personagens/{personagem_id}", response_model=FichaSaida)

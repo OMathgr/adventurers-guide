@@ -7,6 +7,7 @@ import {
   usePermissoesMestres, usePersonagens, useRemoverMembro, useSairDaMesa, useVincularMesa,
 } from '../../api/consultas'
 import type { Mesa, Permissao, PermissoesMestres } from '../../api/tipos'
+import FichaResumida from '../../componentes/FichaResumida'
 import { Foto } from '../../componentes/Foto'
 import MedoDoMestre from '../../componentes/MedoDoMestre'
 import VistaDosJogadores from '../../componentes/VistaDosJogadores'
@@ -142,6 +143,7 @@ function Personagens({ mesa }: { mesa: Mesa }) {
   const vincular = useVincularMesa()
   const copiar = useCopiarParaMesa()
   const [escolhido, setEscolhido] = useState('')
+  const [aberto, setAberto] = useState<string | null>(null)   // ficha simplificada aberta
   const nomeClasse = (id: string) => classes.data?.find((c) => c.id === id)?.nome ?? ''
   const candidatos = meus.data?.filter((p) => p.mesa_id !== mesa.id) ?? []
   const p = candidatos.find((c) => c.id === escolhido)
@@ -152,12 +154,17 @@ function Personagens({ mesa }: { mesa: Mesa }) {
       {mesa.personagens.length === 0 && <p className="text-sm text-texto-suave">Nenhum personagem nesta mesa ainda.</p>}
       <ul className="divide-y divide-borda">
         {mesa.personagens.map((x) => (
-          <li key={x.id} className="flex items-center gap-3 py-2">
-            <Foto id={x.foto} nome={x.nome || '?'} tamanho="p" />
-            <span>
-              <span className="font-medium">{x.nome || 'Sem nome'}</span>
-              <span className="ml-2 text-sm text-texto-suave">Nível {x.nivel} · {nomeClasse(x.classe)} · {x.jogador}</span>
-            </span>
+          <li key={x.id} className="py-2">
+            <button type="button" aria-expanded={aberto === x.id} onClick={() => setAberto(aberto === x.id ? null : x.id)}
+              className="flex w-full items-center gap-3 rounded-lg text-left hover:bg-superficie-2/50">
+              <Foto id={x.foto} nome={x.nome || '?'} tamanho="p" />
+              <span className="min-w-0 flex-1">
+                <span className="font-medium">{x.nome || 'Sem nome'}</span>
+                <span className="ml-2 text-sm text-texto-suave">Nível {x.nivel} · {nomeClasse(x.classe)} · {x.jogador}</span>
+              </span>
+              <span aria-hidden className="text-xs text-texto-suave">{aberto === x.id ? '▲' : '▼'}</span>
+            </button>
+            {aberto === x.id && <div className="mt-2"><FichaResumida mesaId={mesa.id} pid={x.id} /></div>}
           </li>
         ))}
       </ul>

@@ -1106,6 +1106,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/mesas/{mesa_id}/personagens/{personagem_id}/resumo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Ficha Resumida
+         * @description Ficha simplificada para qualquer membro da mesa (jogadores veem os
+         *     personagens uns dos outros).
+         */
+        get: operations["ficha_resumida_mesas__mesa_id__personagens__personagem_id__resumo_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/mesas/{mesa_id}/personagens/{personagem_id}": {
         parameters: {
             query?: never;
@@ -2966,6 +2987,47 @@ export interface components {
              * @default false
              */
             fora_de_cena: boolean;
+        };
+        /**
+         * FichaResumida
+         * @description O que qualquer membro da mesa vê de um personagem: quem é e PV, PF e
+         *     Esperança. Nada de atributos, cartas, equipamento ou inventário.
+         */
+        FichaResumida: {
+            /** Id */
+            id: string;
+            /** Nome */
+            nome: string;
+            /** Foto */
+            foto: string | null;
+            /** Jogador */
+            jogador: string;
+            /** Nivel */
+            nivel: number;
+            /** Classe */
+            classe: string;
+            /** Subclasse */
+            subclasse: string;
+            /** Estagio Subclasse */
+            estagio_subclasse: string;
+            /** Multiclasse */
+            multiclasse: string | null;
+            /** Ancestralidade */
+            ancestralidade: string;
+            /** Comunidade */
+            comunidade: string;
+            /** Pv Max */
+            pv_max: number;
+            /** Pv Marcados */
+            pv_marcados: number;
+            /** Estresse Max */
+            estresse_max: number;
+            /** Estresse Marcado */
+            estresse_marcado: number;
+            /** Esperanca */
+            esperanca: number;
+            /** Esperanca Max */
+            esperanca_max: number;
         };
         /** FotoEntrada */
         FotoEntrada: {
@@ -6216,6 +6278,38 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["MesaSaida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    ficha_resumida_mesas__mesa_id__personagens__personagem_id__resumo_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mesa_id: string;
+                personagem_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FichaResumida"];
                 };
             };
             /** @description Validation Error */

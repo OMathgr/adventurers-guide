@@ -188,3 +188,28 @@ def test_jogador_marca_as_proprias_condicoes(cliente, bardo_id):
     assert f["condicoes"] == ["OCULTO"]
     f = cliente.delete(f"/personagens/{bardo_id}/sessao/condicoes/OCULTO").json()
     assert f["condicoes"] == []
+
+
+# --- Ficha simplificada (jogadores veem os personagens uns dos outros) -------------------------
+
+def test_outro_jogador_ve_a_ficha_simplificada(cliente, mesa, lira_na_mesa, carlos):
+    cliente.post(f"/mesas/entrar/{mesa['codigo_convite']}", headers=carlos)   # Carlos, jogador
+    cliente.post(url(mesa, lira_na_mesa, "/dano"), json={"dano": 1})   # sem armadura no nível 1: dano Maior, 2 PV
+    r = cliente.get(url(mesa, lira_na_mesa, "/resumo"), headers=carlos)
+    assert r.status_code == 200, r.text
+    f = r.json()
+    assert (f["nome"], f["jogador"], f["nivel"], f["classe"], f["subclasse"]) == ("Lira", "Bia", 1, "Bardo", "Trovador")
+    assert (f["ancestralidade"], f["comunidade"]) == ("Fauno", "Aristocrática")
+    assert (f["pv_max"], f["pv_marcados"], f["esperanca"]) == (5, 2, 2)
+    # só o combinado: nada de atributos, cartas, equipamento ou inventário
+    assert not {"tracos", "cartas", "ataques", "experiencias", "evasao", "inventario"} & set(f)
+
+
+def test_quem_nao_esta_na_mesa_nao_ve(cliente, mesa, lira_na_mesa, carlos):
+    assert cliente.get(url(mesa, lira_na_mesa, "/resumo"), headers=carlos).status_code == 404
+
+
+def test_personagem_de_outra_mesa_nao_aparece(cliente, mesa, bia):
+    cliente.post(f"/mesas/entrar/{mesa['codigo_convite']}", headers=bia)
+    fora = cliente.post("/personagens", json=BARDO).json()["id"]   # da Ana, sem mesa
+    assert cliente.get(url(mesa, fora, "/resumo"), headers=bia).status_code == 404
