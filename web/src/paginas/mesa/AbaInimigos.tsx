@@ -3,12 +3,14 @@
 import { useMemo, useState } from 'react'
 
 import {
-  useAdversariosSrd, useApagarInimigo, useCopiarDoSrd, useInimigo, useInimigos, useSalvarInimigo,
+  type ComVersao, useAdversariosSrd, useApagarInimigo, useCopiarDoSrd, useInimigo, useInimigos, useSalvarInimigo,
 } from '../../api/consultas'
 import type { Adversario, TipoAdversario } from '../../api/tipos'
+import { AvisoDeConflito } from '../../componentes/Conflito'
 import EditorInimigo from '../../componentes/EditorInimigo'
 import FichaInimigo from '../../componentes/FichaInimigo'
 import { Aviso, Botao, Campo, Carregando, Escolhivel, Selecao, Selo } from '../../componentes/ui'
+import { semConflito } from '../../lib/conflito'
 import { INIMIGO_EM_BRANCO } from '../../lib/inimigo'
 import { NOME_TIPO_ADVERSARIO, TIPOS_ADVERSARIO } from '../../lib/rotulos'
 
@@ -85,7 +87,8 @@ export default function AbaInimigos({ mesaId, podeEditar }: { mesaId: string; po
     copiar.mutate(id, { onSuccess: (novo) => { setLista('mesa'); setPainel({ modo: 'mesa', id: novo!.id }) } })
   }
 
-  function salvarEdicao(inimigo: Adversario) {
+  // o inimigo em edição veio com a `versao` de quando abriu: se outro mestre salvar antes, avisa
+  function salvarEdicao(inimigo: ComVersao<Adversario>) {
     salvar.mutate(inimigo, { onSuccess: (salvo) => setPainel({ modo: 'mesa', id: salvo!.id }) })
   }
 
@@ -175,7 +178,14 @@ export default function AbaInimigos({ mesaId, podeEditar }: { mesaId: string; po
             <h2 className="text-lg text-esperanca">{painel.inimigo.id ? `Editar ${painel.inimigo.nome}` : 'Novo inimigo'}</h2>
             <EditorInimigo key={painel.inimigo.id || 'novo'} valor={painel.inimigo}
               aoMudar={(inimigo) => setPainel({ modo: 'editar', inimigo })} />
-            <Aviso erro={salvar.error} />
+            <AvisoDeConflito erro={salvar.error} ocupado={salvar.isPending}
+              aoVerAtual={() => {
+                salvar.reset()
+                setPainel({ modo: 'mesa', id: painel.inimigo.id })
+                void doMesa.refetch()
+              }}
+              aoSalvarMesmoAssim={() => salvarEdicao({ ...painel.inimigo, versao: null })} />
+            <Aviso erro={semConflito(salvar.error)} />
             <div className="flex gap-2">
               <Botao type="submit" disabled={salvar.isPending}>{salvar.isPending ? 'Salvando…' : 'Salvar'}</Botao>
               <Botao type="button" variante="fantasma"

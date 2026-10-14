@@ -9,6 +9,7 @@ from fastapi.responses import JSONResponse
 
 from motor import RegraViolada
 
+from . import concorrencia
 from .mesas import SemPermissao
 from .repositorio import NaoEncontrado
 from .rotas import (auth, conteudo, encontros, eventos, imagens, inventario, lojas, mesas, personagens, quadro,
@@ -34,6 +35,10 @@ app.include_router(eventos.rotas)
 app.include_router(inventario.rotas)
 app.include_router(inventario.rotas_mestre)
 app.include_router(lojas.rotas)
+
+
+concorrencia.registrar(app)
+app.add_middleware(concorrencia.RefazerEmConflito)
 
 
 @app.exception_handler(RegraViolada)

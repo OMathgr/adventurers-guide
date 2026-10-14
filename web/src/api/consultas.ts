@@ -7,10 +7,15 @@ import type {
   Adversario, Ancestralidade, Arma, Armadura, Cartao, CartaDeDominio, Equipamento, Ligacao, QuadroDaSessao, QuadroSaida, Classe, Comunidade, Criacao, Encontro, Escolha,
   EventoLinhaDoTempo, Ficha, GuiaDeBatalha, InimigoResumo, Mesa, MesaResumo, Npc, NpcEntrada, OpcoesDoGuia, PermissoesMestres, DadosDaSessao, Sessao, SessaoResumo,
   PersonagemCriado, PersonagemResumo, ProximoNivel, ResultadoDano, ResultadoDanoAdversario, Subclasse, VistaDosJogadores,
-  SubidaDeNivel, Item, Inventario, UsoDeConsumivel, Loja, ItemDaLojaEntrada, Venda, FichaResumida,
+  SubidaDeNivel, EquipamentoAtual, InimigoComVersao, Item, Inventario, UsoDeConsumivel, Loja, ItemDaLojaEntrada, Venda, FichaResumida,
 } from './tipos'
 
 const UMA_HORA = 60 * 60 * 1000
+
+/** Formulários mandam a versão do que carregaram; sem ela (null), salvam por cima
+    (o "salvar a minha mesmo assim" do aviso de conflito). Ver api/concorrencia.py. */
+export type ComVersao<T> = T & { versao?: string | null }
+const comVersao = (url: string, versao?: string | null) => (versao ? `${url}?versao=${encodeURIComponent(versao)}` : url)
 
 // --- Catálogo do SRD (não muda: cache longo) -------------------------------------------
 
@@ -132,12 +137,13 @@ export const useArmaduras = () =>
   useQuery({ queryKey: ['srd', 'armaduras'], queryFn: () => chamar<Armadura[]>('/srd/armaduras'), staleTime: UMA_HORA })
 
 export const useEquipamento = (id: string) =>
-  useQuery({ queryKey: ['personagens', id, 'equipamento'], queryFn: () => chamar<Equipamento>(`/personagens/${id}/equipamento`) })
+  useQuery({ queryKey: ['personagens', id, 'equipamento'], queryFn: () => chamar<EquipamentoAtual>(`/personagens/${id}/equipamento`) })
 
 export function useEquipar(id: string) {
   const invalidar = useInvalidarPersonagem()
   return useMutation({
-    mutationFn: (eq: Equipamento) => chamar<Ficha>(`/personagens/${id}/equipamento`, { metodo: 'PUT', corpo: eq }),
+    mutationFn: ({ versao, ...eq }: ComVersao<Equipamento>) =>
+      chamar<Ficha>(comVersao(`/personagens/${id}/equipamento`, versao), { metodo: 'PUT', corpo: eq }),
     onSuccess: () => invalidar(id),
   })
 }
@@ -306,7 +312,7 @@ export const useInimigos = (mesaId: string) =>
 export const useInimigo = (mesaId: string, inimigoId: string | null) =>
   useQuery({
     queryKey: chavesMesa.inimigo(mesaId, inimigoId ?? ''),
-    queryFn: () => chamar<Adversario>(`/mesas/${mesaId}/inimigos/${inimigoId}`),
+    queryFn: () => chamar<InimigoComVersao>(`/mesas/${mesaId}/inimigos/${inimigoId}`),
     enabled: !!inimigoId,
   })
 
@@ -323,9 +329,9 @@ export const useCopiarDoSrd = (mesaId: string) =>
     chamar<Adversario>(`/mesas/${mesaId}/inimigos/do-srd/${adversarioId}`, { metodo: 'POST' }))
 
 export const useSalvarInimigo = (mesaId: string) =>
-  useMutacaoInimigo(mesaId, (inimigo: Adversario) =>
+  useMutacaoInimigo(mesaId, ({ versao, ...inimigo }: ComVersao<Adversario>) =>
     inimigo.id
-      ? chamar<Adversario>(`/mesas/${mesaId}/inimigos/${inimigo.id}`, { metodo: 'PUT', corpo: inimigo })
+      ? chamar<Adversario>(comVersao(`/mesas/${mesaId}/inimigos/${inimigo.id}`, versao), { metodo: 'PUT', corpo: inimigo })
       : chamar<Adversario>(`/mesas/${mesaId}/inimigos`, { corpo: inimigo }))
 
 export const useApagarInimigo = (mesaId: string) =>
@@ -344,9 +350,9 @@ function useMutacaoNpc<V>(mesaId: string, fn: (v: V) => Promise<Npc | void>) {
 }
 
 export const useSalvarNpc = (mesaId: string) =>
-  useMutacaoNpc(mesaId, ({ id, ...npc }: NpcEntrada & { id?: string }) =>
+  useMutacaoNpc(mesaId, ({ id, versao, ...npc }: ComVersao<NpcEntrada & { id?: string }>) =>
     id
-      ? chamar<Npc>(`/mesas/${mesaId}/npcs/${id}`, { metodo: 'PUT', corpo: npc })
+      ? chamar<Npc>(comVersao(`/mesas/${mesaId}/npcs/${id}`, versao), { metodo: 'PUT', corpo: npc })
       : chamar<Npc>(`/mesas/${mesaId}/npcs`, { corpo: npc }))
 
 // --- Sessões do mestre: planejamento, Medo e encontros ------------------------------------
@@ -386,7 +392,8 @@ export const useCriarSessao = (mesaId: string) =>
     chamar<Sessao>(`/mesas/${mesaId}/sessoes`, { corpo: dados }))
 
 export const useEditarSessao = (mesaId: string, sid: string) =>
-  useMutacaoSessao(mesaId, (dados: DadosDaSessao) => chamar<Sessao>(urlSessao(mesaId, sid), { metodo: 'PUT', corpo: dados }))
+  useMutacaoSessao(mesaId, ({ versao, ...dados }: ComVersao<DadosDaSessao>) =>
+    chamar<Sessao>(comVersao(urlSessao(mesaId, sid), versao), { metodo: 'PUT', corpo: dados }))
 
 export const useStatusDaSessao = (mesaId: string, sid: string) =>
   useMutacaoSessao(mesaId, (status: string) =>
@@ -498,8 +505,8 @@ export const useQuadro = (mesaId: string, sid: string) =>
 export function useSalvarQuadro(mesaId: string, sid: string) {
   const cliente = useQueryClient()
   return useMutation({
-    mutationFn: (q: { cartoes: Cartao[]; ligacoes: Ligacao[] }) =>
-      chamar<QuadroSaida>(`${urlSessao(mesaId, sid)}/quadro`, { metodo: 'PUT', corpo: q }),
+    mutationFn: ({ versao, ...q }: ComVersao<{ cartoes: Cartao[]; ligacoes: Ligacao[] }>) =>
+      chamar<QuadroSaida>(comVersao(`${urlSessao(mesaId, sid)}/quadro`, versao), { metodo: 'PUT', corpo: q }),
     onSuccess: (q) => {
       cliente.setQueryData(chaveQuadro(mesaId, sid), q)
       return cliente.invalidateQueries({ queryKey: ['mesas', mesaId, 'quadro-da-campanha'] })
@@ -678,7 +685,7 @@ export const useLojas = (mesaId: string, sid: string) =>
 
 export type AcaoNaLoja =
   | { tipo: 'criar'; nome: string }
-  | { tipo: 'salvar'; id: string; nome: string; visivel: boolean; itens: ItemDaLojaEntrada[] }
+  | { tipo: 'salvar'; id: string; nome: string; visivel: boolean; itens: ItemDaLojaEntrada[]; versao?: string | null }
   | { tipo: 'apagar'; id: string }
 
 export function useAcaoNaLoja(mesaId: string, sid: string) {
@@ -688,7 +695,7 @@ export function useAcaoNaLoja(mesaId: string, sid: string) {
     mutationFn: (a: AcaoNaLoja): Promise<Loja | void> => {
       if (a.tipo === 'criar') return chamar<Loja>(base, { corpo: { nome: a.nome } })
       if (a.tipo === 'apagar') return chamar<void>(`${base}/${a.id}`, { metodo: 'DELETE' })
-      return chamar<Loja>(`${base}/${a.id}`, { metodo: 'PUT', corpo: { nome: a.nome, visivel: a.visivel, itens: a.itens } })
+      return chamar<Loja>(comVersao(`${base}/${a.id}`, a.versao), { metodo: 'PUT', corpo: { nome: a.nome, visivel: a.visivel, itens: a.itens } })
     },
     onSuccess: () => cliente.invalidateQueries({ queryKey: chaveLojas(mesaId, sid) }),
   })

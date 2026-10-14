@@ -15,6 +15,8 @@ from motor import loja as regras_loja
 from motor.inventario import decompor, exigir_moedas
 from motor.loja import ItemDaLoja, TipoNaLoja
 
+from ..concorrencia import conferir, versao_de
+
 from .. import repositorio
 from ..autenticacao import Acesso, acesso
 from ..mesas import Permissao, exigir, membro
@@ -42,6 +44,7 @@ class LojaSaida(BaseModel):
     nome: str
     visivel: bool
     itens: list[ItemDaLojaSaida]
+    versao: str = ""                  # mande de volta ao salvar (api/concorrencia.py)
 
 
 class ItemDaLojaEntrada(BaseModel):
@@ -90,7 +93,8 @@ def itens_saida(itens: list[dict]) -> list[ItemDaLojaSaida]:
 
 
 def _saida(linha: LojaTabela) -> LojaSaida:
-    return LojaSaida(id=linha.id, nome=linha.nome, visivel=linha.visivel, itens=itens_saida(linha.itens))
+    return LojaSaida(id=linha.id, nome=linha.nome, visivel=linha.visivel, itens=itens_saida(linha.itens),
+                     versao=versao_de(linha.nome, bool(linha.visivel), linha.itens))
 
 
 def linha_mesa(a: Acesso, mesa_id: str) -> MesaTabela:
@@ -121,10 +125,13 @@ def criar(mesa_id: str, sessao_id: str, dados: NomeLoja, a: Acesso = Depends(ace
 
 
 @rotas.put("/{loja_id}", response_model=LojaSaida)
-def salvar(mesa_id: str, sessao_id: str, loja_id: str, dados: LojaEntrada, a: Acesso = Depends(acesso)):
-    """Salva a loja inteira (nome, à mostra, itens com preço e estoque)."""
+def salvar(mesa_id: str, sessao_id: str, loja_id: str, dados: LojaEntrada, versao: str | None = None,
+           a: Acesso = Depends(acesso)):
+    """Salva a loja inteira (nome, à mostra, itens com preço e estoque). Uma venda
+    feita enquanto se editava muda o estoque: aí a versão não bate (conflito)."""
     sessao_do_mestre(a, mesa_id, sessao_id, editar=True)
     linha = _linha(a, sessao_id, loja_id)
+    conferir(versao, linha.nome, bool(linha.visivel), linha.itens)
     itens = [ItemDaLoja(**i.model_dump()) for i in dados.itens]
     regras_loja.validar(biblioteca(), itens)
     exigir_moedas(linha_mesa(a, mesa_id).usar_moedas, max((i.moedas for i in itens), default=0))

@@ -89,8 +89,9 @@ def test_equipar_persiste_e_valida(cliente, bardo_id):
                        json={"principal": "core_weapon_longsword", "secundaria": "core_weapon_shortsword"})
     assert ruim.status_code == 422
     assert cliente.get(f"/personagens/{bardo_id}").json()["ataques"][0]["arma"] == "Espada Larga"
-    assert cliente.get(f"/personagens/{bardo_id}/equipamento").json() == {
-        "principal": "core_weapon_broadsword", "secundaria": None, "armadura": "core_armor_leather_armor"}
+    eq = cliente.get(f"/personagens/{bardo_id}/equipamento").json()
+    assert eq.pop("versao")   # versão do conteúdo, para avisar quando dois editam ao mesmo tempo
+    assert eq == {"principal": "core_weapon_broadsword", "secundaria": None, "armadura": "core_armor_leather_armor"}
 
 
 def test_guardar_e_recuperar_carta(cliente, bardo_id):

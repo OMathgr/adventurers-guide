@@ -94,14 +94,14 @@ describe('Lojas', () => {
     personagens: [{ id: 'lira', nome: 'Lira', jogador: 'Bia' }],
   } as unknown as Mesa
   const sessao = { id: 's1', sou_responsavel: true } as unknown as Sessao
-  const loja: Loja = { id: 'l1', nome: 'Boticário', visivel: false, itens: [
+  const loja: Loja = { id: 'l1', nome: 'Boticário', visivel: false, versao: 'v1', itens: [
     { id: 'i1', tipo: 'ITEM', ref: 'pocao', nome: 'Poção de Vida', texto: 'Limpe 1d4+1 PV.', preco: ouro(3), estoque: 2 },
   ] }
 
   it('muda o preço, salva e vende para um personagem', async () => {
     const fetch = api({
       '/mesas/m1/sessoes/s1/lojas': [loja],
-      '/mesas/m1/sessoes/s1/lojas/l1': loja,
+      '/mesas/m1/sessoes/s1/lojas/l1?versao=v1': loja,   // salva mandando a versão que carregou
       '/mesas/m1/sessoes/s1/lojas/l1/vender': { notas: ['Comprou 1× Poção de Vida (3 punhados).'], loja, inventario: INVENTARIO },
     })
     vi.stubGlobal('fetch', fetch)
@@ -117,7 +117,7 @@ describe('Lojas', () => {
     await userEvent.type(screen.getByLabelText('Preço de Poção de Vida'), '15')
     expect(screen.getByText('Salve a loja para vender.')).toBeInTheDocument()
     await userEvent.click(screen.getByRole('button', { name: 'Salvar loja' }))
-    expect(fetch).toHaveBeenCalledWith('/api/mesas/m1/sessoes/s1/lojas/l1', expect.objectContaining({
+    expect(fetch).toHaveBeenCalledWith('/api/mesas/m1/sessoes/s1/lojas/l1?versao=v1', expect.objectContaining({
       method: 'PUT',
       body: JSON.stringify({ nome: 'Boticário', visivel: false, itens: [
         { id: 'i1', tipo: 'ITEM', ref: 'pocao', preco: 15, moedas: 0, estoque: 2, nome: '', descricao: '' }] }),

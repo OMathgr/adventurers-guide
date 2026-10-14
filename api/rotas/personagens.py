@@ -1,6 +1,7 @@
 """Construtor de personagem: criação, level up, equipamento, cartas, ficha
 e linha do tempo."""
 
+import dataclasses
 from collections.abc import Callable
 from typing import TypeVar
 
@@ -10,7 +11,8 @@ from motor import CartaDeDominio, Criacao, Personagem, RegraViolada, SubidaDeNiv
 
 from .. import repositorio
 from ..autenticacao import Acesso, acesso
-from ..esquemas import (CopiaParaMesa, EquipamentoEntrada, EventoLinhaDoTempo, FichaSaida, FotoEntrada,
+from ..concorrencia import conferir, versao_de
+from ..esquemas import (CopiaParaMesa, EquipamentoAtual, EquipamentoEntrada, EventoLinhaDoTempo, FichaSaida, FotoEntrada,
                         OpcoesDeCarta, PersonagemCriado, PersonagemResumo, ProximoNivelSaida, RecuperarCarta,
                         VinculoMesa, ficha_saida)
 from ..mesas import membro
@@ -103,18 +105,21 @@ def desfazer_nivel(personagem_id: str, a: Acesso = Depends(acesso)):
 
 # --- Estado atual: equipamento e cartas ------------------------------------------------
 
-@rotas.get("/{personagem_id}/equipamento", response_model=EquipamentoEntrada)
+@rotas.get("/{personagem_id}/equipamento", response_model=EquipamentoAtual)
 def equipamento_atual(personagem_id: str, a: Acesso = Depends(acesso)):
     """Ids do que está equipado agora (a ficha só traz os nomes)."""
     eq = repositorio.carregar(a.banco, a.usuario_id, personagem_id).equipamento
-    return EquipamentoEntrada(principal=eq.principal, secundaria=eq.secundaria, armadura=eq.armadura)
+    return EquipamentoAtual(principal=eq.principal, secundaria=eq.secundaria, armadura=eq.armadura,
+                            versao=versao_de(dataclasses.asdict(eq)))
 
 
 @rotas.put("/{personagem_id}/equipamento", response_model=FichaSaida)
-def equipar(personagem_id: str, equipamento: EquipamentoEntrada,
+def equipar(personagem_id: str, equipamento: EquipamentoEntrada, versao: str | None = None,
             a: Acesso = Depends(acesso)):
-    return ficha_saida(executar(a, personagem_id,
-                                lambda p: p.equipar(**equipamento.model_dump())))
+    def acao(p: Personagem):
+        conferir(versao, dataclasses.asdict(p.equipamento))   # só o equipamento: dano no meio não conflita
+        return p.equipar(**equipamento.model_dump())
+    return ficha_saida(executar(a, personagem_id, acao))
 
 
 @rotas.post("/{personagem_id}/cartas/{carta}/guardar", response_model=FichaSaida)

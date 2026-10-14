@@ -16,6 +16,7 @@ from motor import RegraViolada
 from motor.encontro import MEDO_MAXIMO, ajustar_medo, definir_medo
 
 from ..autenticacao import Acesso, acesso
+from ..concorrencia import conferir, versao_de
 from ..mesas import MESTRE, Permissao, eh_criador, exigir, exigir_mestre, membro
 from ..sessoes import STATUS, pode_ver, sessao_do_mestre
 from ..tabelas import MembroTabela, SessaoTabela
@@ -42,6 +43,7 @@ class Sessao(SessaoResumo):
     npcs: list[str]                    # NPCs da mesa que devem aparecer
     inimigos: list[str]                # inimigos da mesa que devem aparecer
     encontros: list[EncontroResumo]
+    versao: str                        # do planejamento: mande de volta ao salvar (api/concorrencia.py)
 
 
 class NovaSessao(BaseModel):
@@ -80,10 +82,18 @@ def _resumo(s: SessaoTabela, usuario_id: str) -> SessaoResumo:
                         sou_responsavel=s.responsavel_id == usuario_id)
 
 
+def _versao_conteudo(s: SessaoTabela) -> tuple:
+    return s.titulo, s.data, s.resumo, s.notas, list(s.npcs or []), list(s.inimigos or [])
+
+
+def _versao_planejamento(s: SessaoTabela) -> str:
+    return versao_de(*_versao_conteudo(s))
+
+
 def _saida(a: Acesso, s: SessaoTabela) -> Sessao:
     return Sessao(**_resumo(s, a.usuario_id).model_dump(), resumo=s.resumo, notas=s.notas,
                   compartilhada_com=list(s.compartilhada_com or []), npcs=list(s.npcs or []),
-                  inimigos=list(s.inimigos or []), encontros=resumos(a, s.id))
+                  inimigos=list(s.inimigos or []), encontros=resumos(a, s.id), versao=_versao_planejamento(s))
 
 
 @rotas.get("", response_model=list[SessaoResumo])
@@ -118,8 +128,10 @@ def ver(mesa_id: str, sessao_id: str, a: Acesso = Depends(acesso)):
 
 
 @rotas.put("/{sessao_id}", response_model=Sessao)
-def editar(mesa_id: str, sessao_id: str, dados: DadosDaSessao, a: Acesso = Depends(acesso)):
+def editar(mesa_id: str, sessao_id: str, dados: DadosDaSessao, versao: str | None = None,
+           a: Acesso = Depends(acesso)):
     s = sessao_do_mestre(a, mesa_id, sessao_id, editar=True)
+    conferir(versao, *_versao_conteudo(s))
     s.titulo, s.data, s.resumo, s.notas = dados.titulo.strip(), dados.data, dados.resumo, dados.notas
     s.npcs, s.inimigos = list(dict.fromkeys(dados.npcs)), list(dict.fromkeys(dados.inimigos))
     a.banco.commit()

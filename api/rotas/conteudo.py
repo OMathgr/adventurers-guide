@@ -6,19 +6,37 @@ Ver exige ser mestre; criar, editar e apagar exige a permissão `preparar`
 """
 
 import copy
+import dataclasses
 import uuid
+from typing import get_type_hints
 
 from fastapi import APIRouter, Depends, Response
-from pydantic import BaseModel, Field, TypeAdapter
+from pydantic import BaseModel, Field, TypeAdapter, create_model
 
 from motor import Adversario
 from motor.adversarios import validar
 
 from ..autenticacao import Acesso, acesso
+from ..concorrencia import conferir, versao_de
 from ..mesas import Permissao, exigir, exigir_mestre, membro
 from ..repositorio import NaoEncontrado, biblioteca
 from ..tabelas import InimigoTabela, NpcTabela
 from .imagens import imagem_valida
+
+
+def _padrao(campo: dataclasses.Field):
+    if campo.default is not dataclasses.MISSING:
+        return campo.default
+    if campo.default_factory is not dataclasses.MISSING:
+        return Field(default_factory=campo.default_factory)
+    return ...
+
+
+# o Adversario do motor + a versão do conteúdo (para avisar quando dois editam ao mesmo tempo)
+_TIPOS = get_type_hints(Adversario)
+InimigoComVersao = create_model(
+    "InimigoComVersao", versao=(str, ""),
+    **{c.name: (_TIPOS[c.name], _padrao(c)) for c in dataclasses.fields(Adversario)})
 
 rotas = APIRouter(prefix="/mesas/{mesa_id}", tags=["Conteúdo do mestre"])
 _ADVERSARIO = TypeAdapter(Adversario)
@@ -97,21 +115,24 @@ def copiar_do_srd(mesa_id: str, adversario_id: str, a: Acesso = Depends(acesso))
     return linha.dados
 
 
-@rotas.get("/inimigos/{inimigo_id}", response_model=Adversario)
+@rotas.get("/inimigos/{inimigo_id}", response_model=InimigoComVersao)
 def ver_inimigo(mesa_id: str, inimigo_id: str, a: Acesso = Depends(acesso)):
     _mestre(a, mesa_id)
-    return _inimigo(a, mesa_id, inimigo_id).dados
+    linha = _inimigo(a, mesa_id, inimigo_id)
+    return {**linha.dados, "versao": versao_de(linha.dados)}
 
 
-@rotas.put("/inimigos/{inimigo_id}", response_model=Adversario)
-def editar_inimigo(mesa_id: str, inimigo_id: str, inimigo: Adversario, a: Acesso = Depends(acesso)):
+@rotas.put("/inimigos/{inimigo_id}", response_model=InimigoComVersao)
+def editar_inimigo(mesa_id: str, inimigo_id: str, inimigo: Adversario, versao: str | None = None,
+                   a: Acesso = Depends(acesso)):
     _mestre(a, mesa_id, editar=True)
     linha = _inimigo(a, mesa_id, inimigo_id)
+    conferir(versao, linha.dados)
     imagem_valida(a, inimigo.foto)
     inimigo.base_id = linha.dados.get("base_id")   # a origem não muda ao editar
     linha.dados = _salvavel(inimigo, inimigo_id)
     a.banco.commit()
-    return linha.dados
+    return {**linha.dados, "versao": versao_de(linha.dados)}
 
 
 @rotas.delete("/inimigos/{inimigo_id}", status_code=204)
@@ -136,6 +157,7 @@ class NpcEntrada(BaseModel):
 class Npc(NpcEntrada):
     id: str
     revelado: bool = False             # conhecido pelos jogadores (nome, foto e descrição)
+    versao: str = ""                   # mande de volta ao salvar (api/concorrencia.py)
 
 
 class NpcRevelado(BaseModel):
@@ -149,10 +171,14 @@ def _npc(a: Acesso, mesa_id: str, npc_id: str) -> NpcTabela:
     return linha
 
 
+def _conteudo_npc(linha: NpcTabela) -> tuple:
+    return linha.nome, linha.descricao, linha.motivacoes, linha.notas, linha.ficha_combate, linha.foto
+
+
 def _npc_saida(linha: NpcTabela) -> Npc:
     return Npc(id=linha.id, nome=linha.nome, descricao=linha.descricao, motivacoes=linha.motivacoes,
                notas=linha.notas, ficha_combate=linha.ficha_combate, foto=linha.foto,
-               revelado=bool(linha.revelado))
+               revelado=bool(linha.revelado), versao=versao_de(*_conteudo_npc(linha)))
 
 
 def _aplicar_npc(a: Acesso, linha: NpcTabela, dados: NpcEntrada):
@@ -189,9 +215,11 @@ def ver_npc(mesa_id: str, npc_id: str, a: Acesso = Depends(acesso)):
 
 
 @rotas.put("/npcs/{npc_id}", response_model=Npc)
-def editar_npc(mesa_id: str, npc_id: str, dados: NpcEntrada, a: Acesso = Depends(acesso)):
+def editar_npc(mesa_id: str, npc_id: str, dados: NpcEntrada, versao: str | None = None,
+               a: Acesso = Depends(acesso)):
     _mestre(a, mesa_id, editar=True)
     linha = _npc(a, mesa_id, npc_id)
+    conferir(versao, *_conteudo_npc(linha))
     _aplicar_npc(a, linha, dados)
     a.banco.commit()
     return _npc_saida(linha)

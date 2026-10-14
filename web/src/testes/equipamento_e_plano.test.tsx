@@ -154,3 +154,32 @@ describe('Ficha simplificada dos outros personagens', () => {
     expect(screen.getByText(/Fauno · Aristocrática · jogado por Bia/)).toBeInTheDocument()
   })
 })
+
+describe('Duas abas editando o mesmo formulário', () => {
+  it('avisa do conflito e deixa salvar por cima', async () => {
+    const chamadas: string[] = []
+    vi.stubGlobal('fetch', vi.fn(async (url: string, opcoes?: RequestInit) => {
+      const caminho = url.replace(/^\/api/, '')
+      if (opcoes?.method === 'PUT') {
+        chamadas.push(caminho)
+        return caminho.includes('?versao=')
+          ? new Response(JSON.stringify({ detail: 'Isto foi salvo em outro lugar enquanto você editava.', tipo: 'conflito' }), { status: 409 })
+          : new Response('{}', { status: 200 })
+      }
+      const corpo: Record<string, unknown> = {
+        '/personagens/p1/equipamento': { principal: null, secundaria: null, armadura: null, versao: 'v1' },
+        '/srd/armas': [arma('espada', 'Espada')], '/srd/armaduras': [COURO],
+      }
+      return new Response(JSON.stringify(corpo[caminho] ?? {}), { status: 200 })
+    }))
+    montar(<AbaEquipamento personagemId="p1" ficha={{ nivel: 1, conjuracoes: [] } as unknown as Ficha} />)
+
+    await userEvent.click(await screen.findByRole('button', { name: /Espada/ }))
+    await userEvent.click(screen.getByRole('button', { name: 'Salvar equipamento' }))
+    expect(await screen.findByText(/salvo em outro lugar enquanto você editava/)).toBeInTheDocument()
+    expect(chamadas).toEqual(['/personagens/p1/equipamento?versao=v1'])
+
+    await userEvent.click(screen.getByRole('button', { name: 'Salvar a minha por cima' }))
+    expect(chamadas.at(-1)).toBe('/personagens/p1/equipamento')   // sem versão: por cima
+  })
+})

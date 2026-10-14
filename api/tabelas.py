@@ -59,6 +59,10 @@ class IdentidadeTabela(Base):
 class MesaTabela(Base):
     __tablename__ = "mesas"
 
+    # gravação simultânea: o banco recusa se a versão mudou (api/concorrencia.py)
+    versao: Mapped[int] = mapped_column(Integer, default=1, server_default="1")
+    __mapper_args__ = {"version_id_col": versao}
+
     id: Mapped[str] = mapped_column(String(36), primary_key=True)
     nome: Mapped[str] = mapped_column(String(120))
     criador_id: Mapped[str] = mapped_column(ForeignKey("usuarios.id", ondelete="CASCADE"), index=True)
@@ -129,6 +133,10 @@ class SessaoTabela(Base):
 
     __tablename__ = "sessoes"
 
+    # gravação simultânea: o banco recusa se a versão mudou (api/concorrencia.py)
+    versao: Mapped[int] = mapped_column(Integer, default=1, server_default="1")
+    __mapper_args__ = {"version_id_col": versao}
+
     id: Mapped[str] = mapped_column(String(36), primary_key=True)
     mesa_id: Mapped[str] = mapped_column(ForeignKey("mesas.id", ondelete="CASCADE"), index=True)
     responsavel_id: Mapped[str] = mapped_column(ForeignKey("usuarios.id", ondelete="CASCADE"), index=True)
@@ -156,6 +164,10 @@ class EncontroTabela(Base):
 
     __tablename__ = "encontros"
 
+    # gravação simultânea: o banco recusa se a versão mudou (api/concorrencia.py)
+    versao: Mapped[int] = mapped_column(Integer, default=1, server_default="1")
+    __mapper_args__ = {"version_id_col": versao}
+
     id: Mapped[str] = mapped_column(String(36), primary_key=True)
     mesa_id: Mapped[str] = mapped_column(ForeignKey("mesas.id", ondelete="CASCADE"), index=True)
     sessao_id: Mapped[str] = mapped_column(ForeignKey("sessoes.id", ondelete="CASCADE"), index=True)
@@ -176,6 +188,10 @@ class LojaTabela(Base):
 
     __tablename__ = "lojas"
 
+    # gravação simultânea: o banco recusa se a versão mudou (api/concorrencia.py)
+    versao: Mapped[int] = mapped_column(Integer, default=1, server_default="1")
+    __mapper_args__ = {"version_id_col": versao}
+
     id: Mapped[str] = mapped_column(String(36), primary_key=True)
     mesa_id: Mapped[str] = mapped_column(ForeignKey("mesas.id", ondelete="CASCADE"), index=True)
     sessao_id: Mapped[str] = mapped_column(ForeignKey("sessoes.id", ondelete="CASCADE"), index=True)
@@ -188,6 +204,10 @@ class LojaTabela(Base):
 
 class PersonagemTabela(Base):
     __tablename__ = "personagens"
+
+    # gravação simultânea: o banco recusa se a versão mudou (api/concorrencia.py)
+    versao: Mapped[int] = mapped_column(Integer, default=1, server_default="1")
+    __mapper_args__ = {"version_id_col": versao}
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True)
     dono_id: Mapped[str] = mapped_column(ForeignKey("usuarios.id", ondelete="CASCADE"), index=True)

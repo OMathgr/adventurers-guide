@@ -611,9 +611,34 @@ multiclasse, ancestralidade, comunidade) e PV, PF e Esperança, em `GET
 ou inventário (a ficha completa continua só do dono e do mestre com
 `ver_fichas`). Na aba Mesa, tocar no personagem abre; atualiza ao vivo.
 
-Ainda não: controle de concorrência entre duas edições
-simultâneas do mesmo personagem (ex.: mestre aplica dano enquanto o jogador
-descansa).
+### Duas pessoas mexendo ao mesmo tempo (`api/concorrencia.py`)
+
+Decisões do projeto (2026-10-14): ações que chegam juntas se refazem sozinhas;
+formulários avisam e deixam escolher.
+
+- **Ações** (dano, Esperança, usar item, vender, Medo, marcas de combate...):
+  `personagens`, `mesas`, `sessoes`, `encontros` e `lojas` têm a coluna `versao`
+  (`version_id_col` do SQLAlchemy: grava com `WHERE versao = <lida>`). Se outra
+  gravação passou na frente, sai `StaleDataError`, que vira um 409 marcado; o
+  middleware `RefazerEmConflito` guarda o corpo do pedido e o roda de novo (até 3
+  vezes), com sessão de banco nova, sobre o estado atualizado. Como as ações são
+  comandos ("3 de dano"), as duas valem; se a segunda não couber mais (ex.:
+  Esperança já gasta), sai o erro normal da regra. Cobre toda rota que grava,
+  inclusive as novas, sem precisar lembrar. GET passa direto (o fluxo ao vivo é GET).
+- **Formulários que salvam tudo de uma vez** (planejamento da sessão, quadro,
+  loja, inimigo, NPC, equipamento): a resposta traz `versao`, um hash só do
+  conteúdo do formulário, para não "conflitar" com o que não é dele (dano no
+  personagem não conflita com trocar o equipamento). Ao salvar, a tela manda
+  `?versao=<a que carregou>`; se mudou, 409 `tipo: "conflito"` e a tela mostra
+  "Ver a versão atual" (descarta a sua) ou "Salvar a minha por cima" (manda sem
+  versão). Depois de salvar, a tela passa a usar a versão devolvida.
+- O quadro salva sozinho: um salvamento por vez (senão a versão de um
+  "conflitaria" com a do anterior) e para no conflito até a pessoa escolher.
+- O editor da loja não remonta mais a cada mudança no servidor (perdia o
+  rascunho em silêncio): sem nada sendo editado, mostra o novo (ex.: estoque
+  depois de uma venda); editando, guarda o rascunho e avisa ao salvar.
+- Testes simulam a concorrência de forma determinística: "outra pessoa" grava
+  no banco bem entre o ler e o gravar do pedido.
 
 ### Ao vivo (`api/eventos.py` e `api/rotas/eventos.py`)
 

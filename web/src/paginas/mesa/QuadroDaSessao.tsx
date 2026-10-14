@@ -13,7 +13,9 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useEnviarImagem, useInimigos, useNpcs, useQuadro, useSalvarQuadro } from '../../api/consultas'
 import type { Cartao, ItemNoQuadro, Mesa, QuadroSaida, Sessao, TipoItem } from '../../api/tipos'
 import { TIPOS_DE_CARTAO } from '../../componentes/quadro/tipos'
+import { AvisoDeConflito } from '../../componentes/Conflito'
 import { Area, Aviso, Botao, Campo, Carregando, Selecao } from '../../componentes/ui'
+import { ehConflito, semConflito } from '../../lib/conflito'
 import { type NoDoQuadro, paraArestas, paraNos, paraQuadro } from '../../lib/quadro'
 
 const CORES: [string, string][] = [
@@ -85,22 +87,32 @@ function NovoItem({ mesa, sessao, aoEscolher }:
   )
 }
 
-function Editor({ mesa, sessao, inicial }: { mesa: Mesa; sessao: Sessao; inicial: QuadroSaida }) {
+function Editor({ mesa, sessao, inicial, aoRecarregar }: {
+  mesa: Mesa; sessao: Sessao; inicial: QuadroSaida; aoRecarregar: () => void
+}) {
   const somenteLeitura = !sessao.sou_responsavel
   const [nos, setNos] = useState<NoDoQuadro[]>(() => paraNos(inicial.cartoes, inicial.itens))
   const [arestas, setArestas] = useState<Edge[]>(() => paraArestas(inicial.ligacoes))
   const [sujo, setSujo] = useState(false)
   const salvar = useSalvarQuadro(mesa.id, sessao.id)
-  const { mutate: gravar } = salvar
+  const { mutate: gravar, isPending: gravando } = salvar
   const enviar = useEnviarImagem()
   const entradaImagem = useRef<HTMLInputElement>(null)
+  // versão do quadro que esta tela conhece: se outra aba salvar antes, o servidor avisa
+  const versao = useRef(inicial.versao)
+  const conflito = ehConflito(salvar.error)
 
-  // salva sozinho 800 ms depois da última mudança
+  // salva sozinho 800 ms depois da última mudança (um salvamento por vez, para a
+  // versão de um não "conflitar" com a do anterior); parado se houve conflito
   useEffect(() => {
-    if (!sujo || somenteLeitura) return
-    const t = setTimeout(() => { setSujo(false); gravar(paraQuadro(nos, arestas)) }, 800)
+    if (!sujo || somenteLeitura || gravando || conflito) return
+    const t = setTimeout(() => {
+      setSujo(false)
+      gravar({ ...paraQuadro(nos, arestas), versao: versao.current },
+        { onSuccess: (q) => { versao.current = q.versao } })
+    }, 800)
     return () => clearTimeout(t)
-  }, [sujo, nos, arestas, somenteLeitura, gravar])
+  }, [sujo, nos, arestas, somenteLeitura, gravar, gravando, conflito])
 
   const mudou = () => setSujo(true)
   const onNodesChange = useCallback((m: NodeChange<NoDoQuadro>[]) => {
@@ -139,7 +151,7 @@ function Editor({ mesa, sessao, inicial }: { mesa: Mesa; sessao: Sessao; inicial
     mudou()
   }
 
-  const estado = salvar.isPending || sujo ? 'Salvando…' : salvar.isError ? 'Não foi salvo' : 'Tudo salvo'
+  const estado = conflito ? 'Não foi salvo' : salvar.isPending || sujo ? 'Salvando…' : salvar.isError ? 'Não foi salvo' : 'Tudo salvo'
 
   return (
     <div className="grid gap-3 lg:grid-cols-[1fr_18rem]">
@@ -161,7 +173,10 @@ function Editor({ mesa, sessao, inicial }: { mesa: Mesa; sessao: Sessao; inicial
             <span className="ml-auto text-xs text-texto-suave" aria-live="polite">{estado}</span>
           </div>
         )}
-        <Aviso erro={salvar.error ?? enviar.error} />
+        <AvisoDeConflito erro={salvar.error} ocupado={gravando} aoVerAtual={aoRecarregar}
+          aoSalvarMesmoAssim={() => gravar({ ...paraQuadro(nos, arestas), versao: null },
+            { onSuccess: (q) => { versao.current = q.versao } })} />
+        <Aviso erro={semConflito(salvar.error) ?? enviar.error} />
         <div className="h-[65vh] overflow-hidden rounded-2xl border border-borda" aria-label="Quadro da sessão">
           <ReactFlow nodes={nos} edges={arestas} nodeTypes={TIPOS_DE_CARTAO} colorMode={modoDeCor()}
             onNodesChange={onNodesChange} onEdgesChange={onEdgesChange} onConnect={onConnect}
@@ -215,10 +230,12 @@ function Editor({ mesa, sessao, inicial }: { mesa: Mesa; sessao: Sessao; inicial
 
 export default function QuadroDaSessao({ mesa, sessao }: { mesa: Mesa; sessao: Sessao }) {
   const quadro = useQuadro(mesa.id, sessao.id)
+  const [geracao, setGeracao] = useState(0)   // "ver a versão atual" remonta o editor
   if (quadro.isPending) return <Carregando />
   if (quadro.isError) return <Aviso erro={quadro.error} />
   // o editor lê o quadro só ao montar e depois mantém o próprio estado; quem só lê (sessão
   // compartilhada) remonta a cada atualização ao vivo, para ver o que o responsável mudou
-  const chave = sessao.sou_responsavel ? sessao.id : `${sessao.id}:${quadro.dataUpdatedAt}`
-  return <Editor key={chave} mesa={mesa} sessao={sessao} inicial={quadro.data} />
+  const chave = sessao.sou_responsavel ? `${sessao.id}:${geracao}` : `${sessao.id}:${quadro.dataUpdatedAt}`
+  return <Editor key={chave} mesa={mesa} sessao={sessao} inicial={quadro.data}
+    aoRecarregar={() => { void quadro.refetch().then(() => setGeracao((g) => g + 1)) }} />
 }

@@ -10,11 +10,13 @@ import {
 } from '../../api/consultas'
 import type { Mesa, Sessao } from '../../api/tipos'
 import { useAutenticacao } from '../../auth/Autenticacao'
+import { AvisoDeConflito } from '../../componentes/Conflito'
 import MedoDoMestre from '../../componentes/MedoDoMestre'
 import { Abas, Area, Aviso, Botao, Campo, Cartao, Carregando, Escolhivel, Selecao, Selo } from '../../componentes/ui'
 import Encontros from './Encontros'
 import Lojas from './Lojas'
 import PersonagensNaSessao from './PersonagensNaSessao'
+import { semConflito } from '../../lib/conflito'
 
 
 const NOME_STATUS: Record<string, string> = {
@@ -49,22 +51,28 @@ function Destaques({ titulo, opcoes, escolhidos, aoMudar, desabilitado }: {
 }
 
 /** Planejamento: os dados que o responsável edita e salva de uma vez. */
+const dadosDe = (s: Sessao) => ({
+  titulo: s.titulo, data: s.data ?? null, resumo: s.resumo, notas: s.notas, npcs: s.npcs, inimigos: s.inimigos,
+})
+
 function Planejamento({ mesaId, sessao }: { mesaId: string; sessao: Sessao }) {
   const editar = useEditarSessao(mesaId, sessao.id)
+  const recarregar = useSessao(mesaId, sessao.id)
   const npcs = useNpcs(mesaId)
   const inimigos = useInimigos(mesaId)
-  const inicial = {
-    titulo: sessao.titulo, data: sessao.data ?? null, resumo: sessao.resumo, notas: sessao.notas,
-    npcs: sessao.npcs, inimigos: sessao.inimigos,
-  }
+  const inicial = dadosDe(sessao)
   const [r, setR] = useState(inicial)
+  // versão de onde o rascunho partiu: se outra aba salvar antes, o servidor avisa
+  const [base, setBase] = useState(sessao.versao)
+  const salvar = (versao: string | null) =>
+    editar.mutate({ ...r, versao }, { onSuccess: (nova) => setBase(nova.versao) })
   const so = !sessao.sou_responsavel
   const mudou = JSON.stringify(r) !== JSON.stringify(inicial)
   const mudar = (p: Partial<typeof r>) => setR({ ...r, ...p })
 
   return (
     <Cartao titulo="Planejamento">
-      <form className="space-y-3" onSubmit={(e) => { e.preventDefault(); editar.mutate(r) }}>
+      <form className="space-y-3" onSubmit={(e) => { e.preventDefault(); salvar(base) }}>
         <div className="grid gap-3 sm:grid-cols-[1fr_12rem]">
           <Campo rotulo="Título" value={r.titulo} maxLength={120} required disabled={so}
             onChange={(e) => mudar({ titulo: e.target.value })} />
@@ -81,7 +89,14 @@ function Planejamento({ mesaId, sessao }: { mesaId: string; sessao: Sessao }) {
           opcoes={(npcs.data ?? []).map((n) => ({ id: n.id, nome: n.nome }))} aoMudar={(ids) => mudar({ npcs: ids })} />
         <Destaques titulo="Inimigos que devem aparecer" escolhidos={r.inimigos} desabilitado={so}
           opcoes={(inimigos.data ?? []).map((i) => ({ id: i.id, nome: i.nome }))} aoMudar={(ids) => mudar({ inimigos: ids })} />
-        <Aviso erro={editar.error} />
+        <AvisoDeConflito erro={editar.error} ocupado={editar.isPending}
+          aoVerAtual={async () => {
+            const atual = (await recarregar.refetch()).data
+            if (atual) { setR(dadosDe(atual)); setBase(atual.versao) }
+            editar.reset()
+          }}
+          aoSalvarMesmoAssim={() => salvar(null)} />
+        <Aviso erro={semConflito(editar.error)} />
         {!so && (
           <div className="flex gap-2">
             <Botao type="submit" disabled={!mudou || !r.titulo.trim() || editar.isPending}>

@@ -16,6 +16,7 @@ from pydantic import BaseModel, TypeAdapter
 from motor.quadro import Cartao, Ligacao, Quadro, TipoCartao, so_revelado, validar
 
 from ..autenticacao import Acesso, acesso
+from ..concorrencia import conferir, versao_de
 from ..mesas import membro
 from ..sessoes import sessao_do_mestre
 from ..tabelas import EncontroTabela, InimigoTabela, MesaTabela, NpcTabela, SessaoTabela
@@ -35,6 +36,7 @@ class QuadroSaida(BaseModel):
     cartoes: list[Cartao]
     ligacoes: list[Ligacao]
     itens: dict[str, ItemNoQuadro]   # "npc:<id>" → nome, foto...
+    versao: str = ""                 # mande de volta ao salvar (api/concorrencia.py)
 
 
 class QuadroDaSessao(QuadroSaida):
@@ -84,17 +86,19 @@ def _saida(a: Acesso, mesa: MesaTabela, q: Quadro) -> dict:
 @rotas.get("/sessoes/{sessao_id}/quadro", response_model=QuadroSaida)
 def ver_quadro(mesa_id: str, sessao_id: str, a: Acesso = Depends(acesso)):
     s = sessao_do_mestre(a, mesa_id, sessao_id)
-    return _saida(a, a.banco.get(MesaTabela, mesa_id), _quadro(s))
+    return {**_saida(a, a.banco.get(MesaTabela, mesa_id), _quadro(s)), "versao": versao_de(s.quadro or {})}
 
 
 @rotas.put("/sessoes/{sessao_id}/quadro", response_model=QuadroSaida)
-def salvar_quadro(mesa_id: str, sessao_id: str, quadro: Quadro, a: Acesso = Depends(acesso)):
+def salvar_quadro(mesa_id: str, sessao_id: str, quadro: Quadro, versao: str | None = None,
+                  a: Acesso = Depends(acesso)):
     """Grava o quadro inteiro (a tela salva sozinha depois de cada mudança)."""
     s = sessao_do_mestre(a, mesa_id, sessao_id, editar=True)
+    conferir(versao, s.quadro or {})
     validar(quadro)
     s.quadro = _QUADRO.dump_python(quadro, mode="json")
     a.banco.commit()
-    return _saida(a, a.banco.get(MesaTabela, mesa_id), quadro)
+    return {**_saida(a, a.banco.get(MesaTabela, mesa_id), quadro), "versao": versao_de(s.quadro)}
 
 
 @rotas.get("/quadro-da-campanha", response_model=list[QuadroDaSessao])

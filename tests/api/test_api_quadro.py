@@ -26,7 +26,8 @@ def q_url(mesa, sessao):
 
 
 def test_quadro_comeca_vazio_e_salva(cliente, mesa, sessao):
-    assert cliente.get(q_url(mesa, sessao)).json() == {"cartoes": [], "ligacoes": [], "itens": {}}
+    vazio = cliente.get(q_url(mesa, sessao)).json()
+    assert vazio.pop("versao") and vazio == {"cartoes": [], "ligacoes": [], "itens": {}}
     npc = cliente.post(f"/mesas/{mesa['id']}/npcs", json={"nome": "Marlowe", "descricao": "Ferreiro"}).json()
     quadro = {
         "cartoes": [

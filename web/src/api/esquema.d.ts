@@ -2102,7 +2102,8 @@ export interface paths {
         get?: never;
         /**
          * Salvar
-         * @description Salva a loja inteira (nome, à mostra, itens com preço e estoque).
+         * @description Salva a loja inteira (nome, à mostra, itens com preço e estoque). Uma venda
+         *     feita enquanto se editava muda o estoque: aí a versão não bate (conflito).
          */
         put: operations["salvar_mesas__mesa_id__sessoes__sessao_id__lojas__loja_id__put"];
         post?: never;
@@ -2786,6 +2787,20 @@ export interface components {
             /** Inimigos */
             inimigos: components["schemas"]["InimigoVisivel"][];
         };
+        /** EquipamentoAtual */
+        EquipamentoAtual: {
+            /** Principal */
+            principal?: string | null;
+            /** Secundaria */
+            secundaria?: string | null;
+            /** Armadura */
+            armadura?: string | null;
+            /**
+             * Versao
+             * @default
+             */
+            versao: string;
+        };
         /** EquipamentoEntrada */
         EquipamentoEntrada: {
             /** Principal */
@@ -3123,6 +3138,75 @@ export interface components {
             /** Url */
             url: string;
         };
+        /** InimigoComVersao */
+        InimigoComVersao: {
+            /**
+             * Versao
+             * @default
+             */
+            versao: string;
+            /** Nome */
+            nome: string;
+            /** Patamar */
+            patamar: number;
+            tipo: components["schemas"]["TipoAdversario"];
+            /** Dificuldade */
+            dificuldade: number;
+            /** Pv */
+            pv: number;
+            /** Pf */
+            pf: number;
+            /** Ataque */
+            ataque: string;
+            /** Arma */
+            arma: string;
+            /** Alcance */
+            alcance: string;
+            /** Dano */
+            dano: string;
+            tipo_dano: components["schemas"]["TipoDano"];
+            /** Limiar Maior */
+            limiar_maior?: number | null;
+            /** Limiar Grave */
+            limiar_grave?: number | null;
+            /**
+             * Descricao
+             * @default
+             */
+            descricao: string;
+            /**
+             * Motivacoes
+             * @default
+             */
+            motivacoes: string;
+            /** Experiencias */
+            experiencias?: {
+                [key: string]: number;
+            };
+            /** Habilidades */
+            habilidades?: components["schemas"]["Habilidade"][];
+            /** Horda Por Pv */
+            horda_por_pv?: number | null;
+            /**
+             * Id
+             * @default
+             */
+            id: string;
+            /** Base Id */
+            base_id?: string | null;
+            /**
+             * Nome Original
+             * @default
+             */
+            nome_original: string;
+            /**
+             * Arma Original
+             * @default
+             */
+            arma_original: string;
+            /** Foto */
+            foto?: string | null;
+        };
         /** InimigoResumo */
         InimigoResumo: {
             /** Id */
@@ -3360,6 +3444,11 @@ export interface components {
             visivel: boolean;
             /** Itens */
             itens: components["schemas"]["ItemDaLojaSaida"][];
+            /**
+             * Versao
+             * @default
+             */
+            versao: string;
         };
         /** LojaVisivel */
         LojaVisivel: {
@@ -3565,6 +3654,11 @@ export interface components {
              * @default false
              */
             revelado: boolean;
+            /**
+             * Versao
+             * @default
+             */
+            versao: string;
         };
         /** NpcConhecido */
         NpcConhecido: {
@@ -3856,6 +3950,11 @@ export interface components {
             itens: {
                 [key: string]: components["schemas"]["ItemNoQuadro"];
             };
+            /**
+             * Versao
+             * @default
+             */
+            versao: string;
             /** Sessao Id */
             sessao_id: string;
             /** Titulo */
@@ -3878,6 +3977,11 @@ export interface components {
             itens: {
                 [key: string]: components["schemas"]["ItemNoQuadro"];
             };
+            /**
+             * Versao
+             * @default
+             */
+            versao: string;
         };
         /** Quantidade */
         Quantidade: {
@@ -3998,6 +4102,8 @@ export interface components {
             inimigos: string[];
             /** Encontros */
             encontros: components["schemas"]["EncontroResumo"][];
+            /** Versao */
+            versao: string;
         };
         /** SessaoResumo */
         SessaoResumo: {
@@ -5109,7 +5215,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["EquipamentoEntrada"];
+                    "application/json": components["schemas"]["EquipamentoAtual"];
                 };
             };
             /** @description Validation Error */
@@ -5125,7 +5231,9 @@ export interface operations {
     };
     equipar_personagens__personagem_id__equipamento_put: {
         parameters: {
-            query?: never;
+            query?: {
+                versao?: string | null;
+            };
             header?: never;
             path: {
                 personagem_id: string;
@@ -6576,7 +6684,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["Adversario"];
+                    "application/json": components["schemas"]["InimigoComVersao"];
                 };
             };
             /** @description Validation Error */
@@ -6592,7 +6700,9 @@ export interface operations {
     };
     editar_inimigo_mesas__mesa_id__inimigos__inimigo_id__put: {
         parameters: {
-            query?: never;
+            query?: {
+                versao?: string | null;
+            };
             header?: never;
             path: {
                 mesa_id: string;
@@ -6612,7 +6722,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["Adversario"];
+                    "application/json": components["schemas"]["InimigoComVersao"];
                 };
             };
             /** @description Validation Error */
@@ -6756,7 +6866,9 @@ export interface operations {
     };
     editar_npc_mesas__mesa_id__npcs__npc_id__put: {
         parameters: {
-            query?: never;
+            query?: {
+                versao?: string | null;
+            };
             header?: never;
             path: {
                 mesa_id: string;
@@ -6956,7 +7068,9 @@ export interface operations {
     };
     editar_mesas__mesa_id__sessoes__sessao_id__put: {
         parameters: {
-            query?: never;
+            query?: {
+                versao?: string | null;
+            };
             header?: never;
             path: {
                 mesa_id: string;
@@ -7831,7 +7945,9 @@ export interface operations {
     };
     salvar_quadro_mesas__mesa_id__sessoes__sessao_id__quadro_put: {
         parameters: {
-            query?: never;
+            query?: {
+                versao?: string | null;
+            };
             header?: never;
             path: {
                 mesa_id: string;
@@ -8656,7 +8772,9 @@ export interface operations {
     };
     salvar_mesas__mesa_id__sessoes__sessao_id__lojas__loja_id__put: {
         parameters: {
-            query?: never;
+            query?: {
+                versao?: string | null;
+            };
             header?: never;
             path: {
                 mesa_id: string;

@@ -127,6 +127,10 @@ class EquipamentoEntrada(BaseModel):
     armadura: str | None = None
 
 
+class EquipamentoAtual(EquipamentoEntrada):
+    versao: str = ""   # mande de volta ao salvar (api/concorrencia.py)
+
+
 class OpcoesDeCarta(BaseModel):
     """Para quê é a carta: nível (passo 4), avanço CARTA_DOMINIO ou troca."""
 

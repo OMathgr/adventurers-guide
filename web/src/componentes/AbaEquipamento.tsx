@@ -6,7 +6,9 @@ import { useMemo, useState } from 'react'
 
 import { useArmaduras, useArmas, useEquipamento, useEquipar } from '../api/consultas'
 import type { Arma, Armadura, Equipamento, Ficha } from '../api/tipos'
+import { semConflito } from '../lib/conflito'
 import { NOME_ALCANCE, NOME_TIPO_DANO, NOME_TRACO } from '../lib/rotulos'
+import { AvisoDeConflito } from './Conflito'
 import { Aviso, Botao, Carregando, Cartao, Escolhivel, Original, Selecao, Selo } from './ui'
 
 type Vaga = 'principal' | 'secundaria' | 'armadura'
@@ -147,7 +149,11 @@ export default function AbaEquipamento({ personagemId, ficha }: { personagemId: 
           </p>
         )}
         <div className="mt-4 space-y-2">
-          <Aviso erro={equipar.error} />
+          {/* o rascunho guarda a versão de onde partiu: se o equipamento mudou em outra aba, avisa */}
+          <AvisoDeConflito erro={equipar.error} ocupado={equipar.isPending}
+            aoVerAtual={() => { setRascunho(null); equipar.reset(); void atual.refetch() }}
+            aoSalvarMesmoAssim={() => equipar.mutate({ ...eq, versao: null }, { onSuccess: () => setRascunho(null) })} />
+          <Aviso erro={semConflito(equipar.error)} />
           <Botao className="w-full" disabled={!mudou || equipar.isPending}
             onClick={() => equipar.mutate(eq, { onSuccess: () => setRascunho(null) })}>
             {equipar.isPending ? 'Equipando…' : 'Salvar equipamento'}

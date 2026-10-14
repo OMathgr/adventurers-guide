@@ -6,8 +6,10 @@ import { useState } from 'react'
 
 import { useAcaoNaLoja, useLojas, useVender } from '../../api/consultas'
 import type { ItemDaLojaEntrada, Loja, Mesa, Sessao, TipoNaLoja } from '../../api/tipos'
+import { AvisoDeConflito } from '../../componentes/Conflito'
 import { BuscarNoCatalogo } from '../../componentes/inventario/BuscarNoCatalogo'
 import { Aviso, Botao, Campo, Carregando, Escolhivel, Selo } from '../../componentes/ui'
+import { semConflito } from '../../lib/conflito'
 import { formatarOuro } from '../../lib/ouro'
 
 const NOME_TIPO: Record<TipoNaLoja, string> = { ITEM: 'item', ARMA: 'arma', ARMADURA: 'armadura', LIVRE: 'da mesa' }
@@ -52,13 +54,30 @@ function EditorDeLoja({ mesa, sessao, loja }: { mesa: Mesa; sessao: Sessao; loja
   const podeEditar = sessao.sou_responsavel
   const podeVender = podeEditar && (mesa.minhas_permissoes as string[]).includes('dar_itens')
   const acao = useAcaoNaLoja(mesa.id, sessao.id)
+  // a versão de onde o rascunho partiu (o que estava salvo quando começou a editar)
+  const [original, setOriginal] = useState(loja)
   const [nome, setNome] = useState(loja.nome)
   const [visivel, setVisivel] = useState(loja.visivel)
   const [itens, setItens] = useState<Linha[]>(() => paraRascunho(loja))
   const [livre, setLivre] = useState({ nome: '', descricao: '' })
   const [adicionando, setAdicionando] = useState(false)
-  const salvo = JSON.stringify([loja.nome, loja.visivel, paraRascunho(loja)])
+  const salvo = JSON.stringify([original.nome, original.visivel, paraRascunho(original)])
   const mudou = JSON.stringify([nome, visivel, itens]) !== salvo
+
+  function adotar(nova: Loja) {
+    setOriginal(nova)
+    setNome(nova.nome)
+    setVisivel(nova.visivel)
+    setItens(paraRascunho(nova))
+  }
+  // mudou no servidor (venda, outra aba): sem nada sendo editado, mostra o novo;
+  // editando, guarda o rascunho (ao salvar, o servidor avisa do conflito).
+  // Ajuste durante a renderização (o jeito que o React recomenda, sem efeito).
+  if (loja.versao !== original.versao && !mudou) adotar(loja)
+  const salvar = (versao: string | null) => acao.mutate({
+    tipo: 'salvar', id: loja.id, nome: nome.trim(), visivel, versao,
+    itens: itens.map(({ rotulo: _rotulo, ...resto }) => resto),
+  }, { onSuccess: (nova) => { if (nova) adotar(nova) } })
   const mudar = (i: number, parcial: Partial<Linha>) => setItens(itens.map((x, j) => (j === i ? { ...x, ...parcial } : x)))
   const adicionar = (l: Omit<Linha, 'preco' | 'moedas' | 'estoque'>) =>
     setItens([...itens, { ...l, preco: 1, moedas: 0, estoque: null }])
@@ -78,7 +97,7 @@ function EditorDeLoja({ mesa, sessao, loja }: { mesa: Mesa; sessao: Sessao; loja
       {itens.length === 0 && <p className="text-sm text-texto-suave">Nada à venda ainda.</p>}
       <ul className="space-y-2">
         {itens.map((item, i) => {
-          const original = loja.itens.find((x) => x.id === item.id)
+          const doServidor = loja.itens.find((x) => x.id === item.id)
           return (
             <li key={item.id || `novo-${i}`} className="rounded-lg border border-borda p-3 text-sm">
               <div className="flex flex-wrap items-end justify-between gap-2">
@@ -112,8 +131,8 @@ function EditorDeLoja({ mesa, sessao, loja }: { mesa: Mesa; sessao: Sessao; loja
               <p className="text-xs text-texto-suave">
                 {item.preco === 0 && !item.moedas ? 'de graça' : formatarOuro(item.preco, item.moedas)}{item.estoque !== null && item.estoque !== undefined ? ` · ${item.estoque} em estoque` : ''}
               </p>
-              {original?.texto && <p className="mt-1 text-xs text-texto-suave">{original.texto}</p>}
-              {podeVender && original && !mudou && <Vender mesa={mesa} sid={sessao.id} loja={loja} itemId={original.id} />}
+              {doServidor?.texto && <p className="mt-1 text-xs text-texto-suave">{doServidor.texto}</p>}
+              {podeVender && doServidor && !mudou && <Vender mesa={mesa} sid={sessao.id} loja={loja} itemId={doServidor.id} />}
             </li>
           )
         })}
@@ -147,10 +166,7 @@ function EditorDeLoja({ mesa, sessao, loja }: { mesa: Mesa; sessao: Sessao; loja
             </>
           ) : <Botao variante="secundario" onClick={() => setAdicionando(true)}>Adicionar itens</Botao>}
           <div className="flex flex-wrap gap-2">
-            <Botao disabled={!mudou || !nome.trim() || acao.isPending} onClick={() => acao.mutate({
-              tipo: 'salvar', id: loja.id, nome: nome.trim(), visivel,
-              itens: itens.map(({ rotulo: _rotulo, ...resto }) => resto),
-            })}>
+            <Botao disabled={!mudou || !nome.trim() || acao.isPending} onClick={() => salvar(original.versao)}>
               Salvar loja
             </Botao>
             <Botao variante="perigo" disabled={acao.isPending}
@@ -160,7 +176,9 @@ function EditorDeLoja({ mesa, sessao, loja }: { mesa: Mesa; sessao: Sessao; loja
           </div>
         </div>
       )}
-      <Aviso erro={acao.error} />
+      <AvisoDeConflito erro={acao.error} ocupado={acao.isPending}
+        aoVerAtual={() => { adotar(loja); acao.reset() }} aoSalvarMesmoAssim={() => salvar(null)} />
+      <Aviso erro={semConflito(acao.error)} />
     </div>
   )
 }
@@ -209,8 +227,7 @@ export default function Lojas({ mesa, sessao }: { mesa: Mesa; sessao: Sessao }) 
           </li>
         ))}
       </ul>
-      {/* a chave remonta o editor quando a loja salva muda (ex.: estoque depois de uma venda) */}
-      {atual && <EditorDeLoja key={`${atual.id}:${JSON.stringify(atual)}`} mesa={mesa} sessao={sessao} loja={atual} />}
+      {atual && <EditorDeLoja key={atual.id} mesa={mesa} sessao={sessao} loja={atual} />}
     </section>
   )
 }

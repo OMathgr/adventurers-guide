@@ -4,19 +4,23 @@ import { useState } from 'react'
 
 import { useApagarNpc, useNpcs, useRevelarNpc, useSalvarNpc } from '../../api/consultas'
 import type { Npc, NpcEntrada } from '../../api/tipos'
+import { AvisoDeConflito } from '../../componentes/Conflito'
 import EditorInimigo from '../../componentes/EditorInimigo'
 import FichaInimigo from '../../componentes/FichaInimigo'
 import { EnviarFoto, Foto } from '../../componentes/Foto'
 import TextoRico from '../../componentes/TextoRico'
 import { Area, Aviso, Botao, Campo, Carregando, Escolhivel, Selo } from '../../componentes/ui'
+import { semConflito } from '../../lib/conflito'
 import { INIMIGO_EM_BRANCO } from '../../lib/inimigo'
 
-type Rascunho = NpcEntrada & { id?: string }
+// `versao`: a de quando abriu o editor (se outro mestre salvar antes, o servidor avisa)
+type Rascunho = NpcEntrada & { id?: string; versao?: string | null }
 
 const NPC_EM_BRANCO: Rascunho = { nome: '', descricao: '', motivacoes: '', notas: '', ficha_combate: null, foto: null }
 
-function Editor({ inicial, aoSalvar, aoCancelar, salvando, erro }: {
-  inicial: Rascunho; aoSalvar: (r: Rascunho) => void; aoCancelar: () => void; salvando: boolean; erro: unknown
+function Editor({ inicial, aoSalvar, aoCancelar, aoVerAtual, salvando, erro }: {
+  inicial: Rascunho; aoSalvar: (r: Rascunho) => void; aoCancelar: () => void; aoVerAtual: () => void
+  salvando: boolean; erro: unknown
 }) {
   const [r, setR] = useState(inicial)
   const mudar = (parcial: Partial<Rascunho>) => setR({ ...r, ...parcial })
@@ -47,7 +51,9 @@ function Editor({ inicial, aoSalvar, aoCancelar, salvando, erro }: {
         </div>
       )}
 
-      <Aviso erro={erro} />
+      <AvisoDeConflito erro={erro} ocupado={salvando} aoVerAtual={aoVerAtual}
+        aoSalvarMesmoAssim={() => aoSalvar({ ...r, versao: null })} />
+      <Aviso erro={semConflito(erro)} />
       <div className="flex gap-2">
         <Botao type="submit" disabled={salvando}>{salvando ? 'Salvando…' : 'Salvar'}</Botao>
         <Botao type="button" variante="fantasma" onClick={aoCancelar}>Cancelar</Botao>
@@ -140,6 +146,7 @@ export default function AbaNpcs({ mesaId, podeEditar }: { mesaId: string; podeEd
         {rascunho ? (
           <Editor key={rascunho.id ?? 'novo'} inicial={rascunho} salvando={salvar.isPending} erro={salvar.error}
             aoCancelar={() => setRascunho(null)}
+            aoVerAtual={() => { salvar.reset(); setRascunho(null) }}
             aoSalvar={(r) => salvar.mutate(r, {
               onSuccess: (salvo) => { setRascunho(null); setSelecionado(salvo!.id) },
             })} />
