@@ -11,7 +11,7 @@ import { Aviso, Botao, Campo, Carregando, Cartao, Original, Selo } from '../ui'
 import { BuscarNoCatalogo } from './BuscarNoCatalogo'
 import { MudarOuro, OuroNaFicha } from './Ouro'
 
-const NOME_ORIGEM: Record<string, string> = { SAQUE: 'saque', COMUM: 'inicial', CLASSE: 'de classe' }
+const NOME_ORIGEM: Record<string, string> = { SAQUE: 'item', COMUM: 'inicial', CLASSE: 'de classe' }
 
 function UsarConsumivel({ item, personagemId, aoUsar }: {
   item: ItemNoInventario; personagemId: string; aoUsar: (notas: string[]) => void

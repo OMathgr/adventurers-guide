@@ -1,5 +1,5 @@
 // Inventário de um personagem da mesa, visto pelo mestre: lê com "ver_fichas"
-// e, com "dar_itens", dá ou tira ouro e itens (o saque vai direto para a ficha).
+// e, com "dar_itens", dá ou tira ouro e itens (o item vai direto para a ficha).
 import { useState } from 'react'
 
 import { useDarNoInventario, useInventarioNaMesa } from '../../api/consultas'

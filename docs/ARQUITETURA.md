@@ -856,7 +856,7 @@ A API usa pt-BR; o motor e os testes dele usam o inglês.
   `improved_/advanced_/legendary_` são compostos (Espada Larga + Aprimorada).
 - `cartas/<DOMINIO>.json`: nome e texto de cada carta (grimórios com o nome
   de cada magia; listas com "•").
-- `itens.json`: saque e consumíveis (nomes do livro básico brasileiro,
+- `itens.json`: itens (tabela de saque do SRD) e consumíveis (nomes do livro básico brasileiro,
   descrições traduzidas por nós do SRD), itens iniciais e itens de classe
   (pelo texto em inglês).
 - `adversarios/lote*.json`: por id do adversário, nome, arma, descrição,
@@ -911,6 +911,18 @@ Sage é **Sabedoria**, Midnight é **Meia-noite**; cartas "-Touched" são "Dom d
 empates, pelo texto da carta (Bare Bones = Armadura Corporal, Forceful Push =
 Imposição, Brace = Resistir, Tactician = Táticas). Nos textos, só as citações
 da própria carta e do domínio mudaram.
+
+Nomes de armas (principais e secundárias) e armaduras seguem o livro básico
+brasileiro (pp. 115-127; conferido em 2026-10-14), com o gênero que o livro usa
+nas versões compostas (ex.: "Montante Lendária", "Gibão Aprimorado"). Alguns:
+Cutlass = Alfange, Returning Blade = Lâmina do Retorno, Grappler = Gancho,
+Primer Shard = Lasca de Apoio, Harrowbone = Armadura do Tormento, Bladefare =
+Armadura Passalâmina. As características também (ex.: Cumbersome =
+Inconveniente, Quick = Veloz, Powerful = Poderoso, Protective = Armadura,
+Warded = Égide, Painful = Excruciante); onde o livro concorda com o item, o
+nome em `caracteristicas.json` é `{"arma": "Pesado", "armadura": "Pesada"}`
+(só Heavy, hoje). Os itens da tabela "Loot" aparecem na tela como **Item**
+(como no livro), não "saque".
 
 ## Pendências conhecidas
 

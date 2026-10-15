@@ -41,7 +41,7 @@ def armas(tier: int | None = None):
 
 @rotas.get("/itens", response_model=list[Item])
 def itens(tipo: TipoDeItem | None = None):
-    """Saque, consumíveis, itens iniciais e de classe (em ordem de tipo e da tabela d60)."""
+    """Itens (tabela de saque), consumíveis, itens iniciais e de classe (em ordem de tipo e da tabela d60)."""
     ordem = list(TipoDeItem)
     lista = [i for i in biblioteca().itens.values() if tipo is None or i.tipo is tipo]
     return sorted(lista, key=lambda i: (ordem.index(i.tipo), i.rolagem or 0, i.nome))

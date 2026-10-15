@@ -1,5 +1,5 @@
 {
-  "_aviso": "Nomes de armas e armaduras. Itens 'improved_/advanced_/legendary_' sem tradução própria são compostos da base + qualidade, concordando com o gênero (m, f, mp, fp). Tradução NÃO OFICIAL.",
+  "_aviso": "Nomes de armas e armaduras. Itens 'improved_/advanced_/legendary_' sem tradução própria são compostos da base + qualidade, concordando com o gênero (m, f, mp, fp). Nomes seguem o livro básico brasileiro (pp. 115-127). Tradução NÃO OFICIAL.",
   "qualidades": {
     "improved": {
       "m": "Aprimorado",
@@ -22,7 +22,7 @@
   },
   "armaduras": {
     "core_armor_gambeson_armor": {
-      "nome": "Gibão Acolchoado",
+      "nome": "Gibão",
       "genero": "m"
     },
     "core_armor_leather_armor": {
@@ -38,31 +38,31 @@
       "genero": "f"
     },
     "core_armor_elundrian_chain_armor": {
-      "nome": "Malha Elundriana",
+      "nome": "Cota de Malha Elundriana",
       "genero": "f"
     },
     "core_armor_harrowbone_armor": {
-      "nome": "Armadura de Osso-Rastelo",
+      "nome": "Armadura do Tormento",
       "genero": "f"
     },
     "core_armor_irontree_breastplate_armor": {
-      "nome": "Peitoral de Árvore-de-Ferro",
+      "nome": "Peitoral de Placas de Pau-Ferro",
       "genero": "m"
     },
     "core_armor_runetan_floating_armor": {
-      "nome": "Armadura Flutuante Runetana",
+      "nome": "Armadura Flutuante de Runetan",
       "genero": "f"
     },
     "core_armor_tyris_soft_armor": {
-      "nome": "Armadura Macia de Tyris",
+      "nome": "Armadura Graciosa de Tyris",
       "genero": "f"
     },
     "core_armor_rosewild_armor": {
-      "nome": "Armadura de Rosa-Brava",
+      "nome": "Armadura de Rosamata",
       "genero": "f"
     },
     "core_armor_bellamoi_fine_armor": {
-      "nome": "Armadura Fina de Bellamoi",
+      "nome": "Armadura de Bellamoi",
       "genero": "f"
     },
     "core_armor_dragonscale_armor": {
@@ -70,39 +70,39 @@
       "genero": "f"
     },
     "core_armor_spiked_plate_armor": {
-      "nome": "Placas com Cravos",
-      "genero": "fp"
+      "nome": "Armadura de Placas com Espinhos",
+      "genero": "f"
     },
     "core_armor_bladefare_armor": {
-      "nome": "Armadura Antilâmina",
+      "nome": "Armadura Passalâmina",
       "genero": "f"
     },
     "core_armor_monetts_cloak": {
-      "nome": "Manto de Monett",
-      "genero": "m"
+      "nome": "Capa de Monett",
+      "genero": "f"
     },
     "core_armor_runes_of_fortification": {
-      "nome": "Runas de Fortificação",
+      "nome": "Runas da Fortificação",
       "genero": "fp"
     },
     "core_armor_dunamis_silkchain": {
-      "nome": "Malha de Seda de Dunamis",
+      "nome": "Cota de Seda de Dunamis",
       "genero": "f"
     },
     "core_armor_channeling_armor": {
-      "nome": "Armadura Canalizadora",
+      "nome": "Armadura da Canalização",
       "genero": "f"
     },
     "core_armor_emberwoven_armor": {
-      "nome": "Armadura Tecida em Brasa",
+      "nome": "Armadura de Tecido Âmbar",
       "genero": "f"
     },
     "core_armor_full_fortified_armor": {
-      "nome": "Armadura Totalmente Fortificada",
+      "nome": "Armadura Fortificada",
       "genero": "f"
     },
     "core_armor_veritas_opal_armor": {
-      "nome": "Armadura de Opala Veritas",
+      "nome": "Armadura de Opala da Verdade",
       "genero": "f"
     },
     "core_armor_savior_chainmail": {
@@ -125,7 +125,7 @@
     },
     "core_weapon_greatsword": {
       "nome": "Montante",
-      "genero": "m"
+      "genero": "f"
     },
     "core_weapon_mace": {
       "nome": "Maça",
@@ -144,7 +144,7 @@
       "genero": "m"
     },
     "core_weapon_cutlass": {
-      "nome": "Sabre de Abordagem",
+      "nome": "Alfange",
       "genero": "m"
     },
     "core_weapon_rapier": {
@@ -176,11 +176,11 @@
       "genero": "fp"
     },
     "core_weapon_hallowed_axe": {
-      "nome": "Machado Consagrado",
+      "nome": "Machado Sagrado",
       "genero": "m"
     },
     "core_weapon_glowing_rings": {
-      "nome": "Anéis Brilhantes",
+      "nome": "Anéis Luminosos",
       "genero": "mp"
     },
     "core_weapon_hand_runes": {
@@ -188,7 +188,7 @@
       "genero": "fp"
     },
     "core_weapon_returning_blade": {
-      "nome": "Lâmina Retornável",
+      "nome": "Lâmina do Retorno",
       "genero": "f"
     },
     "core_weapon_shortstaff": {
@@ -212,23 +212,23 @@
       "genero": "m"
     },
     "core_weapon_gilded_falchion": {
-      "nome": "Falchion Dourado",
+      "nome": "Falcione Dourado",
       "genero": "m"
     },
     "core_weapon_knuckle_blades": {
-      "nome": "Lâminas de Punho",
-      "genero": "fp"
+      "nome": "Soqueira com Lâmina",
+      "genero": "f"
     },
     "core_weapon_urok_broadsword": {
       "nome": "Espada Larga de Urok",
       "genero": "f"
     },
     "core_weapon_bladed_whip": {
-      "nome": "Chicote de Lâminas",
+      "nome": "Chicote Laminado",
       "genero": "m"
     },
     "core_weapon_steelforged_halberd": {
-      "nome": "Alabarda Forjada em Aço",
+      "nome": "Alabarda de Aço",
       "genero": "f"
     },
     "core_weapon_war_scythe": {
@@ -244,7 +244,7 @@
       "genero": "m"
     },
     "core_weapon_finehair_bow": {
-      "nome": "Arco de Crina Fina",
+      "nome": "Arco Fio-de-Cabelo",
       "genero": "m"
     },
     "core_weapon_ego_blade": {
@@ -260,11 +260,11 @@
       "genero": "f"
     },
     "core_weapon_hammer_of_exota": {
-      "nome": "Martelo de Exota",
+      "nome": "Martelo de Ecsota",
       "genero": "m"
     },
     "core_weapon_yutari_bloodbow": {
-      "nome": "Arco de Sangue Yutari",
+      "nome": "Arco de Sangue de Yutari",
       "genero": "m"
     },
     "core_weapon_elder_bow": {
@@ -276,19 +276,19 @@
       "genero": "m"
     },
     "core_weapon_wand_of_enthrallment": {
-      "nome": "Varinha do Encantamento",
+      "nome": "Varinha do Fascínio",
       "genero": "f"
     },
     "core_weapon_keeper_s_staff": {
-      "nome": "Cajado do Guardião",
+      "nome": "Cajado do Defensor",
       "genero": "m"
     },
     "core_weapon_flickerfly_blade": {
-      "nome": "Lâmina Vagalume",
+      "nome": "Lâmina do Oscilume",
       "genero": "f"
     },
     "core_weapon_bravesword": {
-      "nome": "Espada Brava",
+      "nome": "Espada da Bravura",
       "genero": "f"
     },
     "core_weapon_hammer_of_wrath": {
@@ -296,11 +296,11 @@
       "genero": "m"
     },
     "core_weapon_labrys_axe": {
-      "nome": "Machado Lábris",
+      "nome": "Machado de Labrys",
       "genero": "m"
     },
     "core_weapon_meridian_cutlass": {
-      "nome": "Sabre Meridiano",
+      "nome": "Sabre de Merídia",
       "genero": "m"
     },
     "core_weapon_retractable_saber": {
@@ -312,27 +312,27 @@
       "genero": "m"
     },
     "core_weapon_talon_blades": {
-      "nome": "Lâminas-Garra",
+      "nome": "Garras-Lâmina",
       "genero": "fp"
     },
     "core_weapon_black_powder_revolver": {
-      "nome": "Revólver de Pólvora Negra",
+      "nome": "Revólver da Pólvora Negra",
       "genero": "m"
     },
     "core_weapon_spiked_bow": {
-      "nome": "Arco com Cravos",
+      "nome": "Arco com Espinhos",
       "genero": "m"
     },
     "core_weapon_dual_ended_sword": {
-      "nome": "Espada de Duas Pontas",
+      "nome": "Espada Dupla",
       "genero": "f"
     },
     "core_weapon_impact_gauntlet": {
-      "nome": "Manopla de Impacto",
+      "nome": "Manopla do Impacto",
       "genero": "f"
     },
     "core_weapon_sledge_axe": {
-      "nome": "Machado-Marreta",
+      "nome": "Machado-Martelo",
       "genero": "m"
     },
     "core_weapon_curved_dagger": {
@@ -340,19 +340,19 @@
       "genero": "f"
     },
     "core_weapon_extended_polearm": {
-      "nome": "Arma de Haste Longa",
-      "genero": "f"
+      "nome": "Pique Estendido",
+      "genero": "m"
     },
     "core_weapon_swinging_ropeblade": {
-      "nome": "Lâmina de Corda",
-      "genero": "f"
+      "nome": "Dardo de Corda",
+      "genero": "m"
     },
     "core_weapon_ricochet_axes": {
-      "nome": "Machados Ricochete",
-      "genero": "mp"
+      "nome": "Machado-Ricochete",
+      "genero": "m"
     },
     "core_weapon_aantari_bow": {
-      "nome": "Arco Aantari",
+      "nome": "Arco de Aantari",
       "genero": "m"
     },
     "core_weapon_hand_cannon": {
@@ -360,11 +360,11 @@
       "genero": "m"
     },
     "core_weapon_sword_of_light_flame": {
-      "nome": "Espada de Luz e Chama",
+      "nome": "Espada da Luz e da Chama",
       "genero": "f"
     },
     "core_weapon_siphoning_gauntlets": {
-      "nome": "Manoplas Drenadoras",
+      "nome": "Manoplas Sorvedouras",
       "genero": "fp"
     },
     "core_weapon_midas_scythe": {
@@ -372,11 +372,11 @@
       "genero": "f"
     },
     "core_weapon_floating_bladeshards": {
-      "nome": "Fragmentos de Lâmina Flutuantes",
-      "genero": "mp"
+      "nome": "Lâminas Flutuantes",
+      "genero": "fp"
     },
     "core_weapon_bloodstaff": {
-      "nome": "Cajado de Sangue",
+      "nome": "Cajado Sangrento",
       "genero": "m"
     },
     "core_weapon_thistlebow": {
@@ -388,11 +388,11 @@
       "genero": "f"
     },
     "core_weapon_magus_revolver": {
-      "nome": "Revólver do Mago",
+      "nome": "Revólver de Magus",
       "genero": "m"
     },
     "core_weapon_fusion_gloves": {
-      "nome": "Luvas de Fusão",
+      "nome": "Luvas de Liga",
       "genero": "fp"
     },
     "core_weapon_shortsword": {
@@ -404,7 +404,7 @@
       "genero": "m"
     },
     "core_weapon_tower_shield": {
-      "nome": "Escudo Torre",
+      "nome": "Escudo-Torre",
       "genero": "m"
     },
     "core_weapon_small_dagger": {
@@ -416,7 +416,7 @@
       "genero": "m"
     },
     "core_weapon_grappler": {
-      "nome": "Arpéu",
+      "nome": "Gancho",
       "genero": "m"
     },
     "core_weapon_hand_crossbow": {
@@ -424,11 +424,11 @@
       "genero": "f"
     },
     "core_weapon_spiked_shield": {
-      "nome": "Escudo com Cravos",
+      "nome": "Escudo com Espinhos",
       "genero": "m"
     },
     "core_weapon_parrying_dagger": {
-      "nome": "Adaga de Aparo",
+      "nome": "Adaga Aparadora",
       "genero": "f"
     },
     "core_weapon_returning_axe": {
@@ -440,31 +440,31 @@
       "genero": "m"
     },
     "core_weapon_powered_gauntlet": {
-      "nome": "Manopla Energizada",
+      "nome": "Manopla Fortalecida",
       "genero": "f"
     },
     "core_weapon_hand_sling": {
-      "nome": "Funda de Mão",
+      "nome": "Funda",
       "genero": "f"
     },
     "core_weapon_braveshield": {
-      "nome": "Escudo Bravo",
+      "nome": "Escudo da Bravura",
       "genero": "m"
     },
     "core_weapon_knuckle_claws": {
-      "nome": "Garras de Punho",
-      "genero": "fp"
+      "nome": "Luva com Garras",
+      "genero": "f"
     },
     "core_weapon_primer_shard": {
-      "nome": "Estilhaço Detonador",
-      "genero": "m"
+      "nome": "Lasca de Apoio",
+      "genero": "f"
     },
     "core_weapon_axe_of_fortunis": {
       "nome": "Machado de Fortunis",
       "genero": "m"
     },
     "core_weapon_blessed_anlace": {
-      "nome": "Anelace Abençoado",
+      "nome": "Punhal Abençoado",
       "genero": "m"
     },
     "core_weapon_ghostblade": {
@@ -488,7 +488,7 @@
       "genero": "m"
     },
     "core_weapon_mage_orb": {
-      "nome": "Orbe do Mago",
+      "nome": "Orbe Mágico",
       "genero": "m"
     },
     "core_weapon_ilmaris_rifle": {

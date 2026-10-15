@@ -278,7 +278,7 @@ export interface paths {
         };
         /**
          * Itens
-         * @description Saque, consumíveis, itens iniciais e de classe (em ordem de tipo e da tabela d60).
+         * @description Itens (tabela de saque), consumíveis, itens iniciais e de classe (em ordem de tipo e da tabela d60).
          */
         get: operations["itens_srd_itens_get"];
         put?: never;

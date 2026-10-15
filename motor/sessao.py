@@ -192,7 +192,7 @@ class Sessao:
         if tipo is TipoDano.MAGICO and Efeito.PROTEGIDA in efeitos and f.pontuacao_armadura:
             reduzido = min(dano, f.pontuacao_armadura)
             dano -= reduzido
-            notas.append(f"Protegida: dano mágico reduzido em {reduzido}")
+            notas.append(f"Égide: dano mágico reduzido em {reduzido}")
 
         gravidade = self.gravidade(dano)
         pv = int(gravidade)
@@ -210,7 +210,7 @@ class Sessao:
                 espacos = 1
             reducao = 2 if Efeito.FORTIFICADA in efeitos else 1
             if reducao == 2:
-                notas.append("Fortificada: reduziu dois níveis")
+                notas.append("Fortificação: reduziu dois níveis")
             pv = max(pv - reducao, 0)
 
         if (evitar_queda and pv > 0 and Efeito.IMPENETRAVEL in efeitos
@@ -364,7 +364,7 @@ class Sessao:
         efeitos = self.personagem.efeitos_ativos()
         if com_armadura:
             if Efeito.ESPERANCOSA not in efeitos:
-                raise RegraViolada("Só uma armadura Esperançosa troca Esperança por espaço de armadura.")
+                raise RegraViolada("Só uma armadura com Esperança troca Esperança por espaço de armadura.")
             if com_armadura > quantidade:
                 raise RegraViolada("Não dá para pagar com armadura mais do que o custo.")
             if com_armadura > self.armadura_livre:
@@ -398,7 +398,7 @@ class Sessao:
         self.armadura_marcada += 1
         if Efeito.DOLOROSA in efeitos:
             self.marcar_estresse(1)   # "must mark": imposto, transborda para PV
-            notas.append("Dolorosa: marcou 1 PF")
+            notas.append("Excruciante: marcou 1 PF")
 
     # --- Descansos -----------------------------------------------------------------
 

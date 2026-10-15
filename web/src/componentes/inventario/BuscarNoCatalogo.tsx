@@ -1,4 +1,4 @@
-// Busca no catálogo do SRD (saque, consumíveis, armas e armaduras) para
+// Busca no catálogo do SRD (itens, consumíveis, armas e armaduras) para
 // adicionar ao inventário, dar a um personagem ou pôr numa loja.
 import { useMemo, useState } from 'react'
 
@@ -9,7 +9,7 @@ import { Carregando, Original, Selo } from '../ui'
 export type TipoNoCatalogo = 'SAQUE' | 'CONSUMIVEL' | 'ARMA' | 'ARMADURA'
 
 const NOME_TIPO_CATALOGO: Record<TipoNoCatalogo, string> = {
-  SAQUE: 'Saque', CONSUMIVEL: 'Consumível', ARMA: 'Arma', ARMADURA: 'Armadura',
+  SAQUE: 'Item', CONSUMIVEL: 'Consumível', ARMA: 'Arma', ARMADURA: 'Armadura',
 }
 
 export type Escolhido = { tipo: TipoNoCatalogo; id: string; nome: string }

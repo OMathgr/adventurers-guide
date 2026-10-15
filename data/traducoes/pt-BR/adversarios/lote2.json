@@ -139,7 +139,7 @@
     ]
   },
   "srd_pirate_captain": {
-    "nome": "Capitão Pirata", "arma": "Sabre de Abordagem", "experiencias": {"Commander": "Comandante", "Sailor": "Marinheiro"},
+    "nome": "Capitão Pirata", "arma": "Alfange", "experiencias": {"Commander": "Comandante", "Sailor": "Marinheiro"},
     "descricao": "Um lobo do mar carismático, de chapéu impressionante, doido para saquear e pilhar.",
     "motivacoes": "Comandar, fazer andar na prancha, pilhar, saquear",
     "habilidades": [
@@ -150,7 +150,7 @@
     ]
   },
   "srd_pirate_raiders": {
-    "nome": "Saqueadores Piratas", "arma": "Sabre de Abordagem", "experiencias": {"Sailor": "Marinheiro"},
+    "nome": "Saqueadores Piratas", "arma": "Alfange", "experiencias": {"Sailor": "Marinheiro"},
     "descricao": "Patifes do mar que se movem em bando devastador.",
     "motivacoes": "Atacar em bando, pilhar, saquear",
     "habilidades": [

@@ -51,7 +51,7 @@
     "core_loot_lorekeeper": {"nome": "Arquivo Infausto", "texto": "Você pode guardar neste livro o nome e os detalhes de até três criaturas hostis. Você recebe +1 nos testes de ação contra essas criaturas."},
     "core_loot_vial_of_darksmoke_recipe": {"nome": "Receita de Frasco de Fumaça Negra", "texto": "Como movimento de descanso, você pode marcar 1 PF para preparar um Frasco de Fumaça Negra."},
     "core_loot_bloodstone": {"nome": "Pedra da Brutalidade", "texto": "Você pode prender esta pedra a uma arma que ainda não tenha característica. A arma ganha: Brutal: quando tirar o valor máximo num dado de dano, role mais um dado de dano."},
-    "core_loot_greatstone": {"nome": "Pedra do Poder", "texto": "Você pode prender esta pedra a uma arma que ainda não tenha característica. A arma ganha: Poderosa: num ataque bem-sucedido, role um dado de dano a mais e descarte o menor resultado."},
+    "core_loot_greatstone": {"nome": "Pedra do Poder", "texto": "Você pode prender esta pedra a uma arma que ainda não tenha característica. A arma ganha: Poderoso: num ataque bem-sucedido, role um dado de dano a mais e descarte o menor resultado."},
     "core_loot_glider": {"nome": "Paraquedas", "texto": "Enquanto estiver caindo, você pode marcar 1 PF para abrir este pequeno paraquedas e planar com segurança até o chão."},
     "core_loot_ring_of_silence": {"nome": "Anel do Silêncio", "texto": "Gaste 1 Ponto de Esperança para ativar este anel. Seus passos ficam silenciosos até o seu próximo descanso."},
     "core_loot_calming_pendant": {"nome": "Pingente Tranquilizante", "texto": "Quando for marcar seu último PF, role um d6. Num 5 ou mais, não marque."},

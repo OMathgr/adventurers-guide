@@ -519,8 +519,10 @@ class Biblioteca:
                 return atual
             return tabela[id_]
 
-        def traduzir_carac(c: Caracteristica, nova: dict | None = None) -> Caracteristica:
+        def traduzir_carac(c: Caracteristica, nova: dict | None = None, tipo: str = "") -> Caracteristica:
             nome = nova["nome"] if nova else carac["nomes"].get(c.nome_original)
+            if isinstance(nome, dict):   # o livro concorda com o item: "Pesado" (arma), "Pesada" (armadura)
+                nome = nome.get(tipo)
             descricao = nova["descricao"] if nova else carac["descricoes"].get(c.descricao)
             if nome is None or descricao is None:
                 faltando.append(f"característica: {c.nome_original}")
@@ -562,11 +564,11 @@ class Biblioteca:
         self.cartas = {i: carta(i, c) for i, c in self.cartas.items()}
         self.armas = {
             i: dataclasses.replace(a, nome=nome_equipamento(equip["armas"], "core_weapon_", i, a.nome),
-                                   caracteristicas=tuple(traduzir_carac(c) for c in a.caracteristicas))
+                                   caracteristicas=tuple(traduzir_carac(c, tipo="arma") for c in a.caracteristicas))
             for i, a in self.armas.items()}
         self.armaduras = {
             i: dataclasses.replace(a, nome=nome_equipamento(equip["armaduras"], "core_armor_", i, a.nome),
-                                   caracteristicas=tuple(traduzir_carac(c) for c in a.caracteristicas))
+                                   caracteristicas=tuple(traduzir_carac(c, tipo="armadura") for c in a.caracteristicas))
             for i, a in self.armaduras.items()}
 
         def item(i: str, it: Item) -> Item:
