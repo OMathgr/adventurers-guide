@@ -1,9 +1,10 @@
-// Convite, membros, personagens e (para quem criou) permissões dos mestres.
+// Membros, personagens, nível e (para quem criou) permissões dos mestres. O
+// convite fica na aba Convite, só dos mestres (AbaConvite).
 import { useState } from 'react'
 import { useNavigate } from 'react-router'
 
 import {
-  useApagarMesa, useClasses, useCopiarParaMesa, useMoedasDaMesa, useMudarPapel, useNivelDaMesa, useNovoCodigo,
+  useApagarMesa, useClasses, useCopiarParaMesa, useMoedasDaMesa, useMudarPapel, useNivelDaMesa,
   usePermissoesMestres, usePersonagens, useRemoverMembro, useSairDaMesa, useVincularMesa,
 } from '../../api/consultas'
 import type { Mesa, Permissao, PermissoesMestres } from '../../api/tipos'
@@ -12,40 +13,6 @@ import { Aviso, Botao, Cartao, Selecao, Selo } from '../../componentes/ui'
 import { NOME_PAPEL, NOME_PERMISSAO } from '../../lib/rotulos'
 
 const PERMISSOES = Object.keys(NOME_PERMISSAO) as Permissao[]
-
-function Convite({ mesa }: { mesa: Mesa }) {
-  const novoCodigo = useNovoCodigo(mesa.id)
-  const [copiado, setCopiado] = useState(false)
-  const link = `${window.location.origin}/convite/${mesa.codigo_convite}`
-
-  async function copiar() {
-    try {
-      await navigator.clipboard.writeText(link)
-      setCopiado(true)
-      setTimeout(() => setCopiado(false), 2000)
-    } catch { /* sem permissão de área de transferência: o link continua visível */ }
-  }
-
-  return (
-    <Cartao titulo="Convite">
-      <p className="text-sm text-texto-suave">Passe o código ou o link para quem vai jogar. Quem entra começa como jogador.</p>
-      <p className="my-3 font-titulo text-3xl tracking-[0.3em] text-esperanca" aria-label="Código de convite">
-        {mesa.codigo_convite}
-      </p>
-      <p className="break-all text-xs text-texto-suave">{link}</p>
-      <div className="mt-3 flex flex-wrap gap-2">
-        <Botao variante="secundario" onClick={copiar}>{copiado ? 'Link copiado' : 'Copiar link'}</Botao>
-        {mesa.sou_criador && (
-          <Botao variante="fantasma" disabled={novoCodigo.isPending}
-            onClick={() => confirm('Gerar um código novo? O código e o link atuais param de funcionar.') && novoCodigo.mutate()}>
-            Gerar novo código
-          </Botao>
-        )}
-      </div>
-      <Aviso erro={novoCodigo.error} />
-    </Cartao>
-  )
-}
 
 function Membros({ mesa }: { mesa: Mesa }) {
   const mudarPapel = useMudarPapel(mesa.id)
@@ -205,7 +172,6 @@ export default function AbaGeral({ mesa }: { mesa: Mesa }) {
           Há sessão em andamento: entre pela aba <b>Sessões</b>.
         </p>
       )}
-      <Convite mesa={mesa} />
       <Membros mesa={mesa} />
       <Personagens mesa={mesa} />
       <NivelDaMesa mesa={mesa} />

@@ -2230,8 +2230,7 @@ export interface paths {
         };
         /**
          * Repouso Atual
-         * @description O repouso aberto da mesa (ou o último encerrado, por meia hora, para todos
-         *     verem o resultado). Qualquer membro.
+         * @description O último repouso da mesa (aberto, ou encerrado há menos de meia hora). Qualquer membro.
          */
         get: operations["repouso_atual_mesas__mesa_id__repouso_get"];
         put?: never;
@@ -2249,7 +2248,11 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /**
+         * Repouso Da Sessao
+         * @description O repouso desta sessão (várias sessões podem estar em andamento ao mesmo tempo).
+         */
+        get: operations["repouso_da_sessao_mesas__mesa_id__sessoes__sessao_id__repouso_get"];
         put?: never;
         /**
          * Abrir
@@ -3875,7 +3878,7 @@ export interface components {
             /** Nome */
             nome: string;
             /** Codigo Convite */
-            codigo_convite: string;
+            codigo_convite: string | null;
             /** Medo Em Jogo */
             medo_em_jogo: components["schemas"]["MedoEmJogo"][];
             /** Nivel Maximo */
@@ -9595,6 +9598,38 @@ export interface operations {
             header?: never;
             path: {
                 mesa_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RepousoSaida"] | null;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    repouso_da_sessao_mesas__mesa_id__sessoes__sessao_id__repouso_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mesa_id: string;
+                sessao_id: string;
             };
             cookie?: never;
         };

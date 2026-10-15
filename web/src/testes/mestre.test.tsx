@@ -98,7 +98,7 @@ const vista = (extra: Record<string, unknown> = {}) => ({
 
 describe('Página da mesa', () => {
   const mesa = (papel: string): MesaT => ({
-    id: 'm1', nome: 'Sombras de Haven', codigo_convite: 'ABC123', nivel_maximo: 1, usar_moedas: false, meu_papel: papel, sou_criador: papel === 'mestre',
+    id: 'm1', nome: 'Sombras de Haven', codigo_convite: papel === 'mestre' ? 'ABC123' : null, nivel_maximo: 1, usar_moedas: false, meu_papel: papel, sou_criador: papel === 'mestre',
     medo_em_jogo: [{ sessao_id: 's1', mestre: 'Ana', medo: 3 }],
     permissoes_mestres: { ver_fichas: true, aplicar_dano: true, aplicar_condicoes: true, preparar: true },
     minhas_permissoes: papel === 'mestre' ? ['ver_fichas', 'aplicar_dano', 'aplicar_condicoes', 'preparar'] : [],
@@ -164,13 +164,24 @@ describe('Página da mesa', () => {
     localStorage.clear()
   })
 
+  it('mestre vê o convite numa aba própria', async () => {
+    vi.stubGlobal('fetch', respostas({ '/mesas/m1': mesa('mestre'), '/personagens': [], '/srd/classes': [] }))
+    montarEm('/mesas/m1', <Mesa />, '/mesas/:id')
+    expect(await screen.findByText('Membros')).toBeInTheDocument()
+    expect(screen.queryByLabelText('Código de convite')).not.toBeInTheDocument()   // fora da aba Mesa
+    await userEvent.click(screen.getByRole('tab', { name: 'Convite' }))
+    expect(await screen.findByLabelText('Código de convite')).toHaveTextContent('ABC123')
+  })
+
   it('jogador não vê a área do mestre', async () => {
     vi.stubGlobal('fetch', respostas({
       '/mesas/m1': mesa('jogador'), '/personagens': [], '/srd/classes': [], '/mesas/m1/revelado': { combate: [], npcs: [] } }))
-    montarEm('/mesas/m1?aba=inimigos', <Mesa />, '/mesas/:id')
-    expect(await screen.findByText('ABC123')).toBeInTheDocument()
+    montarEm('/mesas/m1?aba=convite', <Mesa />, '/mesas/:id')
+    expect(await screen.findByRole('button', { name: 'Sair da mesa' })).toBeInTheDocument()
     expect(screen.queryByRole('tab', { name: 'Inimigos' })).not.toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Sair da mesa' })).toBeInTheDocument()
+    // o convite é dos mestres: nem aba, nem código
+    expect(screen.queryByRole('tab', { name: 'Convite' })).not.toBeInTheDocument()
+    expect(screen.queryByLabelText('Código de convite')).not.toBeInTheDocument()
     // o Medo e o resto do jogo ficam na sessão: a aba Mesa só avisa que há uma em andamento
     expect(screen.getByText(/Há sessão em andamento/)).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Ganhar 1' })).not.toBeInTheDocument()

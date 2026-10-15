@@ -500,7 +500,8 @@ entrou só pelo Google cria senha pelo "esqueci minha senha".
   em JSON) e `membros_mesa` (papel `jogador` ou `mestre`).
   `personagens.mesa_id`: **uma mesa por vez**, e o personagem fica preso a
   ela (ver "Nível da mesa, cópia e plano"; apagar a mesa só desvincula).
-- **Entrada:** pelo código de 8 caracteres exibido na mesa (sem 0/O/1/I/L);
+- **Entrada:** pelo código de 8 caracteres (sem 0/O/1/I/L), que só os mestres
+  recebem da API e veem (aba Convite);
   o link do convite usa o mesmo código (`POST /mesas/entrar/{codigo}`). Entra
   como jogador. O criador pode gerar um código novo, invalidando o antigo.
 - **Papéis:** o criador é mestre e é o único que administra (renomear,

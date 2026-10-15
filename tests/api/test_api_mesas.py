@@ -53,7 +53,7 @@ def test_entrar_pelo_codigo(cliente, mesa, bia):
     r = cliente.post(f"/mesas/entrar/{mesa['codigo_convite'].lower()}", headers=bia)
     assert r.status_code == 200
     assert (r.json()["meu_papel"], r.json()["sou_criador"]) == ("jogador", False)
-    assert r.json()["codigo_convite"] == mesa["codigo_convite"]   # jogadores também veem o código
+    assert r.json()["codigo_convite"] is None   # só os mestres veem o código
     cliente.post(f"/mesas/entrar/{mesa['codigo_convite']}", headers=bia)   # repetir não duplica
     membros = cliente.get(f"/mesas/{mesa['id']}").json()["membros"]
     assert [(m["nome"], m["papel"]) for m in membros] == [("Ana", "mestre"), ("Bia", "jogador")]
@@ -64,6 +64,14 @@ def test_entrar_pelo_codigo(cliente, mesa, bia):
 def test_codigo_invalido_e_mesa_alheia(cliente, mesa, bia):
     assert cliente.post("/mesas/entrar/XXXXXXXX", headers=bia).status_code == 404
     assert cliente.get(f"/mesas/{mesa['id']}", headers=bia).status_code == 404   # não é membro
+
+
+def test_mestre_ve_o_codigo_e_jogador_nao(cliente, mesa, bia):
+    eu = cliente.post(f"/mesas/entrar/{mesa['codigo_convite']}", headers=bia).json()
+    assert cliente.get(f"/mesas/{mesa['id']}", headers=bia).json()["codigo_convite"] is None
+    bia_id = next(m["usuario_id"] for m in eu["membros"] if m["nome"] == "Bia")
+    cliente.put(f"/mesas/{mesa['id']}/membros/{bia_id}", json={"papel": "mestre"})
+    assert cliente.get(f"/mesas/{mesa['id']}", headers=bia).json()["codigo_convite"] == mesa["codigo_convite"]
 
 
 def test_novo_codigo_invalida_o_antigo(cliente, mesa, bia):

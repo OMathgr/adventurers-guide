@@ -81,7 +81,7 @@ class MedoEmJogo(BaseModel):
 class MesaSaida(BaseModel):
     id: str
     nome: str
-    codigo_convite: str        # exibido na página da mesa; o link usa o mesmo código
+    codigo_convite: str | None   # só para mestres (aba Convite); o link usa o mesmo código
     medo_em_jogo: list[MedoEmJogo]   # Medo das sessões em andamento: visível para todos
     nivel_maximo: int          # personagens da mesa sobem até este nível
     usar_moedas: bool          # regra opcional das moedas (10 moedas = 1 punhado)
@@ -123,7 +123,9 @@ class MoedasDaMesa(BaseModel):
 def _saida(m: MembroTabela) -> MesaSaida:
     mesa = m.mesa
     return MesaSaida(
-        id=mesa.id, nome=mesa.nome, codigo_convite=mesa.codigo_convite,
+        id=mesa.id, nome=mesa.nome,
+        # convidar é coisa de mestre: jogador nem recebe o código
+        codigo_convite=mesa.codigo_convite if eh_criador(m) or m.papel == MESTRE else None,
         medo_em_jogo=[MedoEmJogo(**x) for x in medo_em_jogo(object_session(mesa), mesa.id)],
         nivel_maximo=mesa.nivel_maximo, usar_moedas=mesa.usar_moedas, meu_papel=m.papel,
         sou_criador=eh_criador(m), permissoes_mestres=mesa.permissoes_mestres,
