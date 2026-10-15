@@ -20,23 +20,26 @@ function Contador({ rotulo, detalhe, menos, mais, ocupado, children }: {
   mais?: { texto: string; acao: () => void; pode: boolean }
   children: React.ReactNode
 }) {
-  const botao = 'h-9 min-w-9 rounded-lg border border-borda px-2 text-sm font-semibold hover:bg-superficie-2 disabled:opacity-40'
+  const botao = 'h-10 w-10 rounded-lg border border-borda text-base font-semibold hover:bg-superficie-2 disabled:opacity-40'
+  // rótulo e espaços num bloco; os botões ao lado, no meio da altura dele (no
+  // celular não ficam "soltos" acima da barra). Sem um dos botões, o lugar fica
+  // reservado para os de todas as linhas ficarem na mesma coluna.
   return (
-    <div className="space-y-1.5">
-      <div className="flex items-center justify-between gap-2">
+    <div className="flex items-center gap-3">
+      <div className="min-w-0 flex-1 space-y-1.5">
         <p className="text-sm">{rotulo} <span className="text-texto-suave">({detalhe})</span></p>
-        <div className="flex gap-1.5">
-          {menos && (
-            <button type="button" className={botao} aria-label={menos.texto} title={menos.texto}
-              disabled={ocupado || !menos.pode} onClick={menos.acao}>−</button>
-          )}
-          {mais && (
-            <button type="button" className={botao} aria-label={mais.texto} title={mais.texto}
-              disabled={ocupado || !mais.pode} onClick={mais.acao}>+</button>
-          )}
-        </div>
+        {children}
       </div>
-      {children}
+      <div className="flex shrink-0 gap-1.5">
+        {menos ? (
+          <button type="button" className={botao} aria-label={menos.texto} title={menos.texto}
+            disabled={ocupado || !menos.pode} onClick={menos.acao}>−</button>
+        ) : <span aria-hidden className="w-10" />}
+        {mais ? (
+          <button type="button" className={botao} aria-label={mais.texto} title={mais.texto}
+            disabled={ocupado || !mais.pode} onClick={mais.acao}>+</button>
+        ) : <span aria-hidden className="w-10" />}
+      </div>
     </div>
   )
 }
