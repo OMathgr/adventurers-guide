@@ -365,6 +365,7 @@ class Comunidade:
     id: str
     nome: str
     nome_original: str = ""
+    caracteristicas: tuple[Caracteristica, ...] = ()   # a habilidade de comunidade
 
 
 class TipoDeItem(str, Enum):
@@ -517,7 +518,7 @@ class Biblioteca:
             for a in self._ler(srd / "ancestries.json")
         }
         self.comunidades = {
-            c["id"]: Comunidade(c["id"], _texto(c["name"]), _texto(c["name"]))
+            c["id"]: Comunidade(c["id"], _texto(c["name"]), _texto(c["name"]), _habilidades(c["features"]))
             for c in self._ler(srd / "communities.json")
         }
         self.armas = {
@@ -639,8 +640,10 @@ class Biblioteca:
 
         self.classes = {i: classe(i, c) for i, c in self.classes.items()}
         self.subclasses = {i: subclasse(i, s) for i, s in self.subclasses.items()}
-        self.comunidades = {i: dataclasses.replace(c, nome=nome_de(herancas["comunidades"], i, c.nome))
-                            for i, c in self.comunidades.items()}
+        self.comunidades = {i: dataclasses.replace(
+            c, nome=nome_de(herancas["comunidades"], i, c.nome),
+            caracteristicas=traduzir_habilidades(i, c.caracteristicas, habilidades["comunidades"].get(i)))
+            for i, c in self.comunidades.items()}
         self.ancestralidades = {i: ancestralidade(i, a) for i, a in self.ancestralidades.items()}
         self.cartas = {i: carta(i, c) for i, c in self.cartas.items()}
         self.armas = {

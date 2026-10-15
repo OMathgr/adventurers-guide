@@ -1,286 +1,639 @@
 {
-  "_aviso": "Habilidades de classe (de Esperança e de classe) e de subclasse (fundamental, especialização, maestria), na mesma ordem e quantidade do SRD (o 'While Unstoppable' do Guardião já vem junto do 'Unstoppable'). Nomes do livro básico brasileiro (pp. 28-52); textos traduzidos por nós do SRD. Tradução NÃO OFICIAL.",
+  "_aviso": "Habilidades de classe (de Esperança e de classe), de subclasse (fundamental, especialização, maestria) e de comunidade, na mesma ordem e quantidade do SRD (o 'While Unstoppable' do Guardião já vem junto do 'Unstoppable'). Nomes do livro básico brasileiro (pp. 28-52; comunidades pp. 75-83 do PDF); textos traduzidos por nós do SRD. Tradução NÃO OFICIAL.",
   "classes": {
     "core_class_bard": {
-      "esperanca": {"nome": "Fazer uma Cena", "descricao": "Gaste 3 de Esperança para Distrair temporariamente um alvo em alcance próximo, dando a ele −2 de penalidade na Dificuldade."},
+      "esperanca": {
+        "nome": "Fazer uma Cena",
+        "descricao": "Gaste 3 de Esperança para Distrair temporariamente um alvo em alcance próximo, dando a ele −2 de penalidade na Dificuldade."
+      },
       "habilidades": [
-        {"nome": "Inspiração", "descricao": "Uma vez por sessão, descreva como você anima o grupo e dê a você e a cada aliado um Dado de Inspiração. No nível 1, o seu Dado de Inspiração é um d6. Um PJ pode gastar o próprio Dado de Inspiração e rolá-lo, somando o resultado a um teste de ação, teste de reação ou rolagem de dano, ou limpando PF igual ao resultado. No fim de cada sessão, os Dados de Inspiração não usados se perdem. No nível 5, o seu Dado de Inspiração passa a ser um d8."}
+        {
+          "nome": "Inspiração",
+          "descricao": "Uma vez por sessão, descreva como você anima o grupo e dê a você e a cada aliado um Dado de Inspiração. No nível 1, o seu Dado de Inspiração é um d6. Um PJ pode gastar o próprio Dado de Inspiração e rolá-lo, somando o resultado a um teste de ação, teste de reação ou rolagem de dano, ou limpando PF igual ao resultado. No fim de cada sessão, os Dados de Inspiração não usados se perdem. No nível 5, o seu Dado de Inspiração passa a ser um d8."
+        }
       ]
     },
     "core_class_druid": {
-      "esperanca": {"nome": "Evolução", "descricao": "Gaste 3 de Esperança para assumir uma Forma de Fera sem marcar PF. Ao fazer isso, escolha um atributo para receber +1 até você sair dessa Forma de Fera."},
+      "esperanca": {
+        "nome": "Evolução",
+        "descricao": "Gaste 3 de Esperança para assumir uma Forma de Fera sem marcar PF. Ao fazer isso, escolha um atributo para receber +1 até você sair dessa Forma de Fera."
+      },
       "habilidades": [
-        {"nome": "Forma de Fera", "descricao": "Marque 1 PF para se transformar magicamente numa criatura do seu patamar ou menor, da lista de Formas de Fera. Você pode sair da forma quando quiser. Transformado, você não pode usar armas nem conjurar feitiços de cartas de domínio, mas continua podendo usar outras habilidades e características a que tem acesso. Feitiços conjurados antes da transformação continuam ativos pela duração normal, e você fala e se comunica normalmente. Além disso, você ganha as características da Forma de Fera, soma o bônus de Evasão dela à sua Evasão e ataca com o atributo indicado nas estatísticas dela. Na Forma de Fera, sua armadura vira parte do corpo e você marca espaços de armadura normalmente; ao sair da forma, os espaços marcados continuam marcados. Se você marcar o seu último PV, sai da forma automaticamente."},
-        {"nome": "Dádiva da Natureza", "descricao": "Você pode criar à vontade efeitos sutis e inofensivos ligados à natureza, como fazer uma flor crescer depressa, chamar uma brisa leve ou acender uma fogueira."}
+        {
+          "nome": "Forma de Fera",
+          "descricao": "Marque 1 PF para se transformar magicamente numa criatura do seu patamar ou menor, da lista de Formas de Fera. Você pode sair da forma quando quiser. Transformado, você não pode usar armas nem conjurar feitiços de cartas de domínio, mas continua podendo usar outras habilidades e características a que tem acesso. Feitiços conjurados antes da transformação continuam ativos pela duração normal, e você fala e se comunica normalmente. Além disso, você ganha as características da Forma de Fera, soma o bônus de Evasão dela à sua Evasão e ataca com o atributo indicado nas estatísticas dela. Na Forma de Fera, sua armadura vira parte do corpo e você marca espaços de armadura normalmente; ao sair da forma, os espaços marcados continuam marcados. Se você marcar o seu último PV, sai da forma automaticamente."
+        },
+        {
+          "nome": "Dádiva da Natureza",
+          "descricao": "Você pode criar à vontade efeitos sutis e inofensivos ligados à natureza, como fazer uma flor crescer depressa, chamar uma brisa leve ou acender uma fogueira."
+        }
       ]
     },
     "core_class_guardian": {
-      "esperanca": {"nome": "Linha de Frente", "descricao": "Gaste 3 de Esperança para limpar 2 espaços de armadura."},
+      "esperanca": {
+        "nome": "Linha de Frente",
+        "descricao": "Gaste 3 de Esperança para limpar 2 espaços de armadura."
+      },
       "habilidades": [
-        {"nome": "Determinação", "descricao": "Uma vez por descanso longo, você pode ficar Determinado e receber um Dado de Determinação. No nível 1, ele é um d4. Coloque-o no espaço da ficha com o 1 virado para cima. Depois de uma rolagem de dano que faça o alvo marcar 1 ou mais PV, aumente o valor do dado em um. Quando o valor passaria do máximo do dado, ou quando a cena acaba, tire o dado e deixe de estar Determinado. No nível 5, o seu Dado de Determinação passa a ser um d6.\nEnquanto estiver Determinado, você recebe estes benefícios:\n• Você reduz a gravidade do dano físico em um limiar (Grave para Maior, Maior para Menor, Menor para nenhum).\n• Você soma o valor atual do Dado de Determinação à sua rolagem de dano.\n• Você não pode ficar Imobilizado nem Vulnerável."}
+        {
+          "nome": "Determinação",
+          "descricao": "Uma vez por descanso longo, você pode ficar Determinado e receber um Dado de Determinação. No nível 1, ele é um d4. Coloque-o no espaço da ficha com o 1 virado para cima. Depois de uma rolagem de dano que faça o alvo marcar 1 ou mais PV, aumente o valor do dado em um. Quando o valor passaria do máximo do dado, ou quando a cena acaba, tire o dado e deixe de estar Determinado. No nível 5, o seu Dado de Determinação passa a ser um d6.\nEnquanto estiver Determinado, você recebe estes benefícios:\n• Você reduz a gravidade do dano físico em um limiar (Grave para Maior, Maior para Menor, Menor para nenhum).\n• Você soma o valor atual do Dado de Determinação à sua rolagem de dano.\n• Você não pode ficar Imobilizado nem Vulnerável."
+        }
       ]
     },
     "core_class_ranger": {
-      "esperanca": {"nome": "Segurem Eles", "descricao": "Ao acertar um ataque com uma arma, gaste 3 de Esperança para usar a mesma rolagem contra mais dois adversários dentro do alcance do ataque."},
+      "esperanca": {
+        "nome": "Segurem Eles",
+        "descricao": "Ao acertar um ataque com uma arma, gaste 3 de Esperança para usar a mesma rolagem contra mais dois adversários dentro do alcance do ataque."
+      },
       "habilidades": [
-        {"nome": "Marca da Presa", "descricao": "Gaste 1 de Esperança e ataque um alvo. Se acertar, cause o dano normal do ataque e torne o alvo temporariamente o seu alvo Marcado. Até esta habilidade acabar ou você Marcar outra criatura, você tem estes benefícios contra o alvo Marcado:\n• Você sabe exatamente em que direção ele está.\n• Quando você causa dano a ele, ele precisa marcar 1 PF.\n• Quando você erra um ataque contra ele, pode encerrar a Marca da Presa para rolar de novo os Dados de Dualidade."}
+        {
+          "nome": "Marca da Presa",
+          "descricao": "Gaste 1 de Esperança e ataque um alvo. Se acertar, cause o dano normal do ataque e torne o alvo temporariamente o seu alvo Marcado. Até esta habilidade acabar ou você Marcar outra criatura, você tem estes benefícios contra o alvo Marcado:\n• Você sabe exatamente em que direção ele está.\n• Quando você causa dano a ele, ele precisa marcar 1 PF.\n• Quando você erra um ataque contra ele, pode encerrar a Marca da Presa para rolar de novo os Dados de Dualidade."
+        }
       ]
     },
     "core_class_rogue": {
-      "esperanca": {"nome": "Esquiva de Ladino", "descricao": "Gaste 3 de Esperança para ganhar +2 de Evasão até o próximo ataque bem-sucedido contra você. Se nenhum acertar, o bônus dura até o seu próximo descanso."},
+      "esperanca": {
+        "nome": "Esquiva de Ladino",
+        "descricao": "Gaste 3 de Esperança para ganhar +2 de Evasão até o próximo ataque bem-sucedido contra você. Se nenhum acertar, o bônus dura até o seu próximo descanso."
+      },
       "habilidades": [
-        {"nome": "Oculto", "descricao": "Sempre que você ficaria Escondido, fica Oculto no lugar. Além dos benefícios da condição Escondido, enquanto estiver Oculto você continua sem ser visto se estiver parado quando um adversário chega aonde normalmente o veria. Depois de atacar ou de terminar um movimento na linha de visão de um adversário, você deixa de estar Oculto."},
-        {"nome": "Ataque Furtivo", "descricao": "Ao acertar um ataque enquanto estiver Oculto, ou enquanto um aliado estiver em alcance corpo a corpo do seu alvo, some à rolagem de dano um número de d6 igual ao seu patamar.\n• Nível 1 → patamar 1\n• Níveis 2 a 4 → patamar 2\n• Níveis 5 a 7 → patamar 3\n• Níveis 8 a 10 → patamar 4"}
+        {
+          "nome": "Oculto",
+          "descricao": "Sempre que você ficaria Escondido, fica Oculto no lugar. Além dos benefícios da condição Escondido, enquanto estiver Oculto você continua sem ser visto se estiver parado quando um adversário chega aonde normalmente o veria. Depois de atacar ou de terminar um movimento na linha de visão de um adversário, você deixa de estar Oculto."
+        },
+        {
+          "nome": "Ataque Furtivo",
+          "descricao": "Ao acertar um ataque enquanto estiver Oculto, ou enquanto um aliado estiver em alcance corpo a corpo do seu alvo, some à rolagem de dano um número de d6 igual ao seu patamar.\n• Nível 1 → patamar 1\n• Níveis 2 a 4 → patamar 2\n• Níveis 5 a 7 → patamar 3\n• Níveis 8 a 10 → patamar 4"
+        }
       ]
     },
     "core_class_seraph": {
-      "esperanca": {"nome": "Alicerce da Vida", "descricao": "Gaste 3 de Esperança para limpar 1 PV de um aliado em alcance próximo."},
+      "esperanca": {
+        "nome": "Alicerce da Vida",
+        "descricao": "Gaste 3 de Esperança para limpar 1 PV de um aliado em alcance próximo."
+      },
       "habilidades": [
-        {"nome": "Dados de Oração", "descricao": "No começo de cada sessão, role um número de d4 igual ao atributo de conjuração da sua subclasse e coloque-os no espaço da ficha: são os seus Dados de Oração. Você pode gastar quantos quiser para ajudar a si mesmo ou a um aliado em alcance distante, usando o valor de cada dado gasto para reduzir um dano recebido, somar ao resultado de uma rolagem depois de feita ou ganhar Esperança igual ao resultado. No fim de cada sessão, os Dados de Oração não usados se perdem."}
+        {
+          "nome": "Dados de Oração",
+          "descricao": "No começo de cada sessão, role um número de d4 igual ao atributo de conjuração da sua subclasse e coloque-os no espaço da ficha: são os seus Dados de Oração. Você pode gastar quantos quiser para ajudar a si mesmo ou a um aliado em alcance distante, usando o valor de cada dado gasto para reduzir um dano recebido, somar ao resultado de uma rolagem depois de feita ou ganhar Esperança igual ao resultado. No fim de cada sessão, os Dados de Oração não usados se perdem."
+        }
       ]
     },
     "core_class_sorcerer": {
-      "esperanca": {"nome": "Magia Volátil", "descricao": "Gaste 3 de Esperança para rolar de novo quantos dados de dano quiser num ataque que cause dano mágico."},
+      "esperanca": {
+        "nome": "Magia Volátil",
+        "descricao": "Gaste 3 de Esperança para rolar de novo quantos dados de dano quiser num ataque que cause dano mágico."
+      },
       "habilidades": [
-        {"nome": "Sentido Arcano", "descricao": "Você percebe a presença de pessoas e objetos mágicos em alcance próximo."},
-        {"nome": "Ilusão Menor", "descricao": "Faça um teste de Conjuração (10). Num sucesso, você cria uma pequena ilusão visual, do seu tamanho ou menor, em alcance próximo. Ela convence quem estiver em alcance próximo ou mais longe."},
-        {"nome": "Canalizar Poder Bruto", "descricao": "Uma vez por descanso longo, você pode pôr na reserva uma carta de domínio da sua mão e escolher um destes:\n• Ganhar Esperança igual ao nível da carta.\n• Fortalecer um feitiço que cause dano, ganhando na rolagem de dano um bônus igual ao dobro do nível da carta."}
+        {
+          "nome": "Sentido Arcano",
+          "descricao": "Você percebe a presença de pessoas e objetos mágicos em alcance próximo."
+        },
+        {
+          "nome": "Ilusão Menor",
+          "descricao": "Faça um teste de Conjuração (10). Num sucesso, você cria uma pequena ilusão visual, do seu tamanho ou menor, em alcance próximo. Ela convence quem estiver em alcance próximo ou mais longe."
+        },
+        {
+          "nome": "Canalizar Poder Bruto",
+          "descricao": "Uma vez por descanso longo, você pode pôr na reserva uma carta de domínio da sua mão e escolher um destes:\n• Ganhar Esperança igual ao nível da carta.\n• Fortalecer um feitiço que cause dano, ganhando na rolagem de dano um bônus igual ao dobro do nível da carta."
+        }
       ]
     },
     "core_class_warrior": {
-      "esperanca": {"nome": "Sem Piedade", "descricao": "Gaste 3 de Esperança para ganhar +1 nas rolagens de ataque até o seu próximo descanso."},
+      "esperanca": {
+        "nome": "Sem Piedade",
+        "descricao": "Gaste 3 de Esperança para ganhar +1 nas rolagens de ataque até o seu próximo descanso."
+      },
       "habilidades": [
-        {"nome": "Ataque de Oportunidade", "descricao": "Se um adversário em alcance corpo a corpo tentar sair desse alcance, faça um teste de reação com o atributo que quiser contra a Dificuldade dele. Num sucesso, escolha um efeito; num sucesso crítico, dois:\n• Ele não consegue sair de onde está.\n• Você causa a ele dano igual ao da sua arma principal.\n• Você se move junto com ele."},
-        {"nome": "Treinamento de Combate", "descricao": "Você ignora a empunhadura ao equipar armas. Ao causar dano físico, você ganha na rolagem de dano um bônus igual ao seu nível."}
+        {
+          "nome": "Ataque de Oportunidade",
+          "descricao": "Se um adversário em alcance corpo a corpo tentar sair desse alcance, faça um teste de reação com o atributo que quiser contra a Dificuldade dele. Num sucesso, escolha um efeito; num sucesso crítico, dois:\n• Ele não consegue sair de onde está.\n• Você causa a ele dano igual ao da sua arma principal.\n• Você se move junto com ele."
+        },
+        {
+          "nome": "Treinamento de Combate",
+          "descricao": "Você ignora a empunhadura ao equipar armas. Ao causar dano físico, você ganha na rolagem de dano um bônus igual ao seu nível."
+        }
       ]
     },
     "core_class_wizard": {
-      "esperanca": {"nome": "Não Dessa Vez", "descricao": "Gaste 3 de Esperança para obrigar um adversário em alcance distante a rolar de novo um ataque ou uma rolagem de dano."},
+      "esperanca": {
+        "nome": "Não Dessa Vez",
+        "descricao": "Gaste 3 de Esperança para obrigar um adversário em alcance distante a rolar de novo um ataque ou uma rolagem de dano."
+      },
       "habilidades": [
-        {"nome": "Prestidigitação", "descricao": "Você pode criar à vontade efeitos mágicos sutis e inofensivos. Por exemplo: mudar a cor de um objeto, criar um cheiro, acender uma vela, fazer um objeto minúsculo flutuar, iluminar um cômodo ou consertar um objeto pequeno."},
-        {"nome": "Padrões Estranhos", "descricao": "Escolha um número de 1 a 12. Quando esse número sair num dos Dados de Dualidade, ganhe 1 de Esperança ou limpe 1 PF.\nVocê pode trocar o número escolhido num descanso longo."}
+        {
+          "nome": "Prestidigitação",
+          "descricao": "Você pode criar à vontade efeitos mágicos sutis e inofensivos. Por exemplo: mudar a cor de um objeto, criar um cheiro, acender uma vela, fazer um objeto minúsculo flutuar, iluminar um cômodo ou consertar um objeto pequeno."
+        },
+        {
+          "nome": "Padrões Estranhos",
+          "descricao": "Escolha um número de 1 a 12. Quando esse número sair num dos Dados de Dualidade, ganhe 1 de Esperança ou limpe 1 PF.\nVocê pode trocar o número escolhido num descanso longo."
+        }
       ]
     }
   },
   "subclasses": {
     "core_subclass_beastbound": {
       "fundacao": [
-        {"nome": "Companheiro Animal", "descricao": "Você tem um companheiro animal à sua escolha (com aval do mestre). Ele fica ao seu lado, a menos que você diga o contrário.\nUse a ficha de Companheiro do Patrulheiro. Sempre que subir de nível, escolha também uma opção de evolução para o companheiro."}
+        {
+          "nome": "Companheiro Animal",
+          "descricao": "Você tem um companheiro animal à sua escolha (com aval do mestre). Ele fica ao seu lado, a menos que você diga o contrário.\nUse a ficha de Companheiro do Patrulheiro. Sempre que subir de nível, escolha também uma opção de evolução para o companheiro."
+        }
       ],
       "especializacao": [
-        {"nome": "Treinamento Especializado", "descricao": "Escolha uma opção de evolução a mais para o seu companheiro."},
-        {"nome": "Unidos na Batalha", "descricao": "Quando um adversário que esteja em alcance corpo a corpo do seu companheiro ataca você, você ganha +2 de Evasão contra esse ataque."}
+        {
+          "nome": "Treinamento Especializado",
+          "descricao": "Escolha uma opção de evolução a mais para o seu companheiro."
+        },
+        {
+          "nome": "Unidos na Batalha",
+          "descricao": "Quando um adversário que esteja em alcance corpo a corpo do seu companheiro ataca você, você ganha +2 de Evasão contra esse ataque."
+        }
       ],
       "maestria": [
-        {"nome": "Treinamento Avançado", "descricao": "Escolha duas opções de evolução a mais para o seu companheiro."},
-        {"nome": "Amigo Leal", "descricao": "Uma vez por descanso longo, quando o dano de um ataque faria o seu companheiro marcar o último PF dele, ou você marcar o seu último PV, e vocês estiverem em alcance próximo um do outro, um de vocês pode correr para o lado do outro e receber esse dano no lugar."}
+        {
+          "nome": "Treinamento Avançado",
+          "descricao": "Escolha duas opções de evolução a mais para o seu companheiro."
+        },
+        {
+          "nome": "Amigo Leal",
+          "descricao": "Uma vez por descanso longo, quando o dano de um ataque faria o seu companheiro marcar o último PF dele, ou você marcar o seu último PV, e vocês estiverem em alcance próximo um do outro, um de vocês pode correr para o lado do outro e receber esse dano no lugar."
+        }
       ]
     },
     "core_subclass_call_of_the_brave": {
       "fundacao": [
-        {"nome": "Coragem", "descricao": "Quando você falhar num teste com Medo, ganhe 1 de Esperança."},
-        {"nome": "Ritual de Batalha", "descricao": "Uma vez por descanso longo, antes de tentar algo incrivelmente perigoso ou de enfrentar um inimigo claramente mais forte que você, descreva o ritual que faz ou como se prepara. Ao fazer isso, limpe 2 PF e ganhe 2 de Esperança."}
+        {
+          "nome": "Coragem",
+          "descricao": "Quando você falhar num teste com Medo, ganhe 1 de Esperança."
+        },
+        {
+          "nome": "Ritual de Batalha",
+          "descricao": "Uma vez por descanso longo, antes de tentar algo incrivelmente perigoso ou de enfrentar um inimigo claramente mais forte que você, descreva o ritual que faz ou como se prepara. Ao fazer isso, limpe 2 PF e ganhe 2 de Esperança."
+        }
       ],
       "especializacao": [
-        {"nome": "Enfrentar o Desafio", "descricao": "Você fica alerta diante do perigo crescente. Enquanto tiver 2 PV ou menos sem marcar, você pode rolar um d20 como Dado de Esperança."}
+        {
+          "nome": "Enfrentar o Desafio",
+          "descricao": "Você fica alerta diante do perigo crescente. Enquanto tiver 2 PV ou menos sem marcar, você pode rolar um d20 como Dado de Esperança."
+        }
       ],
       "maestria": [
-        {"nome": "Camaradagem", "descricao": "Sua bravura inabalável une os seus aliados. Você pode iniciar um teste em dupla uma vez a mais por sessão. Além disso, quando um aliado inicia um teste em dupla com você, ele só precisa gastar 2 de Esperança."}
+        {
+          "nome": "Camaradagem",
+          "descricao": "Sua bravura inabalável une os seus aliados. Você pode iniciar um teste em dupla uma vez a mais por sessão. Além disso, quando um aliado inicia um teste em dupla com você, ele só precisa gastar 2 de Esperança."
+        }
       ]
     },
     "core_subclass_call_of_the_slayer": {
       "fundacao": [
-        {"nome": "Matança", "descricao": "Você tem uma reserva de dados chamados Dados de Matança. Num teste com Esperança, você pode pôr um d6 nesta carta em vez de ganhar Esperança, somando-o à reserva. Você guarda no máximo um número de Dados de Matança igual à sua Proficiência. Ao fazer uma rolagem de ataque ou de dano, você pode gastar quantos Dados de Matança quiser, rolando-os e somando o resultado. No fim de cada sessão, limpe os Dados de Matança não gastos e ganhe 1 de Esperança por dado limpo."}
+        {
+          "nome": "Matança",
+          "descricao": "Você tem uma reserva de dados chamados Dados de Matança. Num teste com Esperança, você pode pôr um d6 nesta carta em vez de ganhar Esperança, somando-o à reserva. Você guarda no máximo um número de Dados de Matança igual à sua Proficiência. Ao fazer uma rolagem de ataque ou de dano, você pode gastar quantos Dados de Matança quiser, rolando-os e somando o resultado. No fim de cada sessão, limpe os Dados de Matança não gastos e ganhe 1 de Esperança por dado limpo."
+        }
       ],
       "especializacao": [
-        {"nome": "Especialista em Armas", "descricao": "Você empunha várias armas com facilidade perigosa. Ao acertar um ataque, pode gastar 1 de Esperança para somar à rolagem de dano um dos dados de dano da sua arma secundária. Além disso, uma vez por descanso longo, ao rolar os seus Dados de Matança, role de novo os que tirarem 1."}
+        {
+          "nome": "Especialista em Armas",
+          "descricao": "Você empunha várias armas com facilidade perigosa. Ao acertar um ataque, pode gastar 1 de Esperança para somar à rolagem de dano um dos dados de dano da sua arma secundária. Além disso, uma vez por descanso longo, ao rolar os seus Dados de Matança, role de novo os que tirarem 1."
+        }
       ],
       "maestria": [
-        {"nome": "Preparação Marcial", "descricao": "Você inspira todos que viajam com você. Seu grupo ganha acesso ao movimento de repouso Preparação Marcial: num descanso, descreva como você instrui e treina o grupo. Você e cada aliado que escolher este movimento ganham um Dado de Matança d6. Um PJ com um Dado de Matança pode gastá-lo para rolar o dado e somar o resultado a uma rolagem de ataque ou de dano à escolha dele."}
+        {
+          "nome": "Preparação Marcial",
+          "descricao": "Você inspira todos que viajam com você. Seu grupo ganha acesso ao movimento de repouso Preparação Marcial: num descanso, descreva como você instrui e treina o grupo. Você e cada aliado que escolher este movimento ganham um Dado de Matança d6. Um PJ com um Dado de Matança pode gastá-lo para rolar o dado e somar o resultado a uma rolagem de ataque ou de dano à escolha dele."
+        }
       ]
     },
     "core_subclass_divine_wielder": {
       "fundacao": [
-        {"nome": "Arma Espiritual", "descricao": "Com uma arma equipada de alcance corpo a corpo ou muito próximo, ela pode voar da sua mão para atacar um adversário em alcance próximo e depois voltar para você. Você pode marcar 1 PF para atingir mais um adversário no alcance com a mesma rolagem de ataque."},
-        {"nome": "Toque Piedoso", "descricao": "Uma vez por descanso longo, toque uma criatura e limpe 2 PV ou 2 PF dela."}
+        {
+          "nome": "Arma Espiritual",
+          "descricao": "Com uma arma equipada de alcance corpo a corpo ou muito próximo, ela pode voar da sua mão para atacar um adversário em alcance próximo e depois voltar para você. Você pode marcar 1 PF para atingir mais um adversário no alcance com a mesma rolagem de ataque."
+        },
+        {
+          "nome": "Toque Piedoso",
+          "descricao": "Uma vez por descanso longo, toque uma criatura e limpe 2 PV ou 2 PF dela."
+        }
       ],
       "especializacao": [
-        {"nome": "Devoção", "descricao": "Ao rolar os seus Dados de Oração, você pode rolar um dado a mais e descartar o menor resultado. Além disso, você pode usar o seu Toque Piedoso duas vezes por descanso longo em vez de uma."}
+        {
+          "nome": "Devoção",
+          "descricao": "Ao rolar os seus Dados de Oração, você pode rolar um dado a mais e descartar o menor resultado. Além disso, você pode usar o seu Toque Piedoso duas vezes por descanso longo em vez de uma."
+        }
       ],
       "maestria": [
-        {"nome": "Ressonância Sagrada", "descricao": "Ao rolar o dano da sua Arma Espiritual, se algum resultado de dado se repetir, dobre o valor de cada dado repetido. Por exemplo, dois 5 valem como dois 10."}
+        {
+          "nome": "Ressonância Sagrada",
+          "descricao": "Ao rolar o dano da sua Arma Espiritual, se algum resultado de dado se repetir, dobre o valor de cada dado repetido. Por exemplo, dois 5 valem como dois 10."
+        }
       ]
     },
     "core_subclass_elemental_origin": {
       "fundacao": [
-        {"nome": "Elementalismo", "descricao": "Na criação do personagem, escolha um destes elementos: ar, terra, fogo, relâmpago ou água. Você consegue moldar esse elemento em efeitos inofensivos. Além disso, gaste 1 de Esperança e descreva como o seu controle sobre o elemento ajuda num teste de ação que está para fazer; então ganhe +2 no teste ou +3 no dano dele."}
+        {
+          "nome": "Elementalismo",
+          "descricao": "Na criação do personagem, escolha um destes elementos: ar, terra, fogo, relâmpago ou água. Você consegue moldar esse elemento em efeitos inofensivos. Além disso, gaste 1 de Esperança e descreva como o seu controle sobre o elemento ajuda num teste de ação que está para fazer; então ganhe +2 no teste ou +3 no dano dele."
+        }
       ],
       "especializacao": [
-        {"nome": "Evasão Natural", "descricao": "Você pode chamar o seu elemento para se proteger. Quando um ataque contra você acertar, você pode marcar 1 PF e descrever como o elemento o defende. Ao fazer isso, role um d6 e some o resultado à sua Evasão contra esse ataque."}
+        {
+          "nome": "Evasão Natural",
+          "descricao": "Você pode chamar o seu elemento para se proteger. Quando um ataque contra você acertar, você pode marcar 1 PF e descrever como o elemento o defende. Ao fazer isso, role um d6 e some o resultado à sua Evasão contra esse ataque."
+        }
       ],
       "maestria": [
-        {"nome": "Transcendência", "descricao": "Uma vez por descanso longo, você pode se transformar numa manifestação física do seu elemento. Descreva a transformação e escolha dois destes benefícios, que duram até o seu próximo descanso:\n• +4 no limiar Grave\n• +1 num atributo à sua escolha\n• +1 de Proficiência\n• +2 de Evasão"}
+        {
+          "nome": "Transcendência",
+          "descricao": "Uma vez por descanso longo, você pode se transformar numa manifestação física do seu elemento. Descreva a transformação e escolha dois destes benefícios, que duram até o seu próximo descanso:\n• +4 no limiar Grave\n• +1 num atributo à sua escolha\n• +1 de Proficiência\n• +2 de Evasão"
+        }
       ]
     },
     "core_subclass_nightwalker": {
       "fundacao": [
-        {"nome": "Passo Sombrio", "descricao": "Você se move de sombra em sombra. Ao entrar numa área escura ou na sombra de outra criatura ou objeto, você pode marcar 1 PF para sumir de onde está e reaparecer em outra sombra em alcance distante. Ao reaparecer, você está Oculto."}
+        {
+          "nome": "Passo Sombrio",
+          "descricao": "Você se move de sombra em sombra. Ao entrar numa área escura ou na sombra de outra criatura ou objeto, você pode marcar 1 PF para sumir de onde está e reaparecer em outra sombra em alcance distante. Ao reaparecer, você está Oculto."
+        }
       ],
       "especializacao": [
-        {"nome": "Nuvem de Escuridão", "descricao": "Faça um teste de Conjuração (15). Num sucesso, crie uma nuvem escura temporária que cobre qualquer área em alcance próximo. Quem está dentro dela não enxerga lá fora, e quem está fora não enxerga lá dentro. Você conta como Oculto para qualquer adversário cuja linha de visão a nuvem bloqueie."},
-        {"nome": "Adrenalina", "descricao": "Enquanto estiver Vulnerável, some o seu nível às suas rolagens de dano."}
+        {
+          "nome": "Nuvem de Escuridão",
+          "descricao": "Faça um teste de Conjuração (15). Num sucesso, crie uma nuvem escura temporária que cobre qualquer área em alcance próximo. Quem está dentro dela não enxerga lá fora, e quem está fora não enxerga lá dentro. Você conta como Oculto para qualquer adversário cuja linha de visão a nuvem bloqueie."
+        },
+        {
+          "nome": "Adrenalina",
+          "descricao": "Enquanto estiver Vulnerável, some o seu nível às suas rolagens de dano."
+        }
       ],
       "maestria": [
-        {"nome": "Sombra Fugaz", "descricao": "Ganhe +1 permanente na Evasão. Você pode usar o seu Passo Sombrio para se mover até o alcance muito distante."},
-        {"nome": "Desaparecimento", "descricao": "Marque 1 PF para ficar Oculto a qualquer momento. Oculto por esta habilidade, você se livra automaticamente da condição Imobilizado, se a tiver. Você continua Oculto desse jeito até rolar com Medo ou até o seu próximo descanso."}
+        {
+          "nome": "Sombra Fugaz",
+          "descricao": "Ganhe +1 permanente na Evasão. Você pode usar o seu Passo Sombrio para se mover até o alcance muito distante."
+        },
+        {
+          "nome": "Desaparecimento",
+          "descricao": "Marque 1 PF para ficar Oculto a qualquer momento. Oculto por esta habilidade, você se livra automaticamente da condição Imobilizado, se a tiver. Você continua Oculto desse jeito até rolar com Medo ou até o seu próximo descanso."
+        }
       ]
     },
     "core_subclass_primal_origin": {
       "fundacao": [
-        {"nome": "Manipular Magia", "descricao": "Sua origem primordial deixa você mexer na própria essência da magia. Depois de conjurar um feitiço ou atacar com uma arma que cause dano mágico, você pode marcar 1 PF para fazer um destes:\n• Aumentar o alcance do feitiço ou ataque em uma faixa\n• Ganhar +2 no resultado do teste de ação\n• Dobrar um dado de dano à sua escolha\n• Atingir mais um alvo dentro do alcance"}
+        {
+          "nome": "Manipular Magia",
+          "descricao": "Sua origem primordial deixa você mexer na própria essência da magia. Depois de conjurar um feitiço ou atacar com uma arma que cause dano mágico, você pode marcar 1 PF para fazer um destes:\n• Aumentar o alcance do feitiço ou ataque em uma faixa\n• Ganhar +2 no resultado do teste de ação\n• Dobrar um dado de dano à sua escolha\n• Atingir mais um alvo dentro do alcance"
+        }
       ],
       "especializacao": [
-        {"nome": "Auxílio Encantado", "descricao": "Você reforça a magia dos outros com a sua essência. Ao ajudar um aliado num teste de Conjuração, você pode rolar um d8 como dado de vantagem. Uma vez por descanso longo, depois que um aliado fizer um teste de Conjuração com a sua ajuda, você pode trocar entre si os resultados dos Dados de Dualidade dele."}
+        {
+          "nome": "Auxílio Encantado",
+          "descricao": "Você reforça a magia dos outros com a sua essência. Ao ajudar um aliado num teste de Conjuração, você pode rolar um d8 como dado de vantagem. Uma vez por descanso longo, depois que um aliado fizer um teste de Conjuração com a sua ajuda, você pode trocar entre si os resultados dos Dados de Dualidade dele."
+        }
       ],
       "maestria": [
-        {"nome": "Carga Arcana", "descricao": "Você acumula energia mágica para potencializar as suas capacidades. Ao sofrer dano mágico, você fica Carregado. Você também pode gastar 2 de Esperança para ficar Carregado. Ao acertar um ataque que cause dano mágico enquanto Carregado, você pode descarregar para ganhar +10 na rolagem de dano ou +3 na Dificuldade de um teste de reação que o feitiço exija do alvo. Você deixa de estar Carregado no seu próximo descanso longo."}
+        {
+          "nome": "Carga Arcana",
+          "descricao": "Você acumula energia mágica para potencializar as suas capacidades. Ao sofrer dano mágico, você fica Carregado. Você também pode gastar 2 de Esperança para ficar Carregado. Ao acertar um ataque que cause dano mágico enquanto Carregado, você pode descarregar para ganhar +10 na rolagem de dano ou +3 na Dificuldade de um teste de reação que o feitiço exija do alvo. Você deixa de estar Carregado no seu próximo descanso longo."
+        }
       ]
     },
     "core_subclass_school_of_knowledge": {
       "fundacao": [
-        {"nome": "Promissor", "descricao": "Pegue uma carta de domínio a mais, do seu nível ou menor, de um domínio a que você tem acesso."},
-        {"nome": "Adepto", "descricao": "Ao usar uma Experiência, você pode marcar 1 PF em vez de gastar Esperança. Se fizer isso, dobre o modificador da Experiência nesse teste."}
+        {
+          "nome": "Promissor",
+          "descricao": "Pegue uma carta de domínio a mais, do seu nível ou menor, de um domínio a que você tem acesso."
+        },
+        {
+          "nome": "Adepto",
+          "descricao": "Ao usar uma Experiência, você pode marcar 1 PF em vez de gastar Esperança. Se fizer isso, dobre o modificador da Experiência nesse teste."
+        }
       ],
       "especializacao": [
-        {"nome": "Talentoso", "descricao": "Pegue uma carta de domínio a mais, do seu nível ou menor, de um domínio a que você tem acesso."},
-        {"nome": "Troca Perfeita", "descricao": "Uma vez por descanso, ao trazer uma carta de domínio da reserva, você pode reduzir em 1 o custo de troca dela."}
+        {
+          "nome": "Talentoso",
+          "descricao": "Pegue uma carta de domínio a mais, do seu nível ou menor, de um domínio a que você tem acesso."
+        },
+        {
+          "nome": "Troca Perfeita",
+          "descricao": "Uma vez por descanso, ao trazer uma carta de domínio da reserva, você pode reduzir em 1 o custo de troca dela."
+        }
       ],
       "maestria": [
-        {"nome": "Brilhante", "descricao": "Pegue uma carta de domínio a mais, do seu nível ou menor, de um domínio a que você tem acesso."},
-        {"nome": "Bem Vivido", "descricao": "Ao usar uma Experiência, role um d6. Com 5 ou mais, você a usa sem gastar Esperança."}
+        {
+          "nome": "Brilhante",
+          "descricao": "Pegue uma carta de domínio a mais, do seu nível ou menor, de um domínio a que você tem acesso."
+        },
+        {
+          "nome": "Bem Vivido",
+          "descricao": "Ao usar uma Experiência, role um d6. Com 5 ou mais, você a usa sem gastar Esperança."
+        }
       ]
     },
     "core_subclass_school_of_war": {
       "fundacao": [
-        {"nome": "Mago de Batalha", "descricao": "Você estudou para ser uma força invencível no campo de batalha. Ganhe 1 espaço de PV a mais."},
-        {"nome": "Encare o Medo", "descricao": "Ao acertar um teste de ataque com Medo, cause 1d10 de dano mágico a mais."}
+        {
+          "nome": "Mago de Batalha",
+          "descricao": "Você estudou para ser uma força invencível no campo de batalha. Ganhe 1 espaço de PV a mais."
+        },
+        {
+          "nome": "Encare o Medo",
+          "descricao": "Ao acertar um teste de ataque com Medo, cause 1d10 de dano mágico a mais."
+        }
       ],
       "especializacao": [
-        {"nome": "Conjurar Escudo", "descricao": "Você sustenta uma barreira mágica de proteção. Enquanto tiver 2 ou mais de Esperança, some a sua Proficiência à sua Evasão."},
-        {"nome": "Movido por Medo", "descricao": "O dano mágico a mais do seu Encare o Medo passa a ser 2d10."}
+        {
+          "nome": "Conjurar Escudo",
+          "descricao": "Você sustenta uma barreira mágica de proteção. Enquanto tiver 2 ou mais de Esperança, some a sua Proficiência à sua Evasão."
+        },
+        {
+          "nome": "Movido por Medo",
+          "descricao": "O dano mágico a mais do seu Encare o Medo passa a ser 2d10."
+        }
       ],
       "maestria": [
-        {"nome": "Triunfo do Caos", "descricao": "Ao acertar um ataque, depois de rolar o dano você pode marcar 1 PF para obrigar o alvo a marcar 1 PV a mais."},
-        {"nome": "Não Tenha Medo", "descricao": "O dano mágico a mais do seu Encare o Medo passa a ser 3d10."}
+        {
+          "nome": "Triunfo do Caos",
+          "descricao": "Ao acertar um ataque, depois de rolar o dano você pode marcar 1 PF para obrigar o alvo a marcar 1 PV a mais."
+        },
+        {
+          "nome": "Não Tenha Medo",
+          "descricao": "O dano mágico a mais do seu Encare o Medo passa a ser 3d10."
+        }
       ]
     },
     "core_subclass_stalwart": {
       "fundacao": [
-        {"nome": "Resoluto", "descricao": "Ganhe +1 permanente nos seus limiares de dano."},
-        {"nome": "Vontade de Ferro", "descricao": "Ao sofrer dano físico, você pode marcar 1 espaço de armadura a mais para reduzir a gravidade."}
+        {
+          "nome": "Resoluto",
+          "descricao": "Ganhe +1 permanente nos seus limiares de dano."
+        },
+        {
+          "nome": "Vontade de Ferro",
+          "descricao": "Ao sofrer dano físico, você pode marcar 1 espaço de armadura a mais para reduzir a gravidade."
+        }
       ],
       "especializacao": [
-        {"nome": "Irrefreável", "descricao": "Ganhe +2 permanente nos seus limiares de dano."},
-        {"nome": "Irmãos de Armas", "descricao": "Quando um aliado em alcance muito próximo sofrer dano, você pode marcar 1 espaço de armadura para reduzir a gravidade em um limiar."}
+        {
+          "nome": "Irrefreável",
+          "descricao": "Ganhe +2 permanente nos seus limiares de dano."
+        },
+        {
+          "nome": "Irmãos de Armas",
+          "descricao": "Quando um aliado em alcance muito próximo sofrer dano, você pode marcar 1 espaço de armadura para reduzir a gravidade em um limiar."
+        }
       ],
       "maestria": [
-        {"nome": "Impávido", "descricao": "Ganhe +3 permanente nos seus limiares de dano."},
-        {"nome": "Protetor Leal", "descricao": "Quando um aliado em alcance próximo tiver 2 PV ou menos e for sofrer dano, você pode marcar 1 PF para correr até ele e receber o dano no lugar."}
+        {
+          "nome": "Impávido",
+          "descricao": "Ganhe +3 permanente nos seus limiares de dano."
+        },
+        {
+          "nome": "Protetor Leal",
+          "descricao": "Quando um aliado em alcance próximo tiver 2 PV ou menos e for sofrer dano, você pode marcar 1 PF para correr até ele e receber o dano no lugar."
+        }
       ]
     },
     "core_subclass_syndicate": {
       "fundacao": [
-        {"nome": "Conexões", "descricao": "Ao chegar a uma cidade ou lugar importante, você conhece alguém que mora ali. Dê um nome a essa pessoa, anote como acha que ela pode ser útil e escolha um fato desta lista:\n• Ela me deve um favor, mas vai ser difícil de achar.\n• Ela vai pedir algo em troca.\n• Ela vive metida em encrenca.\n• Já fomos um casal. É uma longa história.\n• Não nos despedimos bem."}
+        {
+          "nome": "Conexões",
+          "descricao": "Ao chegar a uma cidade ou lugar importante, você conhece alguém que mora ali. Dê um nome a essa pessoa, anote como acha que ela pode ser útil e escolha um fato desta lista:\n• Ela me deve um favor, mas vai ser difícil de achar.\n• Ela vai pedir algo em troca.\n• Ela vive metida em encrenca.\n• Já fomos um casal. É uma longa história.\n• Não nos despedimos bem."
+        }
       ],
       "especializacao": [
-        {"nome": "Contatos", "descricao": "Uma vez por sessão, você pode chamar rapidamente um contato suspeito. Escolha um destes benefícios e descreva o que o trouxe até ali para ajudar você:\n• Ele fornece um punhado de ouro, uma ferramenta única ou um objeto comum de que a situação precisa.\n• No seu próximo teste de ação, a ajuda dele dá +3 no resultado do seu Dado de Esperança ou de Medo.\n• Na próxima vez que você causar dano, ele atira das sombras, somando 2d8 à rolagem de dano."}
+        {
+          "nome": "Contatos",
+          "descricao": "Uma vez por sessão, você pode chamar rapidamente um contato suspeito. Escolha um destes benefícios e descreva o que o trouxe até ali para ajudar você:\n• Ele fornece um punhado de ouro, uma ferramenta única ou um objeto comum de que a situação precisa.\n• No seu próximo teste de ação, a ajuda dele dá +3 no resultado do seu Dado de Esperança ou de Medo.\n• Na próxima vez que você causar dano, ele atira das sombras, somando 2d8 à rolagem de dano."
+        }
       ],
       "maestria": [
-        {"nome": "Reforços Confiáveis", "descricao": "Você pode usar os seus Contatos três vezes por sessão. Estes benefícios entram na lista de opções:\n• Quando você marca 1 ou mais PV, ele aparece para protegê-lo, reduzindo em 1 os PV marcados.\n• Quando você faz um teste de Presença numa conversa, ele dá cobertura. Você pode rolar um d20 como Dado de Esperança."}
+        {
+          "nome": "Reforços Confiáveis",
+          "descricao": "Você pode usar os seus Contatos três vezes por sessão. Estes benefícios entram na lista de opções:\n• Quando você marca 1 ou mais PV, ele aparece para protegê-lo, reduzindo em 1 os PV marcados.\n• Quando você faz um teste de Presença numa conversa, ele dá cobertura. Você pode rolar um d20 como Dado de Esperança."
+        }
       ]
     },
     "core_subclass_troubadour": {
       "fundacao": [
-        {"nome": "Artista Talentoso", "descricao": "Descreva como você se apresenta para os outros. Você pode tocar cada canção uma vez por descanso longo:\n• Canção Relaxante: você e todos os aliados em alcance próximo limpam 1 PV.\n• Canção Épica: deixe um alvo em alcance próximo temporariamente Vulnerável.\n• Canção Comovente: você e todos os aliados em alcance próximo ganham 1 de Esperança."}
+        {
+          "nome": "Artista Talentoso",
+          "descricao": "Descreva como você se apresenta para os outros. Você pode tocar cada canção uma vez por descanso longo:\n• Canção Relaxante: você e todos os aliados em alcance próximo limpam 1 PV.\n• Canção Épica: deixe um alvo em alcance próximo temporariamente Vulnerável.\n• Canção Comovente: você e todos os aliados em alcance próximo ganham 1 de Esperança."
+        }
       ],
       "especializacao": [
-        {"nome": "Maestro", "descricao": "Suas canções firmam a coragem de quem ouve. Ao dar um Dado de Inspiração a um aliado, ele pode ganhar 1 de Esperança ou limpar 1 PF."}
+        {
+          "nome": "Maestro",
+          "descricao": "Suas canções firmam a coragem de quem ouve. Ao dar um Dado de Inspiração a um aliado, ele pode ganhar 1 de Esperança ou limpar 1 PF."
+        }
       ],
       "maestria": [
-        {"nome": "Virtuoso", "descricao": "Você está entre os maiores da sua arte, e o seu talento não tem limites. Você pode tocar cada canção do seu Artista Talentoso duas vezes por descanso longo, em vez de uma."}
+        {
+          "nome": "Virtuoso",
+          "descricao": "Você está entre os maiores da sua arte, e o seu talento não tem limites. Você pode tocar cada canção do seu Artista Talentoso duas vezes por descanso longo, em vez de uma."
+        }
       ]
     },
     "core_subclass_vengeance": {
       "fundacao": [
-        {"nome": "Vem Tranquilo", "descricao": "Ganhe 1 espaço de PF a mais."},
-        {"nome": "Revanche", "descricao": "Quando um adversário em alcance corpo a corpo acerta um ataque em você, você pode marcar 2 PF para obrigar o atacante a marcar 1 PV."}
+        {
+          "nome": "Vem Tranquilo",
+          "descricao": "Ganhe 1 espaço de PF a mais."
+        },
+        {
+          "nome": "Revanche",
+          "descricao": "Quando um adversário em alcance corpo a corpo acerta um ataque em você, você pode marcar 2 PF para obrigar o atacante a marcar 1 PV."
+        }
       ],
       "especializacao": [
-        {"nome": "Represália", "descricao": "Quando um adversário causa dano a um aliado em alcance corpo a corpo, você ganha +1 de Proficiência no próximo ataque bem-sucedido que fizer contra esse adversário."}
+        {
+          "nome": "Represália",
+          "descricao": "Quando um adversário causa dano a um aliado em alcance corpo a corpo, você ganha +1 de Proficiência no próximo ataque bem-sucedido que fizer contra esse adversário."
+        }
       ],
       "maestria": [
-        {"nome": "Nêmesis", "descricao": "Gaste 2 de Esperança para Priorizar um adversário até o seu próximo descanso. Ao atacar o adversário Priorizado, você pode trocar entre si os resultados dos seus Dados de Esperança e de Medo. Só dá para Priorizar um adversário por vez."}
+        {
+          "nome": "Nêmesis",
+          "descricao": "Gaste 2 de Esperança para Priorizar um adversário até o seu próximo descanso. Ao atacar o adversário Priorizado, você pode trocar entre si os resultados dos seus Dados de Esperança e de Medo. Só dá para Priorizar um adversário por vez."
+        }
       ]
     },
     "core_subclass_warden_of_renewal": {
       "fundacao": [
-        {"nome": "Serenidade da Natureza", "descricao": "Uma vez por descanso longo, você pode criar um espaço de serenidade natural em alcance próximo. Quem passar alguns minutos descansando nele limpa PF igual ao seu Instinto, divididos como você quiser entre você e os seus aliados."},
-        {"nome": "Regeneração", "descricao": "Toque uma criatura e gaste 3 de Esperança. Ela limpa 1d4 PV."}
+        {
+          "nome": "Serenidade da Natureza",
+          "descricao": "Uma vez por descanso longo, você pode criar um espaço de serenidade natural em alcance próximo. Quem passar alguns minutos descansando nele limpa PF igual ao seu Instinto, divididos como você quiser entre você e os seus aliados."
+        },
+        {
+          "nome": "Regeneração",
+          "descricao": "Toque uma criatura e gaste 3 de Esperança. Ela limpa 1d4 PV."
+        }
       ],
       "especializacao": [
-        {"nome": "Presença Curativa", "descricao": "Você pode usar a sua Regeneração em criaturas em alcance muito próximo."},
-        {"nome": "Proteção Druídica", "descricao": "Uma vez por descanso longo, gaste 2 de Esperança para limpar 2 PV de 1d4 aliados em alcance próximo."}
+        {
+          "nome": "Presença Curativa",
+          "descricao": "Você pode usar a sua Regeneração em criaturas em alcance muito próximo."
+        },
+        {
+          "nome": "Proteção Druídica",
+          "descricao": "Uma vez por descanso longo, gaste 2 de Esperança para limpar 2 PV de 1d4 aliados em alcance próximo."
+        }
       ],
       "maestria": [
-        {"nome": "Defensor", "descricao": "Sua forma animal encarna um espírito guardião de cura. Na Forma de Fera, quando um aliado em alcance próximo marca 2 ou mais PV, você pode marcar 1 PF para reduzir em 1 os PV que ele marca."}
+        {
+          "nome": "Defensor",
+          "descricao": "Sua forma animal encarna um espírito guardião de cura. Na Forma de Fera, quando um aliado em alcance próximo marca 2 ou mais PV, você pode marcar 1 PF para reduzir em 1 os PV que ele marca."
+        }
       ]
     },
     "core_subclass_warden_of_the_elements": {
       "fundacao": [
-        {"nome": "Encarnação Elemental", "descricao": "Marque 1 PF para Canalizar um destes elementos até sofrer dano Grave ou até o seu próximo descanso:\n• Fogo: quando um adversário em alcance corpo a corpo causa dano a você, ele sofre 1d10 de dano mágico.\n• Terra: ganhe nos seus limiares de dano um bônus igual à sua Proficiência.\n• Água: quando você causa dano a um adversário em alcance corpo a corpo, todos os outros adversários em alcance muito próximo marcam 1 PF.\n• Ar: você pode pairar, ganhando vantagem nos testes de Agilidade."}
+        {
+          "nome": "Encarnação Elemental",
+          "descricao": "Marque 1 PF para Canalizar um destes elementos até sofrer dano Grave ou até o seu próximo descanso:\n• Fogo: quando um adversário em alcance corpo a corpo causa dano a você, ele sofre 1d10 de dano mágico.\n• Terra: ganhe nos seus limiares de dano um bônus igual à sua Proficiência.\n• Água: quando você causa dano a um adversário em alcance corpo a corpo, todos os outros adversários em alcance muito próximo marcam 1 PF.\n• Ar: você pode pairar, ganhando vantagem nos testes de Agilidade."
+        }
       ],
       "especializacao": [
-        {"nome": "Aura Elemental", "descricao": "Uma vez por descanso, enquanto Canaliza, você pode assumir uma aura do seu elemento. Ela afeta alvos em alcance próximo até a Canalização acabar.\n• Fogo: quando um adversário marca 1 ou mais PV, ele também marca 1 PF.\n• Terra: seus aliados ganham +1 de Força.\n• Água: quando um adversário causa dano a você, você pode marcar 1 PF para movê-lo para qualquer ponto em alcance muito próximo de onde ele está.\n• Ar: quando você ou um aliado sofre dano de um ataque de fora do alcance corpo a corpo, reduza o dano em 1d8."}
+        {
+          "nome": "Aura Elemental",
+          "descricao": "Uma vez por descanso, enquanto Canaliza, você pode assumir uma aura do seu elemento. Ela afeta alvos em alcance próximo até a Canalização acabar.\n• Fogo: quando um adversário marca 1 ou mais PV, ele também marca 1 PF.\n• Terra: seus aliados ganham +1 de Força.\n• Água: quando um adversário causa dano a você, você pode marcar 1 PF para movê-lo para qualquer ponto em alcance muito próximo de onde ele está.\n• Ar: quando você ou um aliado sofre dano de um ataque de fora do alcance corpo a corpo, reduza o dano em 1d8."
+        }
       ],
       "maestria": [
-        {"nome": "Soberania Elemental", "descricao": "Você encarna ainda mais o seu elemento. Enquanto Canaliza, ganha este benefício:\n• Fogo: +1 de Proficiência em ataques e feitiços que causam dano.\n• Terra: quando for marcar PV, role um d6 por PV. Para cada 6, marque 1 PV a menos.\n• Água: quando um ataque contra você acerta, você pode marcar 1 PF para deixar o atacante temporariamente Vulnerável.\n• Ar: +1 de Evasão, e você pode voar."}
+        {
+          "nome": "Soberania Elemental",
+          "descricao": "Você encarna ainda mais o seu elemento. Enquanto Canaliza, ganha este benefício:\n• Fogo: +1 de Proficiência em ataques e feitiços que causam dano.\n• Terra: quando for marcar PV, role um d6 por PV. Para cada 6, marque 1 PV a menos.\n• Água: quando um ataque contra você acerta, você pode marcar 1 PF para deixar o atacante temporariamente Vulnerável.\n• Ar: +1 de Evasão, e você pode voar."
+        }
       ]
     },
     "core_subclass_wayfinder": {
       "fundacao": [
-        {"nome": "Predador Implacável", "descricao": "Ao fazer uma rolagem de dano, você pode marcar 1 PF para ganhar +1 de Proficiência. Além disso, quando você causa dano Grave a um adversário, ele precisa marcar 1 PF."},
-        {"nome": "Avante", "descricao": "Ao viajar para um lugar onde já esteve, ou levando um objeto que já esteve lá, você descobre o caminho mais curto e direto até o destino."}
+        {
+          "nome": "Predador Implacável",
+          "descricao": "Ao fazer uma rolagem de dano, você pode marcar 1 PF para ganhar +1 de Proficiência. Além disso, quando você causa dano Grave a um adversário, ele precisa marcar 1 PF."
+        },
+        {
+          "nome": "Avante",
+          "descricao": "Ao viajar para um lugar onde já esteve, ou levando um objeto que já esteve lá, você descobre o caminho mais curto e direto até o destino."
+        }
       ],
       "especializacao": [
-        {"nome": "Predador Veloz", "descricao": "Quando o seu alvo Marcado ataca você, você ganha +2 de Evasão contra esse ataque."}
+        {
+          "nome": "Predador Veloz",
+          "descricao": "Quando o seu alvo Marcado ataca você, você ganha +2 de Evasão contra esse ataque."
+        }
       ],
       "maestria": [
-        {"nome": "Predador Apex", "descricao": "Antes de fazer um teste de ataque contra o seu alvo Marcado, você pode gastar 1 de Esperança. Se o ataque acertar, tire 1 de Medo da reserva de Medo do mestre."}
+        {
+          "nome": "Predador Apex",
+          "descricao": "Antes de fazer um teste de ataque contra o seu alvo Marcado, você pode gastar 1 de Esperança. Se o ataque acertar, tire 1 de Medo da reserva de Medo do mestre."
+        }
       ]
     },
     "core_subclass_winged_sentinel": {
       "fundacao": [
-        {"nome": "Asas de Luz", "descricao": "Você pode voar. Enquanto voa, você pode:\n• Marcar 1 PF para pegar e carregar outra criatura voluntária mais ou menos do seu tamanho ou menor.\n• Gastar 1 de Esperança para causar 1d8 de dano a mais num ataque bem-sucedido."}
+        {
+          "nome": "Asas de Luz",
+          "descricao": "Você pode voar. Enquanto voa, você pode:\n• Marcar 1 PF para pegar e carregar outra criatura voluntária mais ou menos do seu tamanho ou menor.\n• Gastar 1 de Esperança para causar 1d8 de dano a mais num ataque bem-sucedido."
+        }
       ],
       "especializacao": [
-        {"nome": "Visagem Etérea", "descricao": "Sua aparência sobrenatural inspira assombro e medo. Enquanto voa, você tem vantagem nos testes de Presença. Ao ter sucesso com Esperança num teste de Presença, você pode tirar 1 de Medo da reserva do mestre em vez de ganhar Esperança."}
+        {
+          "nome": "Visagem Etérea",
+          "descricao": "Sua aparência sobrenatural inspira assombro e medo. Enquanto voa, você tem vantagem nos testes de Presença. Ao ter sucesso com Esperança num teste de Presença, você pode tirar 1 de Medo da reserva do mestre em vez de ganhar Esperança."
+        }
       ],
       "maestria": [
-        {"nome": "Ascensão", "descricao": "Ganhe +4 permanente no seu limiar Grave."},
-        {"nome": "Poder dos Deuses", "descricao": "Enquanto voa, o dano a mais das suas Asas de Luz passa a ser 1d12 em vez de 1d8."}
+        {
+          "nome": "Ascensão",
+          "descricao": "Ganhe +4 permanente no seu limiar Grave."
+        },
+        {
+          "nome": "Poder dos Deuses",
+          "descricao": "Enquanto voa, o dano a mais das suas Asas de Luz passa a ser 1d12 em vez de 1d8."
+        }
       ]
     },
     "core_subclass_wordsmith": {
       "fundacao": [
-        {"nome": "Discurso Inspirador", "descricao": "Uma vez por descanso longo, você pode fazer um discurso sincero e inspirador. Todos os aliados em alcance distante limpam 2 PF."},
-        {"nome": "Alma de Poeta", "descricao": "Depois de fazer um teste de ação para impressionar, convencer ou ofender alguém, você pode gastar 1 de Esperança para somar um d4 ao teste."}
+        {
+          "nome": "Discurso Inspirador",
+          "descricao": "Uma vez por descanso longo, você pode fazer um discurso sincero e inspirador. Todos os aliados em alcance distante limpam 2 PF."
+        },
+        {
+          "nome": "Alma de Poeta",
+          "descricao": "Depois de fazer um teste de ação para impressionar, convencer ou ofender alguém, você pode gastar 1 de Esperança para somar um d4 ao teste."
+        }
       ],
       "especializacao": [
-        {"nome": "Eloquente", "descricao": "Suas palavras tocantes levantam o moral. Uma vez por sessão, ao encorajar um aliado, você pode fazer um destes:\n• Deixar que ele encontre um objeto comum ou ferramenta de que precise.\n• Ajudá-lo sem gastar Esperança.\n• Dar a ele um movimento de repouso a mais no próximo descanso dele."}
+        {
+          "nome": "Eloquente",
+          "descricao": "Suas palavras tocantes levantam o moral. Uma vez por sessão, ao encorajar um aliado, você pode fazer um destes:\n• Deixar que ele encontre um objeto comum ou ferramenta de que precise.\n• Ajudá-lo sem gastar Esperança.\n• Dar a ele um movimento de repouso a mais no próximo descanso dele."
+        }
       ],
       "maestria": [
-        {"nome": "Poesia Épica", "descricao": "Seu Dado de Inspiração passa a ser um d10. Além disso, ao ajudar um aliado, você pode narrar o momento como se escrevesse o heroísmo dele num livro de memórias. Ao fazer isso, role um d10 como dado de vantagem."}
+        {
+          "nome": "Poesia Épica",
+          "descricao": "Seu Dado de Inspiração passa a ser um d10. Além disso, ao ajudar um aliado, você pode narrar o momento como se escrevesse o heroísmo dele num livro de memórias. Ao fazer isso, role um d10 como dado de vantagem."
+        }
       ]
     }
+  },
+  "comunidades": {
+    "core_community_highborne": [
+      {
+        "nome": "Privilégio",
+        "descricao": "Você tem vantagem nos testes para conviver com nobres, negociar preços ou usar a sua reputação para conseguir o que quer."
+      }
+    ],
+    "core_community_loreborne": [
+      {
+        "nome": "Culto",
+        "descricao": "Você tem vantagem nos testes que envolvam a história, a cultura ou a política de uma pessoa ou lugar importante."
+      }
+    ],
+    "core_community_orderborne": [
+      {
+        "nome": "Princípios",
+        "descricao": "Anote três ditados ou valores que a sua criação lhe ensinou. Uma vez por descanso, ao descrever como a sua ação atual encarna um desses princípios, você pode rolar um d20 como Dado de Esperança."
+      }
+    ],
+    "core_community_ridgeborne": [
+      {
+        "nome": "Firme",
+        "descricao": "Você tem vantagem nos testes para atravessar penhascos e beiradas perigosas, se orientar em ambientes hostis e usar seus conhecimentos de sobrevivência."
+      }
+    ],
+    "core_community_seaborne": [
+      {
+        "nome": "Conhecer a Maré",
+        "descricao": "Você sente o fluxo e o refluxo da vida. Ao rolar com Medo, ponha um marcador nesta carta. Você guarda no máximo um número de marcadores igual ao seu nível. Antes de fazer um teste de ação, pode gastar quantos quiser para ganhar +1 no teste por marcador gasto. No fim de cada sessão, limpe os marcadores não gastos."
+      }
+    ],
+    "core_community_slyborne": [
+      {
+        "nome": "Malandro",
+        "descricao": "Você tem vantagem nos testes para negociar com criminosos, perceber mentiras ou achar um lugar seguro para se esconder."
+      }
+    ],
+    "core_community_underborne": [
+      {
+        "nome": "Habituado à Penumbra",
+        "descricao": "Numa área de pouca luz ou sombra densa, você tem vantagem nos testes para se esconder, investigar ou perceber detalhes nessa área."
+      }
+    ],
+    "core_community_wanderborne": [
+      {
+        "nome": "Mochila de Nômade",
+        "descricao": "Ponha uma Mochila de Nômade no seu inventário. Uma vez por sessão, você pode gastar 1 de Esperança para tirar dela um objeto comum útil para a situação. Combine com o mestre que objeto é."
+      }
+    ],
+    "core_community_wildborne": [
+      {
+        "nome": "Pés Leves",
+        "descricao": "Seu movimento é naturalmente silencioso. Você tem vantagem nos testes para se mover sem ser ouvido."
+      }
+    ]
   }
 }

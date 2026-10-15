@@ -204,3 +204,18 @@ def test_treinamento_de_combate_ignora_empunhadura(guerreiro, bardo):
     assert len(f.ataques) == 2
     with pytest.raises(RegraViolada, match="duas mãos"):
         bardo.equipar(principal="core_weapon_battleaxe", secundaria="core_weapon_round_shield")
+
+
+# --- Comunidade -------------------------------------------------------------------------
+
+def test_ficha_traz_a_habilidade_da_comunidade(bardo):
+    assert [c.nome_original for c in bardo.ficha().caracteristicas_comunidade] == ["Privilege"]
+
+
+def test_habilidades_de_comunidade_com_os_nomes_do_livro(pt):
+    assert {c.id: c.caracteristicas[0].nome for c in pt.comunidades.values()} == {
+        "core_community_highborne": "Privilégio", "core_community_loreborne": "Culto",
+        "core_community_orderborne": "Princípios", "core_community_ridgeborne": "Firme",
+        "core_community_seaborne": "Conhecer a Maré", "core_community_slyborne": "Malandro",
+        "core_community_underborne": "Habituado à Penumbra", "core_community_wanderborne": "Mochila de Nômade",
+        "core_community_wildborne": "Pés Leves"}

@@ -2779,6 +2779,11 @@ export interface components {
              * @default
              */
             nome_original: string;
+            /**
+             * Caracteristicas
+             * @default []
+             */
+            caracteristicas: components["schemas"]["Caracteristica"][];
         };
         /** CondicaoEntrada */
         CondicaoEntrada: {
@@ -3199,6 +3204,8 @@ export interface components {
             segunda_ancestralidade: string | null;
             /** Caracteristicas Ancestralidade */
             caracteristicas_ancestralidade: components["schemas"]["Caracteristica"][];
+            /** Caracteristicas Comunidade */
+            caracteristicas_comunidade: components["schemas"]["Caracteristica"][];
             companheiro: components["schemas"]["FichaCompanheiro"] | null;
             /** Condicoes */
             condicoes: string[];

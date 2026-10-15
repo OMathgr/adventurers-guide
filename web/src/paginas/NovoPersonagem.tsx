@@ -239,6 +239,7 @@ function EtapaHeranca({ r, atualizar }: PropsEtapa) {
           {comunidades.data?.map((c) => (
             <Escolhivel key={c.id} selecionado={r.comunidade === c.id} onClick={() => atualizar({ comunidade: c.id })}>
               <p className="font-titulo">{c.nome}<Original nome={c.nome} original={c.nome_original} /></p>
+              <CaracteristicasDe lista={c.caracteristicas ?? []} />
             </Escolhivel>
           ))}
         </div>

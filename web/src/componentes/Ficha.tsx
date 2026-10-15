@@ -3,7 +3,7 @@ import type { Ficha } from '../api/tipos'
 import {
   comSinal, condicao, NOME_ALCANCE, NOME_TIPO_DANO, NOME_TRACO, TRACOS, USO_TRACO,
 } from '../lib/rotulos'
-import CartaoHabilidades from './Habilidades'
+import CartaoHabilidades, { comoItem, ListaDeHabilidades } from './Habilidades'
 import MaoEReserva from './MaoEReserva'
 import { Cartao, Espacos, Esperanca, Original, Selo } from './ui'
 
@@ -122,8 +122,13 @@ export default function FichaVisao({ ficha, personagemId }: { ficha: Ficha; pers
 
       <MaoEReserva ficha={ficha} personagemId={personagemId} />
 
-      <Cartao titulo="Ancestralidade" className="lg:col-span-2">
-        <ListaCaracteristicas lista={ficha.caracteristicas_ancestralidade} />
+      <Cartao titulo="Herança" className="lg:col-span-2">
+        <h3 className="mb-1 text-sm text-esperanca">Ancestralidade</h3>
+        <ListaDeHabilidades lista={ficha.caracteristicas_ancestralidade.map(comoItem)} />
+        {ficha.caracteristicas_comunidade.length > 0 && (
+          <><h3 className="mb-1 mt-4 text-sm text-esperanca">Comunidade</h3>
+            <ListaDeHabilidades lista={ficha.caracteristicas_comunidade.map(comoItem)} /></>
+        )}
         {ficha.caracteristicas_armadura.length > 0 && (
           <><h3 className="mb-1 mt-4 text-sm text-esperanca">{ficha.armadura}<Original nome={ficha.armadura} original={ficha.armadura_original} /></h3>
             <ListaCaracteristicas lista={ficha.caracteristicas_armadura} /></>

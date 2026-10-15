@@ -288,7 +288,9 @@ cuidar de aliados num descanso.
 SRD. Na **ancestralidade mista**, a 1ª vem de `Criacao.ancestralidade` e a 2ª
 de `Criacao.segunda_ancestralidade` (o SRD proíbe duas primeiras ou duas
 segundas; para a combinação inversa, troca-se as duas de lugar). A ficha
-mostra `caracteristicas_ancestralidade`.
+mostra `caracteristicas_ancestralidade` e `caracteristicas_comunidade` (a
+habilidade de comunidade, só texto: vantagens situacionais), no cartão "Herança"; as que o motor aplica levam o selo "já na ficha". Nomes do
+livro, texto nosso em `habilidades.json` (`comunidades`).
 
 Características com efeito no motor (também via `Efeito`):
 

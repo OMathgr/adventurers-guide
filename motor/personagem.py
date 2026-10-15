@@ -229,6 +229,7 @@ class Ficha:
     esperanca_max: int = 6
     segunda_ancestralidade: str | None = None
     caracteristicas_ancestralidade: list[Caracteristica] = field(default_factory=list)
+    caracteristicas_comunidade: list[Caracteristica] = field(default_factory=list)
     companheiro: FichaCompanheiro | None = None
     condicoes: list[str] = field(default_factory=list)   # estado de sessão
     # morte (estado de sessão): cada cicatriz risca 1 espaço de Esperança
@@ -756,7 +757,7 @@ class Personagem:
         if subclasse.classe != classe.codigo:
             raise RegraViolada(f"{subclasse.nome} não é subclasse de {classe.nome}.")
         caracteristicas_anc = self._caracteristicas_ancestralidade(c)
-        self._exigir(bib.comunidades, c.comunidade, "Comunidade")
+        comunidade = self._exigir(bib.comunidades, c.comunidade, "Comunidade")
 
         if set(c.tracos) != set(Traco):
             raise RegraViolada("Todos os seis atributos precisam de um valor.")
@@ -787,6 +788,7 @@ class Personagem:
             experiencias={n: 2 for n in nomes}, cartas=list(c.cartas),
             segunda_ancestralidade=c.segunda_ancestralidade,
             caracteristicas_ancestralidade=caracteristicas_anc,
+            caracteristicas_comunidade=list(comunidade.caracteristicas),
         )
         self._aplicar_ancestralidade(f, c)
         f.companheiro = self._ganhar_companheiro(subclasse, c.companheiro)
