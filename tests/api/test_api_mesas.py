@@ -68,7 +68,8 @@ def test_codigo_invalido_e_mesa_alheia(cliente, mesa, bia):
 
 def test_mestre_ve_o_codigo_e_jogador_nao(cliente, mesa, bia):
     eu = cliente.post(f"/mesas/entrar/{mesa['codigo_convite']}", headers=bia).json()
-    assert cliente.get(f"/mesas/{mesa['id']}", headers=bia).json()["codigo_convite"] is None
+    vista = cliente.get(f"/mesas/{mesa['id']}", headers=bia).json()
+    assert (vista["codigo_convite"], vista["permissoes_mestres"]) == (None, {})   # nem código, nem permissões
     bia_id = next(m["usuario_id"] for m in eu["membros"] if m["nome"] == "Bia")
     cliente.put(f"/mesas/{mesa['id']}/membros/{bia_id}", json={"papel": "mestre"})
     assert cliente.get(f"/mesas/{mesa['id']}", headers=bia).json()["codigo_convite"] == mesa["codigo_convite"]

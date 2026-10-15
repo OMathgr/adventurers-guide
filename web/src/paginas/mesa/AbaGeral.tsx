@@ -1,100 +1,33 @@
-// Membros, personagens, nível e (para quem criou) permissões dos mestres. O
-// convite fica na aba Convite, só dos mestres (AbaConvite).
+// Resumo da mesa para todos: quem joga (e quem está online), os personagens e o
+// nível. Trazer um personagem seu e sair da mesa também ficam aqui. Administrar
+// (papéis, nível, permissões, apagar) é na aba Gerenciar; o convite, na aba
+// Convite; as duas só dos mestres.
 import { useState } from 'react'
 import { useNavigate } from 'react-router'
 
 import {
-  useApagarMesa, useClasses, useCopiarParaMesa, useMoedasDaMesa, useMudarPapel, useNivelDaMesa,
-  usePermissoesMestres, usePersonagens, useRemoverMembro, useSairDaMesa, useVincularMesa,
+  useClasses, useCopiarParaMesa, usePersonagens, useSairDaMesa, useVincularMesa,
 } from '../../api/consultas'
-import type { Mesa, Permissao, PermissoesMestres } from '../../api/tipos'
+import type { Mesa } from '../../api/tipos'
 import { Foto } from '../../componentes/Foto'
 import { Aviso, Botao, Cartao, Selecao, Selo } from '../../componentes/ui'
-import { NOME_PAPEL, NOME_PERMISSAO } from '../../lib/rotulos'
-
-const PERMISSOES = Object.keys(NOME_PERMISSAO) as Permissao[]
+import { NOME_PAPEL } from '../../lib/rotulos'
 
 function Membros({ mesa }: { mesa: Mesa }) {
-  const mudarPapel = useMudarPapel(mesa.id)
-  const remover = useRemoverMembro(mesa.id)
   return (
-    <Cartao titulo="Membros">
+    <Cartao titulo="Jogadores e mestres">
       <ul className="divide-y divide-borda">
         {mesa.membros.map((m) => (
-          <li key={m.usuario_id} className="flex flex-wrap items-center justify-between gap-2 py-2">
-            <span>
-              {/* presença: verde = com o app aberto agora */}
-              <span role="img" aria-label={m.online ? 'online' : 'offline'} title={m.online ? 'Online agora' : 'Offline'}
-                className={`mr-2 inline-block h-2.5 w-2.5 rounded-full ${m.online ? 'bg-sucesso' : 'bg-borda'}`} />
-              {m.nome}
-              <span className="ml-2"><Selo destaque={m.papel === 'mestre'}>{NOME_PAPEL[m.papel] ?? m.papel}</Selo></span>
-              {m.criador && <span className="ml-2 text-xs text-texto-suave">criou a mesa</span>}
-            </span>
-            {mesa.sou_criador && !m.criador && (
-              <span className="flex gap-1">
-                <Botao variante="fantasma" disabled={mudarPapel.isPending}
-                  onClick={() => mudarPapel.mutate({ usuarioId: m.usuario_id, papel: m.papel === 'mestre' ? 'jogador' : 'mestre' })}>
-                  {m.papel === 'mestre' ? 'Tornar jogador' : 'Tornar mestre'}
-                </Botao>
-                <Botao variante="perigo" disabled={remover.isPending}
-                  onClick={() => confirm(`Remover ${m.nome} da mesa?`) && remover.mutate(m.usuario_id)}>
-                  Remover
-                </Botao>
-              </span>
-            )}
+          <li key={m.usuario_id} className="flex flex-wrap items-center gap-2 py-2">
+            {/* presença: verde = com o app aberto agora */}
+            <span role="img" aria-label={m.online ? 'online' : 'offline'} title={m.online ? 'Online agora' : 'Offline'}
+              className={`inline-block h-2.5 w-2.5 rounded-full ${m.online ? 'bg-sucesso' : 'bg-borda'}`} />
+            {m.nome}
+            <Selo destaque={m.papel === 'mestre'}>{NOME_PAPEL[m.papel] ?? m.papel}</Selo>
+            {m.criador && <span className="text-xs text-texto-suave">criou a mesa</span>}
           </li>
         ))}
       </ul>
-      <Aviso erro={mudarPapel.error ?? remover.error} />
-    </Cartao>
-  )
-}
-
-function Permissoes({ mesa }: { mesa: Mesa }) {
-  const salvar = usePermissoesMestres(mesa.id)
-  const atuais = { ...mesa.permissoes_mestres } as Record<Permissao, boolean>
-  return (
-    <Cartao titulo="O que os outros mestres podem fazer">
-      <p className="mb-3 text-sm text-texto-suave">Vale para todos os mestres; você, que criou a mesa, pode tudo.</p>
-      <div className="space-y-2">
-        {PERMISSOES.map((p) => (
-          <label key={p} className="flex items-center gap-2 text-sm">
-            <input type="checkbox" className="accent-[var(--esperanca)]" checked={atuais[p] ?? true}
-              disabled={salvar.isPending}
-              onChange={(e) => salvar.mutate({ ...atuais, [p]: e.target.checked } as PermissoesMestres)} />
-            {NOME_PERMISSAO[p]}
-          </label>
-        ))}
-      </div>
-      <Aviso erro={salvar.error} />
-    </Cartao>
-  )
-}
-
-function NivelDaMesa({ mesa }: { mesa: Mesa }) {
-  const mudar = useNivelDaMesa(mesa.id)
-  const moedas = useMoedasDaMesa(mesa.id)
-  const pode = mesa.minhas_permissoes.includes('nivel')
-  return (
-    <Cartao titulo="Nível e regras da mesa">
-      <p className="mb-3 text-sm text-texto-suave">
-        Os personagens desta mesa sobem até o nível <b className="text-texto">{mesa.nivel_maximo}</b>.
-        {pode && ' Baixar não desfaz níveis: quem já passou só não sobe até a mesa alcançar.'}
-      </p>
-      {pode && (
-        <Selecao rotulo="Nível máximo" className="max-w-40" value={String(mesa.nivel_maximo)} disabled={mudar.isPending}
-          onChange={(e) => mudar.mutate(Number(e.target.value))}
-          opcoes={Array.from({ length: 10 }, (_, i): [string, string] => [String(i + 1), `Nível ${i + 1}`])} />
-      )}
-      <label className="mt-3 flex items-start gap-2 text-sm">
-        <input type="checkbox" className="mt-1" checked={mesa.usar_moedas} disabled={!pode || moedas.isPending}
-          onChange={(e) => moedas.mutate(e.target.checked)} />
-        <span>
-          Regra opcional das moedas
-          <span className="block text-xs text-texto-suave">10 moedas valem 1 punhado, para contar o ouro com mais detalhe.</span>
-        </span>
-      </label>
-      <Aviso erro={mudar.error ?? moedas.error} />
     </Cartao>
   )
 }
@@ -114,6 +47,7 @@ function Personagens({ mesa }: { mesa: Mesa }) {
 
   return (
     <Cartao titulo="Personagens">
+      <p className="mb-2 text-sm text-texto-suave">Nível máximo da mesa: <b className="text-texto">{mesa.nivel_maximo}</b></p>
       {mesa.personagens.length === 0 && <p className="text-sm text-texto-suave">Nenhum personagem nesta mesa ainda.</p>}
       <ul className="divide-y divide-borda">
         {mesa.personagens.map((x) => (
@@ -160,9 +94,7 @@ function Personagens({ mesa }: { mesa: Mesa }) {
 
 export default function AbaGeral({ mesa }: { mesa: Mesa }) {
   const sair = useSairDaMesa()
-  const apagar = useApagarMesa()
   const navegar = useNavigate()
-  const irParaMesas = { onSuccess: () => navegar('/mesas') }
 
   return (
     <div className="grid gap-4 lg:grid-cols-2">
@@ -174,23 +106,16 @@ export default function AbaGeral({ mesa }: { mesa: Mesa }) {
       )}
       <Membros mesa={mesa} />
       <Personagens mesa={mesa} />
-      <NivelDaMesa mesa={mesa} />
-      {mesa.sou_criador && <Permissoes mesa={mesa} />}
-      <div className="lg:col-span-2">
-        {mesa.sou_criador ? (
-          <Botao variante="perigo" disabled={apagar.isPending}
-            onClick={() => confirm(`Apagar a mesa "${mesa.nome}"? Inimigos e NPCs dela somem; os personagens continuam existindo.`)
-              && apagar.mutate(mesa.id, irParaMesas)}>
-            Apagar mesa
-          </Botao>
-        ) : (
+      {!mesa.sou_criador && (   // quem criou não sai: apaga a mesa (aba Gerenciar)
+        <div className="lg:col-span-2">
           <Botao variante="perigo" disabled={sair.isPending}
-            onClick={() => confirm('Sair desta mesa? Seus personagens saem junto.') && sair.mutate(mesa.id, irParaMesas)}>
+            onClick={() => confirm('Sair desta mesa? Seus personagens saem junto.')
+              && sair.mutate(mesa.id, { onSuccess: () => navegar('/mesas') })}>
             Sair da mesa
           </Botao>
-        )}
-        <Aviso erro={sair.error ?? apagar.error} />
-      </div>
+          <Aviso erro={sair.error} />
+        </div>
+      )}
     </div>
   )
 }

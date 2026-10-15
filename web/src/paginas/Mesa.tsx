@@ -1,7 +1,8 @@
-// Página da mesa (o grupo). Todos veem a aba Mesa (membros, personagens),
+// Página da mesa (o grupo). Todos veem a aba Mesa (resumo: membros, personagens, nível),
 // o Quadro da campanha e as Sessões (os dias de jogo: em andamento, para entrar
 // e jogar; encerradas, para consultar). Os mestres também planejam e conduzem as
-// sessões deles, convidam (aba Convite) e têm a biblioteca privada (Inimigos e NPCs).
+// sessões deles, convidam (aba Convite), administram (aba Gerenciar) e têm a
+// biblioteca privada (Inimigos e NPCs).
 import { lazy, Suspense } from 'react'
 import { useParams, useSearchParams } from 'react-router'
 
@@ -10,12 +11,13 @@ import { Abas, Aviso, Carregando, Selo } from '../componentes/ui'
 import { NOME_PAPEL } from '../lib/rotulos'
 import AbaConvite from './mesa/AbaConvite'
 import AbaGeral from './mesa/AbaGeral'
+import AbaGerenciar from './mesa/AbaGerenciar'
 import AbaInimigos from './mesa/AbaInimigos'
 import AbaNpcs from './mesa/AbaNpcs'
 import AbaSessoes from './mesa/AbaSessoes'
 
-type Aba = 'geral' | 'campanha' | 'sessao' | 'convite' | 'inimigos' | 'npcs'
-const SO_MESTRE: Aba[] = ['convite', 'inimigos', 'npcs']
+type Aba = 'geral' | 'campanha' | 'sessao' | 'convite' | 'gerenciar' | 'inimigos' | 'npcs'
+const SO_MESTRE: Aba[] = ['convite', 'gerenciar', 'inimigos', 'npcs']
 
 // o quadro usa o React Flow (pesado): só carrega quando alguém abre a aba
 const QuadroDaCampanha = lazy(() => import('../componentes/QuadroDaCampanha'))
@@ -44,13 +46,14 @@ export default function Mesa() {
 
       <Abas<Aba> atual={aba}
         abas={[['geral', 'Mesa'], ['sessao', 'Sessões'], ['campanha', 'Quadro da campanha'],
-          ...(mestre ? [['convite', 'Convite'], ['inimigos', 'Inimigos'], ['npcs', 'NPCs']] as [Aba, string][] : [])]}
+          ...(mestre ? [['convite', 'Convite'], ['inimigos', 'Inimigos'], ['npcs', 'NPCs'], ['gerenciar', 'Gerenciar']] as [Aba, string][] : [])]}
         aoTrocar={(nova) => setBusca(nova === 'geral' ? {} : { aba: nova }, { replace: true })} />
 
       {aba === 'geral' && <AbaGeral mesa={m} />}
       {aba === 'campanha' && <Suspense fallback={<Carregando />}><QuadroDaCampanha mesaId={m.id} /></Suspense>}
       {aba === 'sessao' && <AbaSessoes mesa={m} podePreparar={mestre && podePreparar} inicial={busca.get('sessao')} />}
       {aba === 'convite' && <div className="max-w-xl"><AbaConvite mesa={m} /></div>}
+      {aba === 'gerenciar' && <AbaGerenciar mesa={m} />}
       {aba === 'inimigos' && <AbaInimigos mesaId={m.id} podeEditar={podePreparar} />}
       {aba === 'npcs' && <AbaNpcs mesaId={m.id} podeEditar={podePreparar} />}
     </div>

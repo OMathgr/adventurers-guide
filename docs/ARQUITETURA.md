@@ -864,9 +864,12 @@ contados à parte porque o motor risca preenchendo `slots_usados`).
   (marcar e guardar um plano) ficou de fora por ora.
 
 Mesas: lista, criar, entrar por código ou link (`/convite/CODIGO`; sem login,
-a tela de entrar volta para o convite depois), página da mesa com convite,
-membros (o criador muda papéis e remove), personagens (trazer/tirar os seus)
-e permissões dos mestres. Mestres veem também as abas **Inimigos** (catálogo
+a tela de entrar volta para o convite depois). A aba **Mesa** é o resumo para
+todos (membros e quem está online, personagens com nível, nível máximo; trazer
+um personagem seu, sair). Só mestres: **Convite** (código e link) e
+**Gerenciar** (papéis e remover membros pelo criador, nível e moedas, as
+permissões dos mestres, editáveis só pelo criador, e apagar a mesa); a API nem
+manda o código e as permissões para jogadores. Mestres veem também as abas **Inimigos** (catálogo
 do SRD com busca e filtros, "Adicionar à mesa", criar do zero, editar) e
 **NPCs** (ficha simples + ficha de combate opcional, com o mesmo editor de
 inimigo). A ficha do inimigo segue o bloco do SRD; textos com `**negrito**`,

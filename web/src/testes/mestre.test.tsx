@@ -167,10 +167,21 @@ describe('Página da mesa', () => {
   it('mestre vê o convite numa aba própria', async () => {
     vi.stubGlobal('fetch', respostas({ '/mesas/m1': mesa('mestre'), '/personagens': [], '/srd/classes': [] }))
     montarEm('/mesas/m1', <Mesa />, '/mesas/:id')
-    expect(await screen.findByText('Membros')).toBeInTheDocument()
+    expect(await screen.findByText('Jogadores e mestres')).toBeInTheDocument()
     expect(screen.queryByLabelText('Código de convite')).not.toBeInTheDocument()   // fora da aba Mesa
     await userEvent.click(screen.getByRole('tab', { name: 'Convite' }))
     expect(await screen.findByLabelText('Código de convite')).toHaveTextContent('ABC123')
+  })
+
+  it('a aba Mesa é só o resumo; permissões e administração ficam em Gerenciar, dos mestres', async () => {
+    vi.stubGlobal('fetch', respostas({ '/mesas/m1': mesa('mestre'), '/personagens': [], '/srd/classes': [] }))
+    montarEm('/mesas/m1', <Mesa />, '/mesas/:id')
+    expect(await screen.findByText('Jogadores e mestres')).toBeInTheDocument()
+    expect(screen.queryByText('O que os mestres podem fazer')).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Apagar mesa' })).not.toBeInTheDocument()
+    await userEvent.click(screen.getByRole('tab', { name: 'Gerenciar' }))
+    expect(await screen.findByText('O que os mestres podem fazer')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Apagar mesa' })).toBeInTheDocument()
   })
 
   it('jogador não vê a área do mestre', async () => {
@@ -181,6 +192,8 @@ describe('Página da mesa', () => {
     expect(screen.queryByRole('tab', { name: 'Inimigos' })).not.toBeInTheDocument()
     // o convite é dos mestres: nem aba, nem código
     expect(screen.queryByRole('tab', { name: 'Convite' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('tab', { name: 'Gerenciar' })).not.toBeInTheDocument()
+    expect(screen.queryByText('O que os mestres podem fazer')).not.toBeInTheDocument()
     expect(screen.queryByLabelText('Código de convite')).not.toBeInTheDocument()
     // o Medo e o resto do jogo ficam na sessão: a aba Mesa só avisa que há uma em andamento
     expect(screen.getByText(/Há sessão em andamento/)).toBeInTheDocument()

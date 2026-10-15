@@ -87,7 +87,7 @@ class MesaSaida(BaseModel):
     usar_moedas: bool          # regra opcional das moedas (10 moedas = 1 punhado)
     meu_papel: str
     sou_criador: bool
-    permissoes_mestres: dict[str, bool]
+    permissoes_mestres: dict[str, bool]   # só para mestres (aba Gerenciar); jogador recebe {}
     minhas_permissoes: list[Permissao]
     membros: list[MembroSaida]
     personagens: list[PersonagemNaMesa]
@@ -128,7 +128,8 @@ def _saida(m: MembroTabela) -> MesaSaida:
         codigo_convite=mesa.codigo_convite if eh_criador(m) or m.papel == MESTRE else None,
         medo_em_jogo=[MedoEmJogo(**x) for x in medo_em_jogo(object_session(mesa), mesa.id)],
         nivel_maximo=mesa.nivel_maximo, usar_moedas=mesa.usar_moedas, meu_papel=m.papel,
-        sou_criador=eh_criador(m), permissoes_mestres=mesa.permissoes_mestres,
+        sou_criador=eh_criador(m),
+        permissoes_mestres=mesa.permissoes_mestres if eh_criador(m) or m.papel == MESTRE else {},
         minhas_permissoes=[p for p in Permissao if pode(m, p)],
         membros=[MembroSaida(usuario_id=x.usuario_id, nome=x.usuario.nome, papel=x.papel,
                              criador=x.usuario_id == mesa.criador_id, online=central.online(x.usuario_id))
