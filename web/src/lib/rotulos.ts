@@ -80,7 +80,7 @@ export const NOME_CONDICAO: Record<string, string> = {
 export const condicao = (c: string) => NOME_CONDICAO[c] ?? c
 
 export const NOME_ESTAGIO: Record<string, string> = {
-  fundacao: 'Fundação', especializacao: 'Especialização', maestria: 'Maestria',
+  fundacao: 'Fundamental', especializacao: 'Especialização', maestria: 'Maestria',
 }
 
 export const comSinal = (n: number) => (n > 0 ? `+${n}` : `${n}`)
