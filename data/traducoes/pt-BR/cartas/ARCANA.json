@@ -57,7 +57,7 @@
   },
   "core_domain_card_cloaking_blast": {
     "nome": "Ocultação",
-    "texto": "Quando tiver sucesso num teste de Conjuração para lançar outra magia, você pode gastar 1 Esperança para ficar Encoberto. Enquanto estiver Encoberto, você continua sem ser visto se ficar parado quando um adversário se mover para onde normalmente te veria. Quando você entra ou se move na linha de visão de um adversário, ou faz um ataque, deixa de estar Encoberto."
+    "texto": "Quando tiver sucesso num teste de Conjuração para lançar outra magia, você pode gastar 1 Esperança para ficar Oculto. Enquanto estiver Oculto, você continua sem ser visto se ficar parado quando um adversário se mover para onde normalmente te veria. Quando você entra ou se move na linha de visão de um adversário, ou faz um ataque, deixa de estar Oculto."
   },
   "core_domain_card_arcane_reflection": {
     "nome": "Reflexo Arcano",

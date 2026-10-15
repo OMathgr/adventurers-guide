@@ -12,7 +12,7 @@ from motor import CartaDeDominio, Criacao, Personagem, RegraViolada, SubidaDeNiv
 from .. import repositorio
 from ..autenticacao import Acesso, acesso
 from ..concorrencia import conferir, versao_de
-from ..esquemas import (CopiaParaMesa, EquipamentoAtual, EquipamentoEntrada, EventoLinhaDoTempo, FichaSaida, FotoEntrada,
+from ..esquemas import (AvancosDoNivel, CopiaParaMesa, EquipamentoAtual, EquipamentoEntrada, EventoLinhaDoTempo, FichaSaida, FotoEntrada,
                         OpcoesDeCarta, PersonagemCriado, PersonagemResumo, ProximoNivelSaida, RecuperarCarta,
                         VinculoMesa, ficha_saida)
 from ..mesas import membro
@@ -87,6 +87,13 @@ def opcoes_de_carta(personagem_id: str, pedido: OpcoesDeCarta,
     if pedido.para == "avanco":
         return p.cartas_para_avanco(pedido.tier)
     return p.cartas_para_troca(pedido.antiga, pedido.escolhas, pedido.carta_do_nivel)
+
+
+@rotas.post("/{personagem_id}/cartas/extras", response_model=int)
+def cartas_extras(personagem_id: str, pedido: AvancosDoNivel, a: Acesso = Depends(acesso)):
+    """Quantas cartas a mais o próximo nível dá com estes avanços (habilidade
+    de subclasse, ex.: Discípulo do Conhecimento). Vão em `cartas_extras`."""
+    return repositorio.carregar(a.banco, a.usuario_id, personagem_id).cartas_extras(pedido.escolhas)
 
 
 @rotas.post("/{personagem_id}/niveis", response_model=FichaSaida)

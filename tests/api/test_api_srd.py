@@ -21,3 +21,12 @@ def test_armas_armaduras_e_cartas_filtradas(cliente):
 
 def test_dominios_traduzidos(cliente):
     assert cliente.get("/srd/dominios").json()["BLADE"] == "Lâmina"
+
+
+def test_subclasses_trazem_as_habilidades_das_cartas(cliente):
+    subs = cliente.get("/srd/classes/core_class_wizard/subclasses").json()
+    conhecimento = next(s for s in subs if s["id"] == "core_subclass_school_of_knowledge")
+    assert [h["nome"] for h in conhecimento["fundacao"]] == ["Promissor", "Adepto"]
+    assert conhecimento["fundacao"][0]["efeito"] == "CARTA_EXTRA"
+    mago = next(c for c in cliente.get("/srd/classes").json() if c["id"] == "core_class_wizard")
+    assert mago["habilidade_esperanca"]["nome"] == "Não Dessa Vez"

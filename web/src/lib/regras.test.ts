@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
 
-import type { ProximoNivel } from '../api/tipos'
+import type { ProximoNivel, Subclasse } from '../api/tipos'
 import {
-  type AvancoMarcado, custoTotal, distribuicaoCompleta, podeMarcar, treinosExigidos,
+  type AvancoMarcado, cartasNaCriacao, custoTotal, distribuicaoCompleta, podeMarcar, treinosExigidos,
   valoresRestantes,
 } from './regras'
 
@@ -41,5 +41,18 @@ describe('treinos do companheiro', () => {
     expect(treinosExigidos(proximo, [marcar(pv, 1)])).toBe(1)
     const subclasse = { tier: 3, opcao: 'SUBCLASSE' as const, restantes: 1, custo: 1, chave: 's' }
     expect(treinosExigidos(proximo, [subclasse])).toBe(2)
+  })
+})
+
+describe('cartas da criação', () => {
+  const sub = (efeitos: (string | null)[]) => ({
+    id: 's', nome: 'S', classe: 'WIZARD', traco_conjuracao: null,
+    fundacao: efeitos.map((efeito, i) => ({ nome: `h${i}`, descricao: '', efeito })),
+  }) as unknown as Subclasse
+
+  it('são 2, mais uma por habilidade fundamental que dá carta (Promissor)', () => {
+    expect(cartasNaCriacao(undefined)).toBe(2)
+    expect(cartasNaCriacao(sub([null, null]))).toBe(2)
+    expect(cartasNaCriacao(sub(['CARTA_EXTRA', null]))).toBe(3)
   })
 })

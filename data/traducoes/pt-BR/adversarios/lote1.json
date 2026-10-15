@@ -24,7 +24,7 @@
     "motivacoes": "Escalar, defender o território, esmurrar, rastrear",
     "habilidades": [
       {"nome": "Força Esmagadora", "texto": "Os alvos que marcam PV com o ataque padrão do Urso são arremessados para alcance muito próximo."},
-      {"nome": "Mordida", "texto": "**Marque 1 PF** para atacar um alvo em alcance corpo a corpo. Com sucesso, cause **3d4+10** de dano físico, e o alvo fica _Contido_ até se soltar com sucesso num teste de Força."},
+      {"nome": "Mordida", "texto": "**Marque 1 PF** para atacar um alvo em alcance corpo a corpo. Com sucesso, cause **3d4+10** de dano físico, e o alvo fica _Imobilizado_ até se soltar com sucesso num teste de Força."},
       {"nome": "Embalo", "texto": "Quando o Urso acerta um ataque contra um PJ, você ganha 1 Ponto de Medo."}
     ]
   },
@@ -34,7 +34,7 @@
     "motivacoes": "Prender, fechar os portões, sobreviver ao dia, imobilizar",
     "habilidades": [
       {"nome": "Muralha de Escudos", "texto": "Uma criatura que tenta se mover para alcance muito próximo do Guarda precisa ter sucesso num teste de Agilidade. Se outros Guardas Espadachins estiverem enfileirados ao lado do primeiro, cada um em alcance corpo a corpo de outro guarda da fila, a Dificuldade aumenta pelo número total de guardas na fila."},
-      {"nome": "Deter", "texto": "Faça um ataque contra um alvo em alcance muito próximo. Com sucesso, **marque 1 PF** para deixar o alvo _Contido_ até ele se soltar com um ataque bem-sucedido ou com sucesso num teste de Acuidade ou de Força."}
+      {"nome": "Deter", "texto": "Faça um ataque contra um alvo em alcance muito próximo. Com sucesso, **marque 1 PF** para deixar o alvo _Imobilizado_ até ele se soltar com um ataque bem-sucedido ou com sucesso num teste de Acuidade ou de Força."}
     ]
   },
   "srd_brawny_zombie": {
@@ -43,8 +43,8 @@
     "motivacoes": "Esmagar, destruir, arremessar destroços, golpear",
     "habilidades": [
       {"nome": "Lento", "texto": "Quando você põe o Zumbi em destaque e ele não tem um marcador na ficha, ele ainda não pode agir. Coloque um marcador na ficha dele e descreva o que ele se prepara para fazer. Quando você põe o Zumbi em destaque e ele tem um marcador na ficha, retire o marcador: ele pode agir."},
-      {"nome": "Despedaçar", "texto": "Faça um ataque padrão com vantagem contra um alvo que o Zumbi tenha deixado _Contido_. Com sucesso, o ataque causa dano direto."},
-      {"nome": "Rasgar e Dilacerar", "texto": "Quando o Zumbi acerta um ataque padrão, você pode **marcar 1 PF** para deixar o alvo temporariamente _Contido_ e obrigá-lo a marcar 2 PF."}
+      {"nome": "Despedaçar", "texto": "Faça um ataque padrão com vantagem contra um alvo que o Zumbi tenha deixado _Imobilizado_. Com sucesso, o ataque causa dano direto."},
+      {"nome": "Rasgar e Dilacerar", "texto": "Quando o Zumbi acerta um ataque padrão, você pode **marcar 1 PF** para deixar o alvo temporariamente _Imobilizado_ e obrigá-lo a marcar 2 PF."}
     ]
   },
   "srd_cave_ogre": {
@@ -85,7 +85,7 @@
     "motivacoes": "Emboscar, agarrar, proteger, esmurrar",
     "habilidades": [
       {"nome": "Golpe no Chão", "texto": "Golpeia o chão, arremessando todos os alvos em alcance muito próximo para alcance distante. Cada alvo arremessado assim precisa marcar 1 PF."},
-      {"nome": "Agarrar e Arrastar", "texto": "Faça um ataque contra um alvo em alcance próximo. Com sucesso, **gaste 1 Ponto de Medo** para puxá-lo para alcance corpo a corpo, causar **1d6+2** de dano físico e deixá-lo _Contido_ até o Defensor sofrer dano Grave."}
+      {"nome": "Agarrar e Arrastar", "texto": "Faça um ataque contra um alvo em alcance próximo. Com sucesso, **gaste 1 Ponto de Medo** para puxá-lo para alcance corpo a corpo, causar **1d6+2** de dano físico e deixá-lo _Imobilizado_ até o Defensor sofrer dano Grave."}
     ]
   },
   "srd_dire_wolf": {

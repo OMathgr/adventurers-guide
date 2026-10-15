@@ -39,11 +39,11 @@ def test_multiclasse_conjuradora_adiciona_segunda_conjuracao(bardo_nivel_4):
     bardo_nivel_4.equipar(armadura="core_armor_channeling_armor")
     bardo_nivel_4.subir_de_nivel(SubidaDeNivel(
         5, [Escolha(Opcao.MULTICLASSE, classe="core_class_wizard", dominio="SPLENDOR",
-                    subclasse="core_subclass_school_of_knowledge")],
+                    subclasse="core_subclass_school_of_war")],
         carta="core_domain_card_hypnotic_shimmer",
         nova_experiencia="Y",
     ))
     assert bardo_nivel_4.ficha().conjuracoes == [
         Conjuracao("Troubadour", Traco.PRESENCA, 2 + 1),
-        Conjuracao("School of Knowledge", Traco.CONHECIMENTO, 1 + 1),
+        Conjuracao("School of War", Traco.CONHECIMENTO, 1 + 1),
     ]

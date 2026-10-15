@@ -25,7 +25,7 @@
   },
   "core_domain_card_book_of_norai": {
     "nome": "Livro de Norai",
-    "texto": "Amarra Mística: Faça um teste de Conjuração contra um alvo em alcance distante. Com sucesso, ele fica temporariamente Contido e precisa marcar 1 PF. Se o alvo for uma criatura voadora, a magia a derruba e a deixa temporariamente Contida.\n\nBola de Fogo: Faça um teste de Conjuração contra um alvo em alcance muito distante. Com sucesso, arremesse nele uma esfera de fogo que explode no impacto. O alvo e todas as criaturas em alcance muito próximo dele precisam fazer um teste de reação (13). Quem falhar sofre d20+5 de dano mágico usando a sua Proficiência. Quem tiver sucesso sofre metade do dano."
+    "texto": "Amarra Mística: Faça um teste de Conjuração contra um alvo em alcance distante. Com sucesso, ele fica temporariamente Imobilizado e precisa marcar 1 PF. Se o alvo for uma criatura voadora, a magia a derruba e a deixa temporariamente Imobilizada.\n\nBola de Fogo: Faça um teste de Conjuração contra um alvo em alcance muito distante. Com sucesso, arremesse nele uma esfera de fogo que explode no impacto. O alvo e todas as criaturas em alcance muito próximo dele precisam fazer um teste de reação (13). Quem falhar sofre d20+5 de dano mágico usando a sua Proficiência. Quem tiver sucesso sofre metade do dano."
   },
   "core_domain_card_book_of_exota": {
     "nome": "Livro de Ecsota",

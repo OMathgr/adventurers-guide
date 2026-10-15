@@ -8,9 +8,10 @@ import {
   useAncestralidades, useCartas, useClasses, useComunidades, useCriarPersonagem, useItensSrd, useSubclasses,
 } from '../api/consultas'
 import type { Ancestralidade, Caracteristica, Classe, Subclasse, TipoDano, Traco } from '../api/tipos'
+import { comoItem, ListaDeHabilidades } from '../componentes/Habilidades'
 import { Aviso, Botao, Campo, Carregando, Cartao, Escolhivel, Etapas, Original, Selo } from '../componentes/ui'
 import { useNomeDominio } from '../lib/nomes'
-import { type Distribuicao, distribuicaoCompleta, valoresRestantes } from '../lib/regras'
+import { cartasNaCriacao, type Distribuicao, distribuicaoCompleta, valoresRestantes } from '../lib/regras'
 import {
   comSinal, NOME_TIPO_DANO, NOME_TRACO, TRACOS, USO_TRACO,
 } from '../lib/rotulos'
@@ -67,7 +68,7 @@ export default function NovoPersonagem() {
     !!r.ancestralidade && !!r.comunidade && (!r.mista || !!r.segunda),
     distribuicaoCompleta(r.tracos),
     exps.every(Boolean) && exps[0] !== exps[1] && (!temProposito || exps.includes(r.proposito ?? '')),
-    r.cartas.length === 2,
+    r.cartas.length === cartasNaCriacao(r.subclasse),
     !!r.pocao && !!r.item_de_classe,
     r.nome.trim() !== '',
   ]
@@ -112,6 +113,12 @@ function EtapaClasse({ r, atualizar }: PropsEtapa) {
           <p className="mt-2 flex gap-2"><Selo>Evasão {c.evasao_inicial}</Selo><Selo>PV {c.pv_iniciais}</Selo></p>
         </Escolhivel>
       ))}
+      {r.classe && (
+        <Cartao titulo={`Habilidades de ${r.classe.nome}`} className="sm:col-span-2 lg:col-span-3">
+          <ListaDeHabilidades lista={[...(r.classe.habilidade_esperanca ? [r.classe.habilidade_esperanca] : []),
+            ...(r.classe.habilidades ?? [])].map(comoItem)} />
+        </Cartao>
+      )}
     </div>
   )
 }
@@ -125,11 +132,14 @@ function EtapaSubclasse({ r, atualizar, temCompanheiro }: PropsEtapa & { temComp
     <div className="space-y-4">
       <div className="grid gap-3 sm:grid-cols-2">
         {subclasses.data?.map((s) => (
-          <Escolhivel key={s.id} selecionado={r.subclasse?.id === s.id} onClick={() => atualizar({ subclasse: s })}>
+          <Escolhivel key={s.id} selecionado={r.subclasse?.id === s.id}
+            onClick={() => atualizar({ subclasse: s, cartas: r.cartas.slice(0, cartasNaCriacao(s)) })}>
             <p className="font-titulo text-lg">{s.nome}<Original nome={s.nome} original={s.nome_original} /></p>
             <p className="mt-1 text-sm text-texto-suave">
               {s.traco_conjuracao ? `Conjura com ${NOME_TRACO[s.traco_conjuracao as Traco]}` : 'Não conjura'}
             </p>
+            <p className="mt-2 text-xs uppercase tracking-wider text-texto-suave">Fundamental</p>
+            <div className="mt-1"><ListaDeHabilidades lista={(s.fundacao ?? []).map(comoItem)} resumida /></div>
           </Escolhivel>
         ))}
       </div>
@@ -308,16 +318,20 @@ function EtapaCartas({ r, atualizar }: PropsEtapa) {
   const dominio = useNomeDominio()
   if (cartas.isPending) return <Carregando />
   const disponiveis = cartas.data?.filter((c) => c.nivel === 1 && r.classe?.dominios.includes(c.dominio)) ?? []
+  const quantas = cartasNaCriacao(r.subclasse)
   const alternar = (id: string) =>
     atualizar({ cartas: r.cartas.includes(id) ? r.cartas.filter((c) => c !== id) : [...r.cartas, id] })
 
   return (
     <div className="space-y-3">
-      <p className="text-sm text-texto-suave">Escolha 2 cartas de nível 1 dos domínios da classe ({r.cartas.length}/2).</p>
+      <p className="text-sm text-texto-suave">
+        Escolha {quantas} cartas de nível 1 dos domínios da classe ({r.cartas.length}/{quantas})
+        {quantas > 2 && `: ${r.subclasse?.nome} dá uma a mais`}.
+      </p>
       <div className="grid gap-3 sm:grid-cols-2">
         {disponiveis.map((c) => (
           <Escolhivel key={c.id} selecionado={r.cartas.includes(c.id)}
-            desabilitado={!r.cartas.includes(c.id) && r.cartas.length >= 2} onClick={() => alternar(c.id)}>
+            desabilitado={!r.cartas.includes(c.id) && r.cartas.length >= quantas} onClick={() => alternar(c.id)}>
             <p className="flex items-center justify-between gap-2">
               <span className="font-titulo">{c.nome}<Original nome={c.nome} original={c.nome_original} /></span>
               <Selo>{dominio(c.dominio)}</Selo>

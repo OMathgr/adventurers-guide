@@ -141,6 +141,12 @@ class OpcoesDeCarta(BaseModel):
     carta_do_nivel: str | None = None        # troca
 
 
+class AvancosDoNivel(BaseModel):
+    """Avanços já marcados no próximo nível."""
+
+    escolhas: list[Escolha] = Field(default_factory=list)
+
+
 class RecuperarCarta(BaseModel):
     no_lugar_de: str | None = None
     em_descanso: bool = False

@@ -69,7 +69,7 @@
   },
   "core_domain_card_hold_the_line": {
     "nome": "Manter Posição",
-    "texto": "Descreva a postura defensiva que você assume e gaste 1 Esperança. Se um adversário entrar em alcance muito próximo, ele é puxado para alcance corpo a corpo e fica Contido.\nA condição dura até você se mover ou falhar num teste com Medo, ou até o mestre gastar 2 Medo no turno dele para encerrá-la."
+    "texto": "Descreva a postura defensiva que você assume e gaste 1 Esperança. Se um adversário entrar em alcance muito próximo, ele é puxado para alcance corpo a corpo e fica Imobilizado.\nA condição dura até você se mover ou falhar num teste com Medo, ou até o mestre gastar 2 Medo no turno dele para encerrá-la."
   },
   "core_domain_card_lead_by_example": {
     "nome": "Líder Exemplar",

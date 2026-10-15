@@ -100,7 +100,7 @@
     "habilidades": [
       {"nome": "Tática de Matilha", "texto": "Se o Soldado faz um ataque padrão e outro Soldado Silvestre está em alcance corpo a corpo do alvo, causa **1d8+5** de dano físico em vez do dano padrão."},
       {"nome": "Domínio da Floresta", "texto": "**Gaste 1 Ponto de Medo** para derrubar uma árvore em alcance próximo. Uma criatura atingida pela árvore precisa ter sucesso num teste de reação de Agilidade (15) ou sofre **1d10** de dano físico."},
-      {"nome": "Mesclar-se", "texto": "Quando o Soldado acerta um ataque, você pode **marcar 1 PF** para deixá-lo _Oculto_ até o próximo ataque dele ou até um PJ ter sucesso num teste de Instinto (14) para encontrá-lo."}
+      {"nome": "Mesclar-se", "texto": "Quando o Soldado acerta um ataque, você pode **marcar 1 PF** para deixá-lo _Escondido_ até o próximo ataque dele ou até um PJ ter sucesso num teste de Instinto (14) para encontrá-lo."}
     ]
   },
   "srd_tangle_bramble": {
@@ -120,7 +120,7 @@
     "habilidades": [
       {"nome": "Horda (1d4+2)", "texto": "Quando o Enxame tiver marcado metade ou mais dos PV, o ataque padrão dele causa **1d4+2** de dano físico no lugar."},
       {"nome": "Esmagar", "texto": "**Marque 1 PF** para causar **2d6+8** de dano físico direto a um alvo com 3 ou mais marcadores de espinheiro."},
-      {"nome": "Estorvar", "texto": "Quando o Enxame acerta um ataque, dê ao alvo um marcador de espinheiro. Um alvo com qualquer marcador de espinheiro fica _Contido_. Com 3 ou mais marcadores, também fica _Vulnerável_. Todos os marcadores podem ser removidos com sucesso num teste de Acuidade (12 + o número de marcadores de espinheiro) ou causando dano Maior ou pior ao Enxame. Se os marcadores forem removidos com um teste de Acuidade, surge em alcance corpo a corpo um número de Lacaios Espinheiro Emaranhado igual ao de marcadores removidos."}
+      {"nome": "Estorvar", "texto": "Quando o Enxame acerta um ataque, dê ao alvo um marcador de espinheiro. Um alvo com qualquer marcador de espinheiro fica _Imobilizado_. Com 3 ou mais marcadores, também fica _Vulnerável_. Todos os marcadores podem ser removidos com sucesso num teste de Acuidade (12 + o número de marcadores de espinheiro) ou causando dano Maior ou pior ao Enxame. Se os marcadores forem removidos com um teste de Acuidade, surge em alcance corpo a corpo um número de Lacaios Espinheiro Emaranhado igual ao de marcadores removidos."}
     ]
   },
   "srd_tiny_green_ooze": {
@@ -155,7 +155,7 @@
     "motivacoes": "Comandar, nutrir, podar os indesejados",
     "habilidades": [
       {"nome": "Voz da Floresta", "texto": "**Marque 1 PF** para pôr em destaque **1d4** aliados que estejam no alcance de um alvo que possam atacar sem se mover. Com sucesso, os ataques deles causam metade do dano."},
-      {"nome": "Gaiola de Espinhos", "texto": "**Gaste 1 Ponto de Medo** para formar uma gaiola ao redor de um alvo em alcance muito próximo e deixá-lo _Contido_ até ser libertado com sucesso num teste de Força. Quando uma criatura faz um teste de ação contra a gaiola, marca 1 PF."},
+      {"nome": "Gaiola de Espinhos", "texto": "**Gaste 1 Ponto de Medo** para formar uma gaiola ao redor de um alvo em alcance muito próximo e deixá-lo _Imobilizado_ até ser libertado com sucesso num teste de Força. Quando uma criatura faz um teste de ação contra a gaiola, marca 1 PF."},
       {"nome": "Embalo", "texto": "Quando a Dríade acerta um ataque contra um PJ, você ganha 1 Ponto de Medo."}
     ]
   }

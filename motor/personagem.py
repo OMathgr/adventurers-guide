@@ -120,6 +120,9 @@ class SubidaDeNivel:
     # Mão cheia ao ganhar carta: cartas que já tinha e vão para a reserva sem
     # custo, para as novas entrarem na mão ("Trocando ao Subir de Nível").
     para_reserva: list[str] = field(default_factory=list)
+    # Cartas a mais que uma habilidade ganha neste nível dá (Discípulo do
+    # Conhecimento: Talentoso/Brilhante, ou Promissor numa multiclasse)
+    cartas_extras: list[str] = field(default_factory=list)
 
 
 @dataclass(frozen=True)
@@ -161,6 +164,18 @@ class ProximoNivel:
     limite_mesa: int | None = None     # nível máximo da mesa (None: sem limite)
     bloqueado_pela_mesa: bool = False  # o próximo nível passa do limite da mesa
     planejado: bool = False            # há um plano para este nível (aplicar_plano)
+
+
+@dataclass
+class HabilidadeNaFicha:
+    """Habilidade de classe ou de subclasse, como aparece na ficha."""
+
+    nome: str
+    descricao: str
+    origem: str        # nome de exibição da classe ou subclasse
+    tipo: str          # "esperanca", "classe", "fundacao", "especializacao" ou "maestria"
+    automatica: bool   # o motor já aplica (números da ficha ou regra); senão é texto para a mesa
+    nome_original: str = ""
 
 
 @dataclass
@@ -221,6 +236,8 @@ class Ficha:
     morto: bool = False
     precisa_movimento_de_morte: bool = False
     cicatrizes: list[Cicatriz] = field(default_factory=list)
+    # de classe (e da multiclasse) e das cartas de subclasse que o personagem tem
+    habilidades: list[HabilidadeNaFicha] = field(default_factory=list)
 
 
 class Personagem:
@@ -674,6 +691,7 @@ class Personagem:
         itens += [self._descrever_treino(t) for t in s.treinos]
         itens.append("Limiares de dano +1")
         itens.append(f"Carta: {self._nome(cartas, s.carta)}")
+        itens += [f"Carta a mais (subclasse): {self._nome(cartas, c)}" for c in s.cartas_extras]
         if s.troca_carta:
             antiga, nova = s.troca_carta
             itens.append(f"Troca: {self._nome(cartas, antiga)} → {self._nome(cartas, nova)}")
@@ -749,8 +767,12 @@ class Personagem:
         if len(nomes) != 2 or "" in nomes or len(set(nomes)) != 2:
             raise RegraViolada("Escolha duas Experiências diferentes.")
 
-        if len(c.cartas) != 2 or len(set(c.cartas)) != 2:
-            raise RegraViolada("Escolha duas cartas de domínio diferentes.")
+        # a carta a mais da fundamental (Promissor) é direito, não obrigação: personagens
+        # criados antes dela existir no motor têm 2 e precisam continuar carregando
+        quantas = 2 + self._cartas_extras_da(subclasse.fundacao)
+        if not 2 <= len(c.cartas) <= quantas or len(set(c.cartas)) != len(c.cartas):
+            extra = f" ({subclasse.nome} dá uma a mais)" if quantas > 2 else ""
+            raise RegraViolada(f"Escolha {quantas} cartas de domínio diferentes{extra}.")
         for carta_id in c.cartas:
             carta = self._exigir(bib.cartas, carta_id, "Carta")
             if carta.nivel != 1 or carta.dominio not in classe.dominios:
@@ -861,6 +883,7 @@ class Personagem:
         # Passo 4: carta de domínio
         self._validar_nova_carta(f, s.carta, s.nivel, s.nivel)
         f.cartas.append(s.carta)
+        self._ganhar_cartas_extras(anterior, f, s)
         if s.troca_carta:
             self._trocar_carta(f, *s.troca_carta)
         return f
@@ -938,6 +961,36 @@ class Personagem:
         f.subclasse_bloqueada_tiers.add(tier)      # risca a subclasse deste tier
         if companheiro:
             f.companheiro = companheiro
+
+    def _ganhar_cartas_extras(self, anterior: Ficha, f: Ficha, s: SubidaDeNivel):
+        """Habilidade ganha neste nível que dá carta a mais ("do seu nível ou
+        menor, de um domínio a que você tem acesso"). Como na criação, é um
+        direito: níveis salvos antes desta regra vêm sem elas e continuam valendo
+        (a tela sempre pede todas)."""
+        permitidas = self._n_cartas_extras(f) - self._n_cartas_extras(anterior)
+        if len(s.cartas_extras) > permitidas:
+            if permitidas == 0:
+                raise RegraViolada("Neste nível nenhuma habilidade dá carta a mais.")
+            raise RegraViolada(f"Neste nível a subclasse dá {permitidas} carta(s) a mais, não {len(s.cartas_extras)}.")
+        if len(set(s.cartas_extras)) != len(s.cartas_extras):
+            raise RegraViolada("Escolha cartas a mais diferentes.")
+        for carta in s.cartas_extras:
+            self._validar_nova_carta(f, carta, s.nivel, s.nivel)
+            f.cartas.append(carta)
+
+    def _n_cartas_extras(self, f: Ficha) -> int:
+        """Cartas a mais que as habilidades de subclasse que a ficha tem dão no total."""
+        return self._cartas_extras_da([h for _, _, h in self._habilidades_da_ficha(f)])
+
+    @staticmethod
+    def _cartas_extras_da(habilidades) -> int:
+        return sum(1 for h in habilidades if h.efeito is Efeito.CARTA_EXTRA)
+
+    def cartas_extras(self, escolhas: list[Escolha] = ()) -> int:
+        """Quantas cartas a mais o próximo nível dá com estes avanços (ex.:
+        a especialização do Discípulo do Conhecimento)."""
+        f, _ = self._ficha_com_escolhas(escolhas)
+        return self._n_cartas_extras(f) - self._n_cartas_extras(self._ficha_base())
 
     def _treinar_companheiro(self, f: Ficha, s: SubidaDeNivel, tinha_companheiro: bool,
                              estagio_antes: str):
@@ -1034,7 +1087,7 @@ class Personagem:
             secundaria = self._exigir(bib.armas, eq.secundaria, "Arma")
             if secundaria.primaria:
                 raise RegraViolada(f"{secundaria.nome} é uma arma principal.")
-            if principal and principal.duas_maos:
+            if principal and principal.duas_maos and not self._tem_efeito(f, Efeito.TREINAMENTO_DE_COMBATE):
                 raise RegraViolada(f"{principal.nome} usa as duas mãos; não sobra mão para a secundária.")
         if eq.armadura:
             self._exigir(bib.armaduras, eq.armadura, "Armadura")
@@ -1045,6 +1098,26 @@ class Personagem:
         if f.multiclasse:
             ids.append(f.multiclasse["subclasse"])
         return [self.bib.subclasses[s] for s in ids]
+
+    def _habilidades_da_ficha(self, f: Ficha) -> list[tuple[str, str, Caracteristica]]:
+        """(origem, tipo, habilidade): habilidade de Esperança e de classe da
+        classe principal; de classe da multiclasse (o SRD não dá a de
+        Esperança dela); cartas de subclasse até o estágio atual e a
+        fundamental da subclasse da multiclasse."""
+        classe = self.bib.classes[f.classe]
+        sub = self.bib.subclasses[f.subclasse]
+        lista = [(classe.nome, "esperanca", classe.habilidade_esperanca)] if classe.habilidade_esperanca else []
+        lista += [(classe.nome, "classe", h) for h in classe.habilidades]
+        lista += [(sub.nome, estagio, h) for estagio, h in sub.habilidades_ate(f.estagio_subclasse)]
+        if f.multiclasse:
+            outra = self.bib.classes[f.multiclasse["classe"]]
+            outra_sub = self.bib.subclasses[f.multiclasse["subclasse"]]
+            lista += [(outra.nome, "classe", h) for h in outra.habilidades]
+            lista += [(outra_sub.nome, "fundacao", h) for h in outra_sub.fundacao]
+        return lista
+
+    def _tem_efeito(self, f: Ficha, efeito: Efeito) -> bool:
+        return any(h.efeito is efeito for _, _, h in self._habilidades_da_ficha(f))
 
     def _conjura(self, f: Ficha) -> bool:
         """Alguma subclasse do personagem (inclusive da multiclasse) tem atributo de conjuração."""
@@ -1076,6 +1149,14 @@ class Personagem:
             # Shell (Galapa): limiares + Proficiência
             f.limiar_maior += f.proficiencia
             f.limiar_grave += f.proficiencia
+        # habilidades de classe/subclasse com número fixo (Resoluto, Mago de Batalha...)
+        habilidades = self._habilidades_da_ficha(f)
+        for _, _, h in habilidades:
+            for m in h.modificadores:
+                self._modificar(f, m)
+        f.habilidades = [HabilidadeNaFicha(h.nome, h.descricao, origem, tipo,
+                                    automatica=bool(h.modificadores or h.efeito), nome_original=h.nome_original)
+                         for origem, tipo, h in habilidades]
 
         mods = [m for peca in self._pecas(eq) for c in peca.caracteristicas for m in c.modificadores]
         for m in mods:
@@ -1108,6 +1189,13 @@ class Personagem:
             f.pontuacao_armadura += m.valor
         elif m.alvo is Alvo.LIMIAR_GRAVE:
             f.limiar_grave += m.valor
+        elif m.alvo is Alvo.LIMIARES:
+            f.limiar_maior += m.valor
+            f.limiar_grave += m.valor
+        elif m.alvo is Alvo.PV:
+            f.pv_max += m.valor
+        elif m.alvo is Alvo.ESTRESSE:
+            f.estresse_max += m.valor
         # Alvo.ATAQUE e Alvo.DANO valem só para a própria arma (_ataque);
         # Alvo.CONJURACAO é somado nas conjurações, no fim de _vestir
 
@@ -1125,6 +1213,8 @@ class Personagem:
         bonus_ataque = sum(self._valor(f, m) for m in mods if m.alvo is Alvo.ATAQUE)
         bonus_dano = arma.modificador_dano + sum(
             self._valor(f, m) for m in mods if m.alvo is Alvo.DANO)
+        if arma.tipo_dano is TipoDano.FISICO and self._tem_efeito(f, Efeito.TREINAMENTO_DE_COMBATE):
+            bonus_dano += f.nivel   # Treinamento de Combate: +nível no dano físico
         dano = f"{f.proficiencia}{arma.dado}"
         if bonus_dano:
             dano += f"{bonus_dano:+d}"   # "+5" ou "-1"

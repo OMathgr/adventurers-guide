@@ -205,8 +205,10 @@ excesso. A ficha mostra `pv_marcados`, `estresse_marcado`,
   grupo; o motor controla por personagem.
 - **Condições:** `aplicar_condicao` / `remover_condicao`. As padrão do SRD
   (Hidden, Restrained, Vulnerable) viram `Condicao.OCULTO/CONTIDO/VULNERAVEL`
-  (aceita o nome em inglês ou português); outros nomes ficam como condição de
-  característica, em texto. Duram até serem removidas. Os efeitos (vantagem,
+  (aceita o nome em inglês, o valor do enum ou o do livro: Escondido,
+  Imobilizado). Na tela, os nomes são os do livro: **Escondido / Imobilizado /
+  Vulnerável** (o valor salvo não mudou). "Oculto" é o Cloaked do Ladino.
+  Outros nomes ficam como condição de característica, em texto. Duram até serem removidas. Os efeitos (vantagem,
   desvantagem, não se mover) são resolvidos na mesa.
 
 ### Repouso do grupo (`motor/repouso.py`, `api/rotas/repouso.py`)
@@ -301,6 +303,46 @@ Características com efeito no motor (também via `Efeito`):
 | Celestial Trance (Elf) | 3 movimentos de descanso em vez de 2 |
 
 As demais são situacionais (rerrolagens, reações, voo...) e ficam como texto.
+
+## Habilidades de classe e de subclasse
+
+`Classe.habilidade_esperanca` e `Classe.habilidades` (de classe) e
+`Subclasse.fundacao/especializacao/maestria` vêm do SRD como `Caracteristica`
+(o "While Unstoppable..." do Guardião é juntado ao Unstoppable). A ficha
+(`Ficha.habilidades`, `HabilidadeNaFicha`) traz, com origem e tipo:
+
+- da classe: a de Esperança e as de classe, desde o nível 1;
+- da subclasse: a fundamental desde o nível 1; a especialização e a maestria
+  entram quando o avanço "carta de subclasse aprimorada" sobe o estágio
+  (patamares 3 e 4);
+- da multiclasse: as de classe da outra classe (o SRD não dá a de Esperança)
+  e a fundamental da subclasse escolhida.
+
+`automatica` diz se o motor já aplica. Hoje:
+
+| SRD | Efeito |
+|---|---|
+| Unwavering / Unrelenting / Undaunted (Baluarte) | limiares +1 / +2 / +3, **somando** (+6 na maestria) |
+| Ascendant (Sentinela Alada) | limiar Grave +4 |
+| Fleeting Shadow (Gatuno) | Evasão +1 |
+| Battlemage (Discípulo da Guerra) | +1 espaço de PV |
+| At Ease (Vingador) | +1 espaço de PF |
+| Prepared / Accomplished / Brilliant (Discípulo do Conhecimento) | uma carta de domínio a mais |
+| Combat Training (Guerreiro) | ignora empunhadura; +nível no dano das armas de dano físico |
+
+Os números entram em `_vestir` (`Alvo.PV/ESTRESSE/LIMIARES`), como os do
+equipamento. As cartas a mais: na criação são 3 com o Promissor; ao subir,
+`SubidaDeNivel.cartas_extras` leva até as que as habilidades
+ganhas no nível dão (especialização/maestria, ou Promissor numa multiclasse),
+do nível do personagem ou menor e de domínio com acesso (é direito, não
+obrigação, para personagens salvos antes da regra continuarem carregando; a
+tela sempre pede todas).
+`Personagem.cartas_extras(escolhas)` (`POST /personagens/{id}/cartas/extras`)
+diz quantas para a tela. O resto é situacional (gatilhos de rolagem, uma vez
+por descanso, posição na cena) e fica como texto.
+
+Nomes do livro básico brasileiro (pp. 28-52); textos traduzidos por nós do SRD
+em `data/traducoes/pt-BR/habilidades.json` (mesma ordem e quantidade).
 
 ## Companheiro do Beastbound (`motor/companheiro.py`)
 
@@ -856,6 +898,7 @@ A API usa pt-BR; o motor e os testes dele usam o inglês.
   `improved_/advanced_/legendary_` são compostos (Espada Larga + Aprimorada).
 - `cartas/<DOMINIO>.json`: nome e texto de cada carta (grimórios com o nome
   de cada magia; listas com "•").
+- `habilidades.json`: habilidades de classe e de subclasse (ver acima).
 - `itens.json`: itens (tabela de saque do SRD) e consumíveis (nomes do livro básico brasileiro,
   descrições traduzidas por nós do SRD), itens iniciais e itens de classe
   (pelo texto em inglês).
@@ -881,7 +924,10 @@ Glossário (alinhado à edição brasileira quando conhecida):
 | Melee / Very Close / Close | corpo a corpo / muito próximo / próximo | | Far / Very Far | distante / muito distante |
 | Duality Dice / Hope Die | Dados de Dualidade / Dado de Esperança | | GM | mestre |
 | loadout / vault | mão / reserva | | Recall Cost | custo de troca |
-| Hidden / Restrained / Vulnerable | Oculto / Contido / Vulnerável | | Death Move | Movimento de Morte |
+| Hidden / Restrained / Vulnerable | Escondido / Imobilizado / Vulnerável | | Death Move | Movimento de Morte |
+| Cloaked | Oculto | | Rally Die | Dado de Inspiração |
+| Tag Team Roll | teste em dupla | | Slayer Dice / Prayer Dice | Dados de Matança / de Oração |
+| Unstoppable (Die) | Determinado (Dado de Determinação) | | Ranger's Focus | Marca da Presa (alvo Marcado) |
 | tokens | marcadores | | Countdown | Contagem Regressiva |
 | spotlight | pôr em destaque | | PCs | PJs |
 | Spend a Fear | gaste 1 Ponto de Medo | | mark a Stress | marque 1 PF |

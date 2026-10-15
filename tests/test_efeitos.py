@@ -16,6 +16,10 @@ def test_todo_efeito_existe_no_srd(bib):
     """Os efeitos são reconhecidos pelo nome; se o SRD mudar um nome, este teste avisa."""
     fontes = [*bib.armas.values(), *bib.armaduras.values(), *bib.ancestralidades.values()]
     encontrados = {c.efeito for p in fontes for c in p.caracteristicas if c.efeito}
+    # habilidades de classe e subclasse
+    habilidades = [h for c in bib.classes.values() for h in c.habilidades]
+    habilidades += [h for s in bib.subclasses.values() for _, h in s.habilidades_ate("maestria")]
+    encontrados |= {h.efeito for h in habilidades if h.efeito}
     assert encontrados == set(Efeito)
 
 

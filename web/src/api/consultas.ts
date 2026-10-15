@@ -89,6 +89,14 @@ export const useOpcoesDeCarta = (id: string, pedido: PedidoCartas | null) =>
     enabled: pedido !== null,
   })
 
+/** Cartas a mais que o próximo nível dá com estes avanços (habilidade de subclasse). */
+export const useCartasExtras = (id: string, escolhas: Escolha[] | null) =>
+  useQuery({
+    queryKey: ['personagens', id, 'cartas-extras', escolhas],
+    queryFn: () => chamar<number>(`/personagens/${id}/cartas/extras`, { corpo: { escolhas } }),
+    enabled: escolhas !== null,
+  })
+
 function useInvalidarPersonagem() {
   const cliente = useQueryClient()
   return (id?: string) =>

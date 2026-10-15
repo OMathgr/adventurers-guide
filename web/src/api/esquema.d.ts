@@ -495,6 +495,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/personagens/{personagem_id}/cartas/extras": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Cartas Extras
+         * @description Quantas cartas a mais o próximo nível dá com estes avanços (habilidade
+         *     de subclasse, ex.: Discípulo do Conhecimento). Vão em `cartas_extras`.
+         */
+        post: operations["cartas_extras_personagens__personagem_id__cartas_extras_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/personagens/{personagem_id}/niveis": {
         parameters: {
             query?: never;
@@ -2388,7 +2409,7 @@ export interface components {
          * @description O que um modificador fixo de equipamento altera (além dos atributos).
          * @enum {string}
          */
-        Alvo: "EVASAO" | "PONTUACAO_ARMADURA" | "LIMIAR_GRAVE" | "ATAQUE" | "DANO" | "CONJURACAO";
+        Alvo: "EVASAO" | "PONTUACAO_ARMADURA" | "LIMIAR_GRAVE" | "ATAQUE" | "DANO" | "CONJURACAO" | "PV" | "ESTRESSE" | "LIMIARES";
         /**
          * AlvoFeroz
          * @enum {string}
@@ -2505,6 +2526,14 @@ export interface components {
              * @default
              */
             arma_original: string;
+        };
+        /**
+         * AvancosDoNivel
+         * @description Avanços já marcados no próximo nível.
+         */
+        AvancosDoNivel: {
+            /** Escolhas */
+            escolhas?: components["schemas"]["Escolha"][];
         };
         /** Body_enviar_imagens_post */
         Body_enviar_imagens_post: {
@@ -2690,6 +2719,12 @@ export interface components {
              * @default []
              */
             itens: string[];
+            habilidade_esperanca?: components["schemas"]["Caracteristica"] | null;
+            /**
+             * Habilidades
+             * @default []
+             */
+            habilidades: components["schemas"]["Caracteristica"][];
         };
         /** CombatenteSaida */
         CombatenteSaida: {
@@ -2912,7 +2947,7 @@ export interface components {
          *     funcionam. O nome no SRD está no comentário.
          * @enum {string}
          */
-        Efeito: "FORTIFICADA" | "DOLOROSA" | "ESPERANCOSA" | "REFORCADA" | "RESILIENTE" | "IMPENETRAVEL" | "SO_FISICO" | "SO_MAGICO" | "PROTEGIDA" | "CURA" | "VIGOR" | "FOLEGO" | "AGIL" | "PROPOSITO" | "CASCO" | "EFICIENTE" | "TRANSE";
+        Efeito: "FORTIFICADA" | "DOLOROSA" | "ESPERANCOSA" | "REFORCADA" | "RESILIENTE" | "IMPENETRAVEL" | "SO_FISICO" | "SO_MAGICO" | "PROTEGIDA" | "CURA" | "VIGOR" | "FOLEGO" | "AGIL" | "PROPOSITO" | "CASCO" | "EFICIENTE" | "TRANSE" | "CARTA_EXTRA" | "TREINAMENTO_DE_COMBATE";
         /**
          * EfeitoConsumivel
          * @description O que um consumível faz na ficha, lido do texto do SRD.
@@ -3175,6 +3210,8 @@ export interface components {
             precisa_movimento_de_morte: boolean;
             /** Cicatrizes */
             cicatrizes: components["schemas"]["Cicatriz"][];
+            /** Habilidades */
+            habilidades: components["schemas"]["HabilidadeNaFicha"][];
         };
         /** FichaCompanheiro */
         FichaCompanheiro: {
@@ -3345,6 +3382,27 @@ export interface components {
              * @default
              */
             detalhe: string;
+            /**
+             * Nome Original
+             * @default
+             */
+            nome_original: string;
+        };
+        /**
+         * HabilidadeNaFicha
+         * @description Habilidade de classe ou de subclasse, como aparece na ficha.
+         */
+        HabilidadeNaFicha: {
+            /** Nome */
+            nome: string;
+            /** Descricao */
+            descricao: string;
+            /** Origem */
+            origem: string;
+            /** Tipo */
+            tipo: string;
+            /** Automatica */
+            automatica: boolean;
             /**
              * Nome Original
              * @default
@@ -4489,6 +4547,21 @@ export interface components {
              * @default
              */
             nome_original: string;
+            /**
+             * Fundacao
+             * @default []
+             */
+            fundacao: components["schemas"]["Caracteristica"][];
+            /**
+             * Especializacao
+             * @default []
+             */
+            especializacao: components["schemas"]["Caracteristica"][];
+            /**
+             * Maestria
+             * @default []
+             */
+            maestria: components["schemas"]["Caracteristica"][];
         };
         /** SubidaDeNivel */
         SubidaDeNivel: {
@@ -4511,6 +4584,8 @@ export interface components {
             experiencia_companheiro?: string | null;
             /** Para Reserva */
             para_reserva?: string[];
+            /** Cartas Extras */
+            cartas_extras?: string[];
         };
         /**
          * TipoAdversario
@@ -5470,6 +5545,41 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CartaDeDominio"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    cartas_extras_personagens__personagem_id__cartas_extras_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                personagem_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AvancosDoNivel"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": number;
                 };
             };
             /** @description Validation Error */

@@ -66,6 +66,10 @@ class Alvo(str, Enum):
     ATAQUE = "ATAQUE"   # só nas rolagens de ataque da própria arma
     DANO = "DANO"       # só nas rolagens de dano da própria arma
     CONJURACAO = "CONJURACAO"   # rolagens de conjuração
+    # só de habilidades de classe/subclasse (ex.: Battlemage, Unwavering)
+    PV = "PV"                   # espaços de Pontos de Vida
+    ESTRESSE = "ESTRESSE"       # espaços de Fadiga
+    LIMIARES = "LIMIARES"       # os dois limiares de dano (Maior e Grave)
 
 
 class Referencia(str, Enum):
@@ -132,6 +136,9 @@ class Efeito(str, Enum):
     CASCO = "CASCO"                # Shell (Galapa): limiares + Proficiência
     EFICIENTE = "EFICIENTE"        # Efficient (Clank): no descanso curto, um movimento de longo
     TRANSE = "TRANSE"              # Celestial Trance (Elf): um movimento de descanso a mais
+    # classes e subclasses
+    CARTA_EXTRA = "CARTA_EXTRA"    # Prepared/Accomplished/Brilliant: uma carta de domínio a mais
+    TREINAMENTO_DE_COMBATE = "TREINAMENTO_DE_COMBATE"   # Combat Training: ignora empunhadura; +nível no dano físico
 
 
 _EFEITOS_SRD = {
@@ -210,6 +217,38 @@ def _requisitos(texto: str) -> tuple[Requisito, ...]:
     return ()
 
 
+# Habilidades de classe e subclasse que mudam números da ficha ou regras do
+# motor. As outras ficam como texto (o jogador aplica na mesa).
+_MODS_HABILIDADES: dict[str, tuple[Modificador, ...]] = {
+    "Unwavering": (Modificador(Alvo.LIMIARES, 1),),        # Stalwart: os três somam (+1, +2, +3)
+    "Unrelenting": (Modificador(Alvo.LIMIARES, 2),),
+    "Undaunted": (Modificador(Alvo.LIMIARES, 3),),
+    "Ascendant": (Modificador(Alvo.LIMIAR_GRAVE, 4),),     # Winged Sentinel
+    "Fleeting Shadow": (Modificador(Alvo.EVASAO, 1),),     # Nightwalker
+    "Battlemage": (Modificador(Alvo.PV, 1),),              # School of War
+    "At Ease": (Modificador(Alvo.ESTRESSE, 1),),           # Vengeance
+}
+_EFEITOS_HABILIDADES = {
+    "Prepared": Efeito.CARTA_EXTRA, "Accomplished": Efeito.CARTA_EXTRA, "Brilliant": Efeito.CARTA_EXTRA,
+    "Combat Training": Efeito.TREINAMENTO_DE_COMBATE,
+}
+
+
+def _habilidades(features: list) -> tuple[Caracteristica, ...]:
+    """Habilidades de classe/subclasse. Um "título" terminado em ":" (o "While
+    Unstoppable, you gain the following benefits:" do Guardião) continua a anterior."""
+    resultado: list[Caracteristica] = []
+    for f in features:
+        nome, texto = _texto(f["name"]), _texto_completo(f["description"])
+        if nome.endswith(":") and resultado:
+            anterior = resultado.pop()
+            texto = f"{anterior.descricao}\n{nome}\n{texto}"
+            nome = anterior.nome_original
+        resultado.append(Caracteristica(nome, texto, _MODS_HABILIDADES.get(nome, ()),
+                                        efeito=_EFEITOS_HABILIDADES.get(nome), nome_original=nome))
+    return tuple(resultado)
+
+
 def _caracteristicas(item: dict) -> tuple[Caracteristica, ...]:
     resultado = []
     for c in item.get("features", []):
@@ -230,6 +269,8 @@ class Classe:
     pv_iniciais: int
     nome_original: str = ""
     itens: tuple[str, ...] = ()   # ids dos itens de classe ("escolha um" na criação)
+    habilidade_esperanca: Caracteristica | None = None
+    habilidades: tuple[Caracteristica, ...] = ()   # habilidades de classe (a multiclasse também ganha)
 
 
 @dataclass(frozen=True)
@@ -239,6 +280,20 @@ class Subclasse:
     classe: str  # código da classe, ex.: "BARD" (Classe.codigo)
     traco_conjuracao: Traco | None   # None = subclasse não conjura
     nome_original: str = ""
+    # habilidades de cada carta: a fundamental vem na criação; as outras, com
+    # o avanço "carta de subclasse aprimorada"
+    fundacao: tuple[Caracteristica, ...] = ()
+    especializacao: tuple[Caracteristica, ...] = ()
+    maestria: tuple[Caracteristica, ...] = ()
+
+    def habilidades_ate(self, estagio: str) -> list[tuple[str, Caracteristica]]:
+        """(estágio, habilidade) de todas as cartas até `estagio`, inclusive."""
+        resultado = []
+        for nome in ("fundacao", "especializacao", "maestria"):
+            resultado += [(nome, h) for h in getattr(self, nome)]
+            if nome == estagio:
+                break
+        return resultado
 
 
 @dataclass(frozen=True)
@@ -408,6 +463,8 @@ class Biblioteca:
                 evasao_inicial=c["startingEvasion"],
                 pv_iniciais=c["startingHitPoints"],
                 itens=tuple(f"{c['id']}_item_{n}" for n in range(1, len(c.get("classItems", [])) + 1)),
+                habilidade_esperanca=_habilidades([c["hopeFeature"]])[0],
+                habilidades=_habilidades(c["classFeatures"]),
             )
             for c in self._ler(srd / "classes.json")
         }
@@ -434,6 +491,9 @@ class Biblioteca:
                 nome_original=_texto(s["name"]),
                 classe=s["class"],
                 traco_conjuracao=Traco(s["spellcastTrait"]) if s.get("spellcastTrait") else None,
+                fundacao=_habilidades(s["foundation"]["features"]),
+                especializacao=_habilidades(s["specialization"]["features"]),
+                maestria=_habilidades(s["mastery"]["features"]),
             )
             for s in self._ler(srd / "subclasses.json")
         }
@@ -507,6 +567,7 @@ class Biblioteca:
         itens = self._ler(pasta / "itens.json")
         carac = self._ler(pasta / "caracteristicas.json")
         equip = self._ler(pasta / "equipamento.json")
+        habilidades = self._ler(pasta / "habilidades.json")
         cartas: dict = {}
         for arquivo in sorted((pasta / "cartas").glob("*.json")):
             cartas.update(self._ler(arquivo))
@@ -554,10 +615,30 @@ class Biblioteca:
                 return c
             return dataclasses.replace(c, nome=cartas[i]["nome"], texto=cartas[i]["texto"])
 
-        self.classes = {i: dataclasses.replace(c, nome=nome_de(herancas["classes"], i, c.nome))
-                        for i, c in self.classes.items()}
-        self.subclasses = {i: dataclasses.replace(s, nome=nome_de(herancas["subclasses"], i, s.nome))
-                           for i, s in self.subclasses.items()}
+        def traduzir_habilidades(id_: str, originais: tuple[Caracteristica, ...], novas: list | None):
+            """Mesma ordem e quantidade do SRD; o efeito e os modificadores ficam."""
+            if novas is None or len(novas) != len(originais):
+                faltando.append(f"habilidades: {id_}")
+                return originais
+            return tuple(dataclasses.replace(h, nome=n["nome"], descricao=n["descricao"])
+                         for h, n in zip(originais, novas))
+
+        def classe(i: str, c: Classe) -> Classe:
+            t = habilidades["classes"].get(i, {})
+            esperanca = traduzir_habilidades(i, (c.habilidade_esperanca,), [t["esperanca"]] if t else None)[0]
+            return dataclasses.replace(c, nome=nome_de(herancas["classes"], i, c.nome),
+                                       habilidade_esperanca=esperanca,
+                                       habilidades=traduzir_habilidades(i, c.habilidades, t.get("habilidades")))
+
+        def subclasse(i: str, s: Subclasse) -> Subclasse:
+            t = habilidades["subclasses"].get(i, {})
+            return dataclasses.replace(
+                s, nome=nome_de(herancas["subclasses"], i, s.nome),
+                **{e: traduzir_habilidades(f"{i} ({e})", getattr(s, e), t.get(e))
+                   for e in ("fundacao", "especializacao", "maestria")})
+
+        self.classes = {i: classe(i, c) for i, c in self.classes.items()}
+        self.subclasses = {i: subclasse(i, s) for i, s in self.subclasses.items()}
         self.comunidades = {i: dataclasses.replace(c, nome=nome_de(herancas["comunidades"], i, c.nome))
                             for i, c in self.comunidades.items()}
         self.ancestralidades = {i: ancestralidade(i, a) for i, a in self.ancestralidades.items()}

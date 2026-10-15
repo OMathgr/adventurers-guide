@@ -14,9 +14,9 @@
     "descricao": "Uma árvore antiga e robusta que ganhou vida.",
     "motivacoes": "Esconder-se à vista, preservar a floresta, enraizar-se, golpear com galhos",
     "habilidades": [
-      {"nome": "Só uma Árvore", "texto": "Antes do primeiro ataque numa luta, ou depois de ficar _Oculto_, o Ente é indistinguível das outras árvores até agir de novo ou até um PJ ter sucesso num teste de Instinto para identificá-lo."},
+      {"nome": "Só uma Árvore", "texto": "Antes do primeiro ataque numa luta, ou depois de ficar _Escondido_, o Ente é indistinguível das outras árvores até agir de novo ou até um PJ ter sucesso num teste de Instinto para identificá-lo."},
       {"nome": "Chuva de Sementes", "texto": "**Marque 1 PF** e faça um ataque contra até três alvos em alcance próximo, golpeando-os com bolotas gigantes. Os alvos atingidos sofrem **2d10+5** de dano físico."},
-      {"nome": "Criar Raízes", "texto": "**Marque 1 PF** para _Enraizar_ o Ente no lugar. O Ente fica _Contido_ enquanto _Enraizado_ e pode encerrar esse efeito em vez de se mover quando posto em destaque. Enquanto Enraizado, o Ente tem resistência a dano físico."}
+      {"nome": "Criar Raízes", "texto": "**Marque 1 PF** para _Enraizar_ o Ente no lugar. O Ente fica _Imobilizado_ enquanto _Enraizado_ e pode encerrar esse efeito em vez de se mover quando posto em destaque. Enquanto Enraizado, o Ente tem resistência a dano físico."}
     ]
   },
   "srd_stag_knight": {
@@ -53,7 +53,7 @@
     "motivacoes": "Carregar, aprisionar, proteger, esmurrar",
     "habilidades": [
       {"nome": "Escudo Bloqueador", "texto": "Criaturas em alcance corpo a corpo do Carcereiro têm desvantagem em testes de ataque contra ele. Criaturas presas dentro do Carcereiro são imunes a esta habilidade."},
-      {"nome": "Trancafiar", "texto": "**Marque 1 PF** para fazer um ataque contra um alvo em alcance muito próximo. Com sucesso, o alvo fica _Contido_ dentro do Carcereiro até ser libertado com sucesso num teste de Força (18). Enquanto _Contido_, o alvo só pode atacar o Carcereiro."}
+      {"nome": "Trancafiar", "texto": "**Marque 1 PF** para fazer um ataque contra um alvo em alcance muito próximo. Com sucesso, o alvo fica _Imobilizado_ dentro do Carcereiro até ser libertado com sucesso num teste de Força (18). Enquanto _Imobilizado_, o alvo só pode atacar o Carcereiro."}
     ]
   },
   "srd_vault_guardian_sentinel": {
@@ -73,7 +73,7 @@
     "motivacoes": "Concentrar fogo, bloquear, marcar, proteger",
     "habilidades": [
       {"nome": "Disparo Lento", "texto": "Quando você põe a Torre em destaque e ela não tem um marcador na ficha, ela não pode fazer um ataque padrão. Coloque um marcador na ficha dela e descreva o que ela se prepara para fazer. Quando você põe a Torre em destaque e ela tem um marcador na ficha, retire o marcador: ela pode atacar."},
-      {"nome": "Marcar Alvo", "texto": "**Gaste 1 Ponto de Medo** para _Marcar_ um alvo em alcance distante até a Torre ser destruída ou o alvo _Marcado_ ficar _Oculto_. Enquanto o alvo estiver _Marcado_, a Evasão dele cai pela metade."},
+      {"nome": "Marcar Alvo", "texto": "**Gaste 1 Ponto de Medo** para _Marcar_ um alvo em alcance distante até a Torre ser destruída ou o alvo _Marcado_ ficar _Escondido_. Enquanto o alvo estiver _Marcado_, a Evasão dele cai pela metade."},
       {"nome": "Concentrar Fogo", "texto": "Quando outro adversário causa dano a um alvo em alcance distante da Torre, você pode **marcar 1 PF** para somar o dano do ataque padrão da Torre à rolagem de dano."},
       {"nome": "Detonação", "texto": "Quando a Torre é destruída, ela explode. Todos os alvos em alcance próximo fazem um teste de reação de Agilidade. Quem falhar sofre **3d20** de dano físico. Quem tiver sucesso sofre metade do dano."}
     ]
@@ -86,7 +86,7 @@
       {"nome": "Implacável (3)", "texto": "O Dragão pode ser posto em destaque até três vezes por turno do mestre. Gaste Medo normalmente para destacá-lo."},
       {"nome": "Rasgar e Esmagar", "texto": "Se um alvo que sofreu dano do Dragão não marcar um espaço de armadura para reduzir o dano, precisa marcar 1 PF."},
       {"nome": "Sem Esperança", "texto": "Quando um PJ rola com Medo em alcance distante do Dragão, perde 1 Esperança."},
-      {"nome": "Sopro de Nevasca", "texto": "**Gaste 2 Pontos de Medo** para soltar um redemoinho gélido à frente do Dragão, em alcance próximo. Todos os alvos na área fazem um teste de reação de Agilidade. Quem falhar sofre **4d6+5** de dano mágico e fica _Contido_ pelo gelo até se libertar com sucesso num teste de Força. Quem tiver sucesso precisa marcar 2 PF ou sofrer metade do dano."},
+      {"nome": "Sopro de Nevasca", "texto": "**Gaste 2 Pontos de Medo** para soltar um redemoinho gélido à frente do Dragão, em alcance próximo. Todos os alvos na área fazem um teste de reação de Agilidade. Quem falhar sofre **4d6+5** de dano mágico e fica _Imobilizado_ pelo gelo até se libertar com sucesso num teste de Força. Quem tiver sucesso precisa marcar 2 PF ou sofrer metade do dano."},
       {"nome": "Avalanche", "texto": "**Gaste 1 Ponto de Medo** para o Dragão desencadear uma enorme queda de neve e gelo, cobrindo todas as outras criaturas em alcance distante. Todos os alvos na área precisam ter sucesso num teste de reação de Instinto ou ficam soterrados em neve e pedras, ficando _Vulneráveis_ até se desenterrarem dos escombros. Para cada PJ que falhar no teste de reação, você ganha 1 Ponto de Medo."},
       {"nome": "Escamas Congeladas", "texto": "Quando uma criatura acerta um ataque contra o Dragão em alcance muito próximo, ela precisa marcar 1 PF e fica _Congelada_ até o próximo descanso ou até limpar 1 PF. Enquanto _Congelada_, tem desvantagem em testes de ataque."},
       {"nome": "Embalo", "texto": "Quando o Dragão acerta um ataque contra um PJ, você ganha 1 Ponto de Medo."}
@@ -120,7 +120,7 @@
     "motivacoes": "Adquirir, desanimar, dominar, atormentar",
     "habilidades": [
       {"nome": "Conflagração", "texto": "**Gaste 1 Ponto de Medo** para desencadear uma tempestade de fogo devoradora e fazer um ataque contra todos os alvos em alcance próximo. Os alvos atingidos sofrem **2d10+6** de dano mágico direto."},
-      {"nome": "Quadro de Pesadelo", "texto": "**Marque 1 PF** para prender um alvo em alcance distante numa ilusão poderosa de seus piores medos. Enquanto preso, o alvo fica _Contido_ e _Vulnerável_ até se libertar, encerrando as duas condições, com sucesso num teste de Instinto."},
+      {"nome": "Quadro de Pesadelo", "texto": "**Marque 1 PF** para prender um alvo em alcance distante numa ilusão poderosa de seus piores medos. Enquanto preso, o alvo fica _Imobilizado_ e _Vulnerável_ até se libertar, encerrando as duas condições, com sucesso num teste de Instinto."},
       {"nome": "Escorregadio", "texto": "Quando o Feiticeiro sofre dano de um ataque, pode se teleportar até alcance distante."},
       {"nome": "Grilhões da Culpa", "detalhe": "Contagem Regressiva (Ciclo 2d6)", "texto": "Quando o Feiticeiro é posto em destaque pela primeira vez, ative a contagem regressiva. Quando ela dispara, todos os alvos em alcance distante ficam _Vulneráveis_ e precisam marcar 1 PF enquanto revivem seus maiores arrependimentos. Um alvo pode se libertar do arrependimento com sucesso num teste de Presença ou de Força. Quando um PJ não consegue se libertar, perde 1 Esperança."}
     ]

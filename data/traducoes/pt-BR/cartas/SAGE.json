@@ -9,7 +9,7 @@
   },
   "core_domain_card_vicious_entangle": {
     "nome": "Vinha Voraz",
-    "texto": "Faça um teste de Conjuração contra um alvo em alcance distante. Com sucesso, raízes e vinhas brotam do chão, causando 1d8+1 de dano físico e deixando o alvo temporariamente Contido.\nAlém disso, com sucesso, você pode gastar 1 Esperança para deixar temporariamente Contido outro adversário em alcance muito próximo do seu alvo."
+    "texto": "Faça um teste de Conjuração contra um alvo em alcance distante. Com sucesso, raízes e vinhas brotam do chão, causando 1d8+1 de dano físico e deixando o alvo temporariamente Imobilizado.\nAlém disso, com sucesso, você pode gastar 1 Esperança para deixar temporariamente Imobilizado outro adversário em alcance muito próximo do seu alvo."
   },
   "core_domain_card_conjure_swarm": {
     "nome": "Conjurar Enxame",
@@ -29,7 +29,7 @@
   },
   "core_domain_card_death_grip": {
     "nome": "Constrição Mortal",
-    "texto": "Faça um teste de Conjuração contra um alvo em alcance próximo e escolha uma das opções a seguir:\n• Você puxa o alvo para alcance corpo a corpo ou se puxa para o alcance corpo a corpo dele.\n• Você estrangula o alvo e o obriga a marcar 2 PF.\n• Todos os adversários entre você e o alvo precisam ter sucesso num teste de reação (13) ou são atingidos por vinhas, sofrendo 3d6+2 de dano físico.\nCom sucesso, vinhas saem das suas mãos, causando o efeito escolhido e deixando o alvo temporariamente Contido."
+    "texto": "Faça um teste de Conjuração contra um alvo em alcance próximo e escolha uma das opções a seguir:\n• Você puxa o alvo para alcance corpo a corpo ou se puxa para o alcance corpo a corpo dele.\n• Você estrangula o alvo e o obriga a marcar 2 PF.\n• Todos os adversários entre você e o alvo precisam ter sucesso num teste de reação (13) ou são atingidos por vinhas, sofrendo 3d6+2 de dano físico.\nCom sucesso, vinhas saem das suas mãos, causando o efeito escolhido e deixando o alvo temporariamente Imobilizado."
   },
   "core_domain_card_healing_field": {
     "nome": "Campo Curativo",
@@ -77,7 +77,7 @@
   },
   "core_domain_card_force_of_nature": {
     "nome": "Força da Natureza",
-    "texto": "Marque 1 PF para se transformar num enorme espírito da natureza, ganhando os seguintes benefícios:\n• Quando tiver sucesso num ataque ou teste de Conjuração, ganhe +10 na rolagem de dano.\n• Quando causar dano suficiente para derrotar uma criatura em alcance próximo, você a absorve e limpa um espaço de armadura.\n• Você não pode ficar Contido.\nAntes de fazer um teste de ação, você precisa gastar 1 Esperança. Se não puder, volta à sua forma normal."
+    "texto": "Marque 1 PF para se transformar num enorme espírito da natureza, ganhando os seguintes benefícios:\n• Quando tiver sucesso num ataque ou teste de Conjuração, ganhe +10 na rolagem de dano.\n• Quando causar dano suficiente para derrotar uma criatura em alcance próximo, você a absorve e limpa um espaço de armadura.\n• Você não pode ficar Imobilizado.\nAntes de fazer um teste de ação, você precisa gastar 1 Esperança. Se não puder, volta à sua forma normal."
   },
   "core_domain_card_tempest": {
     "nome": "Tempestade",

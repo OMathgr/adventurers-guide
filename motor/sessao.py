@@ -36,8 +36,8 @@ class Condicao(str, Enum):
     """Condições padrão do SRD. Características podem criar outras
     ("temporary conditions"); essas entram como texto livre."""
 
-    OCULTO = "OCULTO"          # Hidden: rolagens contra você têm desvantagem
-    CONTIDO = "CONTIDO"        # Restrained: não pode se mover
+    OCULTO = "OCULTO"          # Hidden (Escondido): rolagens contra você têm desvantagem
+    CONTIDO = "CONTIDO"        # Restrained (Imobilizado): não pode se mover
     VULNERAVEL = "VULNERAVEL"  # Vulnerable: rolagens contra você têm vantagem
 
 
@@ -667,6 +667,7 @@ class Sessao:
 
 
 _NOMES_SRD = {"HIDDEN": Condicao.OCULTO, "RESTRAINED": Condicao.CONTIDO,
+              "ESCONDIDO": Condicao.OCULTO, "IMOBILIZADO": Condicao.CONTIDO,   # nomes do livro
               "VULNERABLE": Condicao.VULNERAVEL}
 
 

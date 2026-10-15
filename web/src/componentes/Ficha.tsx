@@ -3,6 +3,7 @@ import type { Ficha } from '../api/tipos'
 import {
   comSinal, condicao, NOME_ALCANCE, NOME_TIPO_DANO, NOME_TRACO, TRACOS, USO_TRACO,
 } from '../lib/rotulos'
+import CartaoHabilidades from './Habilidades'
 import MaoEReserva from './MaoEReserva'
 import { Cartao, Espacos, Esperanca, Original, Selo } from './ui'
 
@@ -116,6 +117,8 @@ export default function FichaVisao({ ficha, personagemId }: { ficha: Ficha; pers
           <p className="mt-2 text-xs text-texto-suave">Com a multiclasse, escolha qual atributo usar a cada teste de conjuração.</p>
         )}
       </Cartao>
+
+      <CartaoHabilidades ficha={ficha} />
 
       <MaoEReserva ficha={ficha} personagemId={personagemId} />
 

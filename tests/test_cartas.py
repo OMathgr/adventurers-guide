@@ -8,7 +8,7 @@ from motor import Escolha, Opcao, Personagem, RegraViolada, SubidaDeNivel
 PALAVRAS = "core_domain_card_inspirational_words"   # nível 1, criação
 LIVRO = "core_domain_card_book_of_ava"              # nível 1, criação
 MULTICLASSE_MAGO = Escolha(Opcao.MULTICLASSE, classe="core_class_wizard", dominio="SPLENDOR",
-                           subclasse="core_subclass_school_of_knowledge")
+                           subclasse="core_subclass_school_of_war")
 
 
 def ids(cartas):
@@ -181,7 +181,7 @@ def test_desfazer_devolve_a_carta_para_a_mao(bardo_nivel_4):
 def test_multiclasse_exige_dominio_novo(bardo_nivel_4):
     # Bardo já tem Códice; Mago é Códice + Esplendor: só Esplendor vale
     codice = Escolha(Opcao.MULTICLASSE, classe="core_class_wizard", dominio="CODEX",
-                     subclasse="core_subclass_school_of_knowledge")
+                     subclasse="core_subclass_school_of_war")
     with pytest.raises(RegraViolada, match="já tem acesso"):
         bardo_nivel_4.subir_de_nivel(SubidaDeNivel(5, [codice], SHIMMER, nova_experiencia="Y"))
     f = bardo_nivel_4.subir_de_nivel(SubidaDeNivel(5, [MULTICLASSE_MAGO], SHIMMER, nova_experiencia="Y"))

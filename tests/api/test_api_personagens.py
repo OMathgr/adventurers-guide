@@ -135,3 +135,16 @@ def test_proximo_nivel(cliente, bardo_id):
     p = cliente.get(f"/personagens/{bardo_id}/proximo-nivel").json()
     assert (p["nivel"], p["nova_experiencia"], p["avancos"], p["treinos"]) == (2, True, 2, 0)
     assert {"tier": 2, "opcao": "PV", "restantes": 2, "custo": 1} in p["opcoes"]
+
+
+def test_ficha_traz_habilidades_de_classe_e_subclasse(cliente, bardo_id):
+    f = cliente.get(f"/personagens/{bardo_id}").json()
+    assert {(h["tipo"], h["nome"]) for h in f["habilidades"]} == {
+        ("esperanca", "Fazer uma Cena"), ("classe", "Inspiração"), ("fundacao", "Artista Talentoso")}
+
+
+def test_cartas_extras_do_proximo_nivel(cliente, bardo_id):
+    """O bardo (Trovador) não ganha carta a mais; o endpoint responde 0."""
+    resposta = cliente.post(f"/personagens/{bardo_id}/cartas/extras",
+                            json={"escolhas": [{"opcao": "PV"}, {"opcao": "ESTRESSE"}]})
+    assert resposta.status_code == 200 and resposta.json() == 0

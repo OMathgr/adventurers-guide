@@ -1,7 +1,7 @@
 // Ajudas para os assistentes. As REGRAS de verdade ficam no motor (a API
 // valida tudo); aqui só o que a tela precisa para guiar o jogador antes de
 // enviar, sem duplicar validação que importa.
-import type { OpcaoAvanco, ProximoNivel, Traco } from '../api/tipos'
+import type { OpcaoAvanco, ProximoNivel, Subclasse, Traco } from '../api/tipos'
 import { TRACOS } from './rotulos'
 
 /** Os valores que a criação distribui entre os seis atributos. */
@@ -21,6 +21,11 @@ export function valoresRestantes(dist: Distribuicao): number[] {
 
 export function distribuicaoCompleta(dist: Distribuicao): boolean {
   return TRACOS.every((t) => dist[t] !== undefined) && valoresRestantes(dist).length === 0
+}
+
+/** Cartas da criação: 2, mais as que a fundamental dá (Discípulo do Conhecimento). */
+export function cartasNaCriacao(subclasse?: Subclasse): number {
+  return 2 + (subclasse?.fundacao ?? []).filter((h) => h.efeito === 'CARTA_EXTRA').length
 }
 
 /** Cartas de domínio ativas ao mesmo tempo ("Mão e Reserva"); o motor tem o mesmo número em progressao.json. */

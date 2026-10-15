@@ -6,8 +6,8 @@
     "habilidades": [
       {"nome": "Voo", "texto": "Enquanto voa, a Águia tem +3 na Dificuldade."},
       {"nome": "Mergulho Mortal", "texto": "**Marque 1 PF** para atacar um alvo em alcance distante. Com sucesso, cause **2d10+2** de dano físico e derrube o alvo, deixando-o _Vulnerável_ até agir de novo."},
-      {"nome": "Levantar Voo", "texto": "Faça um ataque contra um alvo em alcance muito próximo. Com sucesso, cause **2d4+3** de dano físico, e o alvo precisa ter sucesso num teste de reação de Agilidade ou fica temporariamente _Contido_ nas garras enormes da Águia. Se o alvo ficar _Contido_, a Águia sobe imediatamente a uma altura muito distante acima do campo de batalha, levando-o junto."},
-      {"nome": "Queda Mortal", "texto": "Enquanto voa, a Águia pode soltar um alvo _Contido_ que esteja segurando. Ao ser solto, o alvo deixa de estar _Contido_ mas começa a cair. Se a queda não for impedida na próxima ação dos PJs, o alvo sofre **2d20** de dano físico ao chegar ao chão."}
+      {"nome": "Levantar Voo", "texto": "Faça um ataque contra um alvo em alcance muito próximo. Com sucesso, cause **2d4+3** de dano físico, e o alvo precisa ter sucesso num teste de reação de Agilidade ou fica temporariamente _Imobilizado_ nas garras enormes da Águia. Se o alvo ficar _Imobilizado_, a Águia sobe imediatamente a uma altura muito distante acima do campo de batalha, levando-o junto."},
+      {"nome": "Queda Mortal", "texto": "Enquanto voa, a Águia pode soltar um alvo _Imobilizado_ que esteja segurando. Ao ser solto, o alvo deixa de estar _Imobilizado_ mas começa a cair. Se a queda não for impedida na próxima ação dos PJs, o alvo sofre **2d20** de dano físico ao chegar ao chão."}
     ]
   },
   "srd_giant_recruit": {
@@ -25,7 +25,7 @@
     "motivacoes": "Encurralar, atacar e fugir, petrificar, buscar vingança",
     "habilidades": [
       {"nome": "Implacável (2)", "texto": "A Górgona pode ser posta em destaque até duas vezes por turno do mestre. Gaste Medo normalmente para destacá-la."},
-      {"nome": "Flechas Queima-Sol", "texto": "Quando a Górgona acerta um ataque padrão, o alvo fica _Brilhando_ até o fim da cena e não pode ficar _Oculto_. Testes de ataque contra um alvo _Brilhando_ têm vantagem."},
+      {"nome": "Flechas Queima-Sol", "texto": "Quando a Górgona acerta um ataque padrão, o alvo fica _Brilhando_ até o fim da cena e não pode ficar _Escondido_. Testes de ataque contra um alvo _Brilhando_ têm vantagem."},
       {"nome": "Coroa de Serpentes", "texto": "Faça um teste de ataque contra um alvo em alcance corpo a corpo usando as serpentes protetoras da Górgona. Com sucesso, **marque 1 PF** para causar **2d10+4** de dano físico, e o alvo marca 1 PF."},
       {"nome": "Olhar Petrificante", "texto": "Quando a Górgona sofre dano de um ataque em alcance próximo, você pode **gastar 1 Ponto de Medo** para obrigar o atacante a fazer um teste de reação de Instinto. Se falhar, ele começa a virar pedra: marca 1 PV e inicia uma Contagem Regressiva de Petrificação (4). Ela avança quando a Górgona é atacada. Quando dispara, o alvo faz um Movimento de Morte. Se a Górgona for derrotada, todas as contagens de petrificação acabam."},
       {"nome": "Embalo", "texto": "Quando a Górgona acerta um ataque contra um PJ, você ganha 1 Ponto de Medo."}
@@ -59,7 +59,7 @@
     "motivacoes": "Esquivar, esconder-se, surrupiar, lucrar",
     "habilidades": [
       {"nome": "Mãos Rápidas", "texto": "Faça um ataque contra um alvo em alcance corpo a corpo. Com sucesso, cause **1d8+2** de dano físico, e o Ladrão rouba um item ou consumível do inventário do alvo."},
-      {"nome": "Plano de Fuga", "texto": "**Marque 1 PF** para revelar uma armadilha de laço que o Ladrão armou em qualquer lugar do campo de batalha. Todos os alvos em alcance muito próximo da armadilha precisam ter sucesso num teste de reação de Agilidade (13) ou são puxados do chão e ficam pendurados de cabeça para baixo. O alvo fica _Contido_ e _Vulnerável_ até se soltar, encerrando as duas condições, com sucesso num teste de Acuidade ou de Força (13)."}
+      {"nome": "Plano de Fuga", "texto": "**Marque 1 PF** para revelar uma armadilha de laço que o Ladrão armou em qualquer lugar do campo de batalha. Todos os alvos em alcance muito próximo da armadilha precisam ter sucesso num teste de reação de Agilidade (13) ou são puxados do chão e ficam pendurados de cabeça para baixo. O alvo fica _Imobilizado_ e _Vulnerável_ até se soltar, encerrando as duas condições, com sucesso num teste de Acuidade ou de Força (13)."}
     ]
   },
   "srd_master_assassin": {
@@ -67,7 +67,7 @@
     "descricao": "Um assassino experiente, de voz ameaçadora e lâmina mortal.",
     "motivacoes": "Emboscar, sair vivo, matar, preparar-se para tudo",
     "habilidades": [
-      {"nome": "Nem Vai Ver Chegando", "texto": "O Assassino causa dano direto enquanto estiver _Oculto_."},
+      {"nome": "Nem Vai Ver Chegando", "texto": "O Assassino causa dano direto enquanto estiver _Escondido_."},
       {"nome": "Golpear Como Um Só", "texto": "**Marque 1 PF** para pôr em destaque um número de outros Assassinos igual aos PF não marcados do Assassino."},
       {"nome": "A Lâmina Sutil", "texto": "Quando o Assassino acerta um ataque padrão contra um alvo _Vulnerável_, você pode **gastar 1 Ponto de Medo** para causar dano Grave em vez do dano padrão."},
       {"nome": "Embalo", "texto": "Quando o Assassino acerta um ataque contra um PJ, você ganha 1 Ponto de Medo."}

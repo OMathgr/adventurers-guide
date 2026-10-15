@@ -22,8 +22,8 @@
     "descricao": "Um brigão imponente que carrega uma clava grande.",
     "motivacoes": "Agarrar, intimidar, lucrar, roubar",
     "habilidades": [
-      {"nome": "Peguei!", "texto": "Criaturas _Contidas_ pelo Quebra-Joelhos sofrem dano dobrado dos ataques de outros adversários."},
-      {"nome": "Segurem Ele", "texto": "Faça um ataque contra um alvo em alcance corpo a corpo. Com sucesso, o alvo não sofre dano, mas fica _Contido_ e _Vulnerável_. Ele pode se soltar, encerrando as duas condições, com sucesso num teste de Força, ou se solta automaticamente se o Quebra-Joelhos sofrer dano Maior ou pior."}
+      {"nome": "Peguei!", "texto": "Criaturas _Imobilizadas_ pelo Quebra-Joelhos sofrem dano dobrado dos ataques de outros adversários."},
+      {"nome": "Segurem Ele", "texto": "Faça um ataque contra um alvo em alcance corpo a corpo. Com sucesso, o alvo não sofre dano, mas fica _Imobilizado_ e _Vulnerável_. Ele pode se soltar, encerrando as duas condições, com sucesso num teste de Força, ou se solta automaticamente se o Quebra-Joelhos sofrer dano Maior ou pior."}
     ]
   },
   "srd_jagged_knife_lackey": {
@@ -52,7 +52,7 @@
     "motivacoes": "Emboscar, esconder-se, dividir, lucrar",
     "habilidades": [
       {"nome": "Punhalada nas Costas", "texto": "Quando a Sombra acerta um ataque padrão com vantagem, causa **1d6+6** de dano físico em vez do dano padrão."},
-      {"nome": "Encoberto", "texto": "Fica _Oculta_ até depois do próximo ataque da Sombra. Ataques feitos enquanto _Oculta_ por esta habilidade têm vantagem."}
+      {"nome": "Oculto", "texto": "Fica _Escondida_ até depois do próximo ataque da Sombra. Ataques feitos enquanto _Escondida_ por esta habilidade têm vantagem."}
     ]
   },
   "srd_jagged_knife_sniper": {
@@ -60,7 +60,7 @@
     "descricao": "Um bandido magricela que ataca de cobertura com um arco curto.",
     "motivacoes": "Emboscar, esconder-se, lucrar, reposicionar-se",
     "habilidades": [
-      {"nome": "Golpe Invisível", "texto": "Se o Atirador estiver _Oculto_ ao acertar um ataque padrão, causa **1d10+4** de dano físico em vez do dano padrão."}
+      {"nome": "Golpe Invisível", "texto": "Se o Atirador estiver _Escondido_ ao acertar um ataque padrão, causa **1d10+4** de dano físico em vez do dano padrão."}
     ]
   },
   "srd_merchant": {

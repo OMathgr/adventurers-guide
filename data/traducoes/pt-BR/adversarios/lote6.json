@@ -13,8 +13,8 @@
     "descricao": "Um caçador à espreita, como um puma sorrateiro, de corpo de pedra cinza-ardósia.",
     "motivacoes": "Defender o território, isolar a presa, espreitar",
     "habilidades": [
-      {"nome": "Andarilho da Pedra", "texto": "O Espectro de Pedra atravessa pedra e terra com a facilidade com que atravessa o ar. Dentro da pedra ou da terra, fica _Oculto_ e imune a todo dano."},
-      {"nome": "Emboscada Rochosa", "texto": "Enquanto _Oculto_, **marque 1 PF** para saltar até o alcance corpo a corpo de um alvo em alcance muito próximo. O alvo precisa ter sucesso num teste de reação de Agilidade ou de Instinto (15) ou sofre **2d8** de dano físico e fica temporariamente _Contido_."},
+      {"nome": "Andarilho da Pedra", "texto": "O Espectro de Pedra atravessa pedra e terra com a facilidade com que atravessa o ar. Dentro da pedra ou da terra, fica _Escondido_ e imune a todo dano."},
+      {"nome": "Emboscada Rochosa", "texto": "Enquanto _Escondido_, **marque 1 PF** para saltar até o alcance corpo a corpo de um alvo em alcance muito próximo. O alvo precisa ter sucesso num teste de reação de Agilidade ou de Instinto (15) ou sofre **2d8** de dano físico e fica temporariamente _Imobilizado_."},
       {"nome": "Rugido de Avalanche", "texto": "**Gaste 1 Ponto de Medo** para rugir dentro de uma caverna e provocar um desabamento. Todos os alvos em alcance próximo precisam ter sucesso num teste de reação de Agilidade (14) ou sofrem **2d10** de dano físico. Os escombros podem ser removidos com uma Contagem Regressiva de Progresso (8)."},
       {"nome": "Embalo", "texto": "Quando o Espectro de Pedra acerta um ataque contra um PJ, você ganha 1 Ponto de Medo."}
     ]
@@ -147,7 +147,7 @@
     "motivacoes": "Inundar, dispersar, afogar",
     "habilidades": [
       {"nome": "Jato d'Água", "texto": "**Marque 1 PF** para atacar um alvo em alcance muito próximo. Com sucesso, cause **2d4+7** de dano físico, e a próxima ação do alvo tem desvantagem. Se falhar, o alvo marca 1 PF."},
-      {"nome": "Abraço Afogador", "texto": "**Gaste 1 Ponto de Medo** para atacar todos os alvos em alcance muito próximo. Os alvos atingidos ficam _Contidos_ e _Vulneráveis_ ao começar a se afogar. Um alvo pode se soltar, encerrando as duas condições, com sucesso num teste de Força ou de Instinto."},
+      {"nome": "Abraço Afogador", "texto": "**Gaste 1 Ponto de Medo** para atacar todos os alvos em alcance muito próximo. Os alvos atingidos ficam _Imobilizados_ e _Vulneráveis_ ao começar a se afogar. Um alvo pode se soltar, encerrando as duas condições, com sucesso num teste de Força ou de Instinto."},
       {"nome": "Maré Alta", "texto": "Quando o Elemental acerta um ataque padrão, você pode **marcar 1 PF** para arremessar o alvo para alcance próximo."}
     ]
   },

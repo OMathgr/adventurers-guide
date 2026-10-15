@@ -24,6 +24,15 @@ export const USO_TRACO: Record<Traco, string> = {
   KNOWLEDGE: 'Lembrar, analisar, compreender',
 }
 
+/** Tipos de habilidade, na ordem em que aparecem na ficha. */
+export const NOME_ORIGEM_HABILIDADE: Record<string, string> = {
+  esperanca: 'Habilidade de Esperança',
+  classe: 'Habilidades de classe',
+  fundacao: 'Fundamental',
+  especializacao: 'Especialização',
+  maestria: 'Maestria',
+}
+
 export const NOME_OPCAO: Record<Opcao, string> = {
   TRACOS: '+1 em dois atributos não marcados',
   PV: '+1 espaço de Ponto de Vida',
@@ -65,7 +74,7 @@ export const NOME_ALCANCE: Record<string, string> = {
 
 /** Condições padrão (o resto são condições de características, já em texto). */
 export const NOME_CONDICAO: Record<string, string> = {
-  OCULTO: 'Oculto', CONTIDO: 'Contido', VULNERAVEL: 'Vulnerável',
+  OCULTO: 'Escondido', CONTIDO: 'Imobilizado', VULNERAVEL: 'Vulnerável',
 }
 
 export const condicao = (c: string) => NOME_CONDICAO[c] ?? c

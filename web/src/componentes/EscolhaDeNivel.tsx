@@ -6,7 +6,7 @@
 import { useMemo, useRef, useState } from 'react'
 
 import {
-  useClasses, useOpcoesDeCarta, useSubclasses, useSubirDeNivel,
+  useCartasExtras, useClasses, useOpcoesDeCarta, useSubclasses, useSubirDeNivel,
 } from '../api/consultas'
 import type {
   AlvoFeroz, Escolha, Ficha, Opcao, OpcaoTreino, ProximoNivel, QuadroDeAvanco, Traco, Treino,
@@ -14,6 +14,7 @@ import type {
 import { useNomeDominio, useNomes } from '../lib/nomes'
 import { type AvancoMarcado, custoTotal, LIMITE_MAO, podeMarcar, treinosExigidos } from '../lib/regras'
 import { NOME_ALVO_FEROZ, NOME_OPCAO, NOME_TRACO, NOME_TREINO, TRACOS } from '../lib/rotulos'
+import { comoItem, ListaDeHabilidades } from './Habilidades'
 import QuadroAvanco, { type Interacao } from './QuadroAvanco'
 import { Aviso, Botao, Campo, Carregando, Escolhivel, Original, Selo } from './ui'
 
@@ -47,7 +48,8 @@ function detalheCompleto(opcao: Opcao, d: Detalhe): boolean {
   }
 }
 
-const PEDE_DETALHE: Opcao[] = ['TRACOS', 'EXPERIENCIAS', 'CARTA_DOMINIO', 'MULTICLASSE']
+const PEDE_DETALHE: Opcao[] = ['TRACOS', 'EXPERIENCIAS', 'CARTA_DOMINIO', 'MULTICLASSE', 'SUBCLASSE']
+const PROXIMO_ESTAGIO = { fundacao: 'especializacao', especializacao: 'maestria' } as const
 
 function paraEscolha(m: AvancoMarcado, d: Detalhe): Escolha {
   const base: Escolha = { opcao: m.opcao, tier: m.tier, tracos: [], experiencias: [] }
@@ -93,6 +95,7 @@ export default function EscolhaDeNivel({ id, ficha, proximo, quadros, aoConcluir
   const [carta, setCarta] = useState<string>()
   const [troca, setTroca] = useState<{ antiga?: string; nova?: string } | null>(null)
   const [paraReserva, setParaReserva] = useState<string[]>([])
+  const [extras, setExtras] = useState<string[]>([])
   const subir = useSubirDeNivel(id)
   const nomes = useNomes(ficha)
 
@@ -109,7 +112,11 @@ export default function EscolhaDeNivel({ id, ficha, proximo, quadros, aoConcluir
     && marcados.every((m) => detalheCompleto(m.opcao, detalhes[m.chave] ?? DETALHE_VAZIO))
   const treinosOk = treinos.every((t) =>
     (t.opcao !== 'INTELIGENTE' || !!t.experiencia) && (t.opcao !== 'FEROZ' || !!t.alvo))
+  // carta a mais de habilidade de subclasse (Discípulo do Conhecimento): o motor diz quantas
+  const nExtras = useCartasExtras(id, avancosOk ? escolhas : null).data ?? 0
+  const extrasValidas = extras.slice(0, nExtras)
   const cartaOk = !!carta && (troca === null || (!!troca.antiga && !!troca.nova))
+    && extrasValidas.length === nExtras && extrasValidas.every(Boolean)
   const pronto = conquistaOk && avancosOk && treinosOk && cartaOk
 
   const daApi = (tier: number, opcao: Opcao) => proximo.opcoes.find((o) => o.tier === tier && o.opcao === opcao)
@@ -128,6 +135,7 @@ export default function EscolhaDeNivel({ id, ficha, proximo, quadros, aoConcluir
       setDetalhes((d) => ({ ...d, [chave]: DETALHE_VAZIO }))
       setCarta(undefined)   // mudar avanços pode mudar as cartas possíveis
       setTroca(null)
+      setExtras([])
     },
     desmarcar: (tier, opcao) => {
       const ultimo = marcados.findLast((m) => m.tier === tier && m.opcao === opcao)
@@ -135,6 +143,7 @@ export default function EscolhaDeNivel({ id, ficha, proximo, quadros, aoConcluir
       setMarcados((m) => m.filter((x) => x.chave !== ultimo.chave))
       setCarta(undefined)
       setTroca(null)
+      setExtras([])
     },
   }
 
@@ -142,7 +151,7 @@ export default function EscolhaDeNivel({ id, ficha, proximo, quadros, aoConcluir
     setDetalhes((d) => ({ ...d, [chave]: { ...(d[chave] ?? DETALHE_VAZIO), ...parcial } }))
 
   // mão cheia: cartas antigas podem ir para a reserva sem custo para as novas entrarem
-  const cartasNovas = 1 + marcados.filter((m) => m.opcao === 'CARTA_DOMINIO').length
+  const cartasNovas = 1 + nExtras + marcados.filter((m) => m.opcao === 'CARTA_DOMINIO').length
   const excesso = ficha.cartas_ativas.length + cartasNovas - LIMITE_MAO
   const maxReserva = Math.max(0, Math.min(excesso, cartasNovas))
   const reservaValida = paraReserva.filter((c) => c !== troca?.antiga).slice(0, maxReserva)
@@ -156,6 +165,7 @@ export default function EscolhaDeNivel({ id, ficha, proximo, quadros, aoConcluir
       nova_experiencia: proximo.nova_experiencia ? novaExp.trim() : null,
       experiencia_companheiro: proximo.experiencia_companheiro ? expCompanheiro.trim() : null,
       troca_carta: troca ? [troca.antiga!, troca.nova!] : null,
+      cartas_extras: extrasValidas,
       treinos,
     }, { onSuccess: aoConcluir })
   }
@@ -249,6 +259,14 @@ export default function EscolhaDeNivel({ id, ficha, proximo, quadros, aoConcluir
         )}
       </Secao>
 
+      {avancosOk && nExtras > 0 && (
+        <Secao titulo={`Carta${nExtras > 1 ? 's' : ''} a mais da subclasse (${nExtras})`}>
+          <p className="text-sm text-texto-suave">Do seu nível ou menor, de um domínio a que você tem acesso.</p>
+          <CartasExtras id={id} escolhas={escolhas} quantas={nExtras} usadas={[carta, troca?.nova]}
+            extras={extrasValidas} setExtras={setExtras} />
+        </Secao>
+      )}
+
       {maxReserva > 0 && (
         <Secao titulo="Mão cheia">
           <p className="text-sm text-texto-suave">
@@ -330,9 +348,53 @@ function DetalheAvanco({ id, ficha, proximo, marcado, detalhe, outrosTracos, exp
       return <CartaDoAvanco id={id} tier={marcado.tier} carta={detalhe.carta} mudar={(carta) => mudar({ carta })} />
     case 'MULTICLASSE':
       return <Multiclasse ficha={ficha} detalhe={detalhe} mudar={mudar} />
+    case 'SUBCLASSE':
+      return <ProximaCartaDeSubclasse ficha={ficha} />
     default:
       return null
   }
+}
+
+/** O que a carta de subclasse aprimorada traz (especialização ou maestria). */
+function ProximaCartaDeSubclasse({ ficha }: { ficha: Ficha }) {
+  const subclasses = useSubclasses(ficha.classe)
+  const sub = subclasses.data?.find((s) => s.id === ficha.subclasse)
+  const proximo = PROXIMO_ESTAGIO[ficha.estagio_subclasse as keyof typeof PROXIMO_ESTAGIO]
+  if (subclasses.isPending) return <Carregando />
+  if (!sub || !proximo) return null
+  return <ListaDeHabilidades lista={(sub[proximo] ?? []).map(comoItem)} />
+}
+
+type PropsExtras = {
+  id: string
+  escolhas: Escolha[]
+  quantas: number
+  usadas: (string | undefined)[]
+  extras: string[]
+  setExtras: (e: string[]) => void
+}
+
+function CartasExtras({ id, escolhas, quantas, usadas, extras, setExtras }: PropsExtras) {
+  const opcoes = useOpcoesDeCarta(id, { para: 'nivel', escolhas })
+  const dominio = useNomeDominio()
+  if (opcoes.isPending) return <Carregando />
+  return (
+    <div className="grid gap-2">
+      {Array.from({ length: quantas }, (_, i) => (
+        <select key={i} value={extras[i] ?? ''} aria-label={`Carta a mais ${i + 1}`}
+          onChange={(e) => {
+            const novas = [...extras]
+            novas[i] = e.target.value
+            setExtras(novas)
+          }}
+          className="w-full rounded-lg border border-borda bg-fundo px-3 py-2 text-sm">
+          <option value="">Escolha uma carta</option>
+          {opcoes.data?.filter((c) => c.id === extras[i] || (!usadas.includes(c.id) && !extras.includes(c.id)))
+            .map((c) => <option key={c.id} value={c.id}>{c.nome} ({dominio(c.dominio)}, nível {c.nivel})</option>)}
+        </select>
+      ))}
+    </div>
+  )
 }
 
 function CartaDoAvanco({ id, tier, carta, mudar }: { id: string; tier: number; carta?: string; mudar: (c: string) => void }) {
@@ -380,6 +442,13 @@ function Multiclasse({ ficha, detalhe, mudar }: { ficha: Ficha; detalhe: Detalhe
             <option value="">Subclasse</option>
             {subclasses.data?.map((s) => <option key={s.id} value={s.id}>{s.nome}</option>)}
           </select>
+          {(classe.habilidades ?? []).length > 0 && (
+            <ListaDeHabilidades lista={(classe.habilidades ?? []).map(comoItem)} resumida />
+          )}
+          {subclasses.data?.find((s) => s.id === detalhe.subclasse) && (
+            <ListaDeHabilidades resumida
+              lista={(subclasses.data.find((s) => s.id === detalhe.subclasse)!.fundacao ?? []).map(comoItem)} />
+          )}
         </>
       )}
       {detalhe.subclasse === BEASTBOUND && (
