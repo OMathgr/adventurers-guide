@@ -67,6 +67,13 @@ export default function FichaVisao({ ficha, personagemId, semVida }: {
           <div className="mt-3"><p className="mb-1 text-xs text-texto-suave">Espaços de armadura livres ({ficha.pontuacao_armadura - ficha.armadura_marcada}/{ficha.pontuacao_armadura})</p>
             <Espacos total={ficha.pontuacao_armadura} marcados={ficha.armadura_marcada} rotulo="Armadura" cor="medo" restantes /></div>
         )}
+        {/* o que a armadura equipada dá (Flexível, Pesada...): junto dos números que ela muda */}
+        {ficha.caracteristicas_armadura.length > 0 && (
+          <div className="mt-3 border-t border-borda pt-3">
+            <h3 className="mb-1 text-sm text-esperanca">{ficha.armadura}<Original nome={ficha.armadura} original={ficha.armadura_original} /></h3>
+            <ListaCaracteristicas lista={ficha.caracteristicas_armadura} />
+          </div>
+        )}
       </Cartao>
 
       {!semVida && <Cartao titulo="Vida e ânimo" className="lg:col-span-2">
@@ -131,10 +138,6 @@ export default function FichaVisao({ ficha, personagemId, semVida }: {
         {ficha.caracteristicas_comunidade.length > 0 && (
           <><h3 className="mb-1 mt-4 text-sm text-esperanca">Comunidade</h3>
             <ListaDeHabilidades lista={ficha.caracteristicas_comunidade.map(comoItem)} /></>
-        )}
-        {ficha.caracteristicas_armadura.length > 0 && (
-          <><h3 className="mb-1 mt-4 text-sm text-esperanca">{ficha.armadura}<Original nome={ficha.armadura} original={ficha.armadura_original} /></h3>
-            <ListaCaracteristicas lista={ficha.caracteristicas_armadura} /></>
         )}
       </Cartao>
 

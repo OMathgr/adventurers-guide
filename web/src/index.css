@@ -22,19 +22,22 @@
   color-scheme: dark;
 }
 
+/* Claro, mas sem ofuscar: fundo cinza-azulado para os cartões se destacarem,
+   bordas visíveis e laranja/vermelho/verde escuros o bastante para texto
+   pequeno (contraste AA, 4,5:1, sobre os cartões). */
 :root[data-tema="claro"] {
-  --fundo: #f3f5fa;
-  --superficie: #ffffff;
-  --superficie-2: #e8edf7;
-  --borda: #c9d3e6;
-  --texto: #0f1b33;
-  --texto-suave: #4a5a7a;
-  --esperanca: #d9701a;
-  --esperanca-forte: #b85a0e;
+  --fundo: #dde3ee;
+  --superficie: #f8f9fc;
+  --superficie-2: #e6ebf4;
+  --borda: #9aa9c5;
+  --texto: #0c1730;
+  --texto-suave: #38476a;
+  --esperanca: #b0520a;
+  --esperanca-forte: #8f4207;
   --sobre-esperanca: #ffffff;
-  --medo: #1f3a7a;
-  --perigo: #c93b38;
-  --sucesso: #23875a;
+  --medo: #2b4c9b;
+  --perigo: #b3302d;
+  --sucesso: #1d7650;
   color-scheme: light;
 }
 
