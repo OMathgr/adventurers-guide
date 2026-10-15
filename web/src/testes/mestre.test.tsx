@@ -155,7 +155,11 @@ describe('Página da mesa', () => {
     vi.stubGlobal('fetch', fetch)
     montarEm('/mesas/m1?aba=sessao', <Mesa />, '/mesas/:id')
 
-    await userEvent.click(await screen.findByRole('button', { name: 'Marcar 1 PV' }))
+    // os contadores mostram o que resta: "−" marca (perde vida) e "+" limpa
+    const perder = await screen.findByRole('button', { name: 'Marcar 1 PV' })
+    expect(perder).toHaveTextContent('−')
+    expect(screen.getByRole('button', { name: 'Limpar 1 PV' })).toHaveTextContent('+')
+    await userEvent.click(perder)
     expect(fetch).toHaveBeenCalledWith('/api/personagens/lira/sessao/pv/marcar', expect.objectContaining({
       method: 'POST', body: JSON.stringify({ quantidade: 1 }) }))
     expect(await screen.findByText('(restam 4/5)')).toBeInTheDocument()

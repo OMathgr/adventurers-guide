@@ -1,3 +1,5 @@
+// Os contadores mostram o que RESTA (como os espaços na ficha): "−" marca (perde)
+// e "+" limpa (recupera); na Esperança, que mostra o que se tem, "+" ganha.
 // A ficha do jogador dentro da sessão em andamento: marcar e limpar PV e
 // Fadiga, ganhar e gastar Esperança, marcar armadura, condições, o companheiro,
 // o movimento de morte e a mão de cartas. As marcas são desta sessão (cada
@@ -49,13 +51,13 @@ export function MarcasDeJogo({ personagemId, ficha: f }: { personagemId: string;
   return (
     <div className="space-y-4">
       <Contador rotulo="Pontos de Vida" detalhe={`restam ${f.pv_max - f.pv_marcados}/${f.pv_max}`} ocupado={ocupado}
-        menos={{ texto: 'Limpar 1 PV', acao: fazer({ tipo: 'pv', acao: 'limpar', quantidade: 1 }), pode: f.pv_marcados > 0 }}
-        mais={{ texto: 'Marcar 1 PV', acao: fazer({ tipo: 'pv', acao: 'marcar', quantidade: 1 }), pode: f.pv_marcados < f.pv_max }}>
+        menos={{ texto: 'Marcar 1 PV', acao: fazer({ tipo: 'pv', acao: 'marcar', quantidade: 1 }), pode: f.pv_marcados < f.pv_max }}
+        mais={{ texto: 'Limpar 1 PV', acao: fazer({ tipo: 'pv', acao: 'limpar', quantidade: 1 }), pode: f.pv_marcados > 0 }}>
         <Espacos total={f.pv_max} marcados={f.pv_marcados} rotulo="Pontos de Vida" restantes />
       </Contador>
       <Contador rotulo="Fadiga" detalhe={`restam ${f.estresse_max - f.estresse_marcado}/${f.estresse_max}`} ocupado={ocupado}
-        menos={{ texto: 'Limpar 1 PF', acao: fazer({ tipo: 'estresse', acao: 'limpar', quantidade: 1 }), pode: f.estresse_marcado > 0 }}
-        mais={{ texto: 'Marcar 1 PF', acao: fazer({ tipo: 'estresse', acao: 'marcar', quantidade: 1 }), pode: f.estresse_marcado < f.estresse_max }}>
+        menos={{ texto: 'Marcar 1 PF', acao: fazer({ tipo: 'estresse', acao: 'marcar', quantidade: 1 }), pode: f.estresse_marcado < f.estresse_max }}
+        mais={{ texto: 'Limpar 1 PF', acao: fazer({ tipo: 'estresse', acao: 'limpar', quantidade: 1 }), pode: f.estresse_marcado > 0 }}>
         <Espacos total={f.estresse_max} marcados={f.estresse_marcado} rotulo="Fadiga" cor="medo" restantes />
       </Contador>
       <Contador rotulo="Esperança" detalhe={`${f.esperanca}/${f.esperanca_max}`} ocupado={ocupado}
@@ -65,7 +67,7 @@ export function MarcasDeJogo({ personagemId, ficha: f }: { personagemId: string;
       </Contador>
       {f.pontuacao_armadura > 0 && (
         <Contador rotulo="Armadura" detalhe={`livres ${livresArmadura}/${f.pontuacao_armadura}`} ocupado={ocupado}
-          mais={{ texto: 'Marcar 1 espaço de armadura', acao: fazer({ tipo: 'armadura', quantidade: 1 }), pode: livresArmadura > 0 }}>
+          menos={{ texto: 'Marcar 1 espaço de armadura', acao: fazer({ tipo: 'armadura', quantidade: 1 }), pode: livresArmadura > 0 }}>
           <Espacos total={f.pontuacao_armadura} marcados={f.armadura_marcada} rotulo="Armadura" cor="medo" restantes />
           <p className="text-xs text-texto-suave">Para reduzir dano, use "usar armadura" quando o mestre aplicar; espaços voltam no descanso.</p>
         </Contador>
@@ -78,9 +80,10 @@ export function MarcasDeJogo({ personagemId, ficha: f }: { personagemId: string;
       </div>
       {f.companheiro && (
         <Contador rotulo={`Fadiga de ${f.companheiro.nome}`}
-          detalhe={f.companheiro.fora_de_cena ? 'fora de cena' : `${f.companheiro.estresse_marcado}/${f.companheiro.estresse_max}`}
+          detalhe={f.companheiro.fora_de_cena ? 'fora de cena'
+            : `restam ${f.companheiro.estresse_max - f.companheiro.estresse_marcado}/${f.companheiro.estresse_max}`}
           ocupado={ocupado}
-          mais={{ texto: `${f.companheiro.nome} sofre dano (marca 1 PF)`, acao: fazer({ tipo: 'companheiro' }),
+          menos={{ texto: `${f.companheiro.nome} sofre dano (marca 1 PF)`, acao: fazer({ tipo: 'companheiro' }),
             pode: !f.companheiro.fora_de_cena }}>
           <Espacos total={f.companheiro.estresse_max} marcados={f.companheiro.estresse_marcado}
             rotulo={`Fadiga de ${f.companheiro.nome}`} cor="medo" restantes />
