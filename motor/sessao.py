@@ -600,6 +600,16 @@ class Sessao:
 
     # --- Persistência -------------------------------------------------------------------
 
+    # O que segue o personagem de uma sessão de jogo para a outra; o resto do
+    # estado é de cada sessão (começa limpo, com a Esperança inicial).
+    CAMPOS_PERMANENTES = ("morto", "cicatrizes")
+
+    def estado_permanente(self) -> dict:
+        return {k: v for k, v in self.estado().items() if k in self.CAMPOS_PERMANENTES}
+
+    def estado_da_sessao(self) -> dict:
+        return {k: v for k, v in self.estado().items() if k not in self.CAMPOS_PERMANENTES}
+
     def estado(self) -> dict:
         """Tudo o que precisa ser salvo, só com tipos simples (vira JSON)."""
         return {
@@ -620,18 +630,21 @@ class Sessao:
         }
 
     def restaurar(self, estado: dict):
+        """Inverso de estado(). Campo que falta fica como numa sessão nova
+        (ex.: só o permanente, quando o personagem não está em jogo)."""
         tipos = {"Efeito": Efeito, "OpcaoTreino": OpcaoTreino}
         for campo in ("pv_marcados", "estresse_marcado", "esperanca", "armadura_marcada",
                       "dano_massivo", "descansos_curtos_seguidos", "companheiro_estresse",
                       "companheiro_fora"):
-            setattr(self, campo, estado[campo])
+            if campo in estado:
+                setattr(self, campo, estado[campo])
         self.condicoes = list(estado.get("condicoes", []))
         self.inconsciente = bool(estado.get("inconsciente", False))
         self.morto = bool(estado.get("morto", False))
         self.cicatrizes = [Cicatriz(ImpactoDaCicatriz(c.get("impacto", "")), c.get("descricao", ""))
                            for c in estado.get("cicatrizes", [])]
         self.usados_no_descanso = set()
-        for item in estado["usados_no_descanso"]:
+        for item in estado.get("usados_no_descanso", []):
             tipo, valor = item.split(":", 1)
             self.usados_no_descanso.add(tipos[tipo](valor))
         self.ajustar()

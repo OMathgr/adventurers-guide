@@ -7,11 +7,7 @@ import {
   usePermissoesMestres, usePersonagens, useRemoverMembro, useSairDaMesa, useVincularMesa,
 } from '../../api/consultas'
 import type { Mesa, Permissao, PermissoesMestres } from '../../api/tipos'
-import FichaResumida from '../../componentes/FichaResumida'
 import { Foto } from '../../componentes/Foto'
-import MedoDoMestre from '../../componentes/MedoDoMestre'
-import PainelDeRepouso from '../../componentes/Repouso'
-import VistaDosJogadores from '../../componentes/VistaDosJogadores'
 import { Aviso, Botao, Cartao, Selecao, Selo } from '../../componentes/ui'
 import { NOME_PAPEL, NOME_PERMISSAO } from '../../lib/rotulos'
 
@@ -144,7 +140,6 @@ function Personagens({ mesa }: { mesa: Mesa }) {
   const vincular = useVincularMesa()
   const copiar = useCopiarParaMesa()
   const [escolhido, setEscolhido] = useState('')
-  const [aberto, setAberto] = useState<string | null>(null)   // ficha simplificada aberta
   const nomeClasse = (id: string) => classes.data?.find((c) => c.id === id)?.nome ?? ''
   const candidatos = meus.data?.filter((p) => p.mesa_id !== mesa.id) ?? []
   const p = candidatos.find((c) => c.id === escolhido)
@@ -156,17 +151,14 @@ function Personagens({ mesa }: { mesa: Mesa }) {
       <ul className="divide-y divide-borda">
         {mesa.personagens.map((x) => (
           <li key={x.id} className="py-2">
-            <button type="button" aria-expanded={aberto === x.id} onClick={() => setAberto(aberto === x.id ? null : x.id)}
-              className="flex w-full items-center gap-3 rounded-lg text-left hover:bg-superficie-2/50">
+            <div className="flex w-full items-center gap-3">
               <Foto id={x.foto} nome={x.nome || '?'} tamanho="p" />
               <span className="min-w-0 flex-1">
                 <span className="font-medium">{x.nome || 'Sem nome'}</span>
                 {x.morto && <span className="ml-2 text-xs text-perigo">atravessou o véu</span>}
                 <span className="ml-2 text-sm text-texto-suave">Nível {x.nivel} · {nomeClasse(x.classe)} · {x.jogador}</span>
               </span>
-              <span aria-hidden className="text-xs text-texto-suave">{aberto === x.id ? '▲' : '▼'}</span>
-            </button>
-            {aberto === x.id && <div className="mt-2"><FichaResumida mesaId={mesa.id} pid={x.id} /></div>}
+            </div>
           </li>
         ))}
       </ul>
@@ -207,16 +199,12 @@ export default function AbaGeral({ mesa }: { mesa: Mesa }) {
 
   return (
     <div className="grid gap-4 lg:grid-cols-2">
-      {/* repouso aberto pelo mestre: cada jogador escolhe os movimentos do seu personagem */}
-      <PainelDeRepouso mesa={mesa} />
-      {/* o que o mestre revelou: inimigos em combate e NPCs conhecidos */}
-      <VistaDosJogadores mesaId={mesa.id} />
-      {/* Medo das sessões em andamento: todos veem (quem muda é o mestre, na sessão) */}
-      {mesa.medo_em_jogo.map((m) => (
-        <div key={m.sessao_id} className="lg:col-span-2">
-          <MedoDoMestre medo={m.medo} titulo={`Medo (sessão de ${m.mestre})`} />
-        </div>
-      ))}
+      {/* Medo, repouso, revelado, lojas e as fichas de jogo ficam em cada sessão (aba Sessões) */}
+      {mesa.medo_em_jogo.length > 0 && (
+        <p className="rounded-xl border border-esperanca/50 bg-esperanca/10 px-3 py-2 text-sm lg:col-span-2">
+          Há sessão em andamento: entre pela aba <b>Sessões</b>.
+        </p>
+      )}
       <Convite mesa={mesa} />
       <Membros mesa={mesa} />
       <Personagens mesa={mesa} />

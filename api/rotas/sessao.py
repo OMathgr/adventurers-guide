@@ -1,9 +1,15 @@
 """Estado de sessão: dano, PV, Estresse, Esperança, armadura, descansos e
-companheiro. Toda ação devolve a ficha atualizada."""
+companheiro. Toda ação devolve a ficha atualizada.
+
+As marcas são da sessão de jogo em que o personagem entrou (ver
+`api/rotas/jogo.py`): fora de uma sessão em andamento, as ações são recusadas.
+Só a cicatriz (que é do personagem) pode ser descrita a qualquer hora."""
 
 from collections.abc import Callable
 
 from fastapi import APIRouter, Depends
+
+from .. import repositorio
 
 from pydantic import BaseModel, Field
 
@@ -18,8 +24,17 @@ from .personagens import executar
 rotas = APIRouter(prefix="/personagens/{personagem_id}/sessao", tags=["Sessão"])
 
 
-def na_sessao(a: Acesso, personagem_id: str, acao: Callable[[Sessao], object]):
+def em_jogo(a: Acesso, personagem_id: str, acao: Callable[[Personagem], object]):
+    """Como `executar`, mas exige o personagem numa sessão em andamento."""
+    repositorio.exigir_em_jogo(a.banco, personagem_id, a.usuario_id)
+    return executar(a, personagem_id, acao)
+
+
+def na_sessao(a: Acesso, personagem_id: str, acao: Callable[[Sessao], object], exigir_jogo: bool = True):
     """Executa uma ação da sessão e devolve a ficha atualizada."""
+    if exigir_jogo:
+        repositorio.exigir_em_jogo(a.banco, personagem_id, a.usuario_id)
+
     def com_ficha(p: Personagem):
         acao(p.sessao)
         return p.ficha()
@@ -30,7 +45,7 @@ def na_sessao(a: Acesso, personagem_id: str, acao: Callable[[Sessao], object]):
 def receber_dano(personagem_id: str, pedido: Dano, a: Acesso = Depends(acesso)):
     def acao(p: Personagem):
         return p.sessao.receber_dano(**pedido.model_dump()), p.ficha()
-    resultado, ficha = executar(a, personagem_id, acao)
+    resultado, ficha = em_jogo(a, personagem_id, acao)
     return DanoSaida(resultado=resultado, ficha=ficha_saida(ficha))
 
 
@@ -91,7 +106,7 @@ def descansar(personagem_id: str, pedido: Descanso, a: Acesso = Depends(acesso))
         else:
             resultados = p.sessao.descanso_longo(pedido.movimentos)
         return resultados, p.ficha()
-    resultados, ficha = executar(a, personagem_id, acao)
+    resultados, ficha = em_jogo(a, personagem_id, acao)
     return DescansoSaida(resultados=resultados, ficha=ficha_saida(ficha))
 
 
@@ -117,14 +132,15 @@ def movimento_de_morte(personagem_id: str, pedido: MovimentoDeMorteEntrada, a: A
     """Marcou o último PV: o jogador escolhe Sacrifício Glorioso, Evitar a Morte ou Arriscar Tudo."""
     def acao(p: Personagem):
         return p.sessao.movimento_de_morte(**pedido.model_dump()), p.ficha()
-    resultado, ficha = executar(a, personagem_id, acao)
+    resultado, ficha = em_jogo(a, personagem_id, acao)
     return MorteSaida(resultado=resultado, ficha=ficha_saida(ficha))
 
 
 @rotas.put("/cicatrizes/{indice}", response_model=FichaSaida)
 def definir_cicatriz(personagem_id: str, indice: int, pedido: CicatrizEntrada, a: Acesso = Depends(acesso)):
     """O impacto narrativo da cicatriz (física, memória dolorosa, medo paralisante ou outro)."""
-    return na_sessao(a, personagem_id, lambda s: s.definir_cicatriz(indice, pedido.impacto, pedido.descricao))
+    return na_sessao(a, personagem_id, lambda s: s.definir_cicatriz(indice, pedido.impacto, pedido.descricao),
+                     exigir_jogo=False)
 
 
 @rotas.post("/companheiro/dano", response_model=FichaSaida)

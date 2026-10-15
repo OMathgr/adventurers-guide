@@ -134,32 +134,6 @@ describe('Trazer personagem para a mesa', () => {
   })
 })
 
-describe('Ficha simplificada dos outros personagens', () => {
-  it('tocar no personagem da mesa abre quem é e PV, PF e Esperança', async () => {
-    const mesa = {
-      id: 'm1', nome: 'Mesa', codigo_convite: 'ABC', medo_em_jogo: [], nivel_maximo: 2, meu_papel: 'jogador', sou_criador: false,
-      permissoes_mestres: {}, minhas_permissoes: [], membros: [],
-      personagens: [{ id: 'lira', nome: 'Lira', nivel: 2, classe: 'bardo', jogador: 'Bia', dono_id: 'b', foto: null }],
-    } as unknown as Mesa
-    const fetch = api({
-      '/personagens': [],
-      '/mesas/m1/revelado': { combate: [], npcs: [] },
-      '/mesas/m1/personagens/lira/resumo': {
-        id: 'lira', nome: 'Lira', foto: null, jogador: 'Bia', nivel: 2, classe: 'Bardo', subclasse: 'Trovador',
-        estagio_subclasse: 'FUNDAMENTAL', multiclasse: null, ancestralidade: 'Fauno', comunidade: 'Aristocrática',
-        pv_max: 6, pv_marcados: 2, estresse_max: 6, estresse_marcado: 1, esperanca: 3, esperanca_max: 6,
-      },
-    })
-    vi.stubGlobal('fetch', fetch)
-    montar(<AbaGeral mesa={mesa} />)
-    await userEvent.click(await screen.findByRole('button', { name: /Lira/ }))
-    expect(await screen.findByText('Vida: 4/6 PV')).toBeInTheDocument()
-    expect(screen.getByText('Fadiga: 5/6 PF')).toBeInTheDocument()
-    expect(screen.getByText('Esperança: 3/6')).toBeInTheDocument()
-    expect(screen.getByText(/Fauno · Aristocrática · jogado por Bia/)).toBeInTheDocument()
-  })
-})
-
 describe('Duas abas editando o mesmo formulário', () => {
   it('avisa do conflito e deixa salvar por cima', async () => {
     const chamadas: string[] = []

@@ -29,8 +29,11 @@ function ListaCaracteristicas({ lista }: { lista: { nome: string; descricao: str
   )
 }
 
-/** `personagemId` liga as ações do dono (mão e reserva); sem ele, a ficha é só leitura. */
-export default function FichaVisao({ ficha, personagemId }: { ficha: Ficha; personagemId?: string }) {
+/** `personagemId` liga as ações do dono (mão e reserva); sem ele, a ficha é só leitura.
+    `semVida` tira o cartão "Vida e ânimo" (na sessão, os controles de jogo ficam no topo). */
+export default function FichaVisao({ ficha, personagemId, semVida }: {
+  ficha: Ficha; personagemId?: string; semVida?: boolean
+}) {
   return (
     <div className="grid gap-4 lg:grid-cols-3">
       <Cartao titulo="Atributos" className="lg:col-span-2">
@@ -66,7 +69,7 @@ export default function FichaVisao({ ficha, personagemId }: { ficha: Ficha; pers
         )}
       </Cartao>
 
-      <Cartao titulo="Vida e ânimo" className="lg:col-span-2">
+      {!semVida && <Cartao titulo="Vida e ânimo" className="lg:col-span-2">
         <div className="space-y-3">
           <div><p className="mb-1 text-sm">Pontos de Vida <span className="text-texto-suave">(restam {ficha.pv_max - ficha.pv_marcados}/{ficha.pv_max})</span></p>
             <Espacos total={ficha.pv_max} marcados={ficha.pv_marcados} rotulo="Pontos de Vida" restantes /></div>
@@ -78,7 +81,7 @@ export default function FichaVisao({ ficha, personagemId }: { ficha: Ficha; pers
             <p className="flex flex-wrap gap-1.5">{ficha.condicoes.map((c) => <Selo key={c} destaque>{condicao(c)}</Selo>)}</p>
           )}
         </div>
-      </Cartao>
+      </Cartao>}
 
       <Cartao titulo="Experiências">
         <ul className="space-y-1">

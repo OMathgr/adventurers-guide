@@ -1,12 +1,12 @@
 """Duas pessoas mexendo na mesma coisa ao mesmo tempo (api/concorrencia.py)."""
 
 import pytest
-from dados_api import BARDO
+from dados_api import BARDO, colocar_em_jogo
 
 import api.repositorio as repositorio
 from api.db import sessao_do_banco
 from api.main import app
-from api.tabelas import PersonagemTabela
+from api.tabelas import ParticipacaoTabela, PersonagemTabela
 
 
 @pytest.fixture
@@ -39,6 +39,7 @@ def _intrometer(monkeypatch, outra_pessoa, pid, vezes=1):
 
 def test_acoes_ao_mesmo_tempo_as_duas_valem(cliente, monkeypatch, outra_pessoa):
     pid = cliente.post("/personagens", json=BARDO).json()["id"]
+    colocar_em_jogo(cliente, pid)
     chamadas = _intrometer(monkeypatch, outra_pessoa, pid)
     r = cliente.post(f"/personagens/{pid}/sessao/esperanca/gastar", json={"quantidade": 1})
     assert r.status_code == 200, r.text
@@ -50,6 +51,7 @@ def test_acoes_ao_mesmo_tempo_as_duas_valem(cliente, monkeypatch, outra_pessoa):
 
 def test_desiste_depois_de_tres_tentativas(cliente, monkeypatch, outra_pessoa):
     pid = cliente.post("/personagens", json=BARDO).json()["id"]
+    colocar_em_jogo(cliente, pid)
     _intrometer(monkeypatch, outra_pessoa, pid, vezes=99)
     r = cliente.post(f"/personagens/{pid}/sessao/esperanca/gastar", json={"quantidade": 1})
     assert r.status_code == 409 and r.json()["tipo"] == "simultaneo"
@@ -58,11 +60,14 @@ def test_desiste_depois_de_tres_tentativas(cliente, monkeypatch, outra_pessoa):
 
 
 def test_gravar_sem_concorrencia_sobe_a_versao(cliente, outra_pessoa):
+    """As marcas ficam na participação da sessão: é a versão dela que sobe."""
     pid = cliente.post("/personagens", json=BARDO).json()["id"]
-    antes = outra_pessoa.get(PersonagemTabela, pid).versao
+    colocar_em_jogo(cliente, pid)
+    participacao = outra_pessoa.query(ParticipacaoTabela).filter_by(personagem_id=pid).one()
+    antes = participacao.versao
     cliente.post(f"/personagens/{pid}/sessao/pv/marcar", json={"quantidade": 1})
     outra_pessoa.expire_all()
-    assert outra_pessoa.get(PersonagemTabela, pid).versao == antes + 1
+    assert outra_pessoa.get(ParticipacaoTabela, participacao.id).versao == antes + 1
 
 
 # --- Formulários: avisar quando alguém salvou antes ------------------------------------------

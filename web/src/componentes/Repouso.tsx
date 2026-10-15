@@ -5,7 +5,7 @@
 import { useState } from 'react'
 
 import { useAcaoNoRepouso, useRepouso } from '../api/consultas'
-import type { EscolhaDeRepouso, Mesa, MovimentoDeDescanso, Participante, Repouso, Sessao } from '../api/tipos'
+import type { EscolhaDeRepouso, Mesa, MovimentoDeDescanso, Participante, Repouso } from '../api/tipos'
 import { useAutenticacao } from '../auth/Autenticacao'
 import { efeitoDoMovimento, nomeDoMovimento } from '../lib/rotulos'
 import { Aviso, Botao, Cartao, Selo } from './ui'
@@ -107,20 +107,20 @@ function Resultado({ repouso }: { repouso: Repouso }) {
   )
 }
 
-/** Painel do repouso. Com `sessao` (a sessão do mestre), mostra também abrir e encerrar. */
-export default function PainelDeRepouso({ mesa, sessao }: { mesa: Mesa; sessao?: Sessao }) {
-  const repouso = useRepouso(mesa.id)
+/** Painel do repouso da sessão. Para o mestre responsável, também abrir e encerrar. */
+export default function PainelDeRepouso({ mesa, sessao }: { mesa: Mesa; sessao: { id: string; sou_responsavel: boolean } }) {
+  const repouso = useRepouso(mesa.id, sessao.id)
   const acao = useAcaoNoRepouso(mesa.id)
   const { usuario } = useAutenticacao()
   const [editando, setEditando] = useState<string | null>(null)
   const [d4, setD4] = useState('')
   const [interrompido, setInterrompido] = useState(false)
   const r = repouso.data
-  const responsavel = sessao?.sou_responsavel ?? r?.sou_responsavel ?? false
+  const responsavel = sessao.sou_responsavel
   const aberto = r?.status === 'aberto'
 
   if (!r || r.status === 'cancelado' || (!aberto && !r.resultado)) {
-    if (!sessao?.sou_responsavel) return null
+    if (!sessao.sou_responsavel) return null
     return (
       <Cartao titulo="Repouso">
         <p className="mb-3 text-sm text-texto-suave">
@@ -137,7 +137,6 @@ export default function PainelDeRepouso({ mesa, sessao }: { mesa: Mesa; sessao?:
       </Cartao>
     )
   }
-  if (sessao && r.sessao_id !== sessao.id) return null   // o repouso é de outra sessão
   const longo = r.tipo === 'longo'
   const nomes = Object.fromEntries(r.participantes.map((p) => [p.id, p.nome]))
   const prontos = r.participantes.filter((p) => p.pronto).length

@@ -1,4 +1,4 @@
-from dados_api import BARDO, NIVEL_2
+from dados_api import BARDO, NIVEL_2, colocar_em_jogo
 
 
 def test_criar_e_ler_ficha(cliente, bardo_id):
@@ -27,7 +27,8 @@ def test_personagem_inexistente(cliente):
 
 def test_listar(cliente, bardo_id):
     assert cliente.get("/personagens").json() == [
-        {"id": bardo_id, "nome": "Lira", "nivel": 1, "classe": "core_class_bard", "mesa_id": None, "foto": None}]
+        {"id": bardo_id, "nome": "Lira", "nivel": 1, "classe": "core_class_bard", "mesa_id": None, "foto": None,
+         "em_jogo": None}]
 
 
 def test_subir_de_nivel_persiste(cliente, bardo_id):
@@ -95,6 +96,7 @@ def test_equipar_persiste_e_valida(cliente, bardo_id):
 
 
 def test_guardar_e_recuperar_carta(cliente, bardo_id):
+    colocar_em_jogo(cliente, bardo_id)   # o custo de troca marca Fadiga: só conta em jogo
     carta = "core_domain_card_inspirational_words"
     f = cliente.post(f"/personagens/{bardo_id}/cartas/{carta}/guardar").json()
     assert f["cartas_cofre"] == [carta]

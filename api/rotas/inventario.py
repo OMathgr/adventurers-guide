@@ -214,6 +214,10 @@ def remover_item(personagem_id: str, item_id: str, quantidade: int = 1, a: Acess
 
 @rotas.post("/itens/{item_id}/usar", response_model=UsoSaida)
 def usar(personagem_id: str, item_id: str, pedido: Usar, a: Acesso = Depends(acesso)):
+    item = repositorio.biblioteca().itens.get(item_id)
+    if item is not None and item.efeito is not None:   # mexe em PV/PF/Esperança: só em jogo
+        repositorio.exigir_em_jogo(a.banco, personagem_id, a.usuario_id)
+
     def acao(p: Personagem):
         notas = p.usar_consumivel(item_id, pedido.rolagem, pedido.escolha)
         return UsoSaida(notas=notas, inventario=saida(p), ficha=ficha_saida(p.ficha()))
@@ -242,6 +246,8 @@ def descartar_arma(personagem_id: str, indice: int, a: Acesso = Depends(acesso))
 
 @rotas.post("/armas/{indice}/trocar", response_model=FichaSaida)
 def trocar_arma(personagem_id: str, indice: int, pedido: Troca, a: Acesso = Depends(acesso)):
+    if pedido.em_perigo:   # marca 1 PF: só dentro da sessão de jogo
+        repositorio.exigir_em_jogo(a.banco, personagem_id, a.usuario_id)
     return ficha_saida(executar(a, personagem_id, lambda p: p.trocar_arma(indice, pedido.em_perigo)))
 
 

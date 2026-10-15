@@ -22,7 +22,7 @@ from ..autenticacao import Acesso, acesso
 from ..mesas import SemPermissao, membro
 from ..repositorio import NaoEncontrado
 from ..sessoes import sessao_do_mestre
-from ..tabelas import MesaTabela, PersonagemTabela, RepousoTabela, SessaoTabela
+from ..tabelas import ParticipacaoTabela, PersonagemTabela, RepousoTabela, SessaoTabela
 
 rotas = APIRouter(prefix="/mesas/{mesa_id}", tags=["Repouso"])
 _ESCOLHA = TypeAdapter(EscolhaDeRepouso)
@@ -106,11 +106,21 @@ def _aberto(r: RepousoTabela):
 
 @rotas.get("/repouso", response_model=RepousoSaida | None)
 def repouso_atual(mesa_id: str, a: Acesso = Depends(acesso)):
-    """O repouso aberto da mesa (ou o último encerrado, por meia hora, para todos
-    verem o resultado). Qualquer membro."""
+    """O último repouso da mesa (aberto, ou encerrado há menos de meia hora). Qualquer membro."""
     membro(a.banco, mesa_id, a.usuario_id)
-    r = (a.banco.query(RepousoTabela).filter_by(mesa_id=mesa_id)
-         .order_by(RepousoTabela.criado_em.desc()).first())
+    return _mais_recente(a, a.banco.query(RepousoTabela).filter_by(mesa_id=mesa_id))
+
+
+@rotas.get("/sessoes/{sessao_id}/repouso", response_model=RepousoSaida | None)
+def repouso_da_sessao(mesa_id: str, sessao_id: str, a: Acesso = Depends(acesso)):
+    """O repouso desta sessão (várias sessões podem estar em andamento ao mesmo tempo)."""
+    membro(a.banco, mesa_id, a.usuario_id)
+    return _mais_recente(a, a.banco.query(RepousoTabela).filter_by(mesa_id=mesa_id, sessao_id=sessao_id))
+
+
+def _mais_recente(a: Acesso, consulta) -> RepousoSaida | None:
+    """O repouso aberto (ou o último encerrado, por meia hora, para todos verem o resultado)."""
+    r = consulta.order_by(RepousoTabela.criado_em.desc()).first()
     if r is None:
         return None
     if r.status != "aberto":
@@ -124,17 +134,19 @@ def repouso_atual(mesa_id: str, a: Acesso = Depends(acesso)):
 def abrir(mesa_id: str, sessao_id: str, pedido: NovoRepouso, a: Acesso = Depends(acesso)):
     """O mestre responsável abre o repouso: os jogadores escolhem os movimentos."""
     sessao = sessao_do_mestre(a, mesa_id, sessao_id, editar=True)
-    if a.banco.query(RepousoTabela).filter_by(mesa_id=mesa_id, status="aberto").first():
-        raise RegraViolada("Já há um repouso aberto nesta mesa: encerre ou cancele antes.")
-    mesa = a.banco.get(MesaTabela, mesa_id)
-    vivos = {p.id: p for p in mesa.personagens if not (p.sessao or {}).get("morto")}
+    if a.banco.query(RepousoTabela).filter_by(sessao_id=sessao_id, status="aberto").first():
+        raise RegraViolada("Já há um repouso aberto nesta sessão: encerre ou cancele antes.")
+    if sessao.status != "em_andamento":
+        raise RegraViolada("O repouso acontece numa sessão em andamento.")
+    na_sessao = [p.personagem for p in a.banco.query(ParticipacaoTabela).filter_by(sessao_id=sessao_id)]
+    vivos = {p.id: p for p in na_sessao if not (p.sessao or {}).get("morto")}
     if pedido.participantes is None:
-        participantes = [i for i, p in vivos.items() if p.dono_id != sessao.responsavel_id]
+        participantes = list(vivos)
     else:
         participantes = list(dict.fromkeys(pedido.participantes))
         fora = [i for i in participantes if i not in vivos]
         if fora:
-            raise RegraViolada("Só personagens vivos desta mesa podem descansar.")
+            raise RegraViolada("Só personagens vivos que estão nesta sessão podem descansar.")
     if not participantes:
         raise RegraViolada("Nenhum personagem para descansar.")
     r = RepousoTabela(id=str(uuid.uuid4()), mesa_id=mesa_id, sessao_id=sessao_id, tipo=pedido.tipo.value,

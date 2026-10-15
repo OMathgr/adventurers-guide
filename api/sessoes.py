@@ -1,8 +1,9 @@
 """Regras de acesso das sessões de jogo.
 
 Uma sessão é de UM mestre, o responsável (quem criou). Os outros mestres só
-veem se ele compartilhar com eles, e mesmo assim só para leitura. Jogador
-nunca vê a sessão (só o Medo das sessões em andamento, que vem com a mesa).
+veem o lado do mestre se ele compartilhar com eles, e mesmo assim só para
+leitura. Em andamento ou encerrada, qualquer membro vê o lado dos jogadores
+(`api/rotas/jogo.py`): entrar, Medo, revelado, lojas e quem está jogando.
 
 Quem não pode ver recebe 404 (a sessão "não existe" para ele); quem vê mas
 não é o responsável recebe 403 ao tentar mudar algo.

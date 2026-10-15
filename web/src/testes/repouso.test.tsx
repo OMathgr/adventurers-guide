@@ -29,6 +29,7 @@ function montar(ui: ReactNode) {
 afterEach(() => { vi.unstubAllGlobals(); localStorage.clear() })
 
 const mesa = { id: 'm1', minhas_permissoes: [], personagens: [] } as unknown as Mesa
+const jogador = { id: 's1', sou_responsavel: false }   // a sessão vista por quem joga
 const repouso = (extra: Partial<Repouso> = {}): Repouso => ({
   id: 'r1', sessao_id: 's1', tipo: 'curto', status: 'aberto', mestre: 'Ana', sou_responsavel: false,
   participantes: [
@@ -42,10 +43,10 @@ const repouso = (extra: Partial<Repouso> = {}): Repouso => ({
 describe('Repouso', () => {
   it('o jogador escolhe Tratar Feridas num aliado, com o d4 da mesa, e confirma', async () => {
     localStorage.setItem('ag.token', 'x')
-    const fetch = api({ '/auth/eu': { id: 'bia', nome: 'Bia' }, '/mesas/m1/repouso': repouso(),
+    const fetch = api({ '/auth/eu': { id: 'bia', nome: 'Bia' }, '/mesas/m1/sessoes/s1/repouso': repouso(),
       '/mesas/m1/repouso/r1/escolhas/lira': repouso() })
     vi.stubGlobal('fetch', fetch)
-    montar(<PainelDeRepouso mesa={mesa} />)
+    montar(<PainelDeRepouso mesa={mesa} sessao={jogador} />)
 
     expect(await screen.findByText(/Ana abriu um descanso curto/)).toBeInTheDocument()
     expect(screen.getByText('Preparar-se · Preparar-se')).toBeInTheDocument()   // a escolha do Bruno
@@ -75,11 +76,11 @@ describe('Repouso', () => {
   })
 
   it('depois de encerrado, mostra o que cada um recuperou e o Medo do mestre', async () => {
-    vi.stubGlobal('fetch', api({ '/mesas/m1/repouso': repouso({ status: 'concluido', medo_ganho: 3, resultado: {
+    vi.stubGlobal('fetch', api({ '/mesas/m1/sessoes/s1/repouso': repouso({ status: 'concluido', medo_ganho: 3, resultado: {
       tipo: 'curto', notas: [], por_personagem: {
         lira: [{ movimento: 'CUIDAR_FERIDAS', rolagem: 3, recuperado: 2, alvo: 'Bruno' }],
       } } }) }))
-    montar(<PainelDeRepouso mesa={mesa} />)
+    montar(<PainelDeRepouso mesa={mesa} sessao={jogador} />)
     expect(await screen.findByText(/Tratar Feridas em Bruno \(d4 3: 2 limpos\)/)).toBeInTheDocument()
     expect(screen.getByText('O mestre ganhou 3 de Medo.')).toBeInTheDocument()
   })

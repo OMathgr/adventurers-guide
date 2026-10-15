@@ -183,8 +183,10 @@ qual usar **a cada teste**, então não há escolha fixa a guardar.
 
 ## Estado de sessão (`motor/sessao.py`)
 
-PV, Estresse, Esperança e espaços de armadura marcados: estado atual, fora do
-histórico, em `personagem.sessao`. Os máximos vêm sempre da ficha calculada,
+PV, Estresse, Esperança e espaços de armadura marcados: estado fora do
+histórico. São **de cada sessão de jogo** (ver "Sessão de jogo" abaixo): ficam na
+participação do personagem na sessão em andamento; só morte e cicatrizes
+(`Sessao.CAMPOS_PERMANENTES`) ficam no personagem (`personagem.sessao`). Os máximos vêm sempre da ficha calculada,
 então level up e troca de armadura refletem sozinhos. Quando um máximo cai
 (trocar para armadura menor, desfazer nível), `Sessao.ajustar()` corta o
 excesso. A ficha mostra `pv_marcados`, `estresse_marcado`,
@@ -643,6 +645,38 @@ manipulador, assistente, brutamonte.
 - **Privado:** jogador recebe 404 (não sabe que existe). Ver exige ser
   mestre; criar/editar/apagar exige `preparar`. Revelar informações aos
   jogadores é uma entrega futura.
+
+### Sessão de jogo: mesa, sessões e participações (`api/rotas/jogo.py`)
+
+A **mesa** é o grupo; cada **sessão** é um dia de jogo, com um mestre (o
+responsável; cada dia pode ter um diferente). Planejada, só o mestre vê. Em
+andamento, qualquer membro entra com um personagem seu da mesa
+(`POST /mesas/{m}/sessoes/{s}/participantes`) e passa a jogar ali: a vista da
+sessão (`GET .../jogo`) traz o Medo, quem está jogando (ficha resumida), o
+revelado e as lojas **desta** sessão; a ficha de jogo dele tem os controles.
+Encerrada, fica para consulta (como cada um terminou, Medo final).
+
+- `ParticipacaoTabela` (sessão × personagem) guarda `Sessao.estado_da_sessao()`.
+  Cada sessão começa limpa (PV, Fadiga, armadura, condições, companheiro) e com
+  Esperança 2; as anteriores continuam lá (`GET .../participantes/{pid}`: dono
+  e mestres com `ver_fichas`).
+- `repositorio.montar()` usa a participação da sessão em andamento (no máximo
+  uma por personagem) e `gravar()` escreve nela; fora de sessão o personagem
+  aparece limpo. A participação lida fica em `banco.info` para o `gravar()`
+  usar a mesma versão (o mapa de identidade do SQLAlchemy tem referência fraca;
+  reler perderia uma gravação simultânea sem conflito). Ela tem `versao`
+  (`version_id_col`), então o `RefazerEmConflito` cobre as marcas.
+- Fora de sessão, ações que mexem em marcas são recusadas
+  (`repositorio.exigir_em_jogo`): `/personagens/{id}/sessao/*` (menos descrever
+  cicatriz), dano e condições do mestre, consumível com efeito, trocar arma em
+  perigo e recuperar carta fora de descanso. A página do personagem fica para
+  ver e subir de nível.
+- Regras: quem mestra a sessão não joga nela; quem morreu não entra; um
+  personagem joga uma sessão em andamento por vez (reabrir uma encerrada é
+  recusado se alguém dela estiver jogando outra); sair (dono ou mestre) descarta
+  as marcas daquela sessão.
+- O repouso é da sessão (participantes = quem entrou; um aberto por sessão,
+  `GET .../sessoes/{s}/repouso`).
 
 ### Sessões do mestre (`api/sessoes.py`, `api/rotas/sessoes.py` e `api/rotas/encontros.py`)
 

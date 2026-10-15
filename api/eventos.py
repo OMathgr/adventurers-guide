@@ -23,8 +23,8 @@ from itertools import chain
 from sqlalchemy import event, inspect, select
 from sqlalchemy.orm import Session
 
-from .tabelas import (EncontroTabela, InimigoTabela, LojaTabela, MembroTabela, RepousoTabela, MesaTabela, NpcTabela, PersonagemTabela,
-                      SessaoTabela, SubidaTabela)
+from .tabelas import (EncontroTabela, InimigoTabela, LojaTabela, MembroTabela, ParticipacaoTabela, RepousoTabela,
+                      MesaTabela, NpcTabela, PersonagemTabela, SessaoTabela, SubidaTabela)
 
 Evento = dict
 Ouvinte = Callable[[Evento], None]
@@ -101,6 +101,9 @@ def _anotar(sessao: Session, _contexto, _instancias):
                 anteriores = inspect(obj).attrs.mesa_id.history.deleted or ()
                 p["mesas"].update(m for m in (obj.mesa_id, *anteriores) if m)
             elif isinstance(obj, SubidaTabela) and obj.personagem_id:
+                p["personagens"].add(obj.personagem_id)
+            elif isinstance(obj, ParticipacaoTabela):   # marcas de jogo: a ficha e a vista da sessão
+                p["mesas"].add(obj.mesa_id)
                 p["personagens"].add(obj.personagem_id)
 
 

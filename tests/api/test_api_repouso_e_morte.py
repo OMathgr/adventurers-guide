@@ -22,6 +22,10 @@ def grupo(cliente, mesa):
     bia, lira = _jogador(cliente, mesa, "bia@exemplo.com", "Bia", "Lira")
     carlos, bruno = _jogador(cliente, mesa, "carlos@exemplo.com", "Carlos", "Bruno")
     sessao = cliente.post(f"/mesas/{mesa['id']}/sessoes", json={"titulo": "Sessão 1"}).json()
+    base = f"/mesas/{mesa['id']}/sessoes/{sessao['id']}"
+    cliente.put(f"{base}/status", json={"status": "em_andamento"})
+    for h, pid in ((bia, lira), (carlos, bruno)):   # os dois entram na sessão
+        assert cliente.post(f"{base}/participantes", json={"personagem_id": pid}, headers=h).status_code == 200
     return {"bia": bia, "lira": lira, "carlos": carlos, "bruno": bruno, "sessao": sessao}
 
 

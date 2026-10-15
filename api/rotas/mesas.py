@@ -284,10 +284,12 @@ def regra_das_moedas(mesa_id: str, dados: MoedasDaMesa, a: Acesso = Depends(aces
 
 # --- Mestre agindo sobre os personagens da mesa ------------------------------------------------
 
-def _como_mestre(a: Acesso, mesa_id: str, personagem_id: str, permissao: Permissao, acao):
+def _como_mestre(a: Acesso, mesa_id: str, personagem_id: str, permissao: Permissao, acao, em_jogo: bool = True):
     """Confere a permissão, carrega o personagem da mesa, executa e salva."""
     exigir(membro(a.banco, mesa_id, a.usuario_id), permissao)
     linha = repositorio.linha_na_mesa(a.banco, mesa_id, personagem_id)
+    if em_jogo:
+        repositorio.exigir_em_jogo(a.banco, personagem_id)
     personagem = repositorio.montar(linha)
     resultado = acao(personagem)
     repositorio.gravar(a.banco, linha, personagem)
@@ -300,7 +302,11 @@ def ficha_resumida(mesa_id: str, personagem_id: str, a: Acesso = Depends(acesso)
     personagens uns dos outros)."""
     membro(a.banco, mesa_id, a.usuario_id)
     linha = repositorio.linha_na_mesa(a.banco, mesa_id, personagem_id)
-    f = repositorio.montar(linha).ficha()
+    return resumo_de(linha, repositorio.montar(linha).ficha())
+
+
+def resumo_de(linha: PersonagemTabela, f) -> FichaResumida:
+    """Ficha resumida a partir da ficha calculada (de agora ou de uma sessão)."""
     bib = repositorio.biblioteca()
     ancestralidades = [bib.ancestralidades[x].nome for x in (f.ancestralidade, f.segunda_ancestralidade) if x]
     return FichaResumida(
@@ -343,7 +349,8 @@ def curar_cicatriz(mesa_id: str, personagem_id: str, indice: int, a: Acesso = De
     def acao(p: Personagem):
         p.sessao.curar_cicatriz(indice)
         return p.ficha()
-    return ficha_saida(_como_mestre(a, mesa_id, personagem_id, Permissao.APLICAR_CONDICOES, acao))
+    # cicatriz é do personagem, não da sessão: dá para curar fora de jogo
+    return ficha_saida(_como_mestre(a, mesa_id, personagem_id, Permissao.APLICAR_CONDICOES, acao, em_jogo=False))
 
 
 @rotas.delete("/{mesa_id}/personagens/{personagem_id}/condicoes/{condicao}", response_model=FichaSaida)

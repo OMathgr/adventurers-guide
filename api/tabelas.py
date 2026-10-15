@@ -280,3 +280,27 @@ class SubidaTabela(Base):
     dados: Mapped[dict] = mapped_column(JSON)            # motor.SubidaDeNivel
 
     personagem: Mapped[PersonagemTabela] = relationship(back_populates="subidas")
+
+
+class ParticipacaoTabela(Base):
+    """Um personagem jogando uma sessão. As marcas (PV, Fadiga, Esperança,
+    armadura, condições...) são desta sessão: cada uma começa limpa, e as de
+    sessões encerradas ficam para consulta. Morte e cicatrizes ficam no
+    personagem (`PersonagemTabela.sessao`)."""
+
+    __tablename__ = "participacoes"
+    __table_args__ = (UniqueConstraint("sessao_id", "personagem_id"),)
+
+    versao: Mapped[int] = mapped_column(Integer, default=1, server_default="1")
+    __mapper_args__ = {"version_id_col": versao}
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    mesa_id: Mapped[str] = mapped_column(ForeignKey("mesas.id", ondelete="CASCADE"), index=True)
+    sessao_id: Mapped[str] = mapped_column(ForeignKey("sessoes.id", ondelete="CASCADE"), index=True)
+    personagem_id: Mapped[str] = mapped_column(ForeignKey("personagens.id", ondelete="CASCADE"), index=True)
+    estado: Mapped[dict] = mapped_column(JSON, default=dict)   # motor.Sessao.estado_da_sessao()
+    entrou_em: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_agora)
+    atualizado_em: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_agora, onupdate=_agora)
+
+    sessao: Mapped[SessaoTabela] = relationship()
+    personagem: Mapped[PersonagemTabela] = relationship()

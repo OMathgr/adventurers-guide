@@ -2,7 +2,7 @@
 personagens da mesa. O `cliente` é a Ana, que cria a mesa."""
 
 import pytest
-from dados_api import BARDO, entrar
+from dados_api import BARDO, colocar_em_jogo, entrar
 
 
 @pytest.fixture
@@ -24,11 +24,12 @@ def carlos(cliente):
 
 @pytest.fixture
 def lira_na_mesa(cliente, mesa, bia):
-    """Bia entra na mesa e leva a Lira."""
+    """Bia entra na mesa e leva a Lira, que está jogando uma sessão da Ana."""
     cliente.post(f"/mesas/entrar/{mesa['codigo_convite']}", headers=bia)
     pid = cliente.post("/personagens", json=BARDO, headers=bia).json()["id"]
     r = cliente.put(f"/personagens/{pid}/mesa", json={"mesa_id": mesa["id"]}, headers=bia)
     assert r.status_code == 200, r.text
+    colocar_em_jogo(cliente, pid, jogador=bia, mesa=mesa, mestre={})
     return pid
 
 
@@ -184,6 +185,7 @@ def test_apagar_mesa_mantem_os_personagens(cliente, mesa, bia, lira_na_mesa):
 # --- Condições pelo próprio jogador -----------------------------------------------------------
 
 def test_jogador_marca_as_proprias_condicoes(cliente, bardo_id):
+    colocar_em_jogo(cliente, bardo_id)
     f = cliente.post(f"/personagens/{bardo_id}/sessao/condicoes", json={"condicao": "Oculto"}).json()
     assert f["condicoes"] == ["OCULTO"]
     f = cliente.delete(f"/personagens/{bardo_id}/sessao/condicoes/OCULTO").json()

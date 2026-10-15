@@ -1,7 +1,7 @@
 """Inventário pela API: dono, mestre com permissão "dar_itens" e lojas das sessões."""
 
 import pytest
-from dados_api import BARDO, entrar
+from dados_api import BARDO, colocar_em_jogo, entrar
 
 POCAO = "core_consumable_minor_health_potion"
 
@@ -73,6 +73,7 @@ def test_ouro_itens_e_livres(cliente, bardo_id):
 
 
 def test_usar_pocao_mexe_na_ficha(cliente, bardo_id):
+    colocar_em_jogo(cliente, bardo_id)
     cliente.post(f"/personagens/{bardo_id}/sessao/pv/marcar", json={"quantidade": 4})
     cliente.post(inv(bardo_id) + "/itens", json={"item_id": "core_consumable_health_potion"})
     r = cliente.post(inv(bardo_id) + "/itens/core_consumable_health_potion/usar", json={"rolagem": 3}).json()
@@ -81,6 +82,7 @@ def test_usar_pocao_mexe_na_ficha(cliente, bardo_id):
 
 
 def test_armas_de_inventario_e_troca(cliente, bardo_id):
+    colocar_em_jogo(cliente, bardo_id)   # em perigo marca 1 PF: só em jogo
     cliente.put(f"/personagens/{bardo_id}/equipamento", json={"principal": "core_weapon_rapier"})
     cliente.post(inv(bardo_id) + "/armas", json={"arma_id": "core_weapon_dagger"})
     ficha = cliente.post(inv(bardo_id) + "/armas/0/trocar", json={"em_perigo": True}).json()

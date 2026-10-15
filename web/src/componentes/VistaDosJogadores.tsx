@@ -3,6 +3,7 @@
 // NPCs conhecidos (nome, foto e descrição) e lojas à mostra (itens, preços e
 // estoque; quem vende é o mestre).
 import { useRevelado } from '../api/consultas'
+import type { VistaDosJogadores as Vista } from '../api/tipos'
 import { formatarOuro } from '../lib/ouro'
 import { condicao, NOME_VITALIDADE } from '../lib/rotulos'
 import { Foto } from './Foto'
@@ -32,8 +33,12 @@ function Vitalidade({ estado }: { estado: string }) {
 export default function VistaDosJogadores({ mesaId }: { mesaId: string }) {
   const revelado = useRevelado(mesaId)
   if (revelado.isError) return <Aviso erro={revelado.error} />
-  const v = revelado.data
-  if (!v || (v.combate.length === 0 && v.npcs.length === 0 && (v.lojas ?? []).length === 0)) return null
+  return revelado.data ? <Revelado v={revelado.data} /> : null
+}
+
+/** Combate, lojas e NPCs à mostra (a sessão passa só os dela). */
+export function Revelado({ v }: { v: Vista }) {
+  if (v.combate.length === 0 && v.npcs.length === 0 && (v.lojas ?? []).length === 0) return null
 
   return (
     <>

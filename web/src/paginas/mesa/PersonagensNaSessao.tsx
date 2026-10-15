@@ -1,12 +1,13 @@
-// Personagens da mesa durante a sessão, do ponto de vista do mestre: lê a
+// Personagens que entraram na sessão, do ponto de vista do mestre: lê a
 // ficha (ver_fichas), aplica dano (aplicar_dano) e condições
 // (aplicar_condicoes) e dá itens e ouro (dar_itens). O resto do personagem
-// continua sendo do jogador.
+// continua sendo do jogador. As marcas são as desta sessão.
 import { useState } from 'react'
 
-import { useAcaoNoPersonagem, useCurarCicatriz, useFichaNaMesa } from '../../api/consultas'
-import type { Mesa, ResultadoDano } from '../../api/tipos'
+import { useAcaoNoPersonagem, useCurarCicatriz, useFichaNaMesa, useJogo, useParticipar } from '../../api/consultas'
+import type { Mesa, ResultadoDano, Sessao } from '../../api/tipos'
 import Condicoes from '../../componentes/Condicoes'
+import { MiniFicha } from '../../componentes/FichaResumida'
 import { Foto } from '../../componentes/Foto'
 import InventarioNaMesa from '../../componentes/inventario/InventarioNaMesa'
 import { Aviso, Botao, Campo, Carregando, Espacos, Esperanca } from '../../componentes/ui'
@@ -90,22 +91,45 @@ function CartaoPersonagem({ mesa, pid, nome, jogador, foto }:
   )
 }
 
-export default function PersonagensNaSessao({ mesa }: { mesa: Mesa }) {
+export default function PersonagensNaSessao({ mesa, sessao }: { mesa: Mesa; sessao: Sessao }) {
   const podeVer = (mesa.minhas_permissoes as string[]).includes('ver_fichas')
+  const jogo = useJogo(mesa.id, sessao.id)
+  const tirar = useParticipar(mesa.id, sessao.id)
+  const participantes = jogo.data?.participantes ?? []
+  const emJogo = sessao.status === 'em_andamento'
   return (
     <section className="space-y-3">
-      <h2 className="text-lg text-esperanca">Personagens</h2>
-      {mesa.personagens.length === 0 && <p className="text-sm text-texto-suave">Nenhum personagem na mesa.</p>}
-      {!podeVer && mesa.personagens.length > 0 && (
+      <h2 className="text-lg text-esperanca">Personagens na sessão</h2>
+      {jogo.isPending && <Carregando />}
+      {!jogo.isPending && participantes.length === 0 && (
+        <p className="text-sm text-texto-suave">
+          {emJogo ? 'Ninguém entrou ainda: os jogadores entram pela aba Sessões.'
+            : 'Os jogadores entram quando a sessão estiver em andamento.'}
+        </p>
+      )}
+      {!podeVer && participantes.length > 0 && (
         <p className="text-sm text-texto-suave">Quem criou a mesa não liberou ver as fichas para os mestres.</p>
       )}
       {podeVer && (
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-          {mesa.personagens.map((p) => (
-            <CartaoPersonagem key={p.id} mesa={mesa} pid={p.id} nome={p.nome} jogador={p.jogador} foto={p.foto} />
+          {participantes.map((p) => (
+            <div key={p.personagem_id} className="space-y-1">
+              {emJogo ? (
+                <CartaoPersonagem mesa={mesa} pid={p.personagem_id} nome={p.resumo.nome} jogador={p.resumo.jogador}
+                  foto={p.resumo.foto} />
+              ) : <MiniFicha f={p.resumo} />}
+              {emJogo && sessao.sou_responsavel && (
+                <Botao variante="fantasma" disabled={tirar.isPending}
+                  onClick={() => confirm(`Tirar ${p.resumo.nome || 'o personagem'} da sessão? As marcas dele nesta sessão se perdem.`)
+                    && tirar.mutate({ personagemId: p.personagem_id, sair: true })}>
+                  Tirar da sessão
+                </Botao>
+              )}
+            </div>
           ))}
         </div>
       )}
+      <Aviso erro={jogo.error ?? tirar.error} />
     </section>
   )
 }

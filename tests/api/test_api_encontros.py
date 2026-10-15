@@ -81,8 +81,8 @@ def test_dados_status_e_medo_da_sessao(cliente, mesa, sessao, bia):
 
 
 def test_sessao_e_privada_do_responsavel(cliente, mesa, sessao, bia, carlos):
-    # jogador e outro mestre não veem
-    assert cliente.get(url(mesa, "/sessoes"), headers=_so_auth(bia)).status_code == 404
+    # jogador e outro mestre não veem (planejada; em andamento, todos veem o lado dos jogadores)
+    assert cliente.get(url(mesa, "/sessoes"), headers=_so_auth(bia)).json() == []
     assert cliente.get(url(mesa, "/sessoes"), headers=_so_auth(carlos)).json() == []
     assert cliente.get(s_url(mesa, sessao), headers=_so_auth(carlos)).status_code == 404
     # o responsável compartilha: Carlos vê, mas não muda nem conduz

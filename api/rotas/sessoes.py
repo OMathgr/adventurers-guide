@@ -11,15 +11,17 @@ from datetime import date
 
 from fastapi import APIRouter, Depends, Response
 from pydantic import BaseModel, Field
+from sqlalchemy.orm import object_session
 
 from motor import RegraViolada
 from motor.encontro import MEDO_MAXIMO, ajustar_medo, definir_medo
 
+from .. import repositorio
 from ..autenticacao import Acesso, acesso
 from ..concorrencia import conferir, versao_de
 from ..mesas import MESTRE, Permissao, eh_criador, exigir, exigir_mestre, membro
 from ..sessoes import STATUS, pode_ver, sessao_do_mestre
-from ..tabelas import MembroTabela, SessaoTabela
+from ..tabelas import MembroTabela, ParticipacaoTabela, SessaoTabela
 from .encontros import EncontroResumo, resumos
 
 rotas = APIRouter(prefix="/mesas/{mesa_id}/sessoes", tags=["Sessões"])
@@ -34,6 +36,8 @@ class SessaoResumo(BaseModel):
     responsavel_id: str
     responsavel: str
     sou_responsavel: bool
+    posso_gerir: bool = False          # vê o lado do mestre (responsável ou compartilhada)
+    participantes: int = 0             # personagens que entraram
 
 
 class Sessao(SessaoResumo):
@@ -79,7 +83,8 @@ class ValorMedo(BaseModel):
 def _resumo(s: SessaoTabela, usuario_id: str) -> SessaoResumo:
     return SessaoResumo(id=s.id, titulo=s.titulo, data=s.data, status=s.status, medo=s.medo,
                         responsavel_id=s.responsavel_id, responsavel=s.responsavel.nome,
-                        sou_responsavel=s.responsavel_id == usuario_id)
+                        sou_responsavel=s.responsavel_id == usuario_id, posso_gerir=pode_ver(s, usuario_id),
+                        participantes=object_session(s).query(ParticipacaoTabela).filter_by(sessao_id=s.id).count())
 
 
 def _versao_conteudo(s: SessaoTabela) -> tuple:
@@ -98,10 +103,12 @@ def _saida(a: Acesso, s: SessaoTabela) -> Sessao:
 
 @rotas.get("", response_model=list[SessaoResumo])
 def listar(mesa_id: str, a: Acesso = Depends(acesso)):
-    """Só as sessões que você pode ver (as suas e as compartilhadas com você)."""
-    exigir_mestre(membro(a.banco, mesa_id, a.usuario_id))
+    """Para qualquer membro: as em andamento (para entrar) e as encerradas (para
+    consultar). As planejadas, só as suas e as compartilhadas com você."""
+    membro(a.banco, mesa_id, a.usuario_id)
     linhas = a.banco.query(SessaoTabela).filter_by(mesa_id=mesa_id).order_by(SessaoTabela.criado_em)
-    return [_resumo(s, a.usuario_id) for s in linhas if pode_ver(s, a.usuario_id)]
+    return [_resumo(s, a.usuario_id) for s in linhas
+            if pode_ver(s, a.usuario_id) or s.status in ("em_andamento", "encerrada")]
 
 
 @rotas.post("", status_code=201, response_model=Sessao)
@@ -142,6 +149,13 @@ def editar(mesa_id: str, sessao_id: str, dados: DadosDaSessao, versao: str | Non
 @rotas.put("/{sessao_id}/status", response_model=Sessao)
 def mudar_status(mesa_id: str, sessao_id: str, pedido: StatusDaSessao, a: Acesso = Depends(acesso)):
     s = sessao_do_mestre(a, mesa_id, sessao_id, editar=True)
+    if pedido.status == "em_andamento" and s.status != "em_andamento":
+        # reabrir: quem jogou esta sessão não pode estar jogando outra agora
+        for p in a.banco.query(ParticipacaoTabela).filter_by(sessao_id=s.id):
+            outra = repositorio.participacao_ativa(a.banco, p.personagem_id)
+            if outra is not None and outra.sessao_id != s.id:
+                raise RegraViolada(f"{p.personagem.nome or 'Um personagem'} desta sessão está jogando outra "
+                                   "em andamento: encerre aquela antes de reabrir esta.")
     s.status = pedido.status
     a.banco.commit()
     return _saida(a, s)

@@ -57,30 +57,48 @@ class VistaDosJogadores(BaseModel):
     lojas: list[LojaVisivel] = []
 
 
-@rotas.get("/revelado", response_model=VistaDosJogadores)
-def revelado(mesa_id: str, a: Acesso = Depends(acesso)):
-    membro(a.banco, mesa_id, a.usuario_id)   # qualquer membro (mestre também, para conferir)
+def combate_visivel(a: Acesso, mesa_id: str, sessao_id: str | None = None) -> list[EncontroVisivel]:
+    """Encontros à mostra das sessões em andamento (ou só de `sessao_id`)."""
     combate = []
     consulta = (a.banco.query(EncontroTabela, SessaoTabela)
                 .join(SessaoTabela, EncontroTabela.sessao_id == SessaoTabela.id)
                 .filter(EncontroTabela.mesa_id == mesa_id, EncontroTabela.visivel.is_(True),
                         SessaoTabela.status == "em_andamento")
                 .order_by(EncontroTabela.criado_em))
+    if sessao_id:
+        consulta = consulta.filter(SessaoTabela.id == sessao_id)
     for encontro, sessao in consulta:
         inimigos = [InimigoVisivel(id=c.id, rotulo=c.rotulo, foto=c.adversario.foto, vitalidade=c.vitalidade,
                                    condicoes=c.condicoes)
                     for c in _COMBATENTES.validate_python(encontro.combatentes) if not c.escondido]
         combate.append(EncontroVisivel(id=encontro.id, nome=encontro.nome, mestre=sessao.responsavel.nome,
                                        inimigos=inimigos))
+    return combate
+
+
+def npcs_conhecidos(a: Acesso, mesa_id: str) -> list[NpcConhecido]:
+    """NPCs revelados: são da mesa (o grupo conhece), não de uma sessão."""
     npcs = (a.banco.query(NpcTabela).filter(NpcTabela.mesa_id == mesa_id, NpcTabela.revelado.is_(True))
             .order_by(NpcTabela.nome))
+    return [NpcConhecido(id=n.id, nome=n.nome, foto=n.foto, descricao=n.descricao) for n in npcs]
+
+
+def lojas_visiveis(a: Acesso, mesa_id: str, sessao_id: str | None = None) -> list[LojaVisivel]:
     lojas = (a.banco.query(LojaTabela, SessaoTabela)
              .join(SessaoTabela, LojaTabela.sessao_id == SessaoTabela.id)
              .filter(LojaTabela.mesa_id == mesa_id, LojaTabela.visivel.is_(True),
                      SessaoTabela.status == "em_andamento")
              .order_by(LojaTabela.criado_em))
-    return VistaDosJogadores(
-        combate=combate,
-        npcs=[NpcConhecido(id=n.id, nome=n.nome, foto=n.foto, descricao=n.descricao) for n in npcs],
-        lojas=[LojaVisivel(id=loja.id, nome=loja.nome, mestre=sessao.responsavel.nome, itens=itens_saida(loja.itens))
-               for loja, sessao in lojas])
+    if sessao_id:
+        lojas = lojas.filter(SessaoTabela.id == sessao_id)
+    return [LojaVisivel(id=loja.id, nome=loja.nome, mestre=sessao.responsavel.nome, itens=itens_saida(loja.itens))
+            for loja, sessao in lojas]
+
+
+@rotas.get("/revelado", response_model=VistaDosJogadores)
+def revelado(mesa_id: str, a: Acesso = Depends(acesso)):
+    """Tudo o que está à mostra na mesa (todas as sessões em andamento). A tela
+    usa a vista de cada sessão (`/sessoes/{id}/jogo`)."""
+    membro(a.banco, mesa_id, a.usuario_id)   # qualquer membro (mestre também, para conferir)
+    return VistaDosJogadores(combate=combate_visivel(a, mesa_id), npcs=npcs_conhecidos(a, mesa_id),
+                             lojas=lojas_visiveis(a, mesa_id))

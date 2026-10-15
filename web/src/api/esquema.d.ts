@@ -1403,7 +1403,8 @@ export interface paths {
         };
         /**
          * Listar
-         * @description Só as sessões que você pode ver (as suas e as compartilhadas com você).
+         * @description Para qualquer membro: as em andamento (para entrar) e as encerradas (para
+         *     consultar). As planejadas, só as suas e as compartilhadas com você.
          */
         get: operations["listar_mesas__mesa_id__sessoes_get"];
         put?: never;
@@ -1761,7 +1762,11 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Revelado */
+        /**
+         * Revelado
+         * @description Tudo o que está à mostra na mesa (todas as sessões em andamento). A tela
+         *     usa a vista de cada sessão (`/sessoes/{id}/jogo`).
+         */
         get: operations["revelado_mesas__mesa_id__revelado_get"];
         put?: never;
         post?: never;
@@ -2314,6 +2319,71 @@ export interface paths {
          */
         post: operations["cancelar_mesas__mesa_id__sessoes__sessao_id__repouso__repouso_id__cancelar_post"];
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/mesas/{mesa_id}/sessoes/{sessao_id}/jogo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Vista */
+        get: operations["vista_mesas__mesa_id__sessoes__sessao_id__jogo_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/mesas/{mesa_id}/sessoes/{sessao_id}/participantes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Entrar
+         * @description Entra na sessão em andamento com um personagem seu desta mesa. Ele
+         *     começa limpo (PV, Fadiga, armadura, condições) e com a Esperança inicial.
+         */
+        post: operations["entrar_mesas__mesa_id__sessoes__sessao_id__participantes_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/mesas/{mesa_id}/sessoes/{sessao_id}/participantes/{personagem_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Ficha Na Sessao
+         * @description A ficha completa do personagem nesta sessão (em andamento: agora;
+         *     encerrada: como terminou). Para o dono e para mestres com 'ver_fichas'.
+         */
+        get: operations["ficha_na_sessao_mesas__mesa_id__sessoes__sessao_id__participantes__personagem_id__get"];
+        put?: never;
+        post?: never;
+        /**
+         * Sair
+         * @description Tira o personagem da sessão em andamento (entrou com o personagem
+         *     errado, ou foi embora mais cedo). O dono ou o mestre responsável. As marcas
+         *     desta sessão são descartadas.
+         */
+        delete: operations["sair_mesas__mesa_id__sessoes__sessao_id__participantes__personagem_id__delete"];
         options?: never;
         head?: never;
         patch?: never;
@@ -3021,6 +3091,11 @@ export interface components {
             mestre: string;
             /** Inimigos */
             inimigos: components["schemas"]["InimigoVisivel"][];
+        };
+        /** Entrar */
+        Entrar: {
+            /** Personagem Id */
+            personagem_id: string;
         };
         /** EquipamentoAtual */
         EquipamentoAtual: {
@@ -4158,6 +4233,14 @@ export interface components {
             pronto: boolean;
             escolha: components["schemas"]["EscolhaEntrada"] | null;
         };
+        /** ParticipanteDaSessao */
+        ParticipanteDaSessao: {
+            /** Personagem Id */
+            personagem_id: string;
+            /** Dono Id */
+            dono_id: string;
+            resumo: components["schemas"]["FichaResumida"];
+        };
         /** PedidoDeRecuperacao */
         PedidoDeRecuperacao: {
             /**
@@ -4237,6 +4320,7 @@ export interface components {
             mesa_id?: string | null;
             /** Foto */
             foto?: string | null;
+            em_jogo?: components["schemas"]["SessaoEmJogo"] | null;
         };
         /** Provedores */
         Provedores: {
@@ -4501,6 +4585,16 @@ export interface components {
             responsavel: string;
             /** Sou Responsavel */
             sou_responsavel: boolean;
+            /**
+             * Posso Gerir
+             * @default false
+             */
+            posso_gerir: boolean;
+            /**
+             * Participantes
+             * @default 0
+             */
+            participantes: number;
             /** Resumo */
             resumo: string;
             /** Notas */
@@ -4515,6 +4609,13 @@ export interface components {
             encontros: components["schemas"]["EncontroResumo"][];
             /** Versao */
             versao: string;
+        };
+        /** SessaoEmJogo */
+        SessaoEmJogo: {
+            /** Sessao Id */
+            sessao_id: string;
+            /** Titulo */
+            titulo: string;
         };
         /** SessaoResumo */
         SessaoResumo: {
@@ -4534,6 +4635,16 @@ export interface components {
             responsavel: string;
             /** Sou Responsavel */
             sou_responsavel: boolean;
+            /**
+             * Posso Gerir
+             * @default false
+             */
+            posso_gerir: boolean;
+            /**
+             * Participantes
+             * @default 0
+             */
+            participantes: number;
         };
         /** StatusDaSessao */
         StatusDaSessao: {
@@ -4747,6 +4858,35 @@ export interface components {
         Visivel: {
             /** Visivel */
             visivel: boolean;
+        };
+        /** VistaDaSessao */
+        VistaDaSessao: {
+            /** Id */
+            id: string;
+            /** Titulo */
+            titulo: string;
+            /** Status */
+            status: string;
+            /** Mestre */
+            mestre: string;
+            /** Responsavel Id */
+            responsavel_id: string;
+            /** Sou Responsavel */
+            sou_responsavel: boolean;
+            /** Posso Gerir */
+            posso_gerir: boolean;
+            /** Medo */
+            medo: number;
+            /** Participantes */
+            participantes: components["schemas"]["ParticipanteDaSessao"][];
+            /** Meus */
+            meus: string[];
+            /** Combate */
+            combate: components["schemas"]["EncontroVisivel"][];
+            /** Npcs */
+            npcs: components["schemas"]["NpcConhecido"][];
+            /** Lojas */
+            lojas: components["schemas"]["LojaVisivel"][];
         };
         /** VistaDosJogadores */
         VistaDosJogadores: {
@@ -9610,6 +9750,140 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["RepousoSaida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    vista_mesas__mesa_id__sessoes__sessao_id__jogo_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mesa_id: string;
+                sessao_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VistaDaSessao"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    entrar_mesas__mesa_id__sessoes__sessao_id__participantes_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mesa_id: string;
+                sessao_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Entrar"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VistaDaSessao"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    ficha_na_sessao_mesas__mesa_id__sessoes__sessao_id__participantes__personagem_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mesa_id: string;
+                sessao_id: string;
+                personagem_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Ficha"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    sair_mesas__mesa_id__sessoes__sessao_id__participantes__personagem_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mesa_id: string;
+                sessao_id: string;
+                personagem_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VistaDaSessao"];
                 };
             };
             /** @description Validation Error */

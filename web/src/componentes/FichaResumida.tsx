@@ -2,6 +2,7 @@
 // Qualquer membro vê (os jogadores acompanham o grupo); o resto da ficha
 // continua sendo só do dono (e do mestre com "ver fichas").
 import { useFichaResumida } from '../api/consultas'
+import type { FichaResumida as Resumo } from '../api/tipos'
 import { NOME_ESTAGIO } from '../lib/rotulos'
 import { Aviso, Carregando, Espacos, Esperanca } from './ui'
 
@@ -9,7 +10,11 @@ export default function FichaResumida({ mesaId, pid }: { mesaId: string; pid: st
   const ficha = useFichaResumida(mesaId, pid)
   if (ficha.isPending) return <Carregando />
   if (ficha.isError) return <Aviso erro={ficha.error} />
-  const f = ficha.data
+  return <MiniFicha f={ficha.data} />
+}
+
+/** A ficha resumida já carregada (ex.: os participantes que vêm na vista da sessão). */
+export function MiniFicha({ f }: { f: Resumo }) {
   const nome = f.nome || 'Sem nome'
 
   return (

@@ -1,3 +1,17 @@
+"""Marcas de jogo pela API. Elas são da sessão em andamento em que o
+personagem entrou: aqui o bardo já começa dentro de uma (fixture abaixo)."""
+
+import pytest
+from dados_api import BARDO, colocar_em_jogo
+
+
+@pytest.fixture
+def bardo_id(cliente):
+    pid = cliente.post("/personagens", json=BARDO).json()["id"]
+    colocar_em_jogo(cliente, pid)
+    return pid
+
+
 def url(pid, caminho):
     return f"/personagens/{pid}/sessao/{caminho}"
 
@@ -60,3 +74,48 @@ def test_regras_da_mesa(cliente, bardo_id):
 def test_companheiro_inexistente(cliente, bardo_id):
     r = cliente.post(url(bardo_id, "companheiro/dano"), json={})
     assert r.status_code == 422 and "companheiro" in r.json()["detail"]
+
+
+# --- Sessão de jogo: marcas de cada sessão ------------------------------------------------
+
+def test_fora_de_sessao_as_marcas_sao_recusadas(cliente):
+    pid = cliente.post("/personagens", json=BARDO).json()["id"]
+    r = cliente.post(url(pid, "pv/marcar"), json={"quantidade": 1})
+    assert r.status_code == 422 and "sessão em andamento" in r.json()["detail"]
+
+
+def test_cada_sessao_comeca_limpa_e_a_anterior_fica_para_consulta(cliente):
+    pid = cliente.post("/personagens", json=BARDO).json()["id"]
+    jogo = colocar_em_jogo(cliente, pid)
+    mesa, mestre, primeira = jogo["mesa"], jogo["mestre"], jogo["sessao"]
+    cliente.post(url(pid, "pv/marcar"), json={"quantidade": 3})
+    cliente.post(url(pid, "esperanca/ganhar"), json={"quantidade": 3})
+    cliente.post(url(pid, "condicoes"), json={"condicao": "VULNERAVEL"})
+    base = f"/mesas/{mesa['id']}/sessoes"
+    cliente.put(f"{base}/{primeira['id']}/status", json={"status": "encerrada"}, headers=mestre)
+
+    f = cliente.get(f"/personagens/{pid}").json()   # fora de jogo: limpo, Esperança inicial
+    assert (f["pv_marcados"], f["esperanca"], f["condicoes"]) == (0, 2, [])
+    colocar_em_jogo(cliente, pid, mesa=mesa, mestre=mestre)   # segunda sessão
+    f = cliente.get(f"/personagens/{pid}").json()
+    assert (f["pv_marcados"], f["esperanca"]) == (0, 2)
+
+    # a primeira continua como terminou, para consulta (o dono vê a ficha; todos, o resumo)
+    antiga = cliente.get(f"{base}/{primeira['id']}/participantes/{pid}").json()
+    assert (antiga["pv_marcados"], antiga["esperanca"], antiga["condicoes"]) == (3, 5, ["VULNERAVEL"])
+    vista = cliente.get(f"{base}/{primeira['id']}/jogo").json()
+    assert vista["status"] == "encerrada" and vista["participantes"][0]["resumo"]["pv_marcados"] == 3
+
+
+def test_cicatriz_e_morte_seguem_para_a_proxima_sessao(cliente):
+    pid = cliente.post("/personagens", json=BARDO).json()["id"]
+    jogo = colocar_em_jogo(cliente, pid)
+    cliente.post(url(pid, "pv/marcar"), json={"quantidade": 5})
+    r = cliente.post(url(pid, "morte"), json={"movimento": "EVITAR_A_MORTE", "rolagem_esperanca": 1})
+    assert r.status_code == 200, r.text
+    assert len(r.json()["ficha"]["cicatrizes"]) == 1
+    sessao = jogo["sessao"]["id"]
+    cliente.put(f"/mesas/{jogo['mesa']['id']}/sessoes/{sessao}/status", json={"status": "encerrada"},
+                headers=jogo["mestre"])
+    f = cliente.get(f"/personagens/{pid}").json()
+    assert (len(f["cicatrizes"]), f["esperanca_max"], f["pv_marcados"], f["inconsciente"]) == (1, 5, 0, False)

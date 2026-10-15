@@ -1,4 +1,6 @@
-// Página do personagem: foto, mesa, e as visões ficha, equipamento, inventário e linha do tempo.
+// Página do personagem: foto, mesa, e as visões ficha, equipamento, inventário e
+// linha do tempo. É para ver e subir de nível: PV, Fadiga e Esperança se mexem na
+// sessão de jogo (aba Sessões da mesa), onde cada sessão começa limpa.
 import { useState } from 'react'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router'
 
@@ -119,6 +121,13 @@ export default function Personagem() {
         </div>
       </header>
 
+      {resumo?.em_jogo && resumo.mesa_id && (
+        <p className="rounded-xl border border-esperanca/50 bg-esperanca/10 px-3 py-2 text-sm">
+          Jogando agora: <b>{resumo.em_jogo.titulo}</b>.{' '}
+          <Link to={`/mesas/${resumo.mesa_id}?aba=sessao&sessao=${resumo.em_jogo.sessao_id}`}
+            className="font-semibold text-esperanca hover:underline">Abrir a ficha de jogo</Link>
+        </p>
+      )}
       <Aviso erro={desfazer.error ?? apagar.error ?? foto.error} />
       {/* movimento de morte (ao marcar o último PV), inconsciente/morto e cicatrizes */}
       <Morte personagemId={id} ficha={f} />
@@ -127,7 +136,7 @@ export default function Personagem() {
         abas={[['ficha', 'Ficha'], ['equipamento', 'Equipamento'], ['inventario', 'Inventário'], ['tempo', 'Linha do tempo']]}
         aoTrocar={(nova) => setBusca(nova === 'ficha' ? {} : { visao: nova })} />
 
-      {visao === 'ficha' && <FichaVisao ficha={f} personagemId={id} />}
+      {visao === 'ficha' && <FichaVisao ficha={f} />}
       {visao === 'equipamento' && <AbaEquipamento personagemId={id} ficha={f} />}
       {visao === 'inventario' && <AbaInventario personagemId={id} ficha={f} />}
       {visao === 'tempo' && (tempo.isPending ? <Carregando /> : tempo.data && (

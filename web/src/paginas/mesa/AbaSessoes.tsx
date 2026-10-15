@@ -1,7 +1,9 @@
-// Sessões da mesa: cada uma é de um mestre (o responsável, quem criou), com
-// planejamento (resumo, notas privadas, NPCs e inimigos que devem aparecer),
-// o Medo da sessão e os encontros. Outros mestres só veem se o responsável
-// compartilhar, e só para leitura. Jogador nunca vê (só o Medo em jogo, na aba Mesa).
+// Sessões da mesa: cada uma é um dia de jogo, de um mestre (o responsável,
+// quem criou), com planejamento (resumo, notas privadas, NPCs e inimigos que
+// devem aparecer), o Medo da sessão e os encontros. Outros mestres só veem o
+// lado do mestre se o responsável compartilhar, e só para leitura. Em
+// andamento ou encerrada, todos veem o lado dos jogadores (SessaoDeJogo):
+// entrar, a ficha de jogo, o revelado, as lojas e os aliados.
 import { lazy, Suspense, useState } from 'react'
 
 import {
@@ -17,6 +19,7 @@ import { Abas, Area, Aviso, Botao, Campo, Cartao, Carregando, Escolhivel, Seleca
 import Encontros from './Encontros'
 import Lojas from './Lojas'
 import PersonagensNaSessao from './PersonagensNaSessao'
+import SessaoDeJogo from './SessaoDeJogo'
 import { semConflito } from '../../lib/conflito'
 
 
@@ -173,7 +176,12 @@ function SessaoAberta({ mesa, sid, aoApagar }: { mesa: Mesa; sid: string; aoApag
       </div>
       <Aviso erro={status.error ?? apagar.error} />
       {s.status === 'em_andamento' && (
-        <p className="text-xs text-texto-suave">Em andamento: os jogadores veem o Medo desta sessão na aba Mesa.</p>
+        <p className="text-xs text-texto-suave">
+          Em andamento: os jogadores entram pela aba Sessões e veem o Medo, o que você revelar e as lojas à mostra.
+        </p>
+      )}
+      {s.status === 'planejada' && (
+        <p className="text-xs text-texto-suave">Planejada: só você vê. Mude para "Em andamento" para os jogadores entrarem.</p>
       )}
 
       <MedoDoMestre medo={s.medo} titulo="Medo da sessão" ocupado={medo.isPending} erro={medo.error}
@@ -192,7 +200,7 @@ function SessaoAberta({ mesa, sid, aoApagar }: { mesa: Mesa; sid: string; aoApag
       {parte === 'quadro' && <Suspense fallback={<Carregando />}><QuadroDaSessao mesa={mesa} sessao={s} /></Suspense>}
       {parte === 'encontros' && <Encontros mesaId={mesa.id} sessao={s} />}
       {parte === 'lojas' && <Lojas mesa={mesa} sessao={s} />}
-      {parte === 'personagens' && <PersonagensNaSessao mesa={mesa} />}
+      {parte === 'personagens' && <PersonagensNaSessao mesa={mesa} sessao={s} />}
     </div>
   )
 }
@@ -202,18 +210,22 @@ type ParteDaSessao = 'planejamento' | 'quadro' | 'encontros' | 'lojas' | 'person
 // o quadro usa o React Flow (pesado): só carrega quando alguém abre a aba
 const QuadroDaSessao = lazy(() => import('./QuadroDaSessao'))
 
-export default function AbaSessoes({ mesa, podePreparar }: { mesa: Mesa; podePreparar: boolean }) {
+export default function AbaSessoes({ mesa, podePreparar, inicial }: {
+  mesa: Mesa; podePreparar: boolean; inicial?: string | null
+}) {
   const sessoes = useSessoes(mesa.id)
   const criar = useCriarSessao(mesa.id)
-  const [escolhida, setEscolhida] = useState<string | null>(null)
+  const [escolhida, setEscolhida] = useState<string | null>(inicial ?? null)
   const [titulo, setTitulo] = useState('')
   const [data, setData] = useState('')
   const { usuario } = useAutenticacao()
   const emJogo = mesa.personagens.filter((p) => p.dono_id !== usuario?.id).length
   const lista = sessoes.data ?? []
-  // abre a escolhida, ou a em andamento, ou a mais recente
+  // abre a escolhida, ou a em andamento (a minha, se eu mestro uma), ou a mais recente
   const atual = (lista.some((s) => s.id === escolhida) ? escolhida : null)
-    ?? lista.find((s) => s.status === 'em_andamento' && s.sou_responsavel)?.id ?? lista.at(-1)?.id ?? null
+    ?? lista.find((s) => s.status === 'em_andamento' && s.sou_responsavel)?.id
+    ?? lista.find((s) => s.status === 'em_andamento')?.id ?? lista.at(-1)?.id ?? null
+  const escolhidaNaLista = lista.find((s) => s.id === atual)
 
   return (
     <div className="space-y-5">
@@ -243,7 +255,7 @@ export default function AbaSessoes({ mesa, podePreparar }: { mesa: Mesa; podePre
         {sessoes.isPending && <Carregando />}
         {sessoes.data?.length === 0 && (
           <p className="text-sm text-texto-suave">
-            Nenhuma sessão sua ainda. Sessões de outros mestres só aparecem se eles compartilharem.
+            Nenhuma sessão em andamento ou encerrada ainda. Quando o mestre começar uma, ela aparece aqui para você entrar.
           </p>
         )}
         <ul className="flex flex-wrap gap-2">
@@ -256,6 +268,7 @@ export default function AbaSessoes({ mesa, podePreparar }: { mesa: Mesa; podePre
                 </span>
                 <span className="text-xs text-texto-suave">
                   {dataCurta(s.data)} · Medo {s.medo}{!s.sou_responsavel && ` · de ${s.responsavel}`}
+                  {(s.participantes ?? 0) > 0 && ` · ${s.participantes} jogando`}
                 </span>
               </Escolhivel>
             </li>
@@ -263,7 +276,9 @@ export default function AbaSessoes({ mesa, podePreparar }: { mesa: Mesa; podePre
         </ul>
       </section>
 
-      {atual && <SessaoAberta key={atual} mesa={mesa} sid={atual} aoApagar={() => setEscolhida(null)} />}
+      {atual && (escolhidaNaLista?.posso_gerir
+        ? <SessaoAberta key={atual} mesa={mesa} sid={atual} aoApagar={() => setEscolhida(null)} />
+        : <SessaoDeJogo key={atual} mesa={mesa} sid={atual} />)}
     </div>
   )
 }

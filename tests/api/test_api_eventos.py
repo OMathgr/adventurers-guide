@@ -1,7 +1,7 @@
 """Avisos ao vivo: quem recebe o quê quando algo muda (e quem não recebe)."""
 
 import pytest
-from dados_api import BARDO, entrar
+from dados_api import BARDO, colocar_em_jogo, entrar
 
 from api.eventos import central
 from api.rotas import eventos as rota_eventos
@@ -23,6 +23,7 @@ def cena(cliente):
     cliente.post(f"/mesas/entrar/{mesa['codigo_convite']}", headers=bia)
     pid = cliente.post("/personagens", json=BARDO, headers=bia).json()["id"]
     cliente.put(f"/personagens/{pid}/mesa", json={"mesa_id": mesa["id"]}, headers=bia)
+    colocar_em_jogo(cliente, pid, jogador=bia, mesa=mesa, mestre={})
     zed = _auth(entrar(cliente, "zed@exemplo.com", nome="Zed"))
     ids = {"ana": _id(cliente, {}), "bia": _id(cliente, bia), "zed": _id(cliente, zed)}
     recebidos = {nome: [] for nome in ids}

@@ -6,13 +6,14 @@ from collections.abc import Callable
 from typing import TypeVar
 
 from fastapi import APIRouter, Depends, Response
+from sqlalchemy.orm import object_session
 
 from motor import CartaDeDominio, Criacao, Personagem, RegraViolada, SubidaDeNivel
 
 from .. import repositorio
 from ..autenticacao import Acesso, acesso
 from ..concorrencia import conferir, versao_de
-from ..esquemas import (AvancosDoNivel, CopiaParaMesa, EquipamentoAtual, EquipamentoEntrada, EventoLinhaDoTempo, FichaSaida, FotoEntrada,
+from ..esquemas import (AvancosDoNivel, CopiaParaMesa, SessaoEmJogo, EquipamentoAtual, EquipamentoEntrada, EventoLinhaDoTempo, FichaSaida, FotoEntrada,
                         OpcoesDeCarta, PersonagemCriado, PersonagemResumo, ProximoNivelSaida, RecuperarCarta,
                         VinculoMesa, ficha_saida)
 from ..mesas import membro
@@ -137,6 +138,9 @@ def guardar_carta(personagem_id: str, carta: str, a: Acesso = Depends(acesso)):
 @rotas.post("/{personagem_id}/cartas/{carta}/recuperar", response_model=FichaSaida)
 def recuperar_carta(personagem_id: str, carta: str, pedido: RecuperarCarta,
                     a: Acesso = Depends(acesso)):
+    if not pedido.em_descanso:   # o custo de troca marca Fadiga: só dentro da sessão de jogo
+        repositorio.exigir_em_jogo(a.banco, personagem_id, a.usuario_id)
+
     def acao(p: Personagem):
         p.recuperar_carta(carta, pedido.no_lugar_de, pedido.em_descanso)
         return p.ficha()
@@ -146,8 +150,10 @@ def recuperar_carta(personagem_id: str, carta: str, pedido: RecuperarCarta,
 # --- Mesa ----------------------------------------------------------------------------------
 
 def _resumo(linha) -> PersonagemResumo:
+    ativa = repositorio.participacao_ativa(object_session(linha), linha.id)
     return PersonagemResumo(id=linha.id, nome=linha.nome, nivel=1 + len(linha.subidas),
-                            classe=linha.criacao["classe"], mesa_id=linha.mesa_id, foto=linha.foto)
+                            classe=linha.criacao["classe"], mesa_id=linha.mesa_id, foto=linha.foto,
+                            em_jogo=SessaoEmJogo(sessao_id=ativa.sessao_id, titulo=ativa.sessao.titulo) if ativa else None)
 
 
 @rotas.put("/{personagem_id}/mesa", response_model=PersonagemResumo)

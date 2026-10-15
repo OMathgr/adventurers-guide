@@ -8,6 +8,7 @@ import type {
   EventoLinhaDoTempo, Ficha, GuiaDeBatalha, InimigoResumo, Mesa, MesaResumo, Npc, NpcEntrada, OpcoesDoGuia, PermissoesMestres, DadosDaSessao, Sessao, SessaoResumo,
   PersonagemCriado, PersonagemResumo, ProximoNivel, ResultadoDano, ResultadoDanoAdversario, Subclasse, VistaDosJogadores,
   SubidaDeNivel, EquipamentoAtual, InimigoComVersao, Item, Repouso, TipoDeRepouso, EscolhaDeRepouso, MovimentoDeMorte, ResultadoMorte, ImpactoDaCicatriz, Inventario, UsoDeConsumivel, Loja, ItemDaLojaEntrada, Venda, FichaResumida,
+  VistaDaSessao,
 } from './tipos'
 
 const UMA_HORA = 60 * 60 * 1000
@@ -729,13 +730,80 @@ export const useFichaResumida = (mesaId: string, pid: string, ativo = true) =>
     enabled: ativo,
   })
 
+// --- Sessão de jogo (lado dos jogadores): entrar, a vista e as marcas ----------------------------
+
+const chaveJogo = (mesaId: string, sid: string) => ['mesas', mesaId, 'sessoes', sid, 'jogo'] as const
+
+/** A sessão para quem joga: Medo, quem está jogando, o revelado e as lojas. Atualiza ao vivo. */
+export const useJogo = (mesaId: string, sid: string) =>
+  useQuery({ queryKey: chaveJogo(mesaId, sid), queryFn: () => chamar<VistaDaSessao>(`/mesas/${mesaId}/sessoes/${sid}/jogo`) })
+
+/** Entrar (personagemId) ou sair (sair: true) da sessão em andamento. */
+export function useParticipar(mesaId: string, sid: string) {
+  const cliente = useQueryClient()
+  const base = `/mesas/${mesaId}/sessoes/${sid}/participantes`
+  return useMutation({
+    mutationFn: ({ personagemId, sair }: { personagemId: string; sair?: boolean }) => sair
+      ? chamar<VistaDaSessao>(`${base}/${personagemId}`, { metodo: 'DELETE' })
+      : chamar<VistaDaSessao>(base, { corpo: { personagem_id: personagemId } }),
+    onSuccess: (v, { personagemId }) => {
+      cliente.setQueryData(chaveJogo(mesaId, sid), v)
+      // a ficha passa a mostrar (ou deixa de mostrar) as marcas desta sessão
+      return Promise.all([
+        cliente.invalidateQueries({ queryKey: ['personagens', personagemId] }),
+        cliente.invalidateQueries({ queryKey: chaves.lista, exact: true }),
+        cliente.invalidateQueries({ queryKey: ['mesas', mesaId, 'sessoes'], exact: true }),
+      ])
+    },
+  })
+}
+
+/** Ficha completa de um participante como ela está (ou terminou) nesta sessão. */
+export const useFichaNaSessao = (mesaId: string, sid: string, pid: string, ativo = true) =>
+  useQuery({
+    queryKey: [...chaveJogo(mesaId, sid), pid],
+    queryFn: () => chamar<Ficha>(`/mesas/${mesaId}/sessoes/${sid}/participantes/${pid}`),
+    enabled: ativo,
+  })
+
+export type MarcaDeJogo =
+  | { tipo: 'pv' | 'estresse'; acao: 'marcar' | 'limpar'; quantidade: number }
+  | { tipo: 'esperanca'; acao: 'ganhar' | 'gastar'; quantidade: number }
+  | { tipo: 'armadura'; quantidade: number }
+  | { tipo: 'condicao'; condicao: string; tirar?: boolean }
+  | { tipo: 'companheiro' }
+
+/** O jogador mexe nas próprias marcas (só dentro de uma sessão em andamento). */
+export function useMarcarNaSessao(personagemId: string) {
+  const cliente = useQueryClient()
+  const base = `/personagens/${personagemId}/sessao`
+  return useMutation({
+    mutationFn: (m: MarcaDeJogo) => {
+      switch (m.tipo) {
+        case 'pv': return chamar<Ficha>(`${base}/pv/${m.acao}`, { corpo: { quantidade: m.quantidade } })
+        // marcar Fadiga de propósito (custo de habilidade): sem espaço livre, o motor recusa
+        case 'estresse': return chamar<Ficha>(`${base}/estresse/${m.acao}`,
+          { corpo: m.acao === 'marcar' ? { quantidade: m.quantidade, como: 'custo' } : { quantidade: m.quantidade } })
+        case 'esperanca': return chamar<Ficha>(`${base}/esperanca/${m.acao}`, { corpo: { quantidade: m.quantidade } })
+        case 'armadura': return chamar<Ficha>(`${base}/armadura/marcar`, { corpo: { quantidade: m.quantidade } })
+        case 'condicao': return m.tirar
+          ? chamar<Ficha>(`${base}/condicoes/${encodeURIComponent(m.condicao)}`, { metodo: 'DELETE' })
+          : chamar<Ficha>(`${base}/condicoes`, { corpo: { condicao: m.condicao } })
+        case 'companheiro': return chamar<Ficha>(`${base}/companheiro/dano`, { corpo: { usar_armadura: false } })
+      }
+    },
+    onSuccess: (f) => cliente.setQueryData(chaves.ficha(personagemId), f),
+  })
+}
+
 // --- Repouso do grupo (o mestre abre, cada jogador escolhe) --------------------------------------
 
-const chaveRepouso = (mesaId: string) => ['mesas', mesaId, 'repouso'] as const
+const chaveRepouso = (mesaId: string, sid: string) => ['mesas', mesaId, 'sessoes', sid, 'repouso'] as const
 
-/** O repouso aberto da mesa (ou o último encerrado, por meia hora). Atualiza ao vivo. */
-export const useRepouso = (mesaId: string) =>
-  useQuery({ queryKey: chaveRepouso(mesaId), queryFn: () => chamar<Repouso | null>(`/mesas/${mesaId}/repouso`) })
+/** O repouso aberto da sessão (ou o último encerrado, por meia hora). Atualiza ao vivo. */
+export const useRepouso = (mesaId: string, sid: string) =>
+  useQuery({ queryKey: chaveRepouso(mesaId, sid),
+    queryFn: () => chamar<Repouso | null>(`/mesas/${mesaId}/sessoes/${sid}/repouso`) })
 
 export type AcaoNoRepouso =
   | { tipo: 'abrir'; sessaoId: string; repouso: TipoDeRepouso; participantes?: string[] }
@@ -760,7 +828,7 @@ export function useAcaoNoRepouso(mesaId: string) {
       }
     },
     onSuccess: (r) => {
-      cliente.setQueryData(chaveRepouso(mesaId), r)
+      cliente.setQueryData(chaveRepouso(mesaId, r.sessao_id), r)
       // encerrar mexe nas fichas e no Medo da sessão
       return cliente.invalidateQueries({ queryKey: ['mesas', mesaId] })
     },

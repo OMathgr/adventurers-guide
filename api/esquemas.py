@@ -92,6 +92,11 @@ class DescansoSaida(BaseModel):
     ficha: FichaSaida
 
 
+class SessaoEmJogo(BaseModel):
+    sessao_id: str
+    titulo: str
+
+
 class PersonagemResumo(BaseModel):
     id: str
     nome: str
@@ -99,6 +104,7 @@ class PersonagemResumo(BaseModel):
     classe: str
     mesa_id: str | None = None
     foto: str | None = None
+    em_jogo: SessaoEmJogo | None = None   # sessão em andamento em que está jogando
 
 
 class VinculoMesa(BaseModel):

@@ -28,3 +28,25 @@ def entrar(cliente: TestClient, email: str, senha: str = "senha-forte-123", nome
     resposta = cliente.post("/auth/login", data={"username": email, "password": senha})
     assert resposta.status_code == 200, resposta.text
     return {"Authorization": f"Bearer {resposta.json()['access_token']}"}
+
+
+def colocar_em_jogo(cliente: TestClient, personagem_id: str, jogador: dict | None = None,
+                    mesa: dict | None = None, mestre: dict | None = None) -> dict:
+    """Põe o personagem numa sessão em andamento: marcas de jogo só valem nela.
+
+    Sem `mesa`, o Guilherme cria uma mesa (e é o mestre); o dono do personagem
+    (`jogador`, padrão: o cliente logado) entra nela. Devolve mesa, sessão e
+    o cabeçalho do mestre."""
+    jogador = jogador or {}
+    if mesa is None:
+        mestre = entrar(cliente, "gui@exemplo.com", nome="Guilherme")
+        mesa = cliente.post("/mesas", json={"nome": "Mesa de teste"}, headers=mestre).json()
+        cliente.post(f"/mesas/entrar/{mesa['codigo_convite']}", headers=jogador)
+    if cliente.get(f"/personagens/{personagem_id}", headers=jogador).status_code == 200:
+        cliente.put(f"/personagens/{personagem_id}/mesa", json={"mesa_id": mesa["id"]}, headers=jogador)
+    sessao = cliente.post(f"/mesas/{mesa['id']}/sessoes", json={"titulo": "Sessão"}, headers=mestre).json()
+    cliente.put(f"/mesas/{mesa['id']}/sessoes/{sessao['id']}/status", json={"status": "em_andamento"}, headers=mestre)
+    r = cliente.post(f"/mesas/{mesa['id']}/sessoes/{sessao['id']}/participantes",
+                     json={"personagem_id": personagem_id}, headers=jogador)
+    assert r.status_code == 200, r.text
+    return {"mesa": mesa, "sessao": sessao, "mestre": mestre}
