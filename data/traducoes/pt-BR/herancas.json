@@ -45,11 +45,11 @@
   "dominios": {
     "ARCANA": "Arcano",
     "BLADE": "Lâmina",
-    "BONE": "Osso",
+    "BONE": "Falange",
     "CODEX": "Códice",
     "GRACE": "Graça",
-    "MIDNIGHT": "Meia-Noite",
-    "SAGE": "Sábio",
+    "MIDNIGHT": "Meia-noite",
+    "SAGE": "Sabedoria",
     "SPLENDOR": "Esplendor",
     "VALOR": "Valor"
   },

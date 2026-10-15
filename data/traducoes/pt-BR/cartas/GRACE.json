@@ -1,10 +1,10 @@
 {
   "core_domain_card_deft_deceiver": {
-    "nome": "Enganador Hábil",
+    "nome": "Dissimulação",
     "texto": "Gaste 1 Esperança para ter vantagem num teste para enganar alguém ou fazê-lo acreditar numa mentira que você contou."
   },
   "core_domain_card_enrapture": {
-    "nome": "Encantar",
+    "nome": "Enfeitiçar",
     "texto": "Faça um teste de Conjuração contra um alvo em alcance próximo. Com sucesso, ele fica temporariamente Encantado. Enquanto Encantado, a atenção do alvo fica fixa em você, estreitando o campo de visão dele e abafando qualquer som que não seja a sua voz. Uma vez por descanso, com sucesso, você pode marcar 1 PF para obrigar o alvo Encantado a marcar 1 PF também."
   },
   "core_domain_card_inspirational_words": {
@@ -12,15 +12,15 @@
     "texto": "Sua fala tem poder. Depois de um descanso longo, coloque nesta carta um número de marcadores igual à sua Presença. Quando falar com um aliado, você pode gastar um marcador desta carta para dar a ele um benefício entre as opções a seguir:\n• Seu aliado limpa 1 PF.\n• Seu aliado limpa 1 Ponto de Vida.\n• Seu aliado ganha 1 Esperança.\nQuando fizer um descanso longo, remova todos os marcadores não gastos."
   },
   "core_domain_card_tell_no_lies": {
-    "nome": "Não Minta",
+    "nome": "Não Minta para Mim",
     "texto": "Faça um teste de Conjuração contra um alvo em alcance muito próximo. Com sucesso, ele não consegue mentir para você enquanto estiver em alcance próximo, mas não é obrigado a falar. Se você fizer uma pergunta e ele se recusar a responder, ele precisa marcar 1 PF e o efeito acaba. Normalmente o alvo não percebe que foi enfeitiçado até a magia fazê-lo dizer a verdade."
   },
   "core_domain_card_troublemaker": {
-    "nome": "Encrenqueiro",
+    "nome": "Insolência",
     "texto": "Quando provocar ou insultar um alvo em alcance distante, faça um teste de Presença contra ele. Uma vez por descanso, com sucesso, role um número de d4 igual à sua Proficiência. O alvo precisa marcar PF igual ao maior resultado."
   },
   "core_domain_card_hypnotic_shimmer": {
-    "nome": "Cintilar Hipnótico",
+    "nome": "Lampejo Hipnótico",
     "texto": "Faça um teste de Conjuração contra todos os adversários à sua frente em alcance próximo. Uma vez por descanso, com sucesso, crie uma ilusão de cores e luzes piscantes que deixa temporariamente Atordoados os alvos contra quem você teve sucesso e os obriga a marcar 1 PF. Enquanto Atordoados, eles não podem usar reações nem fazer qualquer outra ação até encerrar essa condição."
   },
   "core_domain_card_invisibility": {
@@ -28,11 +28,11 @@
     "texto": "Faça um teste de Conjuração (10). Com sucesso, marque 1 PF e escolha você ou um aliado em alcance corpo a corpo para ficar Invisível. Uma criatura Invisível não pode ser vista, a não ser por meios mágicos, e os testes de ataque contra ela são feitos com desvantagem. Coloque nesta carta um número de marcadores igual ao seu atributo de Conjuração. Quando a criatura Invisível fizer uma ação, gaste um marcador desta carta. Depois de resolver a ação que gastar o último marcador, o efeito acaba.\nVocê só pode manter Invisibilidade em uma criatura por vez."
   },
   "core_domain_card_soothing_speech": {
-    "nome": "Palavras Reconfortantes",
+    "nome": "Palavras Tranquilizantes",
     "texto": "Durante um descanso curto, quando dedicar tempo a confortar outro personagem enquanto usa nele o movimento de descanso Cuidar de Ferimentos, limpe 1 Ponto de Vida adicional desse personagem. Quando fizer isso, você também limpa 2 Pontos de Vida."
   },
   "core_domain_card_through_your_eyes": {
-    "nome": "Pelos Seus Olhos",
+    "nome": "Espionar",
     "texto": "Escolha um alvo em alcance muito distante. Você pode ver pelos olhos dele e ouvir pelos ouvidos dele. Você alterna livremente entre os seus sentidos e os do alvo até lançar outra magia ou até o seu próximo descanso."
   },
   "core_domain_card_thought_delver": {
@@ -44,19 +44,19 @@
     "texto": "Sussurre palavras de discórdia para um adversário em alcance corpo a corpo e faça um teste de Conjuração (13). Com sucesso, o alvo precisa marcar 1 PF e atacar outro adversário em vez de você ou seus aliados.\nAssim que o ataque termina, o alvo percebe o que aconteceu. Da próxima vez que você lançar Palavras de Discórdia nele, sofra −5 no teste de Conjuração."
   },
   "core_domain_card_never_upstaged": {
-    "nome": "Nunca Ofuscado",
+    "nome": "Jamais Esquecido",
     "texto": "Quando marcar 1 ou mais Pontos de Vida por causa de um ataque, você pode marcar 1 PF para colocar nesta carta um número de marcadores igual aos Pontos de Vida que marcou. No seu próximo ataque bem-sucedido, ganhe +5 na rolagem de dano para cada marcador nesta carta; depois, remova todos os marcadores."
   },
   "core_domain_card_share_the_burden": {
-    "nome": "Dividir o Fardo",
+    "nome": "Partilhar o Fardo",
     "texto": "Uma vez por descanso, assuma a Fadiga de uma criatura disposta em alcance corpo a corpo. O alvo descreve que lembranças íntimas ou emoções escapam telepaticamente da mente dele neste momento entre vocês. Transfira para você quantos PF marcados dele quiser e ganhe 1 Esperança para cada PF transferido."
   },
   "core_domain_card_endless_charisma": {
-    "nome": "Carisma Sem Fim",
+    "nome": "Carisma Infinito",
     "texto": "Depois de fazer um teste de ação para persuadir, mentir ou conquistar simpatia, você pode gastar 1 Esperança para rolar de novo o Dado de Esperança ou o Dado de Medo."
   },
   "core_domain_card_grace_touched": {
-    "nome": "Tocado pela Graça",
+    "nome": "Dom da Graça",
     "texto": "Quando 4 ou mais das cartas de domínio ativas forem do domínio Graça, ganhe os seguintes benefícios:\n• Você pode marcar um espaço de armadura em vez de marcar 1 PF.\n• Quando for obrigar um alvo a marcar Pontos de Vida, você pode escolher obrigá-lo a marcar a mesma quantidade de PF no lugar."
   },
   "core_domain_card_astral_projection": {
@@ -64,7 +64,7 @@
     "texto": "Uma vez por descanso longo, marque 1 PF para criar uma cópia projetada de você que pode aparecer em qualquer lugar onde você já esteve.\nVocê vê e ouve pela projeção como se fosse você e afeta o mundo como se estivesse lá. Uma criatura que examinar a projeção percebe que ela tem origem mágica. O efeito dura até o seu próximo descanso ou até a projeção sofrer qualquer dano."
   },
   "core_domain_card_mass_enrapture": {
-    "nome": "Encantamento em Massa",
+    "nome": "Enfeitiçar em Massa",
     "texto": "Faça um teste de Conjuração contra todos os alvos em alcance distante. Os alvos contra quem você tiver sucesso ficam temporariamente Encantados. Enquanto Encantado, a atenção do alvo fica fixa em você, estreitando o campo de visão dele e abafando qualquer som que não seja a sua voz. Marque 1 PF para obrigar todos os alvos Encantados a marcar 1 PF, encerrando a magia."
   },
   "core_domain_card_copycat": {
@@ -76,11 +76,11 @@
     "texto": "Ganhe um bônus permanente de +2 em duas das suas Experiências ou de +3 em uma delas. Depois, coloque esta carta na sua reserva permanentemente."
   },
   "core_domain_card_encore": {
-    "nome": "Bis",
+    "nome": "Em Dobro",
     "texto": "Quando um aliado em alcance próximo causar dano a um adversário, você pode fazer um teste de Conjuração contra o mesmo alvo. Com sucesso, você causa ao alvo o mesmo dano que o aliado causou. Se o seu teste de Conjuração tiver sucesso com Medo, coloque esta carta na sua reserva."
   },
   "core_domain_card_notorious": {
-    "nome": "Notório",
+    "nome": "Notoriedade",
     "texto": "As pessoas sabem quem você é e o que você fez, e te tratam diferente por isso. Quando usar sua fama para conseguir o que quer, você pode marcar 1 PF antes de rolar para ganhar +10 no resultado. Sua comida e bebida são sempre de graça aonde você for, e todo o resto que você compra custa um saco de ouro a menos (no mínimo um punhado).\nEsta carta não conta para o limite de 5 cartas de domínio ativas e não pode ser colocada na reserva."
   }
 }

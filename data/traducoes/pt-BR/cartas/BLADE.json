@@ -4,31 +4,31 @@
     "texto": "Quando sofrer dano Grave, você pode marcar 1 PF para reduzir a gravidade em um limiar."
   },
   "core_domain_card_not_good_enough": {
-    "nome": "Não Basta",
+    "nome": "Não o Suficiente",
     "texto": "Quando rolar seus dados de dano, você pode rolar de novo qualquer 1 ou 2."
   },
   "core_domain_card_whirlwind": {
-    "nome": "Redemoinho",
+    "nome": "Turbilhão",
     "texto": "Quando acertar um ataque contra um alvo em alcance muito próximo, você pode gastar 1 Esperança para usar o ataque contra todos os outros alvos em alcance muito próximo. Todos os adversários adicionais que você acertar com esta habilidade sofrem metade do dano."
   },
   "core_domain_card_a_soldiers_bond": {
-    "nome": "Laço de Soldado",
+    "nome": "Fraternidade Marcial",
     "texto": "Uma vez por descanso longo, quando você elogiar alguém ou perguntar sobre algo em que a pessoa é boa, vocês dois podem ganhar 3 Esperança."
   },
   "core_domain_card_reckless": {
-    "nome": "Imprudente",
+    "nome": "Ataque Imprudente",
     "texto": "Marque 1 PF para ter vantagem num ataque."
   },
   "core_domain_card_scramble": {
-    "nome": "Esquiva",
+    "nome": "Mexa-se",
     "texto": "Uma vez por descanso, quando uma criatura em alcance corpo a corpo for te causar dano, você pode evitar o ataque e sair em segurança do alcance corpo a corpo do inimigo."
   },
   "core_domain_card_versatile_fighter": {
-    "nome": "Combatente Versátil",
+    "nome": "Versatilidade",
     "texto": "Você pode usar outro atributo com uma arma equipada, em vez do atributo que a arma pede. Quando causar dano, você pode marcar 1 PF para usar o resultado máximo de um dos seus dados de dano em vez de rolá-lo."
   },
   "core_domain_card_deadly_focus": {
-    "nome": "Foco Mortal",
+    "nome": "Concentração Mortal",
     "texto": "Uma vez por descanso, você pode dedicar todo o seu foco a um alvo à sua escolha. Até você atacar outra criatura, derrotar o alvo ou a batalha acabar, ganhe +1 de Proficiência."
   },
   "core_domain_card_fortified_armor": {
@@ -48,11 +48,11 @@
     "texto": "Uma vez por descanso longo, quando for fazer um Movimento de Morte, você pode gastar 1 Esperança para limpar 1 Ponto de Vida no lugar."
   },
   "core_domain_card_rage_up": {
-    "nome": "Fúria Crescente",
-    "texto": "Antes de atacar, você pode marcar 1 PF para ganhar um bônus na rolagem de dano igual ao dobro da sua Força.\nVocê pode usar Fúria Crescente duas vezes por ataque."
+    "nome": "Fúria",
+    "texto": "Antes de atacar, você pode marcar 1 PF para ganhar um bônus na rolagem de dano igual ao dobro da sua Força.\nVocê pode usar Fúria duas vezes por ataque."
   },
   "core_domain_card_blade_touched": {
-    "nome": "Tocado pela Lâmina",
+    "nome": "Dom da Lâmina",
     "texto": "Quando 4 ou mais das cartas de domínio ativas forem do domínio Lâmina, ganhe os seguintes benefícios:\n• +2 nos seus testes de ataque\n• +4 no seu limiar de dano Grave"
   },
   "core_domain_card_glancing_blow": {
@@ -68,11 +68,11 @@
     "texto": "Uma vez por descanso longo, você pode entrar em Frenesi até não haver mais adversários à vista. Em Frenesi, você não pode usar espaços de armadura e ganha +10 nas rolagens de dano e +8 no seu limiar de dano Grave."
   },
   "core_domain_card_gore_and_glory": {
-    "nome": "Sangue e Glória",
+    "nome": "Guerra e Glória",
     "texto": "Quando tiver um sucesso crítico num ataque com arma, ganhe 1 Esperança adicional ou limpe 1 PF adicional. Além disso, quando causar dano suficiente para derrotar um inimigo, ganhe 1 Esperança ou limpe 1 PF."
   },
   "core_domain_card_reapers_strike": {
-    "nome": "Golpe do Ceifador",
+    "nome": "Golpe da Morte",
     "texto": "Uma vez por descanso longo, gaste 1 Esperança para fazer um teste de ataque. O mestre diz contra quais alvos no alcance ele teria sucesso. Escolha um desses alvos e obrigue-o a marcar 5 Pontos de Vida."
   },
   "core_domain_card_battle_monster": {
@@ -80,7 +80,7 @@
     "texto": "Quando acertar um ataque contra um adversário, você pode marcar 4 PF para obrigar o alvo a marcar um número de Pontos de Vida igual aos Pontos de Vida que você tem marcados no momento, em vez de rolar o dano."
   },
   "core_domain_card_onslaught": {
-    "nome": "Investida Implacável",
+    "nome": "Massacrar",
     "texto": "Quando acertar um ataque com a sua arma, você nunca causa dano abaixo do limiar Maior do alvo (o alvo sempre marca pelo menos 2 Pontos de Vida). Além disso, quando uma criatura dentro do alcance da sua arma causar dano a um aliado com um ataque que não te inclua, você pode marcar 1 PF para obrigá-la a fazer um teste de reação (15). Se falhar, o alvo precisa marcar 1 Ponto de Vida."
   }
 }

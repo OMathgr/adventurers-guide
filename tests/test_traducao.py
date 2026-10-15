@@ -67,3 +67,20 @@ def test_personagem_com_biblioteca_traduzida(pt, criacao_bardo):
     assert f.evasao == 9                                   # Heavy (Pesada) continua valendo
     assert f.caracteristicas_armadura[0].nome == "Pesada"
     assert p.linha_do_tempo()[0]["itens"][0] == "Classe: Bardo"
+
+
+def test_nomes_das_cartas_e_dominios_seguem_a_edicao_brasileira(pt):
+    """Nomes das cartas e dos domínios do livro básico brasileiro (apêndice,
+    pp. 328-342); só os nomes, o texto continua sendo tradução nossa do SRD."""
+    esperado = {
+        "core_domain_card_wall_walk": "Caminhar na Parede", "core_domain_card_falling_sky": "Chuva Arcana",
+        "core_domain_card_bone_touched": "Dom da Falange", "core_domain_card_sage_touched": "Dom da Sabedoria",
+        "core_domain_card_book_of_exota": "Livro de Ecsota", "core_domain_card_bolt_beacon": "Raio Luminoso",
+        # empates de domínio/nível/custo desfeitos pelo texto da carta
+        "core_domain_card_bare_bones": "Armadura Corporal", "core_domain_card_forceful_push": "Imposição",
+        "core_domain_card_brace": "Resistir", "core_domain_card_tactician": "Táticas",
+    }
+    assert {i: pt.cartas[i].nome for i in esperado} == esperado
+    assert [pt.nome_dominio(d) for d in ("BONE", "SAGE", "MIDNIGHT")] == ["Falange", "Sabedoria", "Meia-noite"]
+    # a carta cita o próprio nome novo no texto
+    assert "Dado de Aspecto Selvagem" in pt.cartas["core_domain_card_wild_surge"].texto

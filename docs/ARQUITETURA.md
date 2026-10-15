@@ -904,6 +904,14 @@ brasileiro (pp. 14-16; conferido em 2026-10-13, travado em `test_traducao.py`):
 | Highborne / Loreborne / Orderborne | Aristocrática / Erudita / Disciplinada | | Ridgeborne / Seaborne / Slyborne | Montanhesa / Marítima / Fora da lei |
 | Underborne / Wanderborne / Wildborne | Subterrânea / Nômade / Silvestre | | | |
 
+Nomes das cartas de domínio e dos domínios também seguem o livro básico
+brasileiro (apêndice, pp. 328-342; conferido em 2026-10-14): Bone é **Falange**,
+Sage é **Sabedoria**, Midnight é **Meia-noite**; cartas "-Touched" são "Dom do/da
+<domínio>". O casamento foi por domínio, nível, tipo e custo de troca; os
+empates, pelo texto da carta (Bare Bones = Armadura Corporal, Forceful Push =
+Imposição, Brace = Resistir, Tactician = Táticas). Nos textos, só as citações
+da própria carta e do domínio mudaram.
+
 ## Pendências conhecidas
 
 - `progressao.json` conferido (2026-10-09) com o SRD e a ficha oficial.

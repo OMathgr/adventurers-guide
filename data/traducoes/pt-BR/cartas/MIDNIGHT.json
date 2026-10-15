@@ -1,6 +1,6 @@
 {
   "core_domain_card_pick_and_pull": {
-    "nome": "Abrir e Surrupiar",
+    "nome": "Delinquente",
     "texto": "Você tem vantagem em testes de ação para abrir fechaduras não mágicas, desarmar armadilhas não mágicas ou roubar itens de um alvo (seja na furtividade, seja na força)."
   },
   "core_domain_card_rain_of_blades": {
@@ -8,19 +8,19 @@
     "texto": "Gaste 1 Esperança para fazer um teste de Conjuração e conjurar lâminas de arremesso que atingem todos os alvos em alcance muito próximo. Os alvos contra quem você tiver sucesso sofrem d8+2 de dano mágico usando a sua Proficiência.\nSe um alvo atingido estiver Vulnerável, ele sofre 1d8 de dano extra."
   },
   "core_domain_card_uncanny_disguise": {
-    "nome": "Disfarce Perfeito",
+    "nome": "Disfarce Inquietante",
     "texto": "Quando tiver alguns minutos para se preparar, você pode marcar 1 PF para assumir a aparência de qualquer humanoide que consiga imaginar com clareza. Disfarçado, você tem vantagem em testes de Presença para escapar de um exame.\nColoque nesta carta um número de marcadores igual ao seu atributo de Conjuração. Quando fizer uma ação disfarçado, gaste um marcador desta carta. Depois de resolver a ação que gastar o último marcador, o disfarce cai."
   },
   "core_domain_card_midnight_spirit": {
-    "nome": "Espírito da Meia-Noite",
+    "nome": "Espírito da Meia-noite",
     "texto": "Gaste 1 Esperança para invocar um espírito do tamanho de um humanoide que pode se mover ou carregar coisas para você até o seu próximo descanso.\nVocê também pode mandá-lo atacar um adversário. Ao fazer isso, faça um teste de Conjuração contra um alvo em alcance muito distante. Com sucesso, o espírito vai até o alcance corpo a corpo do alvo. Role um número de d6 igual ao seu atributo de Conjuração e cause esse total de dano mágico ao alvo. O espírito então se dissipa. Você só pode ter um espírito por vez."
   },
   "core_domain_card_shadowbind": {
-    "nome": "Prisão de Sombras",
+    "nome": "Sombra Traiçoeira",
     "texto": "Faça um teste de Conjuração contra todos os adversários em alcance muito próximo. Os alvos contra quem você tiver sucesso ficam temporariamente Contidos, presos no lugar pela própria sombra."
   },
   "core_domain_card_chokehold": {
-    "nome": "Mata-Leão",
+    "nome": "Estrangulamento",
     "texto": "Quando se posicionar atrás de uma criatura mais ou menos do seu tamanho, você pode marcar 1 PF para aplicar um mata-leão nela, deixando-a temporariamente Vulnerável.\nQuando uma criatura ataca um alvo Vulnerável dessa forma, ela causa 2d6 de dano extra."
   },
   "core_domain_card_veil_of_night": {
@@ -28,11 +28,11 @@
     "texto": "Faça um teste de Conjuração (13). Com sucesso, você pode criar uma cortina temporária de escuridão entre dois pontos em alcance distante. Só você enxerga através dessa escuridão. Você é considerado Oculto para os adversários do outro lado do véu e tem vantagem nos ataques que faz através da escuridão. O véu dura até você lançar outra magia."
   },
   "core_domain_card_glyph_of_nightfall": {
-    "nome": "Glifo do Anoitecer",
+    "nome": "Glifo do Ocaso",
     "texto": "Faça um teste de Conjuração contra um alvo em alcance muito próximo. Com sucesso, gaste 1 Esperança para conjurar um glifo sombrio no corpo dele que expõe seus pontos fracos, reduzindo temporariamente a Dificuldade do alvo num valor igual ao seu Conhecimento (mínimo 1)."
   },
   "core_domain_card_stealth_expertise": {
-    "nome": "Especialista em Furtividade",
+    "nome": "Mestre da Furtividade",
     "texto": "Quando um teste seu sair com Medo enquanto tenta passar despercebido por uma área perigosa, você pode marcar 1 PF para que ele saia com Esperança.\nSe um aliado em alcance próximo também estiver tentando passar despercebido e o teste dele sair com Medo, você pode marcar 1 PF para transformar o resultado dele num resultado com Esperança."
   },
   "core_domain_card_hush": {
@@ -40,8 +40,8 @@
     "texto": "Faça um teste de Conjuração contra um alvo em alcance próximo. Com sucesso, gaste 1 Esperança para conjurar ao redor do alvo uma magia supressora que abrange tudo em alcance muito próximo dele e o acompanha quando ele se move.\nO alvo e tudo o que estiver na área ficam Silenciados até o mestre gastar 1 Medo no turno dele para encerrar a condição, até você lançar Silêncio de novo ou até você sofrer dano Maior. Silenciados, eles não conseguem fazer barulho nem lançar magias."
   },
   "core_domain_card_phantom_retreat": {
-    "nome": "Recuo Fantasma",
-    "texto": "Gaste 1 Esperança para ativar Recuo Fantasma onde você está agora. Gaste mais 1 Esperança a qualquer momento antes do seu próximo descanso para sumir de onde estiver e reaparecer onde estava quando ativou Recuo Fantasma. A magia acaba depois que você reaparece."
+    "nome": "Recuo Espectral",
+    "texto": "Gaste 1 Esperança para ativar Recuo Espectral onde você está agora. Gaste mais 1 Esperança a qualquer momento antes do seu próximo descanso para sumir de onde estiver e reaparecer onde estava quando ativou Recuo Espectral. A magia acaba depois que você reaparece."
   },
   "core_domain_card_dark_whispers": {
     "nome": "Sussurros Sombrios",
@@ -52,19 +52,19 @@
     "texto": "Quando tiver alguns minutos de silêncio para se concentrar, você pode marcar 1 PF para mudar a aparência de todas as criaturas dispostas em alcance próximo. As novas formas precisam ter estrutura corporal e tamanho parecidos e podem ser alguém ou algo que você já viu, ou totalmente inventado. Uma criatura disfarçada tem vantagem em testes de Presença para escapar de um exame.\nAtive uma Contagem Regressiva (8). Ela avança como consequência que o mestre escolher. Quando dispara, o disfarce cai."
   },
   "core_domain_card_midnight_touched": {
-    "nome": "Tocado pela Meia-Noite",
-    "texto": "Quando 4 ou mais das cartas de domínio ativas forem do domínio Meia-Noite, ganhe os seguintes benefícios:\n• Uma vez por descanso, quando você tiver 0 Esperança e o mestre for ganhar 1 Medo, você pode ganhar 1 Esperança no lugar.\n• Quando acertar um ataque, você pode marcar 1 PF para somar o resultado do seu Dado de Medo à rolagem de dano."
+    "nome": "Dom da Meia-noite",
+    "texto": "Quando 4 ou mais das cartas de domínio ativas forem do domínio Meia-noite, ganhe os seguintes benefícios:\n• Uma vez por descanso, quando você tiver 0 Esperança e o mestre for ganhar 1 Medo, você pode ganhar 1 Esperança no lugar.\n• Quando acertar um ataque, você pode marcar 1 PF para somar o resultado do seu Dado de Medo à rolagem de dano."
   },
   "core_domain_card_vanishing_dodge": {
-    "nome": "Esquiva Evanescente",
+    "nome": "Esvanecer",
     "texto": "Quando um ataque contra você que causaria dano físico falhar, você pode gastar 1 Esperança para se envolver em sombras, ficando Oculto e se teleportando para um ponto em alcance próximo do atacante. Você continua Oculto até o próximo teste de ação que fizer."
   },
   "core_domain_card_shadowhunter": {
-    "nome": "Caçador das Sombras",
+    "nome": "Caçador Sombrio",
     "texto": "Sua habilidade cresce sob o manto das sombras. Enquanto estiver envolto em pouca luz ou escuridão, você ganha +1 na Evasão e faz testes de ataque com vantagem."
   },
   "core_domain_card_spellcharge": {
-    "nome": "Carga Arcana",
+    "nome": "Carga Mágica",
     "texto": "Quando sofrer dano mágico, coloque nesta carta marcadores iguais aos Pontos de Vida que marcou. Você pode guardar um número de marcadores igual ao seu atributo de Conjuração.\nQuando acertar um ataque contra um alvo, você pode gastar quantos marcadores quiser para somar um d6 por marcador gasto à rolagem de dano."
   },
   "core_domain_card_night_terror": {
@@ -72,8 +72,8 @@
     "texto": "Uma vez por descanso longo, escolha quaisquer alvos em alcance muito próximo para te perceberem como um horror de pesadelo. Os alvos precisam ter sucesso num teste de reação (16) ou ficam temporariamente Aterrorizados. Aterrorizados, eles ficam Vulneráveis. Roube do mestre um número de Medo igual ao de alvos Aterrorizados (até o total de Medo na reserva do mestre). Role um número de d6 igual ao Medo roubado e cause o total de dano a cada alvo Aterrorizado. Descarte o Medo roubado."
   },
   "core_domain_card_twilight_toll": {
-    "nome": "Dobre do Crepúsculo",
-    "texto": "Escolha um alvo em alcance distante. Quando tiver sucesso num teste de ação contra ele que não resulte numa rolagem de dano, coloque um marcador nesta carta. Quando causar dano a esse alvo, gaste quantos marcadores quiser para somar um d12 por marcador gasto à rolagem de dano. Você só pode manter Dobre do Crepúsculo em uma criatura por vez.\nQuando escolher um novo alvo ou descansar, remova todos os marcadores não gastos."
+    "nome": "Tributo do Anoitecer",
+    "texto": "Escolha um alvo em alcance distante. Quando tiver sucesso num teste de ação contra ele que não resulte numa rolagem de dano, coloque um marcador nesta carta. Quando causar dano a esse alvo, gaste quantos marcadores quiser para somar um d12 por marcador gasto à rolagem de dano. Você só pode manter Tributo do Anoitecer em uma criatura por vez.\nQuando escolher um novo alvo ou descansar, remova todos os marcadores não gastos."
   },
   "core_domain_card_eclipse": {
     "nome": "Eclipse",

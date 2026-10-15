@@ -1,14 +1,14 @@
 {
   "core_domain_card_bolt_beacon": {
-    "nome": "Farol Fulminante",
+    "nome": "Raio Luminoso",
     "texto": "Faça um teste de Conjuração contra um alvo em alcance distante. Com sucesso, gaste 1 Esperança para lançar nele um raio de luz cintilante, causando d8+2 de dano mágico usando a sua Proficiência. O alvo fica temporariamente Vulnerável e brilha intensamente até essa condição acabar."
   },
   "core_domain_card_mending_touch": {
-    "nome": "Toque Restaurador",
+    "nome": "Toque Reparador",
     "texto": "Você impõe as mãos sobre uma criatura e canaliza magia de cura para fechar os ferimentos dela. Quando puder dedicar alguns minutos ao alvo que está ajudando, você pode gastar 2 Esperança para limpar 1 Ponto de Vida ou 1 PF dele.\nUma vez por descanso longo, quando usar esse tempo de cura para aprender algo novo sobre o alvo ou revelar algo sobre você, pode limpar 2 Pontos de Vida ou 2 PF dele no lugar."
   },
   "core_domain_card_reassurance": {
-    "nome": "Reconforto",
+    "nome": "Validação",
     "texto": "Uma vez por descanso, depois que um aliado tentar um teste de ação mas antes das consequências, você pode oferecer ajuda ou palavras de apoio. Ao fazer isso, o aliado pode rolar os dados de novo."
   },
   "core_domain_card_final_words": {
@@ -20,7 +20,7 @@
     "texto": "Faça um teste de Conjuração (13) tendo como alvo outra criatura que não você, em alcance corpo a corpo. Com sucesso, marque 1 PF para limpar 2 Pontos de Vida ou 2 PF do alvo. Se falhar, marque 1 PF para limpar 1 Ponto de Vida ou 1 PF do alvo. Você não pode curar o mesmo alvo de novo até o seu próximo descanso longo."
   },
   "core_domain_card_second_wind": {
-    "nome": "Segundo Fôlego",
+    "nome": "Novo Fôlego",
     "texto": "Uma vez por descanso, quando acertar um ataque contra um adversário, você pode limpar 3 PF ou 1 Ponto de Vida. Com sucesso com Esperança, você também limpa 3 PF ou 1 Ponto de Vida de um aliado em alcance próximo de você."
   },
   "core_domain_card_voice_of_reason": {
@@ -32,15 +32,15 @@
     "texto": "Uma vez por descanso longo, gaste 3 Esperança para consultar as forças do além e fazer uma pergunta de “sim ou não” sobre um acontecimento, pessoa, lugar ou situação no futuro próximo. Por um instante, o presente se desfaz e você vê a resposta diante de si."
   },
   "core_domain_card_life_ward": {
-    "nome": "Proteção da Vida",
-    "texto": "Gaste 3 Esperança e escolha um aliado em alcance próximo. Ele é marcado com um sigilo brilhante de proteção. Quando esse aliado for fazer um Movimento de Morte, ele limpa 1 Ponto de Vida no lugar.\nO efeito acaba quando salva o alvo de um Movimento de Morte, quando você lança Proteção da Vida em outro alvo ou quando você faz um descanso longo."
+    "nome": "Sigilo da Vida",
+    "texto": "Gaste 3 Esperança e escolha um aliado em alcance próximo. Ele é marcado com um sigilo brilhante de proteção. Quando esse aliado for fazer um Movimento de Morte, ele limpa 1 Ponto de Vida no lugar.\nO efeito acaba quando salva o alvo de um Movimento de Morte, quando você lança Sigilo da Vida em outro alvo ou quando você faz um descanso longo."
   },
   "core_domain_card_shape_material": {
     "nome": "Moldar Material",
     "texto": "Gaste 1 Esperança para moldar uma parte de um material natural que você esteja tocando (como pedra, gelo ou madeira) conforme sua necessidade. A área do material não pode ser maior que você. Por exemplo, você pode formar uma ferramenta rudimentar ou criar uma porta.\nVocê só afeta o material em alcance próximo do ponto que está tocando."
   },
   "core_domain_card_smite": {
-    "nome": "Golpe Divino",
+    "nome": "Punição",
     "texto": "Uma vez por descanso, gaste 3 Esperança para carregar seu golpe poderoso. Na próxima vez que acertar um ataque com uma arma, dobre o resultado da rolagem de dano. Esse ataque causa dano mágico, seja qual for o tipo de dano da arma."
   },
   "core_domain_card_restoration": {
@@ -56,27 +56,27 @@
     "texto": "Quando causar dano a um adversário, você pode gastar 2 Esperança para limpar 1 Ponto de Vida de um aliado em alcance próximo."
   },
   "core_domain_card_splendor_touched": {
-    "nome": "Tocado pelo Esplendor",
+    "nome": "Dom do Esplendor",
     "texto": "Quando 4 ou mais das cartas de domínio ativas forem do domínio Esplendor, ganhe os seguintes benefícios:\n• +3 no seu limiar de dano Grave\n• Uma vez por descanso longo, quando um dano for te obrigar a marcar Pontos de Vida, você pode escolher marcar a mesma quantidade de PF ou gastar a mesma quantidade de Esperança no lugar."
   },
   "core_domain_card_shield_aura": {
-    "nome": "Aura Escudo",
-    "texto": "Marque 1 PF para lançar uma aura protetora num alvo em alcance muito próximo. Quando o alvo marcar um espaço de armadura, ele reduz a gravidade do ataque em um limiar adicional. Se esta magia fizer uma criatura que sofreria dano não marcar nenhum Ponto de Vida, o efeito acaba.\nVocê só pode manter Aura Escudo em uma criatura por vez."
+    "nome": "Aura Defensora",
+    "texto": "Marque 1 PF para lançar uma aura protetora num alvo em alcance muito próximo. Quando o alvo marcar um espaço de armadura, ele reduz a gravidade do ataque em um limiar adicional. Se esta magia fizer uma criatura que sofreria dano não marcar nenhum Ponto de Vida, o efeito acaba.\nVocê só pode manter Aura Defensora em uma criatura por vez."
   },
   "core_domain_card_stunning_sunlight": {
-    "nome": "Luz Solar Atordoante",
+    "nome": "Fulgor Atordoante",
     "texto": "Faça um teste de Conjuração para soltar poderosos raios de sol ardente contra todos os adversários à sua frente em alcance distante. Com sucesso, gaste quantas Esperanças quiser e obrigue esse número de alvos contra quem teve sucesso a fazer um teste de reação (14).\nQuem tiver sucesso sofre 3d20+3 de dano mágico. Quem falhar sofre 4d20+5 de dano mágico e fica temporariamente Atordoado. Atordoado, não pode usar reações nem fazer qualquer outra ação até encerrar essa condição."
   },
   "core_domain_card_overwhelming_aura": {
-    "nome": "Aura Avassaladora",
+    "nome": "Aura Esmagadora",
     "texto": "Faça um teste de Conjuração (15) para fortalecer magicamente sua aura. Com sucesso, gaste 2 Esperança para que sua Presença fique igual ao seu atributo de Conjuração até o seu próximo descanso longo.\nEnquanto esta magia estiver ativa, um adversário precisa marcar 1 PF ao te escolher como alvo de um ataque."
   },
   "core_domain_card_salvation_beam": {
-    "nome": "Raio da Salvação",
+    "nome": "Feixe de Remissão",
     "texto": "Faça um teste de Conjuração (16). Com sucesso, marque quantos PF quiser para ter como alvo uma linha de aliados em alcance distante. Você pode limpar dos alvos um total de Pontos de Vida igual ao de PF marcados, dividido entre eles como preferir."
   },
   "core_domain_card_invigoration": {
-    "nome": "Revigoramento",
+    "nome": "Revigorar",
     "texto": "Quando você ou um aliado em alcance próximo tiver usado uma habilidade com limite de uso (como uma vez por descanso ou uma vez por sessão), você pode gastar quantas Esperanças quiser e rolar esse número de d6. Se algum resultado for 6, a habilidade pode ser usada de novo."
   },
   "core_domain_card_resurrection": {

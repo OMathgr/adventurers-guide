@@ -28,7 +28,7 @@
     "texto": "Amarra Mística: Faça um teste de Conjuração contra um alvo em alcance distante. Com sucesso, ele fica temporariamente Contido e precisa marcar 1 PF. Se o alvo for uma criatura voadora, a magia a derruba e a deixa temporariamente Contida.\n\nBola de Fogo: Faça um teste de Conjuração contra um alvo em alcance muito distante. Com sucesso, arremesse nele uma esfera de fogo que explode no impacto. O alvo e todas as criaturas em alcance muito próximo dele precisam fazer um teste de reação (13). Quem falhar sofre d20+5 de dano mágico usando a sua Proficiência. Quem tiver sucesso sofre metade do dano."
   },
   "core_domain_card_book_of_exota": {
-    "nome": "Livro de Exota",
+    "nome": "Livro de Ecsota",
     "texto": "Repúdio: Você pode interromper um efeito mágico em andamento. Faça um teste de reação usando o seu atributo de Conjuração. Uma vez por descanso, com sucesso, o efeito para e as consequências são evitadas.\n\nCriar Construto: Gaste 1 Esperança para escolher um grupo de objetos ao seu redor e criar com eles um construto animado que obedece a comandos simples. Faça um teste de Conjuração para mandá-lo agir. Quando necessário, ele usa a sua Evasão e os seus atributos, e os ataques dele causam 2d10+3 de dano físico. Você só pode manter um construto por vez, e ele se desfaz ao sofrer qualquer dano."
   },
   "core_domain_card_book_of_grynn": {
@@ -36,8 +36,8 @@
     "texto": "Deflexão Arcana: Uma vez por descanso longo, gaste 1 Esperança para anular o dano de um ataque contra você ou contra um aliado em alcance muito próximo.\n\nTrava Temporal: Escolha um objeto em alcance distante. Ele para no tempo e no espaço exatamente onde está até o seu próximo descanso. Se uma criatura tentar movê-lo, faça um teste de Conjuração contra ela para manter a magia.\n\nMuralha de Chamas: Faça um teste de Conjuração (15). Com sucesso, crie uma muralha temporária de fogo mágico entre dois pontos em alcance distante. Todas as criaturas no caminho dela precisam escolher de que lado ficar, e tudo o que atravessar a muralha depois sofre 4d10+3 de dano mágico."
   },
   "core_domain_card_manifest_wall": {
-    "nome": "Manifestar Muralha",
-    "texto": "Faça um teste de Conjuração (15). Uma vez por descanso, com sucesso, gaste 1 Esperança para criar uma muralha mágica temporária entre dois pontos em alcance distante. Ela pode ter até 15 metros de altura e se formar em qualquer ângulo. Criaturas ou objetos no caminho dela são empurrados para o lado que você escolher. A muralha fica de pé até o seu próximo descanso ou até você lançar Manifestar Muralha de novo."
+    "nome": "Muralha",
+    "texto": "Faça um teste de Conjuração (15). Uma vez por descanso, com sucesso, gaste 1 Esperança para criar uma muralha mágica temporária entre dois pontos em alcance distante. Ela pode ter até 15 metros de altura e se formar em qualquer ângulo. Criaturas ou objetos no caminho dela são empurrados para o lado que você escolher. A muralha fica de pé até o seu próximo descanso ou até você lançar Muralha de novo."
   },
   "core_domain_card_teleport": {
     "nome": "Teleporte",
@@ -48,15 +48,15 @@
     "texto": "Faça um teste de Conjuração contra um alvo em alcance próximo. Com sucesso, role um número de d20 igual ao seu atributo de Conjuração. O alvo precisa fazer um teste de reação com Dificuldade igual ao seu maior resultado. Se tiver sucesso, ele marca 1 PF mas não é banido. Uma vez por descanso, se ele falhar, é banido deste plano.\nQuando os personagens dos jogadores tirarem um resultado com Medo, a Dificuldade sofre −1 e o alvo faz outro teste de reação. Com sucesso, ele volta do banimento."
   },
   "core_domain_card_sigil_of_retribution": {
-    "nome": "Sigilo da Retribuição",
-    "texto": "Marque um adversário em alcance próximo com um sigilo de retribuição. O mestre ganha 1 Medo. Quando o adversário marcado causar dano a você ou aos seus aliados, coloque um d8 nesta carta. Você pode guardar um número de d8 igual ao seu nível. Quando acertar um ataque no adversário marcado, role os dados desta carta e some o total à rolagem de dano; depois, retire os dados. O efeito acaba quando o adversário marcado for derrotado ou quando você lançar Sigilo da Retribuição de novo."
+    "nome": "Sigilo da Retaliação",
+    "texto": "Marque um adversário em alcance próximo com um sigilo de retribuição. O mestre ganha 1 Medo. Quando o adversário marcado causar dano a você ou aos seus aliados, coloque um d8 nesta carta. Você pode guardar um número de d8 igual ao seu nível. Quando acertar um ataque no adversário marcado, role os dados desta carta e some o total à rolagem de dano; depois, retire os dados. O efeito acaba quando o adversário marcado for derrotado ou quando você lançar Sigilo da Retaliação de novo."
   },
   "core_domain_card_book_of_homet": {
     "nome": "Livro de Homet",
     "texto": "Atravessar: Faça um teste de Conjuração (13). Uma vez por descanso, com sucesso, você e todas as criaturas que estiverem te tocando podem atravessar uma parede ou porta em alcance próximo. O efeito acaba quando todos estiverem do outro lado.\n\nPortal Planar: Faça um teste de Conjuração (14). Uma vez por descanso longo, com sucesso, abra um portal para um lugar em outra dimensão ou plano de existência onde você já esteve. O portal dura até o seu próximo descanso."
   },
   "core_domain_card_codex_touched": {
-    "nome": "Tocado pelo Códice",
+    "nome": "Dom do Códice",
     "texto": "Quando 4 ou mais das cartas de domínio ativas forem do domínio Códice, ganhe os seguintes benefícios:\n• Você pode marcar 1 PF para somar sua Proficiência a um teste de Conjuração.\n• Uma vez por descanso, troque esta carta por qualquer carta da sua reserva sem pagar o custo de troca dela."
   },
   "core_domain_card_book_of_vyola": {
@@ -72,7 +72,7 @@
     "texto": "Transformar: Faça um teste de Conjuração (15). Com sucesso, transforme-se num objeto inanimado de até o dobro do seu tamanho normal. Você pode continuar nessa forma até sofrer dano.\n\nEsgotamento Eterno: Uma vez por descanso longo, faça um teste de Conjuração contra um alvo em alcance próximo. Com sucesso, ele fica permanentemente Vulnerável. Ele não pode encerrar essa condição de forma alguma."
   },
   "core_domain_card_disintegration_wave": {
-    "nome": "Onda de Desintegração",
+    "nome": "Onda Desintegradora",
     "texto": "Faça um teste de Conjuração (18). Uma vez por descanso longo, com sucesso, o mestre diz quais adversários em alcance distante têm Dificuldade 18 ou menor. Marque 1 PF para cada um que quiser atingir com esta magia. Eles morrem e não podem voltar à vida de forma alguma."
   },
   "core_domain_card_book_of_yarrow": {
@@ -80,7 +80,7 @@
     "texto": "Trava-Tempo: Faça um teste de Conjuração (18). Com sucesso, o tempo desacelera temporariamente até parar para todos em alcance distante, menos você. Ele volta a correr na próxima vez que você fizer um teste de ação que tenha outra criatura como alvo.\n\nImunidade Mágica: Gaste 5 Esperança para ficar imune a dano mágico até o seu próximo descanso."
   },
   "core_domain_card_transcendent_union": {
-    "nome": "União Transcendente",
+    "nome": "União Transcendental",
     "texto": "Uma vez por descanso longo, gaste 5 Esperança para lançar esta magia em duas ou mais criaturas dispostas. Até o próximo descanso, quando uma criatura ligada por esta união for marcar PF ou Pontos de Vida, as criaturas ligadas podem escolher quem marca."
   }
 }

@@ -4,11 +4,11 @@
     "texto": "Quando estiver rastreando uma criatura ou grupo de criaturas específico pelos sinais da passagem deles, você pode gastar quantas Esperanças quiser e fazer ao mestre esse mesmo número de perguntas da lista a seguir.\n• Para que lado foram?\n• Há quanto tempo passaram por aqui?\n• O que estavam fazendo neste lugar?\n• Quantos estavam aqui?\nQuando encontrar criaturas que rastreou dessa forma, ganhe +1 na Evasão contra elas."
   },
   "core_domain_card_natures_tongue": {
-    "nome": "Língua da Natureza",
+    "nome": "Voz da Natureza",
     "texto": "Você fala a língua do mundo natural. Quando quiser falar com as plantas e os animais ao seu redor, faça um teste de Instinto (12). Com sucesso, eles te dão as informações que sabem. Num resultado com Medo, o que sabem pode ser limitado ou ter um custo.\nAlém disso, antes de fazer um teste de Conjuração num ambiente natural, você pode gastar 1 Esperança para ganhar +2 no teste."
   },
   "core_domain_card_vicious_entangle": {
-    "nome": "Enredar Cruel",
+    "nome": "Vinha Voraz",
     "texto": "Faça um teste de Conjuração contra um alvo em alcance distante. Com sucesso, raízes e vinhas brotam do chão, causando 1d8+1 de dano físico e deixando o alvo temporariamente Contido.\nAlém disso, com sucesso, você pode gastar 1 Esperança para deixar temporariamente Contido outro adversário em alcance muito próximo do seu alvo."
   },
   "core_domain_card_conjure_swarm": {
@@ -16,23 +16,23 @@
     "texto": "• Besouros Encouraçados de Tekaira: Marque 1 PF para conjurar besouros encouraçados que te cercam. Da próxima vez que sofrer dano, reduza a gravidade em um limiar. Você pode gastar 1 Esperança para manter os besouros conjurados depois de sofrer dano.\n• Vaga-lumes de Fogo: Faça um teste de Conjuração contra todos os adversários em alcance próximo. Gaste 1 Esperança para causar 2d8+3 de dano mágico aos alvos contra quem teve sucesso."
   },
   "core_domain_card_natural_familiar": {
-    "nome": "Familiar Natural",
-    "texto": "Gaste 1 Esperança para invocar ao seu lado um pequeno espírito da natureza ou bichinho da floresta até o seu próximo descanso, até lançar Familiar Natural de novo ou até o familiar ser alvo de um ataque. Se gastar 1 Esperança adicional, pode invocar um familiar que voa. Você consegue se comunicar com ele, fazer um teste de Conjuração para mandá-lo fazer tarefas simples e marcar 1 PF para ver pelos olhos dele.\nQuando causar dano a um adversário em alcance corpo a corpo do seu familiar, some um d6 à rolagem de dano."
+    "nome": "Familiar da Natureza",
+    "texto": "Gaste 1 Esperança para invocar ao seu lado um pequeno espírito da natureza ou bichinho da floresta até o seu próximo descanso, até lançar Familiar da Natureza de novo ou até o familiar ser alvo de um ataque. Se gastar 1 Esperança adicional, pode invocar um familiar que voa. Você consegue se comunicar com ele, fazer um teste de Conjuração para mandá-lo fazer tarefas simples e marcar 1 PF para ver pelos olhos dele.\nQuando causar dano a um adversário em alcance corpo a corpo do seu familiar, some um d6 à rolagem de dano."
   },
   "core_domain_card_corrosive_projectile": {
     "nome": "Projétil Corrosivo",
     "texto": "Faça um teste de Conjuração contra um alvo em alcance distante. Com sucesso, cause d6+4 de dano mágico usando a sua Proficiência. Além disso, marque 2 ou mais PF para deixá-lo permanentemente Corroído. Enquanto estiver Corroído, o alvo sofre −1 na Dificuldade para cada 2 PF que você gastou. Essa condição se acumula."
   },
   "core_domain_card_towering_stalk": {
-    "nome": "Caule Gigante",
+    "nome": "Tronco Descomunal",
     "texto": "Uma vez por descanso, você pode conjurar em alcance próximo um caule grosso e retorcido, fácil de escalar. A altura dele pode chegar a alcance distante.\nMarque 1 PF para usar esta magia como ataque. Faça um teste de Conjuração contra um adversário ou grupo de adversários em alcance próximo. O caule que irrompe ergue no ar os alvos contra quem você teve sucesso e os derruba, causando d8 de dano físico usando a sua Proficiência."
   },
   "core_domain_card_death_grip": {
-    "nome": "Aperto Mortal",
+    "nome": "Constrição Mortal",
     "texto": "Faça um teste de Conjuração contra um alvo em alcance próximo e escolha uma das opções a seguir:\n• Você puxa o alvo para alcance corpo a corpo ou se puxa para o alcance corpo a corpo dele.\n• Você estrangula o alvo e o obriga a marcar 2 PF.\n• Todos os adversários entre você e o alvo precisam ter sucesso num teste de reação (13) ou são atingidos por vinhas, sofrendo 3d6+2 de dano físico.\nCom sucesso, vinhas saem das suas mãos, causando o efeito escolhido e deixando o alvo temporariamente Contido."
   },
   "core_domain_card_healing_field": {
-    "nome": "Campo de Cura",
+    "nome": "Campo Curativo",
     "texto": "Uma vez por descanso longo, você pode conjurar um campo de plantas curativas ao seu redor. Tudo em alcance próximo de você explode em natureza vibrante, permitindo que você e todos os aliados na área limpem 1 Ponto de Vida.\nGaste 2 Esperança para que você e todos os aliados limpem 2 Pontos de Vida no lugar."
   },
   "core_domain_card_thorn_skin": {
@@ -44,7 +44,7 @@
     "texto": "Faça um teste de Conjuração (13). Com sucesso, gaste 2 Esperança para fazer crescer uma barricada natural em forma de cúpula, onde você e um aliado podem se abrigar. Dentro da cúpula, uma criatura não pode ser alvo de ataques nem atacar. Ataques contra a cúpula acertam automaticamente. A cúpula tem limiar de dano Maior 15 e Grave 30 e dura até marcar 3 Pontos de Vida. Coloque marcadores nesta carta para representar os Pontos de Vida marcados."
   },
   "core_domain_card_conjured_steeds": {
-    "nome": "Montarias Conjuradas",
+    "nome": "Conjurar Montarias",
     "texto": "Gaste quantas Esperanças quiser para conjurar esse número de montarias mágicas (como cavalos, camelos ou elefantes) que você e seus aliados podem montar até o seu próximo descanso longo ou até as montarias sofrerem qualquer dano. As montarias dobram o seu deslocamento em terra durante viagens e, em perigo, permitem se mover em alcance distante sem precisar de teste. Criaturas montadas sofrem −2 nos testes de ataque e ganham +2 nas rolagens de dano."
   },
   "core_domain_card_forager": {
@@ -52,15 +52,15 @@
     "texto": "Como movimento de descanso adicional que pode escolher, role um d6 para ver o que você coleta. Descreva-o com o mestre e adicione-o ao seu inventário como consumível. O grupo pode carregar até cinco consumíveis coletados ao mesmo tempo.\n• Uma comida única (limpe 2 PF)\n• Uma relíquia bonita (ganhe 2 Esperança)\n• Uma runa arcana (+2 num teste de Conjuração)\n• Um frasco de cura (limpe 2 Pontos de Vida)\n• Um amuleto da sorte (role de novo qualquer dado)\n• Escolha uma das opções acima."
   },
   "core_domain_card_sage_touched": {
-    "nome": "Tocado pelo Sábio",
-    "texto": "Quando 4 ou mais das cartas de domínio ativas forem do domínio Sábio, ganhe os seguintes benefícios:\n• Enquanto estiver num ambiente natural, você ganha +2 nos testes de Conjuração.\n• Uma vez por descanso, você pode dobrar sua Agilidade ou seu Instinto num teste que use esse atributo. Você precisa decidir isso antes de rolar."
+    "nome": "Dom da Sabedoria",
+    "texto": "Quando 4 ou mais das cartas de domínio ativas forem do domínio Sabedoria, ganhe os seguintes benefícios:\n• Enquanto estiver num ambiente natural, você ganha +2 nos testes de Conjuração.\n• Uma vez por descanso, você pode dobrar sua Agilidade ou seu Instinto num teste que use esse atributo. Você precisa decidir isso antes de rolar."
   },
   "core_domain_card_wild_surge": {
-    "nome": "Surto Selvagem",
-    "texto": "Uma vez por descanso longo, marque 1 PF para canalizar o mundo natural ao seu redor e se fortalecer. Descreva como sua aparência muda e coloque nesta carta um d6 com a face 1 para cima.\nEnquanto o Dado de Surto Selvagem estiver ativo, você soma o valor dele a todo teste de ação que fizer. Depois de somar o valor num teste, aumente o valor do dado em um. Quando o valor do dado for passar de 6 ou você descansar, essa forma acaba e você precisa marcar 1 PF adicional."
+    "nome": "Aspecto Selvagem",
+    "texto": "Uma vez por descanso longo, marque 1 PF para canalizar o mundo natural ao seu redor e se fortalecer. Descreva como sua aparência muda e coloque nesta carta um d6 com a face 1 para cima.\nEnquanto o Dado de Aspecto Selvagem estiver ativo, você soma o valor dele a todo teste de ação que fizer. Depois de somar o valor num teste, aumente o valor do dado em um. Quando o valor do dado for passar de 6 ou você descansar, essa forma acaba e você precisa marcar 1 PF adicional."
   },
   "core_domain_card_forest_sprites": {
-    "nome": "Fadas da Floresta",
+    "nome": "Espíritos da Floresta",
     "texto": "Faça um teste de Conjuração (13). Com sucesso, gaste quantas Esperanças quiser para criar o mesmo número de pequenas fadas da floresta, que aparecem em pontos à sua escolha em alcance distante e dão os seguintes benefícios:\n• Seus aliados ganham +3 nos testes de ataque contra adversários em alcance corpo a corpo de uma fada.\n• Um aliado que marcar um espaço de armadura em alcance corpo a corpo de uma fada pode marcar um espaço de armadura adicional.\nUma fada some depois de conceder um benefício ou de sofrer qualquer dano."
   },
   "core_domain_card_rejuvenation_barrier": {
@@ -69,10 +69,10 @@
   },
   "core_domain_card_fane_of_the_wilds": {
     "nome": "Santuário Selvagem",
-    "texto": "Depois de um descanso longo, coloque nesta carta um número de marcadores igual ao de cartas do domínio Sábio que você tem (ativas e na reserva).\nQuando for fazer um teste de Conjuração, você pode gastar quantos marcadores quiser depois de rolar para ganhar +1 por marcador gasto.\nQuando tiver um sucesso crítico num teste de Conjuração de uma magia do domínio Sábio, ganhe um marcador.\nQuando fizer um descanso longo, remova todos os marcadores não gastos."
+    "texto": "Depois de um descanso longo, coloque nesta carta um número de marcadores igual ao de cartas do domínio Sabedoria que você tem (ativas e na reserva).\nQuando for fazer um teste de Conjuração, você pode gastar quantos marcadores quiser depois de rolar para ganhar +1 por marcador gasto.\nQuando tiver um sucesso crítico num teste de Conjuração de uma magia do domínio Sabedoria, ganhe um marcador.\nQuando fizer um descanso longo, remova todos os marcadores não gastos."
   },
   "core_domain_card_plant_dominion": {
-    "nome": "Domínio das Plantas",
+    "nome": "Soberania Vegetal",
     "texto": "Faça um teste de Conjuração (18). Uma vez por descanso longo, com sucesso, você remodela o mundo natural, mudando a vegetação em qualquer lugar em alcance distante de você. Por exemplo, você pode fazer árvores crescerem na hora, abrir caminho em meio a vinhas densas ou criar uma muralha de raízes."
   },
   "core_domain_card_force_of_nature": {
