@@ -94,7 +94,7 @@ def _vista(a: Acesso, s: SessaoTabela) -> VistaDaSessao:
         participantes=participantes, meus=[p.personagem_id for p in participantes if p.dono_id == a.usuario_id],
         # o que o mestre mostra só vale enquanto a sessão está em andamento
         combate=combate_visivel(a, s.mesa_id, s.id) if em_jogo else [],
-        npcs=npcs_conhecidos(a, s.mesa_id),
+        npcs=npcs_conhecidos(a, s.mesa_id, s.id),   # os vinculados a esta sessão (e exibidos para todos)
         lojas=lojas_visiveis(a, s.mesa_id, s.id) if em_jogo else [])
 
 

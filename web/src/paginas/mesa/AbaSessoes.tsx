@@ -29,13 +29,14 @@ const NOME_STATUS: Record<string, string> = {
 
 const dataCurta = (d?: string | null) => (d ? new Date(`${d}T12:00:00`).toLocaleDateString('pt-BR') : 'sem data')
 
-function Destaques({ titulo, opcoes, escolhidos, aoMudar, desabilitado }: {
+function Destaques({ titulo, opcoes, escolhidos, aoMudar, desabilitado, dica }: {
   titulo: string; opcoes: { id: string; nome: string }[]; escolhidos: string[]
-  aoMudar: (ids: string[]) => void; desabilitado: boolean
+  aoMudar: (ids: string[]) => void; desabilitado: boolean; dica?: string
 }) {
   return (
     <fieldset className="space-y-1">
       <legend className="mb-1 text-sm font-medium text-texto-suave">{titulo}</legend>
+      {dica && <p className="text-xs text-texto-suave">{dica}</p>}
       {opcoes.length === 0 && <p className="text-xs text-texto-suave">Nada na biblioteca da mesa ainda.</p>}
       <div className="flex flex-wrap gap-1.5">
         {opcoes.map((o) => {
@@ -89,7 +90,8 @@ function Planejamento({ mesaId, sessao }: { mesaId: string; sessao: Sessao }) {
         <Area rotulo="Notas do mestre" rows={4} value={r.notas} maxLength={8000} disabled={so}
           dica="Segredos e lembretes. Ninguém além de você vê (nem quem recebeu a sessão compartilhada edita)."
           onChange={(e) => mudar({ notas: e.target.value })} />
-        <Destaques titulo="NPCs que devem aparecer" escolhidos={r.npcs} desabilitado={so}
+        <Destaques titulo="NPCs que participam" escolhidos={r.npcs} desabilitado={so}
+          dica="Os exibidos para todos aparecem aos jogadores na página da sessão (nome, foto e descrição)."
           opcoes={(npcs.data ?? []).map((n) => ({ id: n.id, nome: n.nome }))} aoMudar={(ids) => mudar({ npcs: ids })} />
         <Destaques titulo="Inimigos que devem aparecer" escolhidos={r.inimigos} desabilitado={so}
           opcoes={(inimigos.data ?? []).map((i) => ({ id: i.id, nome: i.nome }))} aoMudar={(ids) => mudar({ inimigos: ids })} />

@@ -4,7 +4,8 @@
   inimigo não escondido: nome na luta, foto, vitalidade (cheia, metade, baixa,
   derrotado; nunca os PV) e condições. Nada de dano, habilidades, Dificuldade
   ou outros números.
-- NPCs conhecidos: nome, foto e descrição (nunca notas nem motivações).
+- NPCs exibidos para todos e vinculados à sessão: nome, foto e descrição (nunca
+  notas nem motivações).
 - Lojas à mostra (`visivel`) de sessões em andamento: itens, preços e estoque.
 """
 
@@ -15,6 +16,7 @@ from motor.encontro import Combatente
 
 from ..autenticacao import Acesso, acesso
 from ..mesas import membro
+from .. import npcs
 from ..tabelas import EncontroTabela, LojaTabela, NpcTabela, SessaoTabela
 from .lojas import ItemDaLojaSaida, itens_saida
 
@@ -76,11 +78,20 @@ def combate_visivel(a: Acesso, mesa_id: str, sessao_id: str | None = None) -> li
     return combate
 
 
-def npcs_conhecidos(a: Acesso, mesa_id: str) -> list[NpcConhecido]:
-    """NPCs revelados: são da mesa (o grupo conhece), não de uma sessão."""
-    npcs = (a.banco.query(NpcTabela).filter(NpcTabela.mesa_id == mesa_id, NpcTabela.revelado.is_(True))
-            .order_by(NpcTabela.nome))
-    return [NpcConhecido(id=n.id, nome=n.nome, foto=n.foto, descricao=n.descricao) for n in npcs]
+def npcs_conhecidos(a: Acesso, mesa_id: str, sessao_id: str | None = None) -> list[NpcConhecido]:
+    """NPCs exibidos para todos e vinculados à sessão (`sessao_id`) ou, sem ela,
+    a alguma sessão em andamento da mesa."""
+    if sessao_id:
+        sessoes = [a.banco.get(SessaoTabela, sessao_id)]
+    else:
+        sessoes = a.banco.query(SessaoTabela).filter_by(mesa_id=mesa_id, status="em_andamento").all()
+    ids = {i for s in sessoes if s for i in (s.npcs or [])}
+    if not ids:
+        return []
+    linhas = (a.banco.query(NpcTabela).filter(NpcTabela.mesa_id == mesa_id, NpcTabela.id.in_(ids),
+                                              NpcTabela.visibilidade == npcs.TODOS)
+              .order_by(NpcTabela.nome))
+    return [NpcConhecido(id=n.id, nome=n.nome, foto=n.foto, descricao=n.descricao) for n in linhas]
 
 
 def lojas_visiveis(a: Acesso, mesa_id: str, sessao_id: str | None = None) -> list[LojaVisivel]:

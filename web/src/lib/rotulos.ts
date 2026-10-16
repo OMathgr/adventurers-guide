@@ -79,6 +79,13 @@ export const NOME_CONDICAO: Record<string, string> = {
 
 export const condicao = (c: string) => NOME_CONDICAO[c] ?? c
 
+/** Quem vê um NPC (api/npcs.py). */
+export const NOME_VISIBILIDADE_NPC: Record<string, { nome: string; dica: string }> = {
+  privado: { nome: 'Só eu', dica: 'Ninguém mais vê: nem os outros mestres.' },
+  mestres: { nome: 'Mestres', dica: 'Os mestres da mesa veem tudo (inclusive notas) e podem usar nas sessões deles; editar continua com você.' },
+  todos: { nome: 'Todos', dica: 'Os jogadores veem nome, foto e descrição na sessão a que o mestre vincular o NPC. Motivações e notas continuam só dos mestres.' },
+}
+
 export const NOME_ESTAGIO: Record<string, string> = {
   fundacao: 'Fundamental', especializacao: 'Especialização', maestria: 'Maestria',
 }

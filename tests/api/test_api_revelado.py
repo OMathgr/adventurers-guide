@@ -64,15 +64,21 @@ def test_so_o_responsavel_mostra(cliente, mesa, bia, encontro):
     assert cliente.put(f"{encontro['base']}/visivel", json={"visivel": True}, headers=bia).status_code == 404
 
 
-def test_npc_conhecido(cliente, mesa, bia):
+def test_npc_para_todos_aparece_so_vinculado_a_sessao_em_andamento(cliente, mesa, bia):
     npc = cliente.post(url(mesa, "/npcs"), json={"nome": "Marlowe", "descricao": "Ferreiro da vila",
                                                  "motivacoes": "Vingança", "notas": "É espião"}).json()
-    assert npc["revelado"] is False
-    assert cliente.get(url(mesa, "/revelado"), headers=bia).json()["npcs"] == []
-    assert cliente.put(url(mesa, f"/npcs/{npc['id']}/revelado"), json={"revelado": True}).json()["revelado"] is True
-    assert cliente.get(url(mesa, "/revelado"), headers=bia).json()["npcs"] == [
-        {"id": npc["id"], "nome": "Marlowe", "foto": None, "descricao": "Ferreiro da vila"}]
-    assert cliente.put(url(mesa, f"/npcs/{npc['id']}/revelado"), json={"revelado": True}, headers=bia).status_code == 404
+    assert npc["visibilidade"] == "privado"
+    cliente.put(url(mesa, f"/npcs/{npc['id']}/visibilidade"), json={"visibilidade": "todos"})
+    assert cliente.get(url(mesa, "/revelado"), headers=bia).json()["npcs"] == []   # sem sessão vinculada
+    s = cliente.post(url(mesa, "/sessoes"), json={"titulo": "A forja"}).json()
+    cliente.put(url(mesa, f"/sessoes/{s['id']}"), json={"titulo": "A forja", "npcs": [npc["id"]]})
+    assert cliente.get(url(mesa, "/revelado"), headers=bia).json()["npcs"] == []   # ainda planejada
+    cliente.put(url(mesa, f"/sessoes/{s['id']}/status"), json={"status": "em_andamento"})
+    conhecido = [{"id": npc["id"], "nome": "Marlowe", "foto": None, "descricao": "Ferreiro da vila"}]
+    assert cliente.get(url(mesa, "/revelado"), headers=bia).json()["npcs"] == conhecido
+    assert cliente.get(url(mesa, f"/sessoes/{s['id']}/jogo"), headers=bia).json()["npcs"] == conhecido
+    assert cliente.put(url(mesa, f"/npcs/{npc['id']}/visibilidade"), json={"visibilidade": "privado"},
+                       headers=bia).status_code == 404
 
 
 def test_quem_nao_e_da_mesa_nao_ve(cliente, mesa):

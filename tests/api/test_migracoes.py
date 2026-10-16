@@ -58,3 +58,28 @@ def test_migrar_nao_apaga_dados(tmp_path, monkeypatch):
     command.downgrade(config, "ce777afa6c3f")
     assert contar() == (1, 1, "m1", 1)
     engine.dispose()
+
+
+def test_npcs_existentes_ganham_dono_e_visibilidade(tmp_path, monkeypatch):
+    """Antes não havia dono: fica quem criou a mesa; o revelado vira "todos", o resto "mestres"."""
+    from sqlalchemy import text
+
+    url = f"sqlite:///{(tmp_path / 'npcs.db').as_posix()}"
+    monkeypatch.setenv("DATABASE_URL", url)
+    config = Config("alembic.ini")
+    command.upgrade(config, "45a719f76e56")
+    engine = criar_engine(url)
+    with engine.begin() as c:
+        c.execute(text("INSERT INTO usuarios (id, email, nome, senha_hash, criado_em) "
+                       "VALUES ('u1', 'a@a.com', 'Ana', 'x', '2026-01-01')"))
+        c.execute(text("INSERT INTO mesas (id, nome, criador_id, codigo_convite, permissoes_mestres, nivel_maximo, "
+                       "criado_em) VALUES ('m1', 'Mesa', 'u1', 'ABC', '{}', 3, '2026-01-01')"))
+        for npc_id, revelado in (("n1", 1), ("n2", 0)):
+            c.execute(text("INSERT INTO npcs (id, mesa_id, nome, descricao, motivacoes, notas, revelado, criado_em, "
+                           f"atualizado_em) VALUES ('{npc_id}', 'm1', 'X', '', '', '', {revelado}, '2026-01-01', "
+                           "'2026-01-01')"))
+    command.upgrade(config, "head")
+    with engine.connect() as c:
+        linhas = c.execute(text("SELECT id, dono_id, visibilidade FROM npcs ORDER BY id")).all()
+    assert [tuple(x) for x in linhas] == [("n1", "u1", "todos"), ("n2", "u1", "mestres")]
+    engine.dispose()

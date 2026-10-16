@@ -66,9 +66,11 @@ def test_criar_sessao_e_medo_comeca_no_numero_de_personagens(cliente, mesa, bia)
 
 
 def test_dados_status_e_medo_da_sessao(cliente, mesa, sessao, bia):
+    n1 = cliente.post(url(mesa, "/npcs"), json={"nome": "Ferreiro"}).json()["id"]
     s = cliente.put(s_url(mesa, sessao), json={"titulo": "A ponte", "resumo": "Chegar à cidade",
-                                               "notas": "O ferreiro é espião", "npcs": ["n1", "n1"]}).json()
-    assert (s["resumo"], s["notas"], s["npcs"]) == ("Chegar à cidade", "O ferreiro é espião", ["n1"])
+                                               "notas": "O ferreiro é espião", "npcs": [n1, n1]}).json()
+    assert (s["resumo"], s["notas"], s["npcs"]) == ("Chegar à cidade", "O ferreiro é espião", [n1])
+    assert cliente.put(s_url(mesa, sessao), json={"titulo": "A ponte", "npcs": ["nao-existe"]}).status_code == 404
     assert cliente.put(s_url(mesa, sessao, "/medo"), json={"valor": 5}).json()["medo"] == 5
     assert cliente.post(s_url(mesa, sessao, "/medo"), json={"delta": 20}).json()["medo"] == 12
     assert cliente.post(s_url(mesa, sessao, "/medo"), json={"delta": -13}).status_code == 422

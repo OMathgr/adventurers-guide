@@ -120,7 +120,10 @@ class NpcTabela(Base):
     notas: Mapped[str] = mapped_column(String(8000), default="")
     ficha_combate: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     foto: Mapped[str | None] = mapped_column(String(36), nullable=True)   # id em `imagens`
-    # conhecido pelos jogadores: veem nome, foto e descrição (nunca notas nem motivações)
+    # quem vê (api/npcs.py): privado (só o dono), mestres ou todos (jogadores, na sessão vinculada)
+    dono_id: Mapped[str | None] = mapped_column(String(36), nullable=True, index=True)
+    visibilidade: Mapped[str] = mapped_column(String(10), default="privado", server_default="mestres")
+    # antigo "conhecido pelos jogadores"; virou visibilidade "todos" (não é mais usado)
     revelado: Mapped[bool] = mapped_column(Boolean, default=False, server_default=false())
     criado_em: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_agora)
     atualizado_em: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_agora, onupdate=_agora)

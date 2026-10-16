@@ -1,8 +1,10 @@
 // NPCs da mesa: ficha simples (descrição, motivações, notas privadas) e,
-// se o mestre quiser, uma ficha de combate no formato de inimigo.
+// se o mestre quiser, uma ficha de combate no formato de inimigo. Cada NPC é de
+// quem criou e começa visível só para ele; ele escolhe mostrar aos mestres ou a
+// todos (os jogadores o veem na sessão a que for vinculado).
 import { useState } from 'react'
 
-import { useApagarNpc, useNpcs, useRevelarNpc, useSalvarNpc } from '../../api/consultas'
+import { useApagarNpc, useNpcs, useSalvarNpc, useVisibilidadeNpc } from '../../api/consultas'
 import type { Npc, NpcEntrada } from '../../api/tipos'
 import { AvisoDeConflito } from '../../componentes/Conflito'
 import EditorInimigo from '../../componentes/EditorInimigo'
@@ -12,6 +14,7 @@ import TextoRico from '../../componentes/TextoRico'
 import { Area, Aviso, Botao, Campo, Carregando, Escolhivel, Selo } from '../../componentes/ui'
 import { semConflito } from '../../lib/conflito'
 import { INIMIGO_EM_BRANCO } from '../../lib/inimigo'
+import { NOME_VISIBILIDADE_NPC } from '../../lib/rotulos'
 
 // `versao`: a de quando abriu o editor (se outro mestre salvar antes, o servidor avisa)
 type Rascunho = NpcEntrada & { id?: string; versao?: string | null }
@@ -62,20 +65,37 @@ function Editor({ inicial, aoSalvar, aoCancelar, aoVerAtual, salvando, erro }: {
   )
 }
 
-/** Conhecido pelos jogadores: eles veem nome, foto e descrição (nunca notas nem motivações). */
-function Revelar({ mesaId, npc, podeEditar }: { mesaId: string; npc: Npc; podeEditar: boolean }) {
-  const revelar = useRevelarNpc(mesaId)
+/** Quem vê: só o dono escolhe; os outros mestres veem de quem é. */
+function Visibilidade({ mesaId, npc }: { mesaId: string; npc: Npc }) {
+  const mudar = useVisibilidadeNpc(mesaId)
+  const atual = npc.visibilidade ?? 'privado'
+  if (!npc.sou_dono) {
+    return <p className="text-sm text-texto-suave">NPC de {npc.dono}, compartilhado com os mestres: só ele edita.</p>
+  }
   return (
-    <div className="space-y-1">
-      <label className="flex items-center gap-2 text-sm">
-        <input type="checkbox" checked={!!npc.revelado} disabled={!podeEditar || revelar.isPending}
-          onChange={(e) => revelar.mutate({ npcId: npc.id, revelado: e.target.checked })} />
-        Conhecido pelos jogadores
-      </label>
-      <p className="text-xs text-texto-suave">Eles veem nome, foto e descrição. Motivações e notas continuam só suas.</p>
-      <Aviso erro={revelar.error} />
-    </div>
+    <fieldset className="space-y-1">
+      <legend className="mb-1 text-sm font-medium">Quem vê</legend>
+      <div className="flex flex-wrap gap-1.5">
+        {Object.entries(NOME_VISIBILIDADE_NPC).map(([valor, { nome }]) => (
+          <button key={valor} type="button" aria-pressed={atual === valor} disabled={mudar.isPending}
+            onClick={() => atual !== valor && mudar.mutate({ npcId: npc.id, visibilidade: valor as Npc['visibilidade'] })}
+            className={`rounded-full border px-3 py-1 text-sm transition ${atual === valor
+              ? 'border-esperanca bg-esperanca/15 text-esperanca' : 'border-borda text-texto-suave hover:text-texto'}`}>
+            {nome}
+          </button>
+        ))}
+      </div>
+      <p className="text-xs text-texto-suave">{NOME_VISIBILIDADE_NPC[atual]?.dica}</p>
+      <Aviso erro={mudar.error} />
+    </fieldset>
   )
+}
+
+/** Selo da lista: quem vê (e de quem é, se não for seu). */
+function SeloVisibilidade({ npc }: { npc: Npc }) {
+  if (!npc.sou_dono) return <Selo>de {npc.dono}</Selo>
+  const v = npc.visibilidade ?? 'privado'
+  return <Selo destaque={v === 'todos'}>{NOME_VISIBILIDADE_NPC[v]?.nome}</Selo>
 }
 
 function Detalhe({ npc, acoes, revelar }: { npc: Npc; acoes?: React.ReactNode; revelar?: React.ReactNode }) {
@@ -86,7 +106,7 @@ function Detalhe({ npc, acoes, revelar }: { npc: Npc; acoes?: React.ReactNode; r
           <div className="flex items-center gap-3">
             <Foto id={npc.foto} nome={npc.nome} />
             <h2 className="text-xl text-esperanca">{npc.nome}</h2>
-            {npc.revelado && <Selo destaque>conhecido</Selo>}
+            <SeloVisibilidade npc={npc} />
           </div>
           {acoes && <div className="flex gap-2">{acoes}</div>}
         </header>
@@ -134,7 +154,7 @@ export default function AbaNpcs({ mesaId, podeEditar }: { mesaId: string; podeEd
                 <span className="flex items-center justify-between gap-2">
                   <span className="flex items-center gap-2"><Foto id={n.foto} nome={n.nome} tamanho="p" />
                     <span className="font-medium">{n.nome}</span></span>
-                  <span className="flex gap-1">{n.revelado && <Selo destaque>conhecido</Selo>}{n.ficha_combate && <Selo>combate</Selo>}</span>
+                  <span className="flex gap-1"><SeloVisibilidade npc={n} />{n.ficha_combate && <Selo>combate</Selo>}</span>
                 </span>
               </Escolhivel>
             </li>
@@ -153,7 +173,7 @@ export default function AbaNpcs({ mesaId, podeEditar }: { mesaId: string; podeEd
         ) : npc ? (
           <>
             <Aviso erro={apagar.error} />
-            <Detalhe npc={npc} revelar={<Revelar mesaId={mesaId} npc={npc} podeEditar={podeEditar} />} acoes={podeEditar && <>
+            <Detalhe npc={npc} revelar={<Visibilidade mesaId={mesaId} npc={npc} />} acoes={podeEditar && npc.sou_dono && <>
               <Botao variante="secundario" onClick={() => editar(npc)}>Editar</Botao>
               <Botao variante="perigo" disabled={apagar.isPending}
                 onClick={() => confirm(`Apagar ${npc.nome}?`)
@@ -164,7 +184,7 @@ export default function AbaNpcs({ mesaId, podeEditar }: { mesaId: string; podeEd
           </>
         ) : (
           <div className="rounded-2xl border border-dashed border-borda p-10 text-center text-texto-suave">
-            Escolha um NPC para ver a ficha. Tudo aqui é visível só para os mestres.
+            Escolha um NPC para ver a ficha. Um NPC novo começa visível só para você.
           </div>
         )}
       </section>

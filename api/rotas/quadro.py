@@ -19,6 +19,7 @@ from ..autenticacao import Acesso, acesso
 from ..concorrencia import conferir, versao_de
 from ..mesas import membro
 from ..sessoes import sessao_do_mestre
+from .. import npcs
 from ..tabelas import EncontroTabela, InimigoTabela, MesaTabela, NpcTabela, SessaoTabela
 
 rotas = APIRouter(prefix="/mesas/{mesa_id}", tags=["Quadros"])
@@ -61,7 +62,9 @@ def _resolver(a: Acesso, mesa: MesaTabela, q: Quadro) -> dict[str, ItemNoQuadro]
         if c.item_tipo.value == "npc":
             n = a.banco.get(NpcTabela, c.item_id)
             if n and n.mesa_id == mesa.id:
-                item = ItemNoQuadro(nome=n.nome, foto=n.foto, descricao=n.descricao)
+                quem = membro(a.banco, mesa.id, a.usuario_id)
+                item = (ItemNoQuadro(nome=n.nome, foto=n.foto, descricao=n.descricao)
+                        if npcs.visivel_para(a.banco, n, quem) else ItemNoQuadro(nome="NPC oculto"))
         elif c.item_tipo.value == "inimigo":
             i = a.banco.get(InimigoTabela, c.item_id)
             if i and i.mesa_id == mesa.id:

@@ -531,11 +531,12 @@ export const useQuadroDaCampanha = (mesaId: string) =>
   })
 
 /** Torna um NPC conhecido (ou não) pelos jogadores. */
-export function useRevelarNpc(mesaId: string) {
+/** Quem vê o NPC: só o dono ("privado"), os mestres ou todos (jogadores, na sessão vinculada). */
+export function useVisibilidadeNpc(mesaId: string) {
   const cliente = useQueryClient()
   return useMutation({
-    mutationFn: ({ npcId, revelado }: { npcId: string; revelado: boolean }) =>
-      chamar<Npc>(`/mesas/${mesaId}/npcs/${npcId}/revelado`, { metodo: 'PUT', corpo: { revelado } }),
+    mutationFn: ({ npcId, visibilidade }: { npcId: string; visibilidade: Npc['visibilidade'] }) =>
+      chamar<Npc>(`/mesas/${mesaId}/npcs/${npcId}/visibilidade`, { metodo: 'PUT', corpo: { visibilidade } }),
     onSuccess: () => Promise.all([
       cliente.invalidateQueries({ queryKey: chavesMesa.npcs(mesaId) }),
       cliente.invalidateQueries({ queryKey: ['mesas', mesaId, 'revelado'] }),

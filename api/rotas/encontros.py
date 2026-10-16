@@ -18,6 +18,7 @@ from motor.guia_batalha import GuiaDeBatalha, OpcoesDoGuia, calcular, validar_op
 from ..autenticacao import Acesso, acesso
 from ..repositorio import NaoEncontrado, biblioteca
 from ..sessoes import sessao_do_mestre
+from .. import npcs
 from ..tabelas import EncontroTabela, InimigoTabela, MesaTabela, NpcTabela
 
 rotas = APIRouter(prefix="/mesas/{mesa_id}/sessoes/{sessao_id}", tags=["Sessões"])
@@ -144,6 +145,8 @@ def _ficha_de_origem(a: Acesso, mesa_id: str, pedido: NovosCombatentes) -> Adver
         adversario = _ADVERSARIO.validate_python(linha.dados) if linha and linha.mesa_id == mesa_id else None
     else:
         linha = a.banco.get(NpcTabela, pedido.id)
+        if linha and not npcs.mestre_ve(a.banco, linha, a.usuario_id):
+            linha = None   # NPC privado de outro mestre: para você, não existe
         if linha and linha.mesa_id == mesa_id and linha.ficha_combate is None:
             raise NaoEncontrado(f"{linha.nome} não tem ficha de combate.")
         adversario = (_ADVERSARIO.validate_python(linha.ficha_combate)

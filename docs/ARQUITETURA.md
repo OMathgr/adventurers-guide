@@ -561,11 +561,19 @@ Decisões do projeto (2026-10-13):
   mais de 2/3 é vida cheia, mais de 1/3 metade da vida, menos vida baixa, zero
   derrotado (6 PV: 6-5 cheia, 4-3 metade, 2-1 baixa). Conta em inteiros
   (restam × 3 contra o total × 2), sem arredondamento.
-- **NPC conhecido** (`npcs.revelado`, permissão `preparar`): os jogadores veem
-  nome, foto e descrição (nunca motivações nem notas). Fica conhecido entre as
-  sessões (o que os jogadores aprenderam não some quando a sessão acaba).
-- `GET /mesas/{id}/revelado` (qualquer membro) junta os dois; a aba Mesa mostra
-  "Em combate: ..." e "NPCs conhecidos". Atualiza ao vivo (ver abaixo).
+- **NPCs** (`api/npcs.py`): cada um tem dono (quem criou; se ele sai da mesa,
+  passa a quem criou a mesa) e visibilidade: `privado` (só o dono, é como nasce),
+  `mestres` (os mestres veem tudo, inclusive notas, e usam: vincular à sessão
+  deles, pôr num encontro; editar, mudar quem vê e apagar seguem com o dono) e
+  `todos` (os jogadores veem nome, foto e descrição, nunca motivações nem notas,
+  **só na sessão a que o mestre vinculou o NPC**, `sessoes.npcs`, em andamento
+  ou na consulta da encerrada). `PUT /npcs/{id}/visibilidade`. Os NPCs de antes
+  da regra ficaram com quem criou a mesa: `mestres`, ou `todos` se estavam
+  revelados (`npcs.revelado` não é mais usado). No quadro, quem não pode ver o
+  NPC vê "NPC oculto".
+- `GET /mesas/{id}/revelado` (qualquer membro) junta os dois (NPCs: os
+  vinculados a sessões em andamento); a tela usa a vista de cada sessão
+  (`/sessoes/{id}/jogo`). Atualiza ao vivo (ver abaixo).
 
 ### Guia de Batalha (`motor/guia_batalha.py`)
 

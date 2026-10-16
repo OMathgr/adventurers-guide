@@ -21,7 +21,9 @@ from ..autenticacao import Acesso, acesso
 from ..concorrencia import conferir, versao_de
 from ..mesas import MESTRE, Permissao, eh_criador, exigir, exigir_mestre, membro
 from ..sessoes import STATUS, pode_ver, sessao_do_mestre
-from ..tabelas import MembroTabela, ParticipacaoTabela, SessaoTabela
+from .. import npcs
+from ..repositorio import NaoEncontrado
+from ..tabelas import MembroTabela, NpcTabela, ParticipacaoTabela, SessaoTabela
 from .encontros import EncontroResumo, resumos
 
 rotas = APIRouter(prefix="/mesas/{mesa_id}/sessoes", tags=["Sessões"])
@@ -140,6 +142,10 @@ def editar(mesa_id: str, sessao_id: str, dados: DadosDaSessao, versao: str | Non
            a: Acesso = Depends(acesso)):
     s = sessao_do_mestre(a, mesa_id, sessao_id, editar=True)
     conferir(versao, *_versao_conteudo(s))
+    for npc_id in dados.npcs:   # vincular: só NPCs desta mesa que você vê
+        n = a.banco.get(NpcTabela, npc_id)
+        if n is None or n.mesa_id != mesa_id or not npcs.mestre_ve(a.banco, n, a.usuario_id):
+            raise NaoEncontrado("NPC não encontrado.")
     s.titulo, s.data, s.resumo, s.notas = dados.titulo.strip(), dados.data, dados.resumo, dados.notas
     s.npcs, s.inimigos = list(dict.fromkeys(dados.npcs)), list(dict.fromkeys(dados.inimigos))
     a.banco.commit()

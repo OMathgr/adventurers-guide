@@ -277,6 +277,35 @@ describe('Página da mesa', () => {
     expect(screen.queryByRole('button', { name: 'Salvar planejamento' })).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Apagar sessão' })).not.toBeInTheDocument()
   })
+  it('NPC: o dono escolhe quem vê; o de outro mestre é só leitura', async () => {
+    const npc = (extra: Record<string, unknown>) => ({ id: 'n1', nome: 'Marlowe', descricao: 'Ferreiro', motivacoes: '',
+      notas: 'É espião', ficha_combate: null, foto: null, visibilidade: 'privado', dono_id: 'u1', dono: 'Ana',
+      sou_dono: true, versao: 'v', ...extra })
+    const fetch = vi.fn(async (url: string, opcoes?: RequestInit) => {
+      const caminho = url.replace(/^\/api/, '')
+      const corpo: Record<string, unknown> = {
+        '/mesas/m1': mesa('mestre'),
+        '/mesas/m1/npcs': [npc({}), npc({ id: 'n2', nome: 'Vesna', dono: 'Carlos', dono_id: 'u2', sou_dono: false,
+          visibilidade: 'mestres' })],
+        '/mesas/m1/npcs/n1/visibilidade': npc({ visibilidade: 'todos' }),
+      }
+      void opcoes
+      return new Response(JSON.stringify(corpo[caminho] ?? {}), { status: caminho in corpo ? 200 : 404 })
+    })
+    vi.stubGlobal('fetch', fetch)
+    montarEm('/mesas/m1?aba=npcs', <Mesa />, '/mesas/:id')
+    await userEvent.click(await screen.findByRole('button', { name: /Marlowe/ }))
+    expect(screen.getByRole('button', { name: 'Só eu' })).toHaveAttribute('aria-pressed', 'true')
+    await userEvent.click(screen.getByRole('button', { name: 'Todos' }))
+    expect(fetch).toHaveBeenCalledWith('/api/mesas/m1/npcs/n1/visibilidade', expect.objectContaining({
+      method: 'PUT', body: JSON.stringify({ visibilidade: 'todos' }) }))
+    // o NPC do Carlos: dá para ver, mas não editar nem mudar quem vê
+    await userEvent.click(screen.getByRole('button', { name: /Vesna/ }))
+    expect(await screen.findByText(/NPC de Carlos, compartilhado com os mestres/)).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Editar' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Todos' })).not.toBeInTheDocument()
+  })
+
   it('mestre copia um adversário do SRD para a mesa', async () => {
     const fetch = respostas({
       '/mesas/m1': mesa('mestre'), '/mesas/m1/inimigos': [], '/srd/adversarios': [{ ...MAGO, id: 'srd_war_wizard' }],

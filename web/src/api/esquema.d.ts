@@ -1343,10 +1343,16 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Listar Npcs */
+        /**
+         * Listar Npcs
+         * @description Os NPCs que este mestre vê: os dele e os que outros mestres mostraram (api/npcs.py).
+         */
         get: operations["listar_npcs_mesas__mesa_id__npcs_get"];
         put?: never;
-        /** Criar Npc */
+        /**
+         * Criar Npc
+         * @description Novo NPC começa privado (só quem criou vê).
+         */
         post: operations["criar_npc_mesas__mesa_id__npcs_post"];
         delete?: never;
         options?: never;
@@ -1373,7 +1379,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/mesas/{mesa_id}/npcs/{npc_id}/revelado": {
+    "/mesas/{mesa_id}/npcs/{npc_id}/visibilidade": {
         parameters: {
             query?: never;
             header?: never;
@@ -1382,11 +1388,11 @@ export interface paths {
         };
         get?: never;
         /**
-         * Revelar Npc
-         * @description Torna o NPC conhecido pelos jogadores (nome, foto e descrição; notas e
-         *     motivações continuam só do mestre). Fica conhecido entre as sessões.
+         * Mudar Visibilidade
+         * @description Quem vê o NPC: só o dono, os mestres, ou todos (os jogadores veem nome,
+         *     foto e descrição na sessão a que o mestre o vincular). Só o dono muda.
          */
-        put: operations["revelar_npc_mesas__mesa_id__npcs__npc_id__revelado_put"];
+        put: operations["mudar_visibilidade_mesas__mesa_id__npcs__npc_id__visibilidade_put"];
         post?: never;
         delete?: never;
         options?: never;
@@ -4057,10 +4063,26 @@ export interface components {
             /** Id */
             id: string;
             /**
-             * Revelado
+             * Visibilidade
+             * @default privado
+             * @enum {string}
+             */
+            visibilidade: "privado" | "mestres" | "todos";
+            /**
+             * Dono Id
+             * @default
+             */
+            dono_id: string;
+            /**
+             * Dono
+             * @default
+             */
+            dono: string;
+            /**
+             * Sou Dono
              * @default false
              */
-            revelado: boolean;
+            sou_dono: boolean;
             /**
              * Versao
              * @default
@@ -4105,10 +4127,13 @@ export interface components {
              */
             foto?: string | null;
         };
-        /** NpcRevelado */
-        NpcRevelado: {
-            /** Revelado */
-            revelado: boolean;
+        /** NpcVisibilidade */
+        NpcVisibilidade: {
+            /**
+             * Visibilidade
+             * @enum {string}
+             */
+            visibilidade: "privado" | "mestres" | "todos";
         };
         /**
          * Opcao
@@ -7647,7 +7672,7 @@ export interface operations {
             };
         };
     };
-    revelar_npc_mesas__mesa_id__npcs__npc_id__revelado_put: {
+    mudar_visibilidade_mesas__mesa_id__npcs__npc_id__visibilidade_put: {
         parameters: {
             query?: never;
             header?: never;
@@ -7659,7 +7684,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["NpcRevelado"];
+                "application/json": components["schemas"]["NpcVisibilidade"];
             };
         };
         responses: {

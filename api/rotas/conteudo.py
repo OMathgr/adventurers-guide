@@ -8,7 +8,7 @@ Ver exige ser mestre; criar, editar e apagar exige a permissão `preparar`
 import copy
 import dataclasses
 import uuid
-from typing import get_type_hints
+from typing import Literal, get_type_hints
 
 from fastapi import APIRouter, Depends, Response
 from pydantic import BaseModel, Field, TypeAdapter, create_model
@@ -18,9 +18,10 @@ from motor.adversarios import validar
 
 from ..autenticacao import Acesso, acesso
 from ..concorrencia import conferir, versao_de
-from ..mesas import Permissao, exigir, exigir_mestre, membro
+from ..mesas import Permissao, SemPermissao, exigir, exigir_mestre, membro
 from ..repositorio import NaoEncontrado, biblioteca
-from ..tabelas import InimigoTabela, NpcTabela
+from .. import npcs
+from ..tabelas import InimigoTabela, NpcTabela, UsuarioTabela
 from .imagens import imagem_valida
 
 
@@ -156,18 +157,24 @@ class NpcEntrada(BaseModel):
 
 class Npc(NpcEntrada):
     id: str
-    revelado: bool = False             # conhecido pelos jogadores (nome, foto e descrição)
+    visibilidade: Literal["privado", "mestres", "todos"] = "privado"
+    dono_id: str = ""
+    dono: str = ""                     # nome de quem criou
+    sou_dono: bool = False             # só o dono edita, muda a visibilidade e apaga
     versao: str = ""                   # mande de volta ao salvar (api/concorrencia.py)
 
 
-class NpcRevelado(BaseModel):
-    revelado: bool
+class NpcVisibilidade(BaseModel):
+    visibilidade: Literal["privado", "mestres", "todos"]
 
 
-def _npc(a: Acesso, mesa_id: str, npc_id: str) -> NpcTabela:
+def _npc(a: Acesso, mesa_id: str, npc_id: str, editar: bool = False) -> NpcTabela:
+    """NPC que este mestre vê (senão, 404); `editar` exige ser o dono (403)."""
     linha = a.banco.get(NpcTabela, npc_id)
-    if linha is None or linha.mesa_id != mesa_id:
+    if linha is None or linha.mesa_id != mesa_id or not npcs.mestre_ve(a.banco, linha, a.usuario_id):
         raise NaoEncontrado("NPC não encontrado.")
+    if editar and not npcs.pode_editar(a.banco, linha, a.usuario_id):
+        raise SemPermissao("Só quem criou o NPC pode mudar isso.")
     return linha
 
 
@@ -175,10 +182,13 @@ def _conteudo_npc(linha: NpcTabela) -> tuple:
     return linha.nome, linha.descricao, linha.motivacoes, linha.notas, linha.ficha_combate, linha.foto
 
 
-def _npc_saida(linha: NpcTabela) -> Npc:
+def _npc_saida(a: Acesso, linha: NpcTabela) -> Npc:
+    dono_id = npcs.dono(a.banco, linha)
+    dono = a.banco.get(UsuarioTabela, dono_id)
     return Npc(id=linha.id, nome=linha.nome, descricao=linha.descricao, motivacoes=linha.motivacoes,
                notas=linha.notas, ficha_combate=linha.ficha_combate, foto=linha.foto,
-               revelado=bool(linha.revelado), versao=versao_de(*_conteudo_npc(linha)))
+               visibilidade=linha.visibilidade, dono_id=dono_id, dono=dono.nome if dono else "",
+               sou_dono=dono_id == a.usuario_id, versao=versao_de(*_conteudo_npc(linha)))
 
 
 def _aplicar_npc(a: Acesso, linha: NpcTabela, dados: NpcEntrada):
@@ -193,52 +203,54 @@ def _aplicar_npc(a: Acesso, linha: NpcTabela, dados: NpcEntrada):
 
 @rotas.get("/npcs", response_model=list[Npc])
 def listar_npcs(mesa_id: str, a: Acesso = Depends(acesso)):
+    """Os NPCs que este mestre vê: os dele e os que outros mestres mostraram (api/npcs.py)."""
     _mestre(a, mesa_id)
     linhas = a.banco.query(NpcTabela).filter_by(mesa_id=mesa_id).order_by(NpcTabela.nome)
-    return [_npc_saida(x) for x in linhas]
+    return [_npc_saida(a, x) for x in linhas if npcs.mestre_ve(a.banco, x, a.usuario_id)]
 
 
 @rotas.post("/npcs", status_code=201, response_model=Npc)
 def criar_npc(mesa_id: str, dados: NpcEntrada, a: Acesso = Depends(acesso)):
+    """Novo NPC começa privado (só quem criou vê)."""
     _mestre(a, mesa_id, editar=True)
-    linha = NpcTabela(id=str(uuid.uuid4()), mesa_id=mesa_id)
+    linha = NpcTabela(id=str(uuid.uuid4()), mesa_id=mesa_id, dono_id=a.usuario_id, visibilidade=npcs.PRIVADO)
     _aplicar_npc(a, linha, dados)
     a.banco.add(linha)
     a.banco.commit()
-    return _npc_saida(linha)
+    return _npc_saida(a, linha)
 
 
 @rotas.get("/npcs/{npc_id}", response_model=Npc)
 def ver_npc(mesa_id: str, npc_id: str, a: Acesso = Depends(acesso)):
     _mestre(a, mesa_id)
-    return _npc_saida(_npc(a, mesa_id, npc_id))
+    return _npc_saida(a, _npc(a, mesa_id, npc_id))
 
 
 @rotas.put("/npcs/{npc_id}", response_model=Npc)
 def editar_npc(mesa_id: str, npc_id: str, dados: NpcEntrada, versao: str | None = None,
                a: Acesso = Depends(acesso)):
     _mestre(a, mesa_id, editar=True)
-    linha = _npc(a, mesa_id, npc_id)
+    linha = _npc(a, mesa_id, npc_id, editar=True)
     conferir(versao, *_conteudo_npc(linha))
     _aplicar_npc(a, linha, dados)
     a.banco.commit()
-    return _npc_saida(linha)
+    return _npc_saida(a, linha)
 
 
 @rotas.delete("/npcs/{npc_id}", status_code=204)
 def apagar_npc(mesa_id: str, npc_id: str, a: Acesso = Depends(acesso)):
     _mestre(a, mesa_id, editar=True)
-    a.banco.delete(_npc(a, mesa_id, npc_id))
+    a.banco.delete(_npc(a, mesa_id, npc_id, editar=True))
     a.banco.commit()
     return Response(status_code=204)
 
 
-@rotas.put("/npcs/{npc_id}/revelado", response_model=Npc)
-def revelar_npc(mesa_id: str, npc_id: str, pedido: NpcRevelado, a: Acesso = Depends(acesso)):
-    """Torna o NPC conhecido pelos jogadores (nome, foto e descrição; notas e
-    motivações continuam só do mestre). Fica conhecido entre as sessões."""
-    _mestre(a, mesa_id, editar=True)
-    linha = _npc(a, mesa_id, npc_id)
-    linha.revelado = pedido.revelado
+@rotas.put("/npcs/{npc_id}/visibilidade", response_model=Npc)
+def mudar_visibilidade(mesa_id: str, npc_id: str, pedido: NpcVisibilidade, a: Acesso = Depends(acesso)):
+    """Quem vê o NPC: só o dono, os mestres, ou todos (os jogadores veem nome,
+    foto e descrição na sessão a que o mestre o vincular). Só o dono muda."""
+    _mestre(a, mesa_id)
+    linha = _npc(a, mesa_id, npc_id, editar=True)
+    linha.visibilidade = pedido.visibilidade
     a.banco.commit()
-    return _npc_saida(linha)
+    return _npc_saida(a, linha)
