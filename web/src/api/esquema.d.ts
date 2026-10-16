@@ -956,6 +956,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/personagens/{personagem_id}/sessao/padroes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Padroes Estranhos
+         * @description Padrões Estranhos (Mago): o número de 1 a 12 que dá Esperança ao sair num Dado de Dualidade.
+         */
+        put: operations["padroes_estranhos_personagens__personagem_id__sessao_padroes_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/personagens/{personagem_id}/sessao/condicoes": {
         parameters: {
             query?: never;
@@ -2398,6 +2418,65 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/mesas/{mesa_id}/sessoes/{sessao_id}/rolagens": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Registro
+         * @description As últimas rolagens da sessão (as ocultas, só para quem rolou). Com
+         *     `personagem_id` (o seu, nesta sessão), cada uma traz as reações que ele pode usar.
+         */
+        get: operations["registro_mesas__mesa_id__sessoes__sessao_id__rolagens_get"];
+        put?: never;
+        /** Rolar */
+        post: operations["rolar_mesas__mesa_id__sessoes__sessao_id__rolagens_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/mesas/{mesa_id}/sessoes/{sessao_id}/rolagens/opcoes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Opcoes
+         * @description Os efeitos do catálogo para esta rolagem: automáticos e opções (com custo e se dá para usar agora).
+         */
+        get: operations["opcoes_mesas__mesa_id__sessoes__sessao_id__rolagens_opcoes_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/mesas/{mesa_id}/sessoes/{sessao_id}/rolagens/{rolagem_id}/reacao": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Reagir */
+        post: operations["reagir_mesas__mesa_id__sessoes__sessao_id__rolagens__rolagem_id__reacao_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -2643,6 +2722,13 @@ export interface components {
              */
             client_secret?: string | null;
         };
+        /** Bonus */
+        Bonus: {
+            /** Fonte */
+            fonte: string;
+            /** Valor */
+            valor: number;
+        };
         /** Cadastro */
         Cadastro: {
             /**
@@ -2702,6 +2788,11 @@ export interface components {
              * @default
              */
             nome_original: string;
+            /**
+             * Formulas
+             * @default []
+             */
+            formulas: components["schemas"]["Formula"][];
         };
         /** Cartao */
         Cartao: {
@@ -2928,6 +3019,27 @@ export interface components {
             /** Item De Classe */
             item_de_classe?: string | null;
         };
+        /** DadoRolado */
+        DadoRolado: {
+            /** Faces */
+            faces: number;
+            /** Valor */
+            valor: number;
+            /** @default comum */
+            papel: components["schemas"]["PapelDoDado"];
+            /**
+             * Descartado
+             * @default false
+             */
+            descartado: boolean;
+            /** Original */
+            original?: number | null;
+            /**
+             * Fonte
+             * @default
+             */
+            fonte: string;
+        };
         /** DadosDaSessao */
         DadosDaSessao: {
             /** Titulo */
@@ -3023,6 +3135,11 @@ export interface components {
             resultados: components["schemas"]["ResultadoMovimento"][];
             ficha: components["schemas"]["Ficha"];
         };
+        /**
+         * Dualidade
+         * @enum {string}
+         */
+        Dualidade: "esperanca" | "medo" | "critico";
         /**
          * Efeito
          * @description Características com regra própria no estado de sessão (dano/descanso).
@@ -3303,6 +3420,8 @@ export interface components {
             cicatrizes: components["schemas"]["Cicatriz"][];
             /** Habilidades */
             habilidades: components["schemas"]["HabilidadeNaFicha"][];
+            /** Padroes Estranhos */
+            padroes_estranhos: number | null;
         };
         /** FichaCompanheiro */
         FichaCompanheiro: {
@@ -3391,6 +3510,21 @@ export interface components {
              * @default false
              */
             morto: boolean;
+        };
+        /**
+         * Formula
+         * @description Dados que o texto de uma carta manda rolar ("4d10+3", "d8+2 ... using your Proficiency").
+         */
+        Formula: {
+            /** Dados */
+            dados: number;
+            /** Faces */
+            faces: number;
+            /**
+             * Modificador
+             * @default 0
+             */
+            modificador: number;
         };
         /** FotoEntrada */
         FotoEntrada: {
@@ -4135,6 +4269,11 @@ export interface components {
              */
             visibilidade: "privado" | "mestres" | "todos";
         };
+        /** NumeroPadroes */
+        NumeroPadroes: {
+            /** Numero */
+            numero?: number | null;
+        };
         /**
          * Opcao
          * @description Opções de avanço da página de Level Up da ficha.
@@ -4150,6 +4289,73 @@ export interface components {
             restantes: number;
             /** Custo */
             custo: number;
+        };
+        /**
+         * OpcaoDeRolagem
+         * @description Um efeito do catálogo para a tela: automático, opção antes de rolar ou reação.
+         */
+        OpcaoDeRolagem: {
+            /** Id */
+            id: string;
+            /** Nome */
+            nome: string;
+            /** Momento */
+            momento: string;
+            /**
+             * Condicao
+             * @default
+             */
+            condicao: string;
+            /**
+             * Custo Esperanca
+             * @default 0
+             */
+            custo_esperanca: number;
+            /**
+             * Custo Fadiga
+             * @default 0
+             */
+            custo_fadiga: number;
+            /**
+             * Por Unidade
+             * @default false
+             */
+            por_unidade: boolean;
+            /** Limite */
+            limite?: string | null;
+            /** Quantidade Max */
+            quantidade_max?: number | null;
+            /** Escolha */
+            escolha?: string[];
+            /**
+             * Alvo
+             * @default proprio
+             */
+            alvo: string;
+            /** Se */
+            se?: string | null;
+            /**
+             * Disponivel
+             * @default true
+             */
+            disponivel: boolean;
+            /**
+             * Motivo
+             * @default
+             */
+            motivo: string;
+        };
+        /**
+         * OpcaoEscolhida
+         * @description Opção pedida numa rolagem.
+         */
+        OpcaoEscolhida: {
+            /** Id */
+            id: string;
+            /** Quantidade */
+            quantidade?: number | null;
+            /** Escolha */
+            escolha?: string | null;
         };
         /**
          * OpcaoNoQuadro
@@ -4247,6 +4453,11 @@ export interface components {
             /** Papel */
             papel: string;
         };
+        /**
+         * PapelDoDado
+         * @enum {string}
+         */
+        PapelDoDado: "esperanca" | "medo" | "vantagem" | "desvantagem" | "comum" | "extra";
         /** Participante */
         Participante: {
             /** Id */
@@ -4269,6 +4480,15 @@ export interface components {
             dono_id: string;
             resumo: components["schemas"]["FichaResumida"];
         };
+        /** PedidoDeReacao */
+        PedidoDeReacao: {
+            /** Personagem Id */
+            personagem_id: string;
+            /** Efeito */
+            efeito: string;
+            /** Escolha */
+            escolha?: string | null;
+        };
         /** PedidoDeRecuperacao */
         PedidoDeRecuperacao: {
             /**
@@ -4276,6 +4496,83 @@ export interface components {
              * Format: email
              */
             email: string;
+        };
+        /** PedidoDeRolagem */
+        PedidoDeRolagem: {
+            /**
+             * Tipo
+             * @enum {string}
+             */
+            tipo: "atributo" | "ataque" | "conjuracao" | "dano" | "livre";
+            /** Personagem Id */
+            personagem_id?: string | null;
+            traco?: components["schemas"]["Traco"] | null;
+            /** Ataque */
+            ataque?: number | null;
+            /**
+             * Conjuracao
+             * @default 0
+             */
+            conjuracao: number;
+            /** Carta */
+            carta?: string | null;
+            /**
+             * Formula
+             * @default 0
+             */
+            formula: number;
+            /**
+             * Experiencias
+             * @default []
+             */
+            experiencias: string[];
+            /**
+             * Vantagem
+             * @default false
+             */
+            vantagem: boolean;
+            /**
+             * Desvantagem
+             * @default false
+             */
+            desvantagem: boolean;
+            /** Dificuldade */
+            dificuldade?: number | null;
+            /**
+             * Reacao
+             * @default false
+             */
+            reacao: boolean;
+            /**
+             * Critico
+             * @default false
+             */
+            critico: boolean;
+            /**
+             * Extra
+             * @default
+             */
+            extra: string;
+            /**
+             * Somar
+             * @default
+             */
+            somar: string;
+            /**
+             * Expressao
+             * @default
+             */
+            expressao: string;
+            /**
+             * Opcoes
+             * @default []
+             */
+            opcoes: components["schemas"]["OpcaoEscolhida"][];
+            /**
+             * Oculta
+             * @default false
+             */
+            oculta: boolean;
         };
         /**
          * Permissao
@@ -4594,6 +4891,109 @@ export interface components {
             fonte?: string | null;
             /** Alvo */
             alvo?: string | null;
+        };
+        /** ResultadoRolagem */
+        ResultadoRolagem: {
+            /** Titulo */
+            titulo: string;
+            /** Dados */
+            dados: components["schemas"]["DadoRolado"][];
+            /** Bonus */
+            bonus: components["schemas"]["Bonus"][];
+            /** Total */
+            total: number;
+            /**
+             * Expressao
+             * @default
+             */
+            expressao: string;
+            /**
+             * Tipo
+             * @default livre
+             */
+            tipo: string;
+            dualidade?: components["schemas"]["Dualidade"] | null;
+            /**
+             * Reacao
+             * @default false
+             */
+            reacao: boolean;
+            /** Dificuldade */
+            dificuldade?: number | null;
+            /** Sucesso */
+            sucesso?: boolean | null;
+            /** Efeitos */
+            efeitos?: string[];
+            /** Opcoes */
+            opcoes?: string[];
+            /**
+             * Medo Gerado
+             * @default 0
+             */
+            medo_gerado: number;
+            /** Deltas */
+            deltas?: {
+                [key: string]: number;
+            };
+            /** Traco */
+            traco?: string | null;
+            /** Ataque */
+            ataque?: number | null;
+            /** Carta */
+            carta?: string | null;
+            /**
+             * Experiencias
+             * @default 0
+             */
+            experiencias: number;
+            /**
+             * Vantagem
+             * @default 0
+             */
+            vantagem: number;
+            /**
+             * Dado Esperanca
+             * @default 12
+             */
+            dado_esperanca: number;
+            /** Soma No Dado */
+            soma_no_dado?: {
+                [key: string]: number;
+            };
+            /**
+             * Limpa Fadiga No Sucesso
+             * @default false
+             */
+            limpa_fadiga_no_sucesso: boolean;
+            /** Padroes Estranhos */
+            padroes_estranhos?: number | null;
+            /** Reacao De */
+            reacao_de?: string | null;
+        };
+        /** RolagemSaida */
+        RolagemSaida: {
+            /** Id */
+            id: string;
+            /** Autor */
+            autor: string;
+            /** Usuario Id */
+            usuario_id: string;
+            /** Personagem Id */
+            personagem_id: string | null;
+            /** Personagem */
+            personagem: string | null;
+            /** Oculta */
+            oculta: boolean;
+            /** Substituida */
+            substituida: boolean;
+            /** Criado Em */
+            criado_em: string;
+            resultado: components["schemas"]["ResultadoRolagem"];
+            /**
+             * Reacoes
+             * @default []
+             */
+            reacoes: components["schemas"]["OpcaoDeRolagem"][];
         };
         /** Sessao */
         Sessao: {
@@ -6604,6 +7004,41 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["RegrasDaMesa"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Ficha"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    padroes_estranhos_personagens__personagem_id__sessao_padroes_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                personagem_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NumeroPadroes"];
             };
         };
         responses: {
@@ -9944,6 +10379,151 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["VistaDaSessao"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    registro_mesas__mesa_id__sessoes__sessao_id__rolagens_get: {
+        parameters: {
+            query?: {
+                personagem_id?: string | null;
+            };
+            header?: never;
+            path: {
+                mesa_id: string;
+                sessao_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RolagemSaida"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    rolar_mesas__mesa_id__sessoes__sessao_id__rolagens_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mesa_id: string;
+                sessao_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PedidoDeRolagem"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RolagemSaida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    opcoes_mesas__mesa_id__sessoes__sessao_id__rolagens_opcoes_get: {
+        parameters: {
+            query: {
+                personagem_id: string;
+                tipo: string;
+                traco?: string | null;
+                ataque?: number | null;
+                carta?: string | null;
+            };
+            header?: never;
+            path: {
+                mesa_id: string;
+                sessao_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OpcaoDeRolagem"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    reagir_mesas__mesa_id__sessoes__sessao_id__rolagens__rolagem_id__reacao_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mesa_id: string;
+                sessao_id: string;
+                rolagem_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PedidoDeReacao"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RolagemSaida"];
                 };
             };
             /** @description Validation Error */

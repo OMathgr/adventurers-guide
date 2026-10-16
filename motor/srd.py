@@ -297,6 +297,33 @@ class Subclasse:
 
 
 @dataclass(frozen=True)
+class Formula:
+    """Dados que o texto de uma carta manda rolar ("4d10+3", "d8+2 ... using your Proficiency")."""
+
+    dados: int          # 0: tantos quanto a Proficiência
+    faces: int
+    modificador: int = 0
+
+    def expressao(self, proficiencia: int) -> str:
+        n = self.dados or proficiencia
+        return f"{n}d{self.faces}" + (f"{self.modificador:+d}" if self.modificador else "")
+
+
+_FORMULA = re.compile(r"(\d*)d(\d+)(?:\s*\+\s*(\d+))?([^.]*?using your Proficiency)?")
+
+
+def _formulas(texto: str) -> tuple[Formula, ...]:
+    """As rolagens citadas no texto em inglês da carta, sem repetir."""
+    vistas: list[Formula] = []
+    for m in _FORMULA.finditer(texto):
+        dados = 0 if m.group(4) and not m.group(1) else int(m.group(1) or 1)
+        f = Formula(dados, int(m.group(2)), int(m.group(3) or 0))
+        if f not in vistas:
+            vistas.append(f)
+    return tuple(vistas)
+
+
+@dataclass(frozen=True)
 class CartaDeDominio:
     id: str
     nome: str
@@ -306,6 +333,7 @@ class CartaDeDominio:
     custo_recall: int
     texto: str = ""   # o que a carta faz (só para exibição)
     nome_original: str = ""
+    formulas: tuple[Formula, ...] = ()   # rolagens do texto (do inglês: a tradução não muda)
 
 
 class CategoriaArma(str, Enum):
@@ -510,6 +538,7 @@ class Biblioteca:
                 # grimórios têm várias magias, cada uma com nome: "Power Push: ..."
                 texto="\n\n".join((f"{_texto(f['name'])}: " if "name" in f else "")
                                   + _texto_completo(f["description"]) for f in c.get("features", [])),
+                formulas=_formulas(" ".join(_texto_completo(f["description"]) for f in c.get("features", []))),
             )
             for c in self._ler(srd / "domain-cards.json")
         }
@@ -553,6 +582,10 @@ class Biblioteca:
         }
         self.progressao = self._ler(pasta / "progressao.json")
         self.companheiro = self._ler(pasta / "companheiro.json")   # ficha do Ranger Companion
+        # habilidades, características e cartas que mexem em rolagens (motor/rolagem.py)
+        from .rolagem import EfeitoDeRolagem
+        self.efeitos_rolagem = {e["id"]: EfeitoDeRolagem.de_json(e)
+                                for e in self._ler(pasta / "efeitos_de_rolagem.json")["efeitos"]}
         from .adversarios import de_srd   # aqui para evitar import circular (adversarios usa TipoDano)
         self.adversarios = {a.id: a for a in map(de_srd, self._ler(srd / "adversarios.json"))}
         self._dominios: dict[str, str] = {}

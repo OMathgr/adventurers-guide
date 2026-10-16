@@ -20,6 +20,7 @@ import Encontros from './Encontros'
 import Lojas from './Lojas'
 import PersonagensNaSessao from './PersonagensNaSessao'
 import SessaoDeJogo from './SessaoDeJogo'
+import RolagemDeDados from '../../componentes/RolagemDeDados'
 import { semConflito } from '../../lib/conflito'
 
 
@@ -191,7 +192,8 @@ function SessaoAberta({ mesa, sid, aoApagar }: { mesa: Mesa; sid: string; aoApag
       <PainelDeRepouso mesa={mesa} sessao={s} />
 
       <Abas<ParteDaSessao> atual={parte} aoTrocar={setParte}
-        abas={[['planejamento', 'Planejamento'], ['quadro', 'Quadro'], ['encontros', 'Encontros'], ['lojas', 'Lojas'], ['personagens', 'Personagens']]} />
+        abas={[['planejamento', 'Planejamento'], ['quadro', 'Quadro'], ['encontros', 'Encontros'], ['lojas', 'Lojas'],
+          ['personagens', 'Personagens'], ['dados', 'Dados']]} />
 
       {parte === 'planejamento' && (
         <div className="grid gap-4 lg:grid-cols-[1fr_20rem]">
@@ -203,11 +205,14 @@ function SessaoAberta({ mesa, sid, aoApagar }: { mesa: Mesa; sid: string; aoApag
       {parte === 'encontros' && <Encontros mesaId={mesa.id} sessao={s} />}
       {parte === 'lojas' && <Lojas mesa={mesa} sessao={s} />}
       {parte === 'personagens' && <PersonagensNaSessao mesa={mesa} sessao={s} />}
+      {parte === 'dados' && (
+        <RolagemDeDados mesaId={mesa.id} sessaoId={s.id} souMestre={minha} emAndamento={s.status === 'em_andamento'} />
+      )}
     </div>
   )
 }
 
-type ParteDaSessao = 'planejamento' | 'quadro' | 'encontros' | 'lojas' | 'personagens'
+type ParteDaSessao = 'planejamento' | 'quadro' | 'encontros' | 'lojas' | 'personagens' | 'dados'
 
 // o quadro usa o React Flow (pesado): só carrega quando alguém abre a aba
 const QuadroDaSessao = lazy(() => import('./QuadroDaSessao'))

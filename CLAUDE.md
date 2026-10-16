@@ -34,7 +34,9 @@ fixo já aplicadas; cartas a mais do Discípulo do Conhecimento) prontas. Sessã
 jogo pronta: a mesa é o grupo, cada sessão um dia de jogo; em andamento, os
 jogadores entram e jogam lá (marcas por sessão em `participacoes`, começam
 limpas; encerradas ficam para consulta); a página do personagem é para ver e
-subir de nível. Produção: `api/servidor.py` (API em /api + interface em /),
+subir de nível. Rolagem de dados na sessão pronta (o servidor rola, registro ao
+vivo, efeitos das habilidades/cartas/armas em `data/efeitos_de_rolagem.json`,
+reações, dados 3D). Produção: `api/servidor.py` (API em /api + interface em /),
 Dockerfile e `deploy/` (Oracle + DuckDNS + Caddy, backup diário; guia em
 deploy/README.md). Leia `docs/ARQUITETURA.md` antes de mudar a modelagem. O
 personagem é guardado como criação + histórico de subidas de nível; a ficha

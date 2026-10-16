@@ -145,6 +145,15 @@ class Sessao:
         self.inconsciente = False
         self.morto = False
         self.cicatrizes: list[Cicatriz] = []
+        # Padrões Estranhos (Mago): o número escolhido (muda no descanso longo)
+        self.padroes_estranhos: int | None = None
+        # Rolagens (motor/rolagem.py): efeitos com limite já usados (id -> limite),
+        # marcadores de cartas/habilidades, o último ataque (para o dano depois dele)
+        # e a vantagem guardada pelo Inevitável
+        self.usos_rolagem: dict[str, str] = {}
+        self.marcadores_rolagem: dict[str, int] = {}
+        self.ultimo_ataque: dict | None = None
+        self.proxima_vantagem = False
 
     # --- Dano e PV --------------------------------------------------------------
 
@@ -508,6 +517,9 @@ class Sessao:
             self.pv_marcados -= curado
             resultados.append(ResultadoMovimento(Movimento.CUIDAR_FERIDAS, None, curado, fonte="Healing"))
         self.usados_no_descanso.clear()   # Impenetrable, Creature Comfort voltam a valer
+        # efeitos de rolagem "uma vez por descanso" (e, no longo, os de descanso longo)
+        voltam = ("descanso", "descanso_longo") if longo else ("descanso",)
+        self.usos_rolagem = {k: v for k, v in self.usos_rolagem.items() if v not in voltam}
         if longo:
             self.inconsciente = False   # o grupo terminou um descanso longo: volta a si
         return resultados
@@ -625,6 +637,11 @@ class Sessao:
             "inconsciente": self.inconsciente,
             "morto": self.morto,
             "cicatrizes": [{"impacto": c.impacto.value, "descricao": c.descricao} for c in self.cicatrizes],
+            "padroes_estranhos": self.padroes_estranhos,
+            "usos_rolagem": dict(self.usos_rolagem),
+            "marcadores_rolagem": dict(self.marcadores_rolagem),
+            "ultimo_ataque": self.ultimo_ataque,
+            "proxima_vantagem": self.proxima_vantagem,
             "usados_no_descanso": sorted(f"{type(e).__name__}:{e.value}"
                                          for e in self.usados_no_descanso),
         }
@@ -640,6 +657,11 @@ class Sessao:
                 setattr(self, campo, estado[campo])
         self.condicoes = list(estado.get("condicoes", []))
         self.inconsciente = bool(estado.get("inconsciente", False))
+        self.padroes_estranhos = estado.get("padroes_estranhos")
+        self.usos_rolagem = dict(estado.get("usos_rolagem", {}))
+        self.marcadores_rolagem = dict(estado.get("marcadores_rolagem", {}))
+        self.ultimo_ataque = estado.get("ultimo_ataque")
+        self.proxima_vantagem = bool(estado.get("proxima_vantagem", False))
         self.morto = bool(estado.get("morto", False))
         self.cicatrizes = [Cicatriz(ImpactoDaCicatriz(c.get("impacto", "")), c.get("descricao", ""))
                            for c in estado.get("cicatrizes", [])]

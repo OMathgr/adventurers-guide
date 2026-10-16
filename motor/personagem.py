@@ -22,6 +22,9 @@ from .companheiro import (Companheiro, FichaCompanheiro, OpcaoTreino, Treino,
 from .erros import RegraViolada
 from .inventario import Inventario, inventario_inicial
 from .numeros import metade
+from .rolagem import (TIPOS_DE_TESTE, Bonus, DadoRolado, Dualidade, EfeitoDeRolagem, PapelDoDado, PlanoDeDano,
+                      ResultadoRolagem, _delta, _ganhar_esperanca, _limpar_fadiga, aplicar_teste, dado, desfazer,
+                      expandir, ler_expressao, recalcular_teste, resolver, rolar_dano, rolar_dualidade, rolar_teste)
 from .sessao import Cicatriz, Sessao
 from .srd import (Alvo, Arma, Armadura, Biblioteca, Caracteristica, CartaDeDominio, Efeito,
                   Modificador, Referencia, Subclasse, TipoDano, TipoDeItem, Traco)
@@ -167,6 +170,35 @@ class ProximoNivel:
 
 
 @dataclass
+class OpcaoDeRolagem:
+    """Um efeito do catálogo para a tela: automático, opção antes de rolar ou reação."""
+
+    id: str
+    nome: str
+    momento: str                 # automatico, antes, depois
+    condicao: str = ""
+    custo_esperanca: int = 0
+    custo_fadiga: int = 0
+    por_unidade: bool = False    # o custo vale por unidade da quantidade
+    limite: str | None = None
+    quantidade_max: int | None = None
+    escolha: list[str] = field(default_factory=list)
+    alvo: str = "proprio"
+    se: str | None = None
+    disponivel: bool = True
+    motivo: str = ""
+
+
+@dataclass
+class OpcaoEscolhida:
+    """Opção pedida numa rolagem."""
+
+    id: str
+    quantidade: int | None = None
+    escolha: str | None = None
+
+
+@dataclass
 class HabilidadeNaFicha:
     """Habilidade de classe ou de subclasse, como aparece na ficha."""
 
@@ -239,6 +271,7 @@ class Ficha:
     cicatrizes: list[Cicatriz] = field(default_factory=list)
     # de classe (e da multiclasse) e das cartas de subclasse que o personagem tem
     habilidades: list[HabilidadeNaFicha] = field(default_factory=list)
+    padroes_estranhos: int | None = None   # Mago: o número escolhido (estado de sessão)
 
 
 class Personagem:
@@ -293,6 +326,7 @@ class Personagem:
         f.esperanca_max = self.bib.progressao["limite_esperanca"]
         f.inconsciente, f.morto = s.inconsciente, s.morto
         f.cicatrizes = list(s.cicatrizes)
+        f.padroes_estranhos = s.padroes_estranhos
         if f.companheiro:
             c = f.companheiro
             if c.tem(OpcaoTreino.LUZ_NA_ESCURIDAO):
@@ -544,6 +578,412 @@ class Personagem:
         if carta_do_nivel:
             f.cartas.append(carta_do_nivel)
         return self._listar_cartas(f, self.bib.cartas[antiga].nivel, proximo)
+
+    # --- Rolagens (motor/rolagem.py e data/efeitos_de_rolagem.json) -----------------
+
+    def _valores(self, f: Ficha, n: int = 0) -> dict[str, int]:
+        """O que as referências do catálogo podem usar (nivel, patamar, atributos, n...)."""
+        v: dict[str, int] = {t.value: f.tracos[t] for t in Traco}
+        v.update(nivel=f.nivel, patamar=self.bib.tier_do_nivel(f.nivel), proficiencia=f.proficiencia, n=n,
+                 conjuracao=max((f.tracos[c.traco] for c in f.conjuracoes), default=0))
+        if self.equipamento.secundaria:
+            v["secundaria"] = int(re.search(r"d(\d+)", self.bib.armas[self.equipamento.secundaria].dado).group(1))
+        for nome, q in self.sessao.marcadores_rolagem.items():
+            v[f"marcador:{nome}"] = q
+        return v
+
+    def _fontes(self, f: Ficha, ataque: int | None) -> dict[tuple[str, str], str]:
+        """(tipo, nome em inglês ou id da carta) -> nome exibido, de tudo o que o personagem tem."""
+        fontes = {("habilidade", h.nome_original): h.nome for h in f.habilidades}
+        fontes |= {("ancestralidade", c.nome_original): c.nome for c in f.caracteristicas_ancestralidade}
+        fontes |= {("comunidade", c.nome_original): c.nome for c in f.caracteristicas_comunidade}
+        fontes |= {("armadura", c.nome_original): c.nome for c in f.caracteristicas_armadura}
+        fontes |= {("carta", c): self.bib.cartas[c].nome for c in f.cartas_ativas}
+        if ataque is not None and 0 <= ataque < len(f.ataques):
+            fontes |= {("arma", c.nome_original): c.nome for c in f.ataques[ataque].caracteristicas}
+        return fontes
+
+    def _condicao(self, chave: str | None, f: Ficha, ataque: int | None, carta: str | None) -> str | None:
+        """None se a condição automática vale; senão, o motivo (para a tela)."""
+        if not chave:
+            return None
+        a = f.ataques[ataque] if ataque is not None and 0 <= ataque < len(f.ataques) else None
+        ua = self.sessao.ultimo_ataque
+        for parte in chave.split("+"):
+            if parte == "pv_baixo" and f.pv_max - f.pv_marcados > 2:
+                return "só com 2 PV ou menos sem marcar"
+            if parte == "vulneravel" and "VULNERAVEL" not in f.condicoes:
+                return "só Vulnerável"
+            if parte == "fadiga_cheia" and f.estresse_marcado < f.estresse_max:
+                return "só com toda a Fadiga marcada"
+            if parte == "arma" and a is None:
+                return "só no dano de uma arma"
+            if parte == "arma_corpo_a_corpo" and (a is None or a.alcance != "MELEE"):
+                return "só com arma corpo a corpo"
+            if parte == "dano_magico" and not (carta or (a and a.tipo_dano is not TipoDano.FISICO)):
+                return "só com dano mágico"
+            if parte == "secundaria" and not self.equipamento.secundaria:
+                return "precisa de uma arma secundária equipada"
+            if parte.startswith("dominio:"):
+                dominio = parte.split(":", 1)[1]
+                if sum(1 for c in f.cartas_ativas if self.bib.cartas[c].dominio == dominio) < 4:
+                    return f"precisa de 4 cartas de {self.bib.nome_dominio(dominio)} na mão"
+            if parte == "ultimo_ataque" and ua is None:
+                return "depois de um ataque nesta sessão"
+            if parte == "ultimo_ataque_com_medo" and (ua or {}).get("dualidade") != "medo":
+                return "o último ataque não foi com Medo"
+            if parte == "ultimo_ataque_com_esperanca" and (ua or {}).get("dualidade") != "esperanca":
+                return "o último ataque não foi com Esperança"
+        return None
+
+    def opcoes_de_rolagem(self, tipo: str, traco: str | None = None, ataque: int | None = None,
+                          carta: str | None = None) -> list[OpcaoDeRolagem]:
+        """Os efeitos do catálogo que valem para esta rolagem (`tipo`: teste, ataque,
+        conjuracao, reacao, dano), com nome, custo e se dá para usar agora."""
+        f = self.ficha()
+        fontes = self._fontes(f, ataque)
+        valores = self._valores(f)
+        tem = {e.id: e for e in self.bib.efeitos_rolagem.values()
+               if tipo in e.rolagens and (e.fonte_tipo, e.fonte) in fontes
+               and (not e.atributos or traco in e.atributos)}
+        saida = []
+        for e in tem.values():
+            if any(s in tem for s in e.substituido_por):
+                continue   # ex.: Encare o Medo some quando há Movido por Medo
+            motivo = self._condicao(e.auto, f, ataque, carta)
+            if e.momento == "automatico" and motivo:
+                continue
+            if motivo is None and e.limite and e.id in self.sessao.usos_rolagem:
+                motivo = {"sessao": "já usado nesta sessão", "descanso": "já usado (volta no descanso)",
+                          "descanso_longo": "já usado (volta no descanso longo)"}[e.limite]
+            maximo = None
+            if e.quantidade is not None:
+                maximo = resolver(e.quantidade, valores) if not str(e.quantidade).startswith("marcador:") \
+                    else self.sessao.marcadores_rolagem.get(str(e.quantidade).split(":", 1)[1], 0)
+                if maximo < 1 and motivo is None:
+                    motivo = "nada para gastar agora"
+            saida.append(OpcaoDeRolagem(
+                id=e.id, nome=fontes[(e.fonte_tipo, e.fonte)], momento=e.momento, condicao=e.condicao,
+                custo_esperanca=e.custo_esperanca, custo_fadiga=e.custo_fadiga, por_unidade=e.custo_por_unidade,
+                limite=e.limite, quantidade_max=maximo, escolha=list(e.escolha), alvo=e.alvo, se=e.se,
+                disponivel=motivo is None, motivo=motivo or ""))
+        return sorted(saida, key=lambda o: (o.momento != "automatico", o.nome))
+
+    def _escolhidas(self, tipo: str, traco: str | None, ataque: int | None, carta: str | None,
+                    opcoes) -> tuple[list[tuple[EfeitoDeRolagem, OpcaoDeRolagem, int, str | None]], list]:
+        """(efeito, opção, quantidade, escolha) das opções pedidas + os automáticos. Valida tudo."""
+        disponiveis = {o.id: o for o in self.opcoes_de_rolagem(tipo, traco, ataque, carta)}
+        usadas = []
+        for pedida in opcoes:
+            o = disponiveis.get(pedida.id)
+            if o is None or o.momento != "antes":
+                raise RegraViolada("Essa opção não vale para esta rolagem.")
+            if not o.disponivel:
+                raise RegraViolada(f"{o.nome}: {o.motivo}.")
+            q = pedida.quantidade or 1
+            if o.quantidade_max is not None and not 1 <= q <= o.quantidade_max:
+                raise RegraViolada(f"{o.nome}: escolha de 1 a {o.quantidade_max}.")
+            if o.escolha and pedida.escolha not in o.escolha:
+                raise RegraViolada(f"{o.nome}: escolha uma das opções.")
+            usadas.append((self.bib.efeitos_rolagem[o.id], o, q, pedida.escolha))
+        automaticos = [(self.bib.efeitos_rolagem[o.id], o, 1, None) for o in disponiveis.values()
+                       if o.momento == "automatico"]
+        return usadas, automaticos
+
+    def _pagar(self, usadas, esperanca_extra: int = 0, fadiga_extra: int = 0):
+        """Paga os custos das opções (e das Experiências) de uma vez: sem saldo, nada muda."""
+        esperanca = esperanca_extra + sum(e.custo_esperanca * (q if e.custo_por_unidade else 1) for e, _, q, _ in usadas)
+        fadiga = fadiga_extra + sum(e.custo_fadiga * (q if e.custo_por_unidade else 1) for e, _, q, _ in usadas)
+        s = self.sessao
+        if esperanca > s.esperanca:
+            raise RegraViolada(f"Esperança insuficiente: precisa de {esperanca}, você tem {s.esperanca}.")
+        if fadiga > s.estresse_livre:
+            raise RegraViolada(f"Fadiga insuficiente: precisa de {fadiga} PF livres, você tem {s.estresse_livre}.")
+        if esperanca:
+            s.gastar_esperanca(esperanca)
+        if fadiga:
+            s.pagar_estresse(fadiga)
+        for e, _, _, _ in usadas:
+            if e.limite:
+                s.usos_rolagem[e.id] = e.limite
+
+    def rolar_teste(self, tipo: str, alvo: str | int | None = None, experiencias: list[str] = (),
+                    vantagem: bool = False, desvantagem: bool = False, dificuldade: int | None = None,
+                    reacao: bool = False, opcoes=(), somar: str = "") -> ResultadoRolagem:
+        """Teste com os Dados de Dualidade. `tipo`: "atributo" (alvo: o atributo),
+        "ataque" (alvo: índice em ficha.ataques) ou "conjuracao" (índice em
+        ficha.conjuracoes). Custos (Experiências, opções) são pagos antes; o
+        resultado (Esperança, Medo, crítico e os efeitos do catálogo) já vai para a sessão.
+        `somar`: dados de fora (Dado de Inspiração, de Oração...), ex.: "1d8"."""
+        f = self.ficha()
+        ataque = None
+        if tipo == "atributo":
+            t = Traco(alvo)
+            titulo, bonus = f"Teste de {t.rotulo}", [Bonus(t.rotulo, f.tracos[t])]
+        elif tipo == "ataque":
+            a = self._da_lista(f.ataques, alvo, "Arma equipada")
+            ataque, t = alvo, a.traco
+            titulo, bonus = f"Ataque: {a.arma}", [Bonus(f"{a.arma} ({a.traco.rotulo})", a.bonus)]
+        elif tipo == "conjuracao":
+            c = self._da_lista(f.conjuracoes, alvo, "Conjuração")
+            t = c.traco
+            titulo, bonus = "Teste de Conjuração", [Bonus(f"Conjuração ({c.traco.rotulo})", c.bonus)]
+        else:
+            raise RegraViolada(f"Tipo de teste desconhecido: {tipo}.")
+        tipo_rolagem = "reacao" if reacao else ("teste" if tipo == "atributo" else tipo)
+        if reacao:
+            titulo = titulo.replace("Teste de ", "Reação: ")
+        usadas, automaticos = self._escolhidas(tipo_rolagem, t.value, ataque, None, opcoes)
+        tipos = {x["tipo"] for e, _, _, _ in usadas + automaticos for x in e.efeitos}
+        nomes = [o.nome for _, o, _, _ in usadas + automaticos]
+
+        # Experiências: 1 Esperança cada; Adepto troca por 1 PF e dobra; Bem Vivido: d6 5+ sai de graça
+        exps = list(dict.fromkeys(experiencias))
+        for nome in exps:
+            if nome not in f.experiencias:
+                raise RegraViolada(f"Você não tem a Experiência '{nome}'.")
+        notas, pagas = [], 0
+        for nome in exps:
+            if "experiencia_d6_gratis" in tipos:
+                d6 = self.sessao.rng.randint(1, 6)
+                if d6 >= 5:
+                    notas.append(f"Bem Vivido (d6 {d6}): {nome} sem custo.")
+                    continue
+                notas.append(f"Bem Vivido (d6 {d6}): {nome} paga o custo.")
+            pagas += 1
+        adepto = "experiencia_com_fadiga" in tipos
+        self._pagar(usadas, esperanca_extra=0 if adepto else pagas, fadiga_extra=pagas if adepto else 0)
+        if pagas:
+            notas.insert(0, f"Experiências: {pagas} {'PF' if adepto else 'de Esperança'}.")
+        bonus += [Bonus(f"Experiência: {n}", f.experiencias[n] * (2 if adepto else 1)) for n in exps]
+
+        # efeitos antes de rolar
+        valores = self._valores(f)
+        extras: list[tuple[str, str]] = [("Somar", somar.strip())] if somar.strip() else []
+        soma_no_dado: dict[str, int] = {}
+        faces_esperanca, limpa_no_sucesso = 12, False
+        for e, o, q, escolha in usadas + automaticos:
+            valores["n"] = q
+            for x in e.efeitos:
+                if x["tipo"] == "bonus":
+                    bonus.append(Bonus(o.nome, resolver(x.get("ref", x.get("valor", 0)), valores)))
+                elif x["tipo"] == "dados":
+                    extras.append((o.nome, expandir(x["expr"], valores)))
+                elif x["tipo"] == "vantagem":
+                    vantagem = True
+                elif x["tipo"] == "desvantagem":
+                    desvantagem = True
+                elif x["tipo"] == "ignora_desvantagem":
+                    desvantagem = False
+                elif x["tipo"] == "dado_esperanca":
+                    faces_esperanca = max(faces_esperanca, x["faces"])
+                elif x["tipo"] == "dobra_atributo":
+                    bonus.append(Bonus(f"{o.nome} (dobro)", f.tracos[t]))
+                elif x["tipo"] == "soma_no_dado":
+                    soma_no_dado[escolha] = soma_no_dado.get(escolha, 0) + x["valor"]
+                elif x["tipo"] == "limpa_fadiga_no_sucesso":
+                    limpa_no_sucesso = True
+                elif x["tipo"] == "gasta_marcador":
+                    self.sessao.marcadores_rolagem[x["marcador"]] -= q
+        if any(x["tipo"] == "ignora_desvantagem" for e, _, _, _ in automaticos for x in e.efeitos):
+            desvantagem = False
+        if self.sessao.proxima_vantagem and not reacao and any(
+                x["tipo"] == "vantagem_apos_falha" for e, _, _, _ in automaticos for x in e.efeitos):
+            vantagem, self.sessao.proxima_vantagem = True, False
+            notas.append("Inevitável: vantagem depois da falha.")
+
+        r = rolar_teste(titulo, bonus, self.sessao.rng, vantagem, desvantagem, dificuldade, reacao, faces_esperanca)
+        if faces_esperanca == 20:
+            notas.append("Dado de Esperança d20.")
+        r.soma_no_dado, r.limpa_fadiga_no_sucesso = soma_no_dado, limpa_no_sucesso
+        for fonte, expressao in extras:
+            for sinal, n, faces in ler_expressao(expressao)[0]:
+                for _ in range(n):
+                    valor = self.sessao.rng.randint(1, faces)
+                    r.dados.append(DadoRolado(faces, valor * sinal, PapelDoDado.EXTRA, fonte=fonte))
+            constante = ler_expressao(expressao)[1]
+            if constante:
+                r.bonus.append(Bonus(fonte, constante))
+        recalcular_teste(r)
+        r.tipo, r.traco, r.experiencias, r.opcoes, r.ataque = tipo_rolagem, t.value, len(exps), nomes, ataque
+        self._pos_teste(r, automaticos)
+        r.efeitos = notas + r.efeitos
+        if tipo == "ataque":
+            self.sessao.ultimo_ataque = {"dualidade": r.dualidade.value, "medo": dado(r, PapelDoDado.MEDO).valor,
+                                         "critico": r.dualidade is Dualidade.CRITICO, "sucesso": r.sucesso, "arma": ataque}
+            for e, o, _, _ in automaticos:
+                for x in e.efeitos:
+                    if x["tipo"] == "nota_d6" and self.sessao.rng.randint(1, 6) == x["valor"]:
+                        r.efeitos.append(f"{o.nome}: {x['nota']}.")
+        return r
+
+    def _pos_teste(self, r: ResultadoRolagem, automaticos):
+        """O que o resultado do teste aplica: Esperança/Medo/crítico, Padrões
+        Estranhos e os automáticos que dependem do resultado (Coragem, marcadores...)."""
+        tipos = {x["tipo"]: (o, x) for e, o, _, _ in automaticos for x in e.efeitos}
+        if "rerrola_esperanca_1" in tipos and dado(r, PapelDoDado.ESPERANCA).valor == 1:
+            rolar_dualidade(r, self.sessao.rng, ("esperanca",))
+            r.efeitos.append(f"{tipos['rerrola_esperanca_1'][0].nome}: rerrolou o 1 no Dado de Esperança.")
+        f = self.ficha()
+        padroes = self.sessao.padroes_estranhos if self._tem_habilidade(f, "Strange Patterns") else None
+        aplicar_teste(r, self.sessao, padroes)
+        if "esperanca_falha_com_medo" in tipos and r.sucesso is False and r.dualidade is Dualidade.MEDO \
+                and not r.reacao:
+            _ganhar_esperanca(r, self.sessao, tipos["esperanca_falha_com_medo"][0].nome)
+        if "marcador_no_medo" in tipos and r.dualidade is Dualidade.MEDO:
+            o, x = tipos["marcador_no_medo"]
+            atual = self.sessao.marcadores_rolagem.get(x["marcador"], 0)
+            if atual < resolver(x["max"], self._valores(f)):
+                self.sessao.marcadores_rolagem[x["marcador"]] = atual + 1
+                _delta(r, f"marcador:{x['marcador']}", 1)
+                r.efeitos.append(f"{o.nome}: +1 marcador ({atual + 1}).")
+        if "vantagem_apos_falha" in tipos and r.sucesso is False and not r.reacao:
+            self.sessao.proxima_vantagem = True
+            _delta(r, "proxima_vantagem", 1)
+            r.efeitos.append(f"{tipos['vantagem_apos_falha'][0].nome}: o próximo teste de ação tem vantagem.")
+
+    def rolar_dano(self, ataque: int | None = None, carta: str | None = None, formula: int = 0,
+                   critico: bool = False, extra: str = "", opcoes=()) -> ResultadoRolagem:
+        """Dano da arma (a expressão da ficha) ou de uma fórmula de carta da mão
+        (com "using your Proficiency", tantos dados quanto a Proficiência), com
+        os efeitos do catálogo (Poderoso, Brutal, Ataque Furtivo...). `extra`
+        soma dados ou números; `critico`, o máximo dos dados."""
+        f = self.ficha()
+        if carta is not None:
+            if carta not in f.cartas_ativas:
+                raise RegraViolada("Só dá para rolar cartas que estão na sua mão.")
+            c = self.bib.cartas[carta]
+            fr = self._da_lista(list(c.formulas), formula, "Rolagem da carta")
+            plano = PlanoDeDano(f"Dano: {c.nome}", fr.expressao(f.proficiencia), principal=fr.dados == 0)
+        else:
+            a = self._da_lista(f.ataques, ataque, "Arma equipada")
+            plano = PlanoDeDano(f"Dano: {a.arma}", a.dano)
+        plano.critico = critico
+        if extra.strip():
+            ler_expressao(extra)   # valida antes de pagar qualquer custo
+            plano.extras.append(("Extra", extra.strip().lstrip("+")))
+        usadas, automaticos = self._escolhidas("dano", None, ataque, carta, opcoes)
+        self._pagar(usadas)
+        valores = self._valores(f)
+        notas, pos = [], []
+        for e, o, q, _ in usadas + automaticos:
+            valores["n"] = q
+            for x in e.efeitos:
+                t = x["tipo"]
+                if t == "bonus":
+                    plano.bonus.append(Bonus(o.nome, resolver(x.get("ref", x.get("valor", 0)), valores)))
+                elif t == "dados":
+                    plano.extras.append((o.nome, expandir(x["expr"], valores)))
+                elif t == "proficiencia":
+                    if plano.principal:
+                        plano.proficiencia_extra += x["valor"]
+                    else:
+                        notas.append(f"{o.nome}: esta rolagem não usa a Proficiência.")
+                elif t == "dado_de_dano":
+                    plano.faces_do_dado = x["faces"]
+                elif t == "dado_extra_descarta_menor":
+                    plano.descarta_menor += 1
+                elif t == "explode_maximo":
+                    plano.explode = True
+                elif t == "troca_valor":
+                    plano.troca_valor[x["de"]] = x["para"]
+                elif t == "rerrola_valores":
+                    plano.rerrola_valores = tuple(x["valores"])
+                elif t == "dobra_iguais":
+                    plano.dobra_iguais = True
+                elif t == "dobra_maior_dado":
+                    plano.dobra_maior = True
+                elif t == "multiplica_dano":
+                    plano.multiplica *= x["fator"]
+                elif t == "soma_dado_medo_do_ataque":
+                    plano.bonus.append(Bonus(o.nome, (self.sessao.ultimo_ataque or {}).get("medo", 0)))
+                elif t == "nota_valor":
+                    plano.notas_valor.append((x["valor"], f"{o.nome}: {x['nota']}."))
+                elif t == "rolagem_extra":
+                    pos.append((o, x))
+        r = rolar_dano(plano, self.sessao.rng)
+        r.opcoes, r.ataque, r.carta = [o.nome for _, o, _, _ in usadas + automaticos], ataque, carta
+        r.efeitos = notas + r.efeitos
+        for o, x in pos:   # Revigorante, Rouba-Vida: um dado à parte depois do acerto
+            valor = self.sessao.rng.randint(1, x["faces"])
+            if valor != x["alvo"]:
+                r.efeitos.append(f"{o.nome}: d{x['faces']} {valor}, nada.")
+            elif x["limpa"] == "pv_ou_fadiga" and self.sessao.pv_marcados:
+                self.sessao.limpar_pv(1)
+                _delta(r, "pv", 1)
+                r.efeitos.append(f"{o.nome}: d{x['faces']} {valor}, limpou 1 PV.")
+            else:
+                _limpar_fadiga(r, self.sessao, f"{o.nome} (d{x['faces']} {valor})")
+        return r
+
+    def reagir(self, r: ResultadoRolagem, efeito_id: str, escolha: str | None = None,
+               dono: "Personagem | None" = None) -> ResultadoRolagem:
+        """Reação a uma rolagem já feita (de `dono`, ou sua): este personagem
+        paga o custo; a rolagem é desfeita na ficha do dono e refeita. Devolve a
+        versão nova (o Medo que muda é com a API: compare `medo_gerado`)."""
+        dono = dono or self
+        e = self.bib.efeitos_rolagem.get(efeito_id)
+        disponiveis = {o.id: o for o in self.opcoes_de_rolagem(r.tipo, r.traco, r.ataque, r.carta)}
+        o = disponiveis.get(efeito_id)
+        if e is None or o is None or e.momento != "depois":
+            raise RegraViolada("Essa reação não vale para esta rolagem.")
+        if not o.disponivel:
+            raise RegraViolada(f"{o.nome}: {o.motivo}.")
+        proprio = dono is self
+        if (e.alvo == "proprio" and not proprio) or (e.alvo == "aliado" and proprio):
+            raise RegraViolada(f"{o.nome}: {'só na rolagem de um aliado' if e.alvo == 'aliado' else 'só na sua rolagem'}.")
+        if e.se == "falhou" and r.sucesso is not False:
+            raise RegraViolada(f"{o.nome}: só depois de uma falha (informe a Dificuldade ao rolar).")
+        if e.se == "falhou_com_experiencia" and not (r.sucesso is False and r.experiencias):
+            raise RegraViolada(f"{o.nome}: só numa falha que usou Experiência.")
+        if e.se == "com_medo" and r.dualidade is not Dualidade.MEDO:
+            raise RegraViolada(f"{o.nome}: só num resultado com Medo.")
+        if e.escolha and escolha not in e.escolha:
+            raise RegraViolada(f"{o.nome}: escolha qual dado.")
+        self._pagar([(e, o, 1, escolha)])
+        novo = copy.deepcopy(r)
+        desfazer(novo, dono.sessao)
+        efeito = e.efeitos[0]["tipo"]
+        if efeito in ("rerrola_dualidade", "rerrola_teste"):
+            rolar_dualidade(novo, dono.sessao.rng)
+        elif efeito == "rerrola_esperanca":
+            rolar_dualidade(novo, dono.sessao.rng, ("esperanca",))
+        elif efeito == "rerrola_um_dado":
+            rolar_dualidade(novo, dono.sessao.rng, (escolha,))
+        elif efeito == "troca_dualidade":
+            esp, med = dado(novo, PapelDoDado.ESPERANCA), dado(novo, PapelDoDado.MEDO)
+            esp.valor, med.valor = med.valor, esp.valor
+            recalcular_teste(novo)
+        elif efeito == "medo_vira_esperanca":
+            recalcular_teste(novo, forcar=Dualidade.ESPERANCA)
+        elif efeito == "rerrola_dano":
+            for d in novo.dados:
+                if not d.descartado:
+                    d.original, d.valor = d.valor, dono.sessao.rng.randint(1, d.faces)
+            novo.total = sum(d.valor for d in novo.dados if not d.descartado) + sum(b.valor for b in novo.bonus)
+        if novo.tipo in TIPOS_DE_TESTE:
+            _, automaticos = dono._escolhidas(novo.tipo, novo.traco, novo.ataque, novo.carta, ())
+            dono._pos_teste(novo, automaticos)
+        novo.reacao_de = o.nome
+        novo.efeitos.insert(0, f"{o.nome}{'' if proprio else f' (de {self.criacao.nome or 'um aliado'})'}.")
+        return novo
+
+    def _tem_habilidade(self, f: Ficha, nome_original: str) -> bool:
+        return any(h.nome_original == nome_original for h in f.habilidades)
+
+    @staticmethod
+    def _da_lista(lista: list, indice, rotulo: str):
+        if not isinstance(indice, int) or not 0 <= indice < len(lista):
+            raise RegraViolada(f"{rotulo} não encontrada.")
+        return lista[indice]
+
+    def definir_padroes_estranhos(self, numero: int | None):
+        """Padrões Estranhos (Mago): o número de 1 a 12 (ou None para tirar)."""
+        if not self._tem_habilidade(self.ficha(), "Strange Patterns"):
+            raise RegraViolada("Só quem tem Padrões Estranhos escolhe um número.")
+        if numero is not None and not 1 <= numero <= 12:
+            raise RegraViolada("Escolha um número de 1 a 12.")
+        self.sessao.padroes_estranhos = numero
 
     # --- Cartas: loadout e cofre -----------------------------------------------
 

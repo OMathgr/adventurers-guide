@@ -307,3 +307,24 @@ class ParticipacaoTabela(Base):
 
     sessao: Mapped[SessaoTabela] = relationship()
     personagem: Mapped[PersonagemTabela] = relationship()
+
+
+class RolagemTabela(Base):
+    """Uma rolagem no registro da sessão (motor.ResultadoRolagem em `resultado`).
+    Reação a ela gera outra linha e marca esta em `substituida_por`."""
+
+    __tablename__ = "rolagens"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    mesa_id: Mapped[str] = mapped_column(ForeignKey("mesas.id", ondelete="CASCADE"), index=True)
+    sessao_id: Mapped[str] = mapped_column(ForeignKey("sessoes.id", ondelete="CASCADE"), index=True)
+    usuario_id: Mapped[str] = mapped_column(ForeignKey("usuarios.id", ondelete="CASCADE"), index=True)
+    personagem_id: Mapped[str | None] = mapped_column(ForeignKey("personagens.id", ondelete="CASCADE"),
+                                                      nullable=True, index=True)
+    oculta: Mapped[bool] = mapped_column(Boolean, default=False)   # do mestre: só ele vê
+    resultado: Mapped[dict] = mapped_column(JSON)
+    substituida_por: Mapped[str | None] = mapped_column(String(36), nullable=True)
+    criado_em: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_agora, index=True)
+
+    usuario: Mapped[UsuarioTabela] = relationship()
+    personagem: Mapped[PersonagemTabela | None] = relationship()

@@ -12,6 +12,7 @@
     "api:tipos": "node scripts/gerar-tipos.mjs"
   },
   "dependencies": {
+    "@3d-dice/dice-box-threejs": "^0.0.12",
     "@tanstack/react-query": "^5.104.1",
     "@xyflow/react": "^12.12.0",
     "react": "^19.2.8",

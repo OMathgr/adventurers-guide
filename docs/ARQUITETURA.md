@@ -687,6 +687,58 @@ Encerrada, fica para consulta (como cada um terminou, Medo final).
 - O repouso é da sessão (participantes = quem entrou; um aberto por sessão,
   `GET .../sessoes/{s}/repouso`).
 
+### Rolagem de dados (`motor/rolagem.py`, `data/efeitos_de_rolagem.json`, `api/rotas/rolagens.py`)
+
+O servidor rola (ninguém rerrola escondido) e guarda no registro da sessão
+(`rolagens`), que todos os membros veem ao vivo; o mestre responsável pode
+rolar oculto (só ele vê). Tipos: teste de atributo, ataque, conjuração e reação
+(Dados de Dualidade: d12 de Esperança e de Medo + bônus; vantagem +d6,
+desvantagem −d6, se cancelam; Experiência custa 1 Esperança e soma o
+modificador; Dificuldade opcional), dano (expressão da arma na ficha, ou a
+fórmula da carta da mão lida do inglês: "d8+2 ... using your Proficiency" usa a
+Proficiência; crítico soma o máximo dos dados) e livre ("2d8+1d6+3").
+
+O resultado vai sozinho para a ficha (da participação): com Esperança +1
+Esperança; com Medo +1 Medo no Medo da sessão; crítico +1 Esperança e limpa 1 PF;
+reação não gera nada. Padrões Estranhos usa o número salvo na sessão
+(`PUT /personagens/{id}/sessao/padroes`).
+
+**Efeitos** (`data/efeitos_de_rolagem.json`): cada habilidade, característica de
+arma/armadura e carta da mão que mexe em rolagens é uma entrada com fonte (nome
+em inglês do SRD ou id da carta; o nome exibido vem da tradução), momento
+(`automatico`, `antes` = opção com custo, `depois` = reação), rolagens a que se
+aplica, atributos, condição calculada (`auto`: Vulnerável, 2 PV ou menos, arma
+corpo a corpo, dano mágico, 4 cartas de um domínio na mão, o último ataque com
+Medo...), custo (Esperança/PF, por unidade quando há quantidade), limite
+(sessão, descanso, descanso longo, em `Sessao.usos_rolagem`) e uma lista de
+efeitos de um conjunto fechado de tipos (bônus, dados a mais, Proficiência,
+vantagem, d20 de Esperança, Poderoso/Brutal/Perfeccionista no dano, rerrolar,
+trocar os dados, Medo vira Esperança...). Regra nova = entrada nova; tipo novo
+= código novo em `motor/personagem.py` (o teste confere que todo tipo do
+catálogo é conhecido e que toda fonte existe no SRD).
+
+**Reações**: quem reage paga; a rolagem é desfeita na ficha do dono (`deltas`:
+Esperança, PF, PV, marcadores, a vantagem guardada; o Medo a API devolve) e
+refeita, entrando no registro como versão nova (a antiga fica "refeita"). Há
+reações do próprio jogador (Destemido, Instintos Felinos, Sorte da arma, Magia
+Volátil...) e de aliados (Dobra-Sorte, Tranquilizar, Tanque de Apoio).
+Estado de sessão usado: `usos_rolagem`, `marcadores_rolagem` (Conhecer a Maré),
+`ultimo_ataque` (para o dano depois: Encare o Medo, Toque da Meia-Noite) e
+`proxima_vantagem` (Inevitável).
+
+Ficaram de fora (texto na ficha): os que mexem em números da ficha fora das
+rolagens (Armadura Fortificada, Vitalidade, o +4 Grave do Toque da Lâmina),
+rolagens de adversários contra os personagens (Escudo Mutável, Imponente...) e
+contagens com marcadores que o app não acompanha (o jogador informa a
+quantidade: Dados de Matança, Taxa do Crepúsculo, Sigilo...).
+
+Tela: aba "Rolagem de dados" na sessão (jogador e mestre). Os dados 3D usam
+`@3d-dice/dice-box-threejs` (three.js + física; carregada só nessa aba), que
+aceita o resultado decidido ("1d12+1d12@7,3"); a cor de cada dado (Esperança,
+Medo, outros) é trocada no material logo depois que ele nasce, porque a
+biblioteca pinta a rolagem inteira de uma cor e `add()` no meio limpa a mesa.
+As cores são escolhidas por aparelho (`ag.dados.cores`).
+
 ### Sessões do mestre (`api/sessoes.py`, `api/rotas/sessoes.py` e `api/rotas/encontros.py`)
 
 - **Sessão** (`sessoes`): planejada e conduzida por UM mestre, o

@@ -163,6 +163,19 @@ def regras_da_mesa(personagem_id: str, pedido: RegrasDaMesa,
     return na_sessao(a, personagem_id, lambda s: setattr(s, "dano_massivo", pedido.dano_massivo))
 
 
+class NumeroPadroes(BaseModel):
+    numero: int | None = Field(None, ge=1, le=12)
+
+
+@rotas.put("/padroes", response_model=FichaSaida)
+def padroes_estranhos(personagem_id: str, pedido: NumeroPadroes, a: Acesso = Depends(acesso)):
+    """Padrões Estranhos (Mago): o número de 1 a 12 que dá Esperança ao sair num Dado de Dualidade."""
+    def acao(p: Personagem):
+        p.definir_padroes_estranhos(pedido.numero)
+        return p.ficha()
+    return ficha_saida(em_jogo(a, personagem_id, acao))
+
+
 @rotas.post("/condicoes", response_model=FichaSaida)
 def aplicar_condicao(personagem_id: str, pedido: CondicaoEntrada, a: Acesso = Depends(acesso)):
     return na_sessao(a, personagem_id, lambda s: s.aplicar_condicao(pedido.condicao))

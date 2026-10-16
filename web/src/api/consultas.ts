@@ -8,7 +8,7 @@ import type {
   EventoLinhaDoTempo, Ficha, GuiaDeBatalha, InimigoResumo, Mesa, MesaResumo, Npc, NpcEntrada, OpcoesDoGuia, PermissoesMestres, DadosDaSessao, Sessao, SessaoResumo,
   PersonagemCriado, PersonagemResumo, ProximoNivel, ResultadoDano, ResultadoDanoAdversario, Subclasse, VistaDosJogadores,
   SubidaDeNivel, EquipamentoAtual, InimigoComVersao, Item, Repouso, TipoDeRepouso, EscolhaDeRepouso, MovimentoDeMorte, ResultadoMorte, ImpactoDaCicatriz, Inventario, UsoDeConsumivel, Loja, ItemDaLojaEntrada, Venda, FichaResumida,
-  VistaDaSessao,
+  VistaDaSessao, Rolagem, OpcaoDeRolagem, PedidoDeRolagem,
 } from './tipos'
 
 const UMA_HORA = 60 * 60 * 1000
@@ -68,8 +68,8 @@ export const chaves = {
 export const usePersonagens = () =>
   useQuery({ queryKey: chaves.lista, queryFn: () => chamar<PersonagemResumo[]>('/personagens') })
 
-export const useFicha = (id: string) =>
-  useQuery({ queryKey: chaves.ficha(id), queryFn: () => chamar<Ficha>(`/personagens/${id}`) })
+export const useFicha = (id: string, ativo = true) =>
+  useQuery({ queryKey: chaves.ficha(id), queryFn: () => chamar<Ficha>(`/personagens/${id}`), enabled: ativo && !!id })
 
 export const useLinhaDoTempo = (id: string) =>
   useQuery({ queryKey: chaves.tempo(id), queryFn: () => chamar<EventoLinhaDoTempo[]>(`/personagens/${id}/linha-do-tempo`) })
@@ -793,6 +793,61 @@ export function useMarcarNaSessao(personagemId: string) {
         case 'companheiro': return chamar<Ficha>(`${base}/companheiro/dano`, { corpo: { usar_armadura: false } })
       }
     },
+    onSuccess: (f) => cliente.setQueryData(chaves.ficha(personagemId), f),
+  })
+}
+
+// --- Rolagem de dados (registro da sessão; o servidor rola) -------------------------------------
+
+const chaveRolagens = (mesaId: string, sid: string) => ['mesas', mesaId, 'sessoes', sid, 'rolagens'] as const
+
+/** O registro da sessão (atualiza ao vivo). Com o seu personagem, traz as reações que ele pode usar. */
+export const useRolagens = (mesaId: string, sid: string, personagemId?: string | null) =>
+  useQuery({
+    queryKey: [...chaveRolagens(mesaId, sid), personagemId ?? ''],
+    queryFn: () => chamar<Rolagem[]>(`/mesas/${mesaId}/sessoes/${sid}/rolagens`
+      + (personagemId ? `?personagem_id=${personagemId}` : '')),
+  })
+
+export type PedidoDeOpcoes = { personagemId: string; tipo: string; traco?: string | null; ataque?: number | null; carta?: string | null }
+
+/** Os efeitos (automáticos e opções) que valem para a rolagem que está sendo montada. */
+export const useOpcoesDeRolagem = (mesaId: string, sid: string, p: PedidoDeOpcoes | null) =>
+  useQuery({
+    queryKey: [...chaveRolagens(mesaId, sid), 'opcoes', p],
+    queryFn: () => {
+      const q = new URLSearchParams({ personagem_id: p!.personagemId, tipo: p!.tipo })
+      if (p!.traco) q.set('traco', p!.traco)
+      if (p!.ataque !== null && p!.ataque !== undefined) q.set('ataque', String(p!.ataque))
+      if (p!.carta) q.set('carta', p!.carta)
+      return chamar<OpcaoDeRolagem[]>(`/mesas/${mesaId}/sessoes/${sid}/rolagens/opcoes?${q}`)
+    },
+    enabled: p !== null,
+  })
+
+/** Rolar (ou reagir a uma rolagem). Atualiza o registro, a ficha e a vista da sessão (Medo). */
+export function useRolar(mesaId: string, sid: string) {
+  const cliente = useQueryClient()
+  const base = `/mesas/${mesaId}/sessoes/${sid}/rolagens`
+  return useMutation({
+    mutationFn: (a: { pedido: PedidoDeRolagem } | { reacao: { rolagemId: string; personagem_id: string; efeito: string; escolha?: string | null } }) =>
+      'pedido' in a
+        ? chamar<Rolagem>(base, { corpo: a.pedido })
+        : chamar<Rolagem>(`${base}/${a.reacao.rolagemId}/reacao`,
+          { corpo: { personagem_id: a.reacao.personagem_id, efeito: a.reacao.efeito, escolha: a.reacao.escolha ?? null } }),
+    onSuccess: () => Promise.all([
+      cliente.invalidateQueries({ queryKey: ['mesas', mesaId, 'sessoes', sid] }),
+      cliente.invalidateQueries({ queryKey: ['personagens'] }),
+    ]),
+  })
+}
+
+/** Padrões Estranhos (Mago): o número escolhido. */
+export function usePadroesEstranhos(personagemId: string) {
+  const cliente = useQueryClient()
+  return useMutation({
+    mutationFn: (numero: number | null) => chamar<Ficha>(`/personagens/${personagemId}/sessao/padroes`,
+      { metodo: 'PUT', corpo: { numero } }),
     onSuccess: (f) => cliente.setQueryData(chaves.ficha(personagemId), f),
   })
 }

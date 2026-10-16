@@ -8,6 +8,7 @@ import { useFicha, useFichaNaSessao, useJogo, useParticipar } from '../../api/co
 import type { Mesa, VistaDaSessao } from '../../api/tipos'
 import { useAutenticacao } from '../../auth/Autenticacao'
 import FichaDeJogo from '../../componentes/FichaDeJogo'
+import RolagemDeDados from '../../componentes/RolagemDeDados'
 import FichaVisao from '../../componentes/Ficha'
 import { MiniFicha } from '../../componentes/FichaResumida'
 import MedoDoMestre from '../../componentes/MedoDoMestre'
@@ -88,6 +89,7 @@ function MinhaFicha({ mesa, sessao, pid }: { mesa: Mesa; sessao: VistaDaSessao; 
 export default function SessaoDeJogo({ mesa, sid }: { mesa: Mesa; sid: string }) {
   const jogo = useJogo(mesa.id, sid)
   const [meu, setMeu] = useState<string | null>(null)
+  const [parte, setParte] = useState<'jogo' | 'dados'>('jogo')
 
   if (jogo.isPending) return <Carregando />
   if (jogo.isError) return <Aviso erro={jogo.error} />
@@ -108,6 +110,13 @@ export default function SessaoDeJogo({ mesa, sid }: { mesa: Mesa; sid: string })
 
       <MedoDoMestre medo={s.medo} titulo={emJogo ? 'Medo do mestre' : 'Medo ao fim da sessão'} />
       {emJogo && s.meus.length === 0 && <Entrar mesa={mesa} sessao={s} />}
+
+      <Abas<'jogo' | 'dados'> atual={parte} aoTrocar={setParte}
+        abas={[['jogo', emJogo ? 'Jogo' : 'Como terminou'], ['dados', 'Rolagem de dados']]} />
+      {parte === 'dados' && (
+        <RolagemDeDados mesaId={mesa.id} sessaoId={s.id} personagemId={atual ?? null} souMestre={false} emAndamento={emJogo} />
+      )}
+      {parte === 'jogo' && <>
       {emJogo && <PainelDeRepouso mesa={mesa} sessao={s} />}
 
       {s.meus.length > 1 && (
@@ -134,6 +143,7 @@ export default function SessaoDeJogo({ mesa, sid }: { mesa: Mesa; sid: string })
           ))}
         </ul>
       </Cartao>
+      </>}
     </div>
   )
 }

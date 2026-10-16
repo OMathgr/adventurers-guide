@@ -24,7 +24,7 @@ from sqlalchemy import event, inspect, select
 from sqlalchemy.orm import Session
 
 from .tabelas import (EncontroTabela, InimigoTabela, LojaTabela, MembroTabela, ParticipacaoTabela, RepousoTabela,
-                      MesaTabela, NpcTabela, PersonagemTabela, SessaoTabela, SubidaTabela)
+                      MesaTabela, NpcTabela, PersonagemTabela, RolagemTabela, SessaoTabela, SubidaTabela)
 
 Evento = dict
 Ouvinte = Callable[[Evento], None]
@@ -71,7 +71,7 @@ central = Central()
 
 # --- Gancho no banco ----------------------------------------------------------------------
 
-_POR_MESA = (InimigoTabela, NpcTabela, SessaoTabela, EncontroTabela, LojaTabela, RepousoTabela)
+_POR_MESA = (InimigoTabela, NpcTabela, SessaoTabela, EncontroTabela, LojaTabela, RepousoTabela, RolagemTabela)
 
 
 def _pendentes(sessao: Session) -> dict:
