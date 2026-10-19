@@ -170,7 +170,8 @@ def test_so_o_criador_administra(cliente, mesa, carlos):
 
 def test_sair_desvincula_os_personagens(cliente, mesa, bia, lira_na_mesa):
     assert cliente.post(f"/mesas/{mesa['id']}/sair", headers=bia).status_code == 204
-    assert cliente.get("/personagens", headers=bia).json()[0]["mesa_id"] is None
+    lira = cliente.get("/personagens", headers=bia).json()[0]
+    assert (lira["mesa_id"], lira["em_jogo"]) == (None, None)   # e saiu da sessão em andamento
     assert cliente.get(f"/mesas/{mesa['id']}").json()["personagens"] == []
 
 
@@ -182,7 +183,42 @@ def test_remover_membro(cliente, mesa, bia, lira_na_mesa):
     bia_id = cliente.get("/auth/eu", headers=bia).json()["id"]
     r = cliente.delete(f"/mesas/{mesa['id']}/membros/{bia_id}").json()
     assert [m["nome"] for m in r["membros"]] == ["Ana"] and r["personagens"] == []
+    assert cliente.get("/personagens", headers=bia).json()[0]["em_jogo"] is None   # saiu da sessão também
     assert cliente.get(f"/mesas/{mesa['id']}", headers=bia).status_code == 404
+
+
+def test_criador_tira_um_personagem_da_mesa(cliente, mesa, bia, lira_na_mesa):
+    r = cliente.delete(url(mesa, lira_na_mesa))
+    assert r.status_code == 200, r.text
+    assert r.json()["personagens"] == []
+    assert [m["nome"] for m in r.json()["membros"]] == ["Ana", "Bia"]   # a Bia continua na mesa
+    lira = cliente.get("/personagens", headers=bia).json()[0]
+    assert (lira["mesa_id"], lira["em_jogo"]) == (None, None)   # e saiu da sessão em andamento
+    assert cliente.get(f"/personagens/{lira_na_mesa}", headers=bia).status_code == 200   # não foi apagada
+    # sem mesa, pode ir para outra (ou voltar)
+    r = cliente.put(f"/personagens/{lira_na_mesa}/mesa", json={"mesa_id": mesa["id"]}, headers=bia)
+    assert r.status_code == 200
+
+
+def test_dono_tira_o_proprio_personagem(cliente, mesa, bia, lira_na_mesa):
+    r = cliente.delete(url(mesa, lira_na_mesa), headers=bia)
+    assert r.status_code == 200 and r.json()["personagens"] == []
+    assert r.json()["sou_criador"] is False   # a mesa devolvida é a vista da Bia
+
+
+def test_so_criador_ou_dono_tiram_o_personagem(cliente, mesa, bia, carlos, lira_na_mesa):
+    cliente.post(f"/mesas/entrar/{mesa['codigo_convite']}", headers=carlos)
+    assert cliente.delete(url(mesa, lira_na_mesa), headers=carlos).status_code == 403
+    carlos_id = cliente.get("/auth/eu", headers=carlos).json()["id"]
+    cliente.put(f"/mesas/{mesa['id']}/membros/{carlos_id}", json={"papel": "mestre"})
+    assert cliente.delete(url(mesa, lira_na_mesa), headers=carlos).status_code == 403   # mestre também não
+    assert len(cliente.get(f"/mesas/{mesa['id']}").json()["personagens"]) == 1
+
+
+def test_tirar_personagem_de_fora_da_mesa(cliente, mesa, bia, lira_na_mesa):
+    outra = cliente.post("/mesas", json={"nome": "Outra"}).json()
+    assert cliente.delete(url(outra, lira_na_mesa)).status_code == 404       # não está nela
+    assert cliente.delete(url(mesa, lira_na_mesa), headers=entrar(cliente, "x@exemplo.com")).status_code == 404
 
 
 def test_apagar_mesa_mantem_os_personagens(cliente, mesa, bia, lira_na_mesa):

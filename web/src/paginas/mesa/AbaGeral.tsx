@@ -6,7 +6,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router'
 
 import {
-  useClasses, useCopiarParaMesa, usePersonagens, useSairDaMesa, useVincularMesa,
+  useClasses, useCopiarParaMesa, usePersonagens, useRemoverPersonagemDaMesa, useSairDaMesa, useVincularMesa,
 } from '../../api/consultas'
 import type { Mesa } from '../../api/tipos'
 import { Foto } from '../../componentes/Foto'
@@ -39,7 +39,11 @@ function Personagens({ mesa }: { mesa: Mesa }) {
   const classes = useClasses()
   const vincular = useVincularMesa()
   const copiar = useCopiarParaMesa()
+  const remover = useRemoverPersonagemDaMesa(mesa.id)
   const [escolhido, setEscolhido] = useState('')
+  // tirar da mesa: quem criou a mesa, ou o dono (a API confere de novo)
+  const meusIds = new Set(meus.data?.map((c) => c.id))
+  const podeTirar = (id: string) => mesa.sou_criador || meusIds.has(id)
   const nomeClasse = (id: string) => classes.data?.find((c) => c.id === id)?.nome ?? ''
   const candidatos = meus.data?.filter((p) => p.mesa_id !== mesa.id) ?? []
   const p = candidatos.find((c) => c.id === escolhido)
@@ -59,6 +63,14 @@ function Personagens({ mesa }: { mesa: Mesa }) {
                 {x.morto && <span className="ml-2 text-xs text-perigo">atravessou o véu</span>}
                 <span className="ml-2 text-sm text-texto-suave">Nível {x.nivel} · {nomeClasse(x.classe)} · {x.jogador}</span>
               </span>
+              {podeTirar(x.id) && (
+                <Botao variante="perigo" className="shrink-0 px-3 py-1" disabled={remover.isPending}
+                  onClick={() => confirm(`Tirar ${x.nome || 'este personagem'} da mesa? Ele continua existindo, `
+                    + 'só fica sem mesa. Se estiver numa sessão em andamento, sai dela e as marcas dela se perdem.')
+                    && remover.mutate(x.id)}>
+                  Tirar da mesa
+                </Botao>
+              )}
             </div>
           </li>
         ))}
@@ -87,7 +99,7 @@ function Personagens({ mesa }: { mesa: Mesa }) {
           )}
         </form>
       )}
-      <Aviso erro={vincular.error ?? copiar.error} />
+      <Aviso erro={vincular.error ?? copiar.error ?? remover.error} />
     </Cartao>
   )
 }
@@ -109,7 +121,7 @@ export default function AbaGeral({ mesa }: { mesa: Mesa }) {
       {!mesa.sou_criador && (   // quem criou não sai: apaga a mesa (aba Gerenciar)
         <div className="lg:col-span-2">
           <Botao variante="perigo" disabled={sair.isPending}
-            onClick={() => confirm('Sair desta mesa? Seus personagens saem junto.')
+            onClick={() => confirm('Sair desta mesa? Seus personagens saem junto (e da sessão em andamento, se estiverem jogando).')
               && sair.mutate(mesa.id, { onSuccess: () => navegar('/mesas') })}>
             Sair da mesa
           </Botao>

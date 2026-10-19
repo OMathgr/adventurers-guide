@@ -141,9 +141,18 @@ def _saida(m: MembroTabela) -> MesaSaida:
     )
 
 
+def _tirar_da_mesa(a: Acesso, linha: PersonagemTabela):
+    """O personagem fica sem mesa. Se estiver jogando uma sessão em andamento
+    desta mesa, sai dela (as marcas dela se descartam); as encerradas ficam."""
+    ativa = repositorio.participacao_ativa(a.banco, linha.id)
+    if ativa is not None and ativa.mesa_id == linha.mesa_id:
+        a.banco.delete(ativa)
+    linha.mesa_id = None
+
+
 def _desvincular_personagens(a: Acesso, mesa_id: str, usuario_id: str):
     for p in a.banco.query(PersonagemTabela).filter_by(mesa_id=mesa_id, dono_id=usuario_id):
-        p.mesa_id = None
+        _tirar_da_mesa(a, p)
 
 
 # --- Mesa ---------------------------------------------------------------------------------
@@ -248,6 +257,21 @@ def remover_membro(mesa_id: str, usuario_id: str, a: Acesso = Depends(acesso)):
         raise SemPermissao("Quem criou a mesa não pode ser removido.")
     _desvincular_personagens(a, mesa_id, usuario_id)
     a.banco.delete(alvo)
+    a.banco.commit()
+    a.banco.refresh(eu.mesa)
+    return _saida(eu)
+
+
+@rotas.delete("/{mesa_id}/personagens/{personagem_id}", response_model=MesaSaida)
+def remover_personagem(mesa_id: str, personagem_id: str, a: Acesso = Depends(acesso)):
+    """Tira um personagem da mesa: quem criou a mesa ou o dono dele. O
+    personagem continua existindo, só fica sem mesa (pode ir para outra) e sai
+    da sessão em andamento, se estiver jogando uma."""
+    eu = membro(a.banco, mesa_id, a.usuario_id)
+    linha = repositorio.linha_na_mesa(a.banco, mesa_id, personagem_id)
+    if not eh_criador(eu) and linha.dono_id != a.usuario_id:
+        raise SemPermissao("Só quem criou a mesa ou o dono do personagem pode tirá-lo da mesa.")
+    _tirar_da_mesa(a, linha)
     a.banco.commit()
     a.banco.refresh(eu.mesa)
     return _saida(eu)

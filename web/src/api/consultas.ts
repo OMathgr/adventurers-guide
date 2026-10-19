@@ -285,6 +285,18 @@ export const useMudarPapel = (id: string) =>
 export const useRemoverMembro = (id: string) =>
   useMutacaoMesa((usuarioId: string) => chamar<Mesa>(`/mesas/${id}/membros/${usuarioId}`, { metodo: 'DELETE' }))
 
+/** Tira um personagem da mesa (quem criou a mesa ou o dono): ele fica sem mesa. */
+export function useRemoverPersonagemDaMesa(id: string) {
+  const cliente = useQueryClient()
+  return useMutation({
+    mutationFn: (personagemId: string) => chamar<Mesa>(`/mesas/${id}/personagens/${personagemId}`, { metodo: 'DELETE' }),
+    onSuccess: (mesa) => {
+      cliente.setQueryData(chavesMesa.mesa(mesa.id), mesa)
+      return cliente.invalidateQueries({ queryKey: chaves.lista })   // "Meus personagens": ficou sem mesa
+    },
+  })
+}
+
 /** Regra opcional das moedas (10 moedas = 1 punhado). */
 export const useMoedasDaMesa = (id: string) =>
   useMutacaoMesa((usar_moedas: boolean) => chamar<Mesa>(`/mesas/${id}/moedas`, { metodo: 'PUT', corpo: { usar_moedas } }))

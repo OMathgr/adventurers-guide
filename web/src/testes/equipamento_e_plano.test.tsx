@@ -134,6 +134,39 @@ describe('Trazer personagem para a mesa', () => {
   })
 })
 
+describe('Tirar personagem da mesa', () => {
+  const personagem = (id: string, nome: string, jogador: string) =>
+    ({ id, nome, nivel: 1, classe: 'x', jogador, dono_id: jogador, foto: null, morto: false })
+  const mesa = (sou_criador: boolean) => ({
+    id: 'm1', nome: 'Mesa', codigo_convite: null, medo_em_jogo: [], nivel_maximo: 1, meu_papel: 'jogador', sou_criador,
+    permissoes_mestres: {}, minhas_permissoes: [], membros: [],
+    personagens: [personagem('p1', 'Lia', 'Bia'), personagem('p2', 'Bruno', 'Carlos')],
+  }) as unknown as Mesa
+
+  it('o dono só tira o seu, e só depois de confirmar', async () => {
+    const fetch = api({ '/personagens': [{ id: 'p1', nome: 'Lia', nivel: 1, classe: 'x', mesa_id: 'm1', foto: null }],
+      '/mesas/m1/personagens/p1': { ...mesa(false), personagens: [] } })
+    vi.stubGlobal('fetch', fetch)
+    const confirmar = vi.fn(() => false)
+    vi.stubGlobal('confirm', confirmar)
+    montar(<AbaGeral mesa={mesa(false)} />)
+    const botao = await screen.findByRole('button', { name: 'Tirar da mesa' })
+    expect(screen.getAllByRole('button', { name: 'Tirar da mesa' })).toHaveLength(1)   // o do Carlos não
+    await userEvent.click(botao)
+    expect(confirmar).toHaveBeenCalledWith(expect.stringMatching(/^Tirar Lia da mesa\?/))
+    expect(fetch).not.toHaveBeenCalledWith('/api/mesas/m1/personagens/p1', expect.anything())
+    confirmar.mockReturnValue(true)
+    await userEvent.click(botao)
+    expect(fetch).toHaveBeenCalledWith('/api/mesas/m1/personagens/p1', expect.objectContaining({ method: 'DELETE' }))
+  })
+
+  it('quem criou a mesa tira qualquer um', async () => {
+    vi.stubGlobal('fetch', api({ '/personagens': [] }))
+    montar(<AbaGeral mesa={mesa(true)} />)
+    expect(await screen.findAllByRole('button', { name: 'Tirar da mesa' })).toHaveLength(2)
+  })
+})
+
 describe('Duas abas editando o mesmo formulário', () => {
   it('avisa do conflito e deixa salvar por cima', async () => {
     const chamadas: string[] = []

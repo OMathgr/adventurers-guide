@@ -33,7 +33,7 @@ function PapeisDosMembros({ mesa }: { mesa: Mesa }) {
                   {m.papel === 'mestre' ? 'Tornar jogador' : 'Tornar mestre'}
                 </Botao>
                 <Botao variante="perigo" disabled={remover.isPending}
-                  onClick={() => confirm(`Remover ${m.nome} da mesa?`) && remover.mutate(m.usuario_id)}>
+                  onClick={() => confirm(`Remover ${m.nome} da mesa? Os personagens dele saem junto (e da sessão em andamento, se estiverem jogando).`) && remover.mutate(m.usuario_id)}>
                   Remover
                 </Botao>
               </span>

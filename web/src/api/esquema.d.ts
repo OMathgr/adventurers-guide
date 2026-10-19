@@ -1125,6 +1125,30 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/mesas/{mesa_id}/personagens/{personagem_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Ficha Na Mesa */
+        get: operations["ficha_na_mesa_mesas__mesa_id__personagens__personagem_id__get"];
+        put?: never;
+        post?: never;
+        /**
+         * Remover Personagem
+         * @description Tira um personagem da mesa: quem criou a mesa ou o dono dele. O
+         *     personagem continua existindo, só fica sem mesa (pode ir para outra). Se
+         *     estiver jogando uma sessão em andamento, sai dela (as marcas dela se
+         *     descartam); as sessões encerradas ficam registradas.
+         */
+        delete: operations["remover_personagem_mesas__mesa_id__personagens__personagem_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/mesas/{mesa_id}/permissoes": {
         parameters: {
             query?: never;
@@ -1200,23 +1224,6 @@ export interface paths {
          *     personagens uns dos outros).
          */
         get: operations["ficha_resumida_mesas__mesa_id__personagens__personagem_id__resumo_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/mesas/{mesa_id}/personagens/{personagem_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Ficha Na Mesa */
-        get: operations["ficha_na_mesa_mesas__mesa_id__personagens__personagem_id__get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -7436,6 +7443,70 @@ export interface operations {
             };
         };
     };
+    ficha_na_mesa_mesas__mesa_id__personagens__personagem_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mesa_id: string;
+                personagem_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Ficha"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    remover_personagem_mesas__mesa_id__personagens__personagem_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mesa_id: string;
+                personagem_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MesaSaida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     permissoes_mesas__mesa_id__permissoes_put: {
         parameters: {
             query?: never;
@@ -7560,38 +7631,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["FichaResumida"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    ficha_na_mesa_mesas__mesa_id__personagens__personagem_id__get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                mesa_id: string;
-                personagem_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Ficha"];
                 };
             };
             /** @description Validation Error */
