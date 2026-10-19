@@ -30,7 +30,7 @@ function ListaCaracteristicas({ lista }: { lista: { nome: string; descricao: str
 }
 
 /** `personagemId` liga as ações do dono (mão e reserva); sem ele, a ficha é só leitura.
-    `semVida` tira o cartão "Vida e ânimo" (na sessão, os controles de jogo ficam no topo). */
+    `semVida` tira o cartão "Vida e Fadiga" (na sessão, os controles de jogo ficam no topo). */
 export default function FichaVisao({ ficha, personagemId, semVida }: {
   ficha: Ficha; personagemId?: string; semVida?: boolean
 }) {
@@ -76,7 +76,7 @@ export default function FichaVisao({ ficha, personagemId, semVida }: {
         )}
       </Cartao>
 
-      {!semVida && <Cartao titulo="Vida e ânimo" className="lg:col-span-2">
+      {!semVida && <Cartao titulo="Vida e Fadiga" className="lg:col-span-2">
         <div className="space-y-3">
           <div><p className="mb-1 text-sm">Pontos de Vida <span className="text-texto-suave">(restam {ficha.pv_max - ficha.pv_marcados}/{ficha.pv_max})</span></p>
             <Espacos total={ficha.pv_max} marcados={ficha.pv_marcados} rotulo="Pontos de Vida" restantes /></div>

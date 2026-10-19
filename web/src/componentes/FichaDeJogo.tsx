@@ -44,7 +44,7 @@ function Contador({ rotulo, detalhe, menos, mais, ocupado, children }: {
   )
 }
 
-/** O cartão "Vida e ânimo" com os controles de jogo. */
+/** O cartão "Vida e Fadiga" com os controles de jogo. */
 export function MarcasDeJogo({ personagemId, ficha: f }: { personagemId: string; ficha: Ficha }) {
   const marcar = useMarcarNaSessao(personagemId)
   const fazer = (m: MarcaDeJogo) => () => marcar.mutate(m)
