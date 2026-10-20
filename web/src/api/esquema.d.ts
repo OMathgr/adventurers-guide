@@ -1139,9 +1139,8 @@ export interface paths {
         /**
          * Remover Personagem
          * @description Tira um personagem da mesa: quem criou a mesa ou o dono dele. O
-         *     personagem continua existindo, só fica sem mesa (pode ir para outra). Se
-         *     estiver jogando uma sessão em andamento, sai dela (as marcas dela se
-         *     descartam); as sessões encerradas ficam registradas.
+         *     personagem continua existindo, só fica sem mesa (pode ir para outra) e sai
+         *     da sessão em andamento, se estiver jogando uma.
          */
         delete: operations["remover_personagem_mesas__mesa_id__personagens__personagem_id__delete"];
         options?: never;
@@ -1422,6 +1421,47 @@ export interface paths {
         put: operations["mudar_visibilidade_mesas__mesa_id__npcs__npc_id__visibilidade_put"];
         post?: never;
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/mesas/{mesa_id}/itens": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Listar */
+        get: operations["listar_mesas__mesa_id__itens_get"];
+        put?: never;
+        /** Criar */
+        post: operations["criar_mesas__mesa_id__itens_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/mesas/{mesa_id}/itens/{item_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Ver */
+        get: operations["ver_mesas__mesa_id__itens__item_id__get"];
+        /** Editar */
+        put: operations["editar_mesas__mesa_id__itens__item_id__put"];
+        post?: never;
+        /**
+         * Apagar
+         * @description Apaga o modelo. Quem já recebeu continua com o item; as lojas que o
+         *     vendem continuam vendendo a última versão.
+         */
+        delete: operations["apagar_mesas__mesa_id__itens__item_id__delete"];
         options?: never;
         head?: never;
         patch?: never;
@@ -2171,6 +2211,27 @@ export interface paths {
         post?: never;
         /** Tirar Livre */
         delete: operations["tirar_livre_mesas__mesa_id__personagens__personagem_id__inventario_livres__livre_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/mesas/{mesa_id}/personagens/{personagem_id}/inventario/da-mesa": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Dar Item Da Mesa
+         * @description Entrega um item criado pelo mestre (tesouro, presente): o personagem
+         *     guarda uma cópia (arma nas guardadas; armadura é vestida na hora).
+         */
+        post: operations["dar_item_da_mesa_mesas__mesa_id__personagens__personagem_id__inventario_da_mesa_post"];
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -3243,6 +3304,10 @@ export interface components {
              * @default
              */
             versao: string;
+            /** Armas Proprias */
+            armas_proprias?: components["schemas"]["Arma"][];
+            /** Armaduras Proprias */
+            armaduras_proprias?: components["schemas"]["Armadura"][];
         };
         /** EquipamentoEntrada */
         EquipamentoEntrada: {
@@ -3796,7 +3861,10 @@ export interface components {
              */
             id: string;
             tipo: components["schemas"]["TipoNaLoja"];
-            /** Ref */
+            /**
+             * Ref
+             * @description Id no catálogo do SRD ou, em PROPRIO, na biblioteca da mesa.
+             */
             ref?: string | null;
             /**
              * Nome
@@ -3836,6 +3904,105 @@ export interface components {
             preco: components["schemas"]["Ouro"];
             /** Estoque */
             estoque: number | null;
+            proprio?: components["schemas"]["ItemProprio"] | null;
+        };
+        /** ItemDaMesaComVersao */
+        ItemDaMesaComVersao: {
+            /**
+             * Versao
+             * @default
+             */
+            versao: string;
+            tipo: components["schemas"]["TipoProprio"];
+            /** Nome */
+            nome: string;
+            /**
+             * Descricao
+             * @default
+             */
+            descricao: string;
+            /**
+             * Tier
+             * @default 1
+             */
+            tier: number;
+            /** @default PRIMARY_PHYSICAL */
+            categoria: components["schemas"]["CategoriaArma"];
+            /** @default STRENGTH */
+            traco: components["schemas"]["Traco"];
+            /**
+             * Alcance
+             * @default MELEE
+             */
+            alcance: string;
+            /**
+             * Dado
+             * @default d8
+             */
+            dado: string;
+            /**
+             * Modificador Dano
+             * @default 0
+             */
+            modificador_dano: number;
+            /** @default PHYSICAL */
+            tipo_dano: components["schemas"]["TipoDano"];
+            /**
+             * Duas Maos
+             * @default false
+             */
+            duas_maos: boolean;
+            /**
+             * Limiar Maior
+             * @default 5
+             */
+            limiar_maior: number;
+            /**
+             * Limiar Grave
+             * @default 11
+             */
+            limiar_grave: number;
+            /**
+             * Pontuacao
+             * @default 3
+             */
+            pontuacao: number;
+            /** Limpa Pv */
+            limpa_pv?: string | null;
+            /** Limpa Pf */
+            limpa_pf?: string | null;
+            /** Ganha Esperanca */
+            ganha_esperanca?: string | null;
+            /**
+             * Marca Pf
+             * @default 0
+             */
+            marca_pf: number;
+            /**
+             * Escolha
+             * @default false
+             */
+            escolha: boolean;
+            /** Caracteristicas */
+            caracteristicas?: components["schemas"]["Caracteristica"][];
+            /**
+             * Id
+             * @default
+             */
+            id: string;
+        };
+        /** ItemDaMesaEntrada */
+        ItemDaMesaEntrada: {
+            /**
+             * Item Id
+             * @description Id do item na biblioteca da mesa (GET /mesas/{id}/itens).
+             */
+            item_id: string;
+            /**
+             * Quantidade
+             * @default 1
+             */
+            quantidade: number;
         };
         /** ItemEntrada */
         ItemEntrada: {
@@ -3911,6 +4078,86 @@ export interface components {
              * @default true
              */
             existe: boolean;
+        };
+        /** ItemProprio */
+        ItemProprio: {
+            tipo: components["schemas"]["TipoProprio"];
+            /** Nome */
+            nome: string;
+            /**
+             * Descricao
+             * @default
+             */
+            descricao: string;
+            /**
+             * Tier
+             * @default 1
+             */
+            tier: number;
+            /** @default PRIMARY_PHYSICAL */
+            categoria: components["schemas"]["CategoriaArma"];
+            /** @default STRENGTH */
+            traco: components["schemas"]["Traco"];
+            /**
+             * Alcance
+             * @default MELEE
+             */
+            alcance: string;
+            /**
+             * Dado
+             * @default d8
+             */
+            dado: string;
+            /**
+             * Modificador Dano
+             * @default 0
+             */
+            modificador_dano: number;
+            /** @default PHYSICAL */
+            tipo_dano: components["schemas"]["TipoDano"];
+            /**
+             * Duas Maos
+             * @default false
+             */
+            duas_maos: boolean;
+            /**
+             * Limiar Maior
+             * @default 5
+             */
+            limiar_maior: number;
+            /**
+             * Limiar Grave
+             * @default 11
+             */
+            limiar_grave: number;
+            /**
+             * Pontuacao
+             * @default 3
+             */
+            pontuacao: number;
+            /** Limpa Pv */
+            limpa_pv?: string | null;
+            /** Limpa Pf */
+            limpa_pf?: string | null;
+            /** Ganha Esperanca */
+            ganha_esperanca?: string | null;
+            /**
+             * Marca Pf
+             * @default 0
+             */
+            marca_pf: number;
+            /**
+             * Escolha
+             * @default false
+             */
+            escolha: boolean;
+            /** Caracteristicas */
+            caracteristicas?: components["schemas"]["Caracteristica"][];
+            /**
+             * Id
+             * @default
+             */
+            id: string;
         };
         /** Ligacao */
         Ligacao: {
@@ -5180,7 +5427,12 @@ export interface components {
          * TipoNaLoja
          * @enum {string}
          */
-        TipoNaLoja: "ITEM" | "ARMA" | "ARMADURA" | "LIVRE";
+        TipoNaLoja: "ITEM" | "ARMA" | "ARMADURA" | "LIVRE" | "PROPRIO";
+        /**
+         * TipoProprio
+         * @enum {string}
+         */
+        TipoProprio: "COMUM" | "CONSUMIVEL" | "ARMA" | "ARMADURA";
         /** Token */
         Token: {
             /** Access Token */
@@ -8182,6 +8434,172 @@ export interface operations {
             };
         };
     };
+    listar_mesas__mesa_id__itens_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mesa_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ItemProprio"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    criar_mesas__mesa_id__itens_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mesa_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ItemProprio"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ItemDaMesaComVersao"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    ver_mesas__mesa_id__itens__item_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mesa_id: string;
+                item_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ItemDaMesaComVersao"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    editar_mesas__mesa_id__itens__item_id__put: {
+        parameters: {
+            query?: {
+                versao?: string | null;
+            };
+            header?: never;
+            path: {
+                mesa_id: string;
+                item_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ItemProprio"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ItemDaMesaComVersao"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    apagar_mesas__mesa_id__itens__item_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mesa_id: string;
+                item_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     listar_mesas__mesa_id__sessoes_get: {
         parameters: {
             query?: never;
@@ -9859,6 +10277,42 @@ export interface operations {
             cookie?: never;
         };
         requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InventarioSaida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    dar_item_da_mesa_mesas__mesa_id__personagens__personagem_id__inventario_da_mesa_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mesa_id: string;
+                personagem_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ItemDaMesaEntrada"];
+            };
+        };
         responses: {
             /** @description Successful Response */
             200: {

@@ -9,7 +9,7 @@ from typing import Literal, get_type_hints
 
 from pydantic import BaseModel, Field, create_model
 
-from motor import Escolha, Ficha, Movimento, Opcao, Traco, ResultadoDano, ResultadoMovimento, TipoDano
+from motor import Arma, Armadura, Escolha, Ficha, Movimento, Opcao, Traco, ResultadoDano, ResultadoMovimento, TipoDano
 
 # Campos de controle interno do motor, que não interessam a quem usa a API
 # (e um deles tem tupla como chave, o que nem cabe em JSON).
@@ -135,6 +135,9 @@ class EquipamentoEntrada(BaseModel):
 
 class EquipamentoAtual(EquipamentoEntrada):
     versao: str = ""   # mande de volta ao salvar (api/concorrencia.py)
+    # criadas pelo mestre e já recebidas: dá para equipar como as do SRD
+    armas_proprias: list[Arma] = Field(default_factory=list)
+    armaduras_proprias: list[Armadura] = Field(default_factory=list)
 
 
 class OpcoesDeCarta(BaseModel):

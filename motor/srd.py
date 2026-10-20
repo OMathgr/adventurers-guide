@@ -7,6 +7,7 @@ só este arquivo muda.
 
 from __future__ import annotations
 
+import copy
 import dataclasses
 import json
 import re
@@ -718,6 +719,25 @@ class Biblioteca:
                              for h, n in zip(a.habilidades, t["habilidades"])])
 
         self.adversarios = {i: adversario(i, a) for i, a in self.adversarios.items()}
+
+    # --- itens criados pelo mestre (motor/itens_proprios.py) ---------------------
+
+    @property
+    def base(self) -> "Biblioteca":
+        """O catálogo do SRD, sem os itens de um personagem."""
+        return self.__dict__.get("_base", self)
+
+    def com_itens(self, armas: dict, armaduras: dict, itens: dict) -> "Biblioteca":
+        """Esta biblioteca com mais itens (os que o mestre criou e o personagem
+        recebeu). É uma vista: o resto do conteúdo é o mesmo objeto, só leitura."""
+        base = self.base
+        if not (armas or armaduras or itens):
+            return base
+        vista = copy.copy(base)
+        vista._base = base
+        vista.armas, vista.armaduras, vista.itens = (
+            {**base.armas, **armas}, {**base.armaduras, **armaduras}, {**base.itens, **itens})
+        return vista
 
     def nome_dominio(self, codigo: str) -> str:
         """Nome de exibição de um domínio ("BLADE" -> "Lâmina" ou "Blade")."""

@@ -3,6 +3,8 @@
 O mestre monta a loja; ao vender, o ouro sai do personagem e o item entra
 nele: itens do catálogo e livres vão para o inventário, armas para as armas
 de inventário e armadura é vestida na hora (o SRD não deixa carregar armadura).
+Itens criados pelo mestre (PROPRIO) levam a definição junto: quem compra
+recebe uma cópia dela (motor/itens_proprios.py).
 """
 
 from __future__ import annotations
@@ -13,6 +15,8 @@ from enum import Enum
 
 from .erros import RegraViolada
 from .inventario import MOEDAS_POR_PUNHADO, decompor, descrever_ouro, exigir_moedas
+from .itens_proprios import ItemProprio, TipoProprio
+from .itens_proprios import validar as validar_proprio
 from .srd import Biblioteca
 
 
@@ -21,6 +25,7 @@ class TipoNaLoja(str, Enum):
     ARMA = "ARMA"
     ARMADURA = "ARMADURA"
     LIVRE = "LIVRE"          # criado pelo mestre (nome e descrição)
+    PROPRIO = "PROPRIO"      # da biblioteca de itens da mesa (arma, armadura, consumível...)
 
 
 @dataclass
@@ -33,6 +38,7 @@ class ItemDaLoja:
     descricao: str = ""            # só LIVRE
     estoque: int | None = None     # None: sem limite
     id: str = ""
+    proprio: dict | None = None    # só PROPRIO: a definição (ItemProprio); `ref` é o modelo na mesa
 
     def __post_init__(self):
         self.tipo = TipoNaLoja(self.tipo)
@@ -52,6 +58,12 @@ def validar(bib: Biblioteca, itens: list[ItemDaLoja]):
             raise RegraViolada(f"Item desconhecido na loja: {item.ref}")
         if item.tipo is TipoNaLoja.LIVRE and not item.nome.strip():
             raise RegraViolada("Dê um nome ao item livre da loja.")
+        if item.tipo is TipoNaLoja.PROPRIO:
+            if not item.proprio:
+                raise RegraViolada("Item da mesa sem definição na loja.")
+            definicao = ItemProprio.de_estado(item.proprio)
+            validar_proprio(definicao)
+            item.proprio = definicao.estado()
 
 
 def nome(bib: Biblioteca, item: ItemDaLoja) -> str:
@@ -61,6 +73,8 @@ def nome(bib: Biblioteca, item: ItemDaLoja) -> str:
         return bib.armas[item.ref].nome
     if item.tipo is TipoNaLoja.ARMADURA:
         return bib.armaduras[item.ref].nome
+    if item.tipo is TipoNaLoja.PROPRIO:
+        return item.proprio["nome"]
     return item.nome
 
 
@@ -72,7 +86,8 @@ def vender(personagem, item: ItemDaLoja, quantidade: int = 1) -> list[str]:
         raise RegraViolada("A quantidade precisa ser pelo menos 1.")
     if item.estoque is not None and quantidade > item.estoque:
         raise RegraViolada(f"Só há {item.estoque} em estoque.")
-    if item.tipo is TipoNaLoja.ARMADURA and quantidade != 1:
+    proprio = ItemProprio.de_estado(item.proprio) if item.tipo is TipoNaLoja.PROPRIO else None
+    if (item.tipo is TipoNaLoja.ARMADURA or (proprio and proprio.tipo is TipoProprio.ARMADURA)) and quantidade != 1:
         raise RegraViolada("Armadura se compra uma por vez (ela é vestida na hora).")
     inv = personagem.inventario
     exigir_moedas(personagem.usa_moedas, item.moedas)
@@ -85,6 +100,8 @@ def vender(personagem, item: ItemDaLoja, quantidade: int = 1) -> list[str]:
             inv.guardar_arma(bib, item.ref)
     elif item.tipo is TipoNaLoja.ARMADURA:
         personagem.vestir_armadura_nova(item.ref)
+    elif proprio is not None:
+        personagem.receber_item_proprio(proprio, quantidade)
     else:
         inv.adicionar_livre(item.nome, item.descricao, quantidade)
     if item.estoque is not None:

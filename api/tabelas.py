@@ -107,6 +107,20 @@ class InimigoTabela(Base):
     atualizado_em: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_agora, onupdate=_agora)
 
 
+class ItemDaMesaTabela(Base):
+    """Item criado pelo mestre (motor.itens_proprios.ItemProprio em `dados`):
+    comum, consumível, arma ou armadura. Privado dos mestres; quem recebe (ou
+    compra) guarda uma cópia, então editar ou apagar aqui não muda o que já foi entregue."""
+
+    __tablename__ = "itens_da_mesa"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    mesa_id: Mapped[str] = mapped_column(ForeignKey("mesas.id", ondelete="CASCADE"), index=True)
+    dados: Mapped[dict] = mapped_column(JSON)
+    criado_em: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_agora)
+    atualizado_em: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_agora, onupdate=_agora)
+
+
 class NpcTabela(Base):
     """NPC da mesa: ficha simples, com ficha de combate opcional (motor.Adversario)."""
 

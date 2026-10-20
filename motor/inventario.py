@@ -68,6 +68,9 @@ class Inventario:
     moedas: int = 0
     # o próprio personagem liga as moedas quando está sem mesa (na mesa, vale a da mesa)
     usar_moedas: bool = False
+    # cópias dos itens criados pelo mestre que o personagem recebeu (id -> definição,
+    # motor/itens_proprios.py); os ids aparecem em `itens`, `armas` e no equipamento
+    proprios: dict[str, dict] = field(default_factory=dict)
 
     # --- ouro -----------------------------------------------------------------
     # As contas são feitas em moedas; sem a regra, as moedas ficam em 0.

@@ -2,7 +2,7 @@
 // o Quadro da campanha e as Sessões (os dias de jogo: em andamento, para entrar
 // e jogar; encerradas, para consultar). Os mestres também planejam e conduzem as
 // sessões deles, convidam (aba Convite), administram (aba Gerenciar) e têm a
-// biblioteca privada (Inimigos e NPCs).
+// biblioteca privada (Inimigos, NPCs e os Itens que criam).
 import { lazy, Suspense } from 'react'
 import { useParams, useSearchParams } from 'react-router'
 
@@ -13,11 +13,12 @@ import AbaConvite from './mesa/AbaConvite'
 import AbaGeral from './mesa/AbaGeral'
 import AbaGerenciar from './mesa/AbaGerenciar'
 import AbaInimigos from './mesa/AbaInimigos'
+import AbaItens from './mesa/AbaItens'
 import AbaNpcs from './mesa/AbaNpcs'
 import AbaSessoes from './mesa/AbaSessoes'
 
-type Aba = 'geral' | 'campanha' | 'sessao' | 'convite' | 'gerenciar' | 'inimigos' | 'npcs'
-const SO_MESTRE: Aba[] = ['convite', 'gerenciar', 'inimigos', 'npcs']
+type Aba = 'geral' | 'campanha' | 'sessao' | 'convite' | 'gerenciar' | 'inimigos' | 'npcs' | 'itens'
+const SO_MESTRE: Aba[] = ['convite', 'gerenciar', 'inimigos', 'npcs', 'itens']
 
 // o quadro usa o React Flow (pesado): só carrega quando alguém abre a aba
 const QuadroDaCampanha = lazy(() => import('../componentes/QuadroDaCampanha'))
@@ -46,7 +47,7 @@ export default function Mesa() {
 
       <Abas<Aba> atual={aba}
         abas={[['geral', 'Mesa'], ['sessao', 'Sessões'], ['campanha', 'Quadro da campanha'],
-          ...(mestre ? [['convite', 'Convite'], ['inimigos', 'Inimigos'], ['npcs', 'NPCs'], ['gerenciar', 'Gerenciar']] as [Aba, string][] : [])]}
+          ...(mestre ? [['convite', 'Convite'], ['inimigos', 'Inimigos'], ['npcs', 'NPCs'], ['itens', 'Itens'], ['gerenciar', 'Gerenciar']] as [Aba, string][] : [])]}
         aoTrocar={(nova) => setBusca(nova === 'geral' ? {} : { aba: nova }, { replace: true })} />
 
       {aba === 'geral' && <AbaGeral mesa={m} />}
@@ -56,6 +57,7 @@ export default function Mesa() {
       {aba === 'gerenciar' && <AbaGerenciar mesa={m} />}
       {aba === 'inimigos' && <AbaInimigos mesaId={m.id} podeEditar={podePreparar} />}
       {aba === 'npcs' && <AbaNpcs mesaId={m.id} podeEditar={podePreparar} />}
+      {aba === 'itens' && <AbaItens mesaId={m.id} podeEditar={podePreparar} />}
     </div>
   )
 }

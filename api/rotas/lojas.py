@@ -13,6 +13,7 @@ from pydantic import BaseModel, Field, TypeAdapter
 
 from motor import loja as regras_loja
 from motor.inventario import decompor, exigir_moedas
+from motor.itens_proprios import ItemProprio
 from motor.loja import ItemDaLoja, TipoNaLoja
 
 from ..concorrencia import conferir, versao_de
@@ -22,7 +23,7 @@ from ..autenticacao import Acesso, acesso
 from ..mesas import Permissao, exigir, membro
 from ..repositorio import NaoEncontrado, biblioteca
 from ..sessoes import sessao_do_mestre
-from ..tabelas import LojaTabela, MesaTabela
+from ..tabelas import ItemDaMesaTabela, LojaTabela, MesaTabela
 from .inventario import InventarioSaida, Ouro, saida as saida_inventario
 
 rotas = APIRouter(prefix="/mesas/{mesa_id}/sessoes/{sessao_id}/lojas", tags=["Lojas"])
@@ -37,6 +38,7 @@ class ItemDaLojaSaida(BaseModel):
     texto: str             # descrição do item (catálogo ou do mestre)
     preco: Ouro
     estoque: int | None
+    proprio: ItemProprio | None = None   # item criado pelo mestre: a ficha completa dele
 
 
 class LojaSaida(BaseModel):
@@ -50,7 +52,7 @@ class LojaSaida(BaseModel):
 class ItemDaLojaEntrada(BaseModel):
     id: str = ""
     tipo: TipoNaLoja
-    ref: str | None = None
+    ref: str | None = Field(None, description="Id no catálogo do SRD ou, em PROPRIO, na biblioteca da mesa.")
     nome: str = Field("", max_length=120)
     descricao: str = Field("", max_length=2000)
     preco: int = Field(ge=0, description="Em punhados (1 bolsa = 10, 1 baú = 100).")
@@ -85,10 +87,12 @@ def itens_saida(itens: list[dict]) -> list[ItemDaLojaSaida]:
     saida = []
     for item in _ITENS.validate_python(itens):
         texto = bib.itens[item.ref].texto if item.tipo is TipoNaLoja.ITEM else item.descricao
+        if item.tipo is TipoNaLoja.PROPRIO:
+            texto = item.proprio.get("descricao", "")
         saida.append(ItemDaLojaSaida(id=item.id, tipo=item.tipo, ref=item.ref, nome=regras_loja.nome(bib, item),
                                      texto=texto, preco=Ouro(**decompor(item.preco), total=item.preco, maximo=0,
                                                              moedas=item.moedas),
-                                     estoque=item.estoque))
+                                     estoque=item.estoque, proprio=item.proprio))
     return saida
 
 
@@ -133,12 +137,29 @@ def salvar(mesa_id: str, sessao_id: str, loja_id: str, dados: LojaEntrada, versa
     linha = _linha(a, sessao_id, loja_id)
     conferir(versao, linha.nome, bool(linha.visivel), linha.itens)
     itens = [ItemDaLoja(**i.model_dump()) for i in dados.itens]
+    _definicoes(a, mesa_id, itens, _ITENS.validate_python(linha.itens))
     regras_loja.validar(biblioteca(), itens)
     exigir_moedas(linha_mesa(a, mesa_id).usar_moedas, max((i.moedas for i in itens), default=0))
     linha.nome, linha.visivel = dados.nome.strip(), dados.visivel
     linha.itens = _ITENS.dump_python(itens, mode="json")
     a.banco.commit()
     return _saida(linha)
+
+
+def _definicoes(a: Acesso, mesa_id: str, itens: list[ItemDaLoja], antes: list[ItemDaLoja]):
+    """Itens da mesa levam a definição de agora; se o modelo foi apagado, fica a
+    que a loja já tinha."""
+    salvos = {i.id: i.proprio for i in antes if i.tipo is TipoNaLoja.PROPRIO}
+    for item in itens:
+        if item.tipo is not TipoNaLoja.PROPRIO:
+            continue
+        modelo = a.banco.get(ItemDaMesaTabela, item.ref or "")
+        if modelo is not None and modelo.mesa_id == mesa_id:
+            item.proprio = modelo.dados
+        elif salvos.get(item.id):
+            item.proprio = salvos[item.id]
+        else:
+            raise NaoEncontrado("Item não encontrado na biblioteca da mesa.")
 
 
 @rotas.delete("/{loja_id}", status_code=204)

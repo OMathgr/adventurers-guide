@@ -13,11 +13,13 @@ from pydantic import BaseModel, Field
 
 from motor import Personagem, RegraViolada, TipoDeItem
 from motor.inventario import MOEDAS_POR_PUNHADO, OURO_MAXIMO, decompor, exigir_moedas
+from motor.itens_proprios import ItemProprio
 
 from .. import repositorio
 from ..autenticacao import Acesso, acesso
 from ..esquemas import FichaSaida, ficha_saida
 from ..mesas import Permissao, exigir, membro
+from .itens_da_mesa import item_da_mesa
 from .personagens import executar
 
 rotas = APIRouter(prefix="/personagens/{personagem_id}/inventario", tags=["Inventário"])
@@ -96,6 +98,11 @@ class ItemLivreEntrada(BaseModel):
 
 class ArmaEntrada(BaseModel):
     arma_id: str
+
+
+class ItemDaMesaEntrada(BaseModel):
+    item_id: str = Field(description="Id do item na biblioteca da mesa (GET /mesas/{id}/itens).")
+    quantidade: int = Field(1, ge=1)
 
 
 class Usar(BaseModel):
@@ -303,6 +310,16 @@ def dar_livre(mesa_id: str, personagem_id: str, pedido: ItemLivreEntrada, a: Ace
 def tirar_livre(mesa_id: str, personagem_id: str, livre_id: str, quantidade: int = 1,
                 a: Acesso = Depends(acesso)):
     return _no_mestre(a, mesa_id, personagem_id, _tirar_livre(livre_id, quantidade))
+
+
+@rotas_mestre.post("/da-mesa", response_model=InventarioSaida)
+def dar_item_da_mesa(mesa_id: str, personagem_id: str, pedido: ItemDaMesaEntrada, a: Acesso = Depends(acesso)):
+    """Entrega um item criado pelo mestre (tesouro, presente): o personagem
+    guarda uma cópia (arma nas guardadas; armadura é vestida na hora)."""
+    def acao(p: Personagem):   # depois da permissão: jogador não descobre se o item existe
+        modelo = ItemProprio.de_estado(item_da_mesa(a.banco, mesa_id, pedido.item_id).dados)
+        p.receber_item_proprio(modelo, pedido.quantidade)
+    return _no_mestre(a, mesa_id, personagem_id, acao)
 
 
 @rotas_mestre.post("/armas", response_model=InventarioSaida)

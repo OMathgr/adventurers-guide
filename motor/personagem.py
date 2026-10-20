@@ -21,6 +21,9 @@ from .companheiro import (Companheiro, FichaCompanheiro, OpcaoTreino, Treino,
                           aplicar_treino, criar_companheiro, nova_experiencia)
 from .erros import RegraViolada
 from .inventario import Inventario, inventario_inicial
+from .itens_proprios import ItemProprio, TipoProprio
+from .itens_proprios import copia as copia_proprio
+from .itens_proprios import separar as separar_proprios
 from .numeros import metade
 from .rolagem import (TIPOS_DE_TESTE, Bonus, DadoRolado, Dualidade, EfeitoDeRolagem, PapelDoDado, PlanoDeDano,
                       ResultadoRolagem, _delta, _ganhar_esperanca, _limpar_fadiga, aplicar_teste, dado, desfazer,
@@ -396,6 +399,7 @@ class Personagem:
         nova.cofre = [c for c in self.cofre if c in nova._ficha_base().cartas]
         nova._ajustar_cofre()
         nova.inventario = copy.deepcopy(self.inventario)
+        nova._usar_proprios()
         nova.nivel_limite = nivel_maximo
         return nova
 
@@ -440,6 +444,7 @@ class Personagem:
         """Inverso de estado(). O equipamento passa por equipar(), então
         continua valendo a validação (ex.: arma mágica, Pompous)."""
         self.inventario = Inventario.de_estado(estado.get("inventario"))
+        self._usar_proprios()   # antes do equipamento: ele pode ser um item do mestre
         self.equipar(**estado["equipamento"])
         self.cofre = list(estado["cofre"])
         self._ajustar_cofre()
@@ -527,6 +532,44 @@ class Personagem:
         if em_perigo:
             self.sessao.pagar_estresse(1)
         return self.ficha()
+
+    def receber_item_proprio(self, item: ItemProprio, quantidade: int = 1) -> str:
+        """Entrega um item criado pelo mestre (presente, tesouro ou compra): o
+        personagem guarda uma cópia dele, que vai para o inventário como os do
+        SRD (arma nas armas guardadas; armadura é vestida na hora). Devolve o id
+        da cópia. Erro não muda nada."""
+        if quantidade < 1:
+            raise RegraViolada("A quantidade precisa ser pelo menos 1.")
+        if item.tipo is TipoProprio.ARMADURA and quantidade != 1:
+            raise RegraViolada("Armadura se entrega uma por vez (ela é vestida na hora).")
+        recebido = copia_proprio(item)
+        antes = (copy.deepcopy(self.inventario), self.equipamento, self.sessao.armadura_marcada)
+        self.inventario.proprios[recebido.id] = recebido.estado()
+        self._usar_proprios()
+        try:
+            if item.tipo is TipoProprio.ARMA:
+                for _ in range(quantidade):
+                    self.inventario.guardar_arma(self.bib, recebido.id)
+            elif item.tipo is TipoProprio.ARMADURA:
+                self.vestir_armadura_nova(recebido.id)
+            else:
+                self.inventario.adicionar(self.bib, recebido.id, quantidade)
+        except RegraViolada:
+            self.inventario, self.equipamento, self.sessao.armadura_marcada = antes
+            self._usar_proprios()
+            raise
+        return recebido.id
+
+    def armas_proprias(self) -> list[Arma]:
+        """Armas criadas pelo mestre que o personagem já recebeu (para equipar)."""
+        return [self.bib.armas[i] for i in self.inventario.proprios if i in self.bib.armas]
+
+    def armaduras_proprias(self) -> list[Armadura]:
+        return [self.bib.armaduras[i] for i in self.inventario.proprios if i in self.bib.armaduras]
+
+    def _usar_proprios(self):
+        """A Biblioteca deste personagem: o SRD mais as cópias dos itens do mestre."""
+        self.bib = self.bib.base.com_itens(**separar_proprios(self.inventario.proprios))
 
     def vestir_armadura_nova(self, armadura_id: str) -> Ficha:
         """Armadura comprada: vai direto para o corpo (o SRD não deixa carregar

@@ -92,6 +92,7 @@ def test_equipar_persiste_e_valida(cliente, bardo_id):
     assert cliente.get(f"/personagens/{bardo_id}").json()["ataques"][0]["arma"] == "Espada Larga"
     eq = cliente.get(f"/personagens/{bardo_id}/equipamento").json()
     assert eq.pop("versao")   # versão do conteúdo, para avisar quando dois editam ao mesmo tempo
+    assert (eq.pop("armas_proprias"), eq.pop("armaduras_proprias")) == ([], [])   # nenhum item do mestre
     assert eq == {"principal": "core_weapon_broadsword", "secundaria": None, "armadura": "core_armor_leather_armor"}
 
 

@@ -111,6 +111,47 @@ tem lojas (várias, com nome) que o mestre monta e vende.
   de sessões em andamento vão para `/revelado` (com preço e estoque). Coluna
   `personagens.inventario` e tabela `lojas`.
 
+### Itens criados pelo mestre (`motor/itens_proprios.py`)
+
+Decisões do projeto (2026-10-19): o mestre cria itens comuns, consumíveis,
+armas e armaduras na biblioteca da mesa e entrega direto (tesouro, presente)
+ou vende nas lojas; quem recebe guarda uma **cópia** (editar o modelo não muda
+o que já foi entregue); características copiadas do SRD ou criadas com texto e
+bônus fixos; consumíveis com os mesmos efeitos simples dos do SRD.
+
+- `ItemProprio` segue o formato do SRD por tipo (arma: categoria, atributo,
+  alcance, dado, bônus de dano, tipo de dano, duas mãos; armadura: limiares
+  base e pontuação; consumível: `limpa_pv`, `limpa_pf`, `ganha_esperanca`,
+  `marca_pf`, `escolha`). `validar` confere tudo (dado d4–d20, limiares, um
+  dado por consumível, bônus de ataque/dano só em arma, regra especial
+  (`Efeito`) só de armadura, características só em arma e armadura).
+- `no_catalogo` vira `Arma`, `Armadura` ou `Item` (COMUM/CONSUMIVEL) com o id
+  da cópia. As características são `Caracteristica` do SRD: copiadas, trazem
+  bônus, requisito e efeito; criadas, têm `modificadores` (Evasão, Pontuação,
+  limiares, PV, PF, conjuração, atributos, ataque).
+- **Cópia no personagem**: `Inventario.proprios` (id -> definição). O id é
+  `proprio_` + hash do conteúdo (`id_da_copia`): duas entregas iguais se
+  empilham (consumível conta para o limite de 5); depois de editar o modelo,
+  é outro item. As cópias não são apagadas quando o item sai do inventário:
+  como as armas do SRD, as recebidas continuam na lista do equipamento.
+- **Biblioteca do personagem**: `Biblioteca.com_itens` devolve uma vista
+  (cópia rasa) com as armas, armaduras e itens do personagem somados ao SRD; o
+  catálogo compartilhado (`lru_cache`) não muda. `Personagem._usar_proprios`
+  troca `self.bib` ao restaurar, copiar e receber; o resto do motor (ficha,
+  equipamento, `trocar_arma`, consumíveis, lojas) não sabe a diferença.
+- `Personagem.receber_item_proprio`: arma vai para as guardadas, armadura é
+  vestida na hora (como na loja), o resto vai para `itens`. Recusa desfaz tudo.
+- Loja: `TipoNaLoja.PROPRIO` com `ref` (modelo) e `proprio` (definição). Ao
+  salvar a loja, a definição vem do modelo; editar o modelo atualiza as lojas
+  de sessões não encerradas; modelo apagado: a loja fica com a última versão.
+- API: `/mesas/{m}/itens` (ver: mestre; criar/editar/apagar: `preparar`;
+  versão do conteúdo para conflito), `POST /mesas/{m}/personagens/{p}/inventario/da-mesa`
+  (`dar_itens`), `GET /personagens/{id}/equipamento` traz `armas_proprias` e
+  `armaduras_proprias`. Tabela `itens_da_mesa`.
+- Tela: aba **Itens** da mesa (mestres; do zero ou a partir de um item do
+  SRD), "Dar um item da mesa" no inventário do personagem na sessão, "Item da
+  mesa" no editor da loja e selo "da mesa" no equipamento.
+
 ### Características de armas e armaduras
 
 O SRD só traz texto. A `Biblioteca` extrai os **bônus fixos** dele

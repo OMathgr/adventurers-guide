@@ -116,9 +116,11 @@ def desfazer_nivel(personagem_id: str, a: Acesso = Depends(acesso)):
 @rotas.get("/{personagem_id}/equipamento", response_model=EquipamentoAtual)
 def equipamento_atual(personagem_id: str, a: Acesso = Depends(acesso)):
     """Ids do que está equipado agora (a ficha só traz os nomes)."""
-    eq = repositorio.carregar(a.banco, a.usuario_id, personagem_id).equipamento
+    p = repositorio.carregar(a.banco, a.usuario_id, personagem_id)
+    eq = p.equipamento
     return EquipamentoAtual(principal=eq.principal, secundaria=eq.secundaria, armadura=eq.armadura,
-                            versao=versao_de(dataclasses.asdict(eq)))
+                            versao=versao_de(dataclasses.asdict(eq)),
+                            armas_proprias=p.armas_proprias(), armaduras_proprias=p.armaduras_proprias())
 
 
 @rotas.put("/{personagem_id}/equipamento", response_model=FichaSaida)

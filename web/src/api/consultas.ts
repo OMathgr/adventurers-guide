@@ -7,7 +7,7 @@ import type {
   Adversario, Ancestralidade, Arma, Armadura, Cartao, CartaDeDominio, Equipamento, Ligacao, QuadroDaSessao, QuadroSaida, Classe, Comunidade, Criacao, Encontro, Escolha,
   EventoLinhaDoTempo, Ficha, GuiaDeBatalha, InimigoResumo, Mesa, MesaResumo, Npc, NpcEntrada, OpcoesDoGuia, PermissoesMestres, DadosDaSessao, Sessao, SessaoResumo,
   PersonagemCriado, PersonagemResumo, ProximoNivel, ResultadoDano, ResultadoDanoAdversario, Subclasse, VistaDosJogadores,
-  SubidaDeNivel, EquipamentoAtual, InimigoComVersao, Item, Repouso, TipoDeRepouso, EscolhaDeRepouso, MovimentoDeMorte, ResultadoMorte, ImpactoDaCicatriz, Inventario, UsoDeConsumivel, Loja, ItemDaLojaEntrada, Venda, FichaResumida,
+  SubidaDeNivel, EquipamentoAtual, InimigoComVersao, Item, ItemProprio, ItemDaMesaComVersao, Repouso, TipoDeRepouso, EscolhaDeRepouso, MovimentoDeMorte, ResultadoMorte, ImpactoDaCicatriz, Inventario, UsoDeConsumivel, Loja, ItemDaLojaEntrada, Venda, FichaResumida,
   VistaDaSessao, Rolagem, OpcaoDeRolagem, PedidoDeRolagem,
 } from './tipos'
 
@@ -249,6 +249,8 @@ export const chavesMesa = {
   inimigos: (id: string) => ['mesas', id, 'inimigos'] as const,
   inimigo: (id: string, inimigoId: string) => ['mesas', id, 'inimigos', inimigoId] as const,
   npcs: (id: string) => ['mesas', id, 'npcs'] as const,
+  itens: (id: string) => ['mesas', id, 'itens'] as const,
+  item: (id: string, itemId: string) => ['mesas', id, 'itens', itemId] as const,
 }
 
 export const useMesas = () =>
@@ -358,6 +360,43 @@ export const useSalvarInimigo = (mesaId: string) =>
 export const useApagarInimigo = (mesaId: string) =>
   useMutacaoInimigo(mesaId, (inimigoId: string) =>
     chamar<void>(`/mesas/${mesaId}/inimigos/${inimigoId}`, { metodo: 'DELETE' }))
+
+// --- Itens criados pelo mestre (biblioteca da mesa) -----------------------------------------
+
+export const useItensDaMesa = (mesaId: string, ativo = true) =>
+  useQuery({
+    queryKey: chavesMesa.itens(mesaId),
+    queryFn: () => chamar<ItemProprio[]>(`/mesas/${mesaId}/itens`),
+    enabled: ativo,
+  })
+
+export const useItemDaMesa = (mesaId: string, itemId: string | null) =>
+  useQuery({
+    queryKey: chavesMesa.item(mesaId, itemId ?? ''),
+    queryFn: () => chamar<ItemDaMesaComVersao>(`/mesas/${mesaId}/itens/${itemId}`),
+    enabled: !!itemId,
+  })
+
+function useMutacaoItemDaMesa<V>(mesaId: string, fn: (v: V) => Promise<ItemDaMesaComVersao | void>) {
+  const cliente = useQueryClient()
+  return useMutation({
+    mutationFn: fn,
+    // as lojas da sessão acompanham a edição (api/rotas/itens_da_mesa.py)
+    onSuccess: () => Promise.all([
+      cliente.invalidateQueries({ queryKey: chavesMesa.itens(mesaId) }),
+      cliente.invalidateQueries({ queryKey: ['mesas', mesaId, 'sessoes'] }),
+    ]),
+  })
+}
+
+export const useSalvarItemDaMesa = (mesaId: string) =>
+  useMutacaoItemDaMesa(mesaId, ({ versao, ...item }: ComVersao<ItemProprio>) =>
+    item.id
+      ? chamar<ItemDaMesaComVersao>(comVersao(`/mesas/${mesaId}/itens/${item.id}`, versao), { metodo: 'PUT', corpo: item })
+      : chamar<ItemDaMesaComVersao>(`/mesas/${mesaId}/itens`, { corpo: item }))
+
+export const useApagarItemDaMesa = (mesaId: string) =>
+  useMutacaoItemDaMesa(mesaId, (itemId: string) => chamar<void>(`/mesas/${mesaId}/itens/${itemId}`, { metodo: 'DELETE' }))
 
 export const useNpcs = (mesaId: string) =>
   useQuery({ queryKey: chavesMesa.npcs(mesaId), queryFn: () => chamar<Npc[]>(`/mesas/${mesaId}/npcs`) })
@@ -631,6 +670,7 @@ export type AcaoNoInventario =
   | { tipo: 'livre'; nome: string; descricao: string; quantidade: number }
   | { tipo: 'tirar_livre'; id: string; quantidade: number }
   | { tipo: 'arma'; arma_id: string }
+  | { tipo: 'da_mesa'; item_id: string; quantidade: number }   // item criado pelo mestre (só o mestre)
   | { tipo: 'tirar_arma'; indice: number }
   | { tipo: 'reliquia'; experiencia: string | null }
 
@@ -644,6 +684,7 @@ function chamarInventario(base: string, a: AcaoNoInventario) {
       { corpo: { nome: a.nome, descricao: a.descricao, quantidade: a.quantidade } })
     case 'tirar_livre': return chamar<Inventario>(`${base}/livres/${a.id}?quantidade=${a.quantidade}`, { metodo: 'DELETE' })
     case 'arma': return chamar<Inventario>(`${base}/armas`, { corpo: { arma_id: a.arma_id } })
+    case 'da_mesa': return chamar<Inventario>(`${base}/da-mesa`, { corpo: { item_id: a.item_id, quantidade: a.quantidade } })
     case 'tirar_arma': return chamar<Inventario>(`${base}/armas/${a.indice}`, { metodo: 'DELETE' })
     case 'reliquia': return chamar<Inventario>(`${base}/reliquia`, { metodo: 'PUT', corpo: { experiencia: a.experiencia } })
   }

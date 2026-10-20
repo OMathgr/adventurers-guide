@@ -1,5 +1,5 @@
 // Equipamento do personagem: arma principal, secundária e armadura, do
-// catálogo do SRD. As regras (secundária com arma de duas mãos, arma mágica
+// catálogo do SRD ou criadas pelo mestre e recebidas (marcadas "da mesa"). As regras (secundária com arma de duas mãos, arma mágica
 // sem atributo de conjuração, requisitos como Pompous) são do motor: a tela
 // avisa o óbvio e mostra a mensagem da API.
 import { useMemo, useState } from 'react'
@@ -24,6 +24,9 @@ function Caracteristicas({ lista }: { lista: { nome: string; descricao: string; 
   )
 }
 
+// itens criados pelo mestre têm ids "proprio_..." (motor/itens_proprios.py)
+const daMesa = (id: string) => id.startsWith('proprio_')
+
 function DescricaoArma({ a }: { a: Arma }) {
   const dano = `${a.dado}${a.modificador_dano ? `+${a.modificador_dano}` : ''}`
   return (
@@ -31,6 +34,7 @@ function DescricaoArma({ a }: { a: Arma }) {
       <span className="flex flex-wrap items-center justify-between gap-2">
         <span className="font-medium">{a.nome}<Original nome={a.nome} original={a.nome_original} /></span>
         <span className="flex gap-1">
+          {daMesa(a.id) && <Selo destaque>da mesa</Selo>}
           <Selo>P{a.tier}</Selo>
           {a.categoria === 'PRIMARY_MAGIC' && <Selo destaque>mágica</Selo>}
           {a.duas_maos && <Selo>duas mãos</Selo>}
@@ -49,7 +53,10 @@ function DescricaoArmadura({ a, nivel }: { a: Armadura; nivel: number }) {
     <>
       <span className="flex flex-wrap items-center justify-between gap-2">
         <span className="font-medium">{a.nome}<Original nome={a.nome} original={a.nome_original} /></span>
-        <Selo>P{a.tier}</Selo>
+        <span className="flex gap-1">
+          {daMesa(a.id) && <Selo destaque>da mesa</Selo>}
+          <Selo>P{a.tier}</Selo>
+        </span>
       </span>
       <span className="block text-xs text-texto-suave">
         Pontuação {a.pontuacao} · Limiares {a.limiar_maior + nivel}/{a.limiar_grave + nivel} no seu nível
@@ -105,12 +112,15 @@ export default function AbaEquipamento({ personagemId, ficha }: { personagemId: 
     const erro = atual.error ?? armas.error ?? armaduras.error
     return erro ? <Aviso erro={erro} /> : <Carregando />
   }
-  const listaArmaduras: Armadura[] = armaduras.data
-  const eq: Equipamento = rascunho ?? atual.data
-  const porId = new Map(armas.data.map((a) => [a.id, a]))
+  // as recebidas do mestre primeiro
+  const listaArmaduras: Armadura[] = [...(atual.data.armaduras_proprias ?? []), ...armaduras.data]
+  const { principal: p, secundaria: s, armadura: ar, versao } = atual.data
+  const salvo: Equipamento & { versao?: string } = { principal: p, secundaria: s, armadura: ar, versao }
+  const eq: Equipamento = rascunho ?? salvo
+  const porId = new Map([...(atual.data.armas_proprias ?? []), ...armas.data].map((a) => [a.id, a]))
   const principal = eq.principal ? porId.get(eq.principal) : undefined
   const armadura = eq.armadura ? listaArmaduras.find((a) => a.id === eq.armadura) : undefined
-  const mudou = rascunho !== null && JSON.stringify(rascunho) !== JSON.stringify(atual.data)
+  const mudou = rascunho !== null && JSON.stringify(rascunho) !== JSON.stringify(salvo)
 
   function escolher(id: string | null) {
     const novo = { ...eq, [vaga]: id }

@@ -4,6 +4,7 @@
 // estoque; quem vende é o mestre).
 import { useRevelado } from '../api/consultas'
 import type { VistaDosJogadores as Vista } from '../api/tipos'
+import { resumoDoItem } from '../lib/itens'
 import { formatarOuro } from '../lib/ouro'
 import { condicao, NOME_VITALIDADE } from '../lib/rotulos'
 import { Foto } from './Foto'
@@ -78,6 +79,7 @@ export function Revelado({ v }: { v: Vista }) {
                   <span className="font-medium">{i.nome}</span>
                   <span className="text-esperanca">{i.preco.total === 0 && !i.preco.moedas ? 'de graça' : formatarOuro(i.preco.total, i.preco.moedas ?? 0)}</span>
                 </p>
+                {i.proprio && <p className="mt-1 text-xs text-texto-suave">{resumoDoItem(i.proprio)}</p>}
                 {i.texto && <p className="mt-1 text-xs text-texto-suave">{i.texto}</p>}
                 {i.estoque !== null && i.estoque !== undefined && (
                   <p className="mt-1 text-xs text-texto-suave">{i.estoque === 0 ? 'Esgotado' : `${i.estoque} em estoque`}</p>

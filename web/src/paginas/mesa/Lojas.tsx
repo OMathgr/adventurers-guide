@@ -1,18 +1,20 @@
 // Lojas da sessão: o mestre responsável define o que está à venda (preço em
 // punhados e estoque opcional) e vende para os personagens da mesa. Vender
 // cobra o ouro e entrega o item na hora; quem confere ouro, espaço e limites
-// é o motor. À mostra, a loja aparece para os jogadores na aba Mesa.
+// é o motor. À mostra, a loja aparece para os jogadores na aba Mesa. Os itens
+// criados pelos mestres (aba Itens) também vão à venda: quem compra recebe uma cópia.
 import { useState } from 'react'
 
-import { useAcaoNaLoja, useLojas, useVender } from '../../api/consultas'
+import { useAcaoNaLoja, useItensDaMesa, useLojas, useVender } from '../../api/consultas'
 import type { ItemDaLojaEntrada, Loja, Mesa, Sessao, TipoNaLoja } from '../../api/tipos'
 import { AvisoDeConflito } from '../../componentes/Conflito'
 import { BuscarNoCatalogo } from '../../componentes/inventario/BuscarNoCatalogo'
 import { Aviso, Botao, Campo, Carregando, Escolhivel, Selo } from '../../componentes/ui'
 import { semConflito } from '../../lib/conflito'
+import { resumoDoItem } from '../../lib/itens'
 import { formatarOuro } from '../../lib/ouro'
 
-const NOME_TIPO: Record<TipoNaLoja, string> = { ITEM: 'item', ARMA: 'arma', ARMADURA: 'armadura', LIVRE: 'da mesa' }
+const NOME_TIPO: Record<TipoNaLoja, string> = { ITEM: 'item', ARMA: 'arma', ARMADURA: 'armadura', LIVRE: 'livre', PROPRIO: 'da mesa' }
 
 type Linha = ItemDaLojaEntrada & { rotulo: string }
 
@@ -61,6 +63,7 @@ function EditorDeLoja({ mesa, sessao, loja }: { mesa: Mesa; sessao: Sessao; loja
   const [itens, setItens] = useState<Linha[]>(() => paraRascunho(loja))
   const [livre, setLivre] = useState({ nome: '', descricao: '' })
   const [adicionando, setAdicionando] = useState(false)
+  const daMesa = useItensDaMesa(mesa.id, podeEditar && adicionando)
   const salvo = JSON.stringify([original.nome, original.visivel, paraRascunho(original)])
   const mudou = JSON.stringify([nome, visivel, itens]) !== salvo
 
@@ -131,6 +134,7 @@ function EditorDeLoja({ mesa, sessao, loja }: { mesa: Mesa; sessao: Sessao; loja
               <p className="text-xs text-texto-suave">
                 {item.preco === 0 && !item.moedas ? 'de graça' : formatarOuro(item.preco, item.moedas)}{item.estoque !== null && item.estoque !== undefined ? ` · ${item.estoque} em estoque` : ''}
               </p>
+              {doServidor?.proprio && <p className="mt-1 text-xs text-texto-suave">{resumoDoItem(doServidor.proprio)}</p>}
               {doServidor?.texto && <p className="mt-1 text-xs text-texto-suave">{doServidor.texto}</p>}
               {podeVender && doServidor && !mudou && <Vender mesa={mesa} sid={sessao.id} loja={loja} itemId={doServidor.id} />}
             </li>
@@ -150,13 +154,25 @@ function EditorDeLoja({ mesa, sessao, loja }: { mesa: Mesa; sessao: Sessao; loja
                 id: '', tipo: e.tipo === 'ARMA' || e.tipo === 'ARMADURA' ? e.tipo : 'ITEM', ref: e.id,
                 nome: '', descricao: '', rotulo: e.nome,
               })} />
+              {(daMesa.data ?? []).length > 0 && (
+                <label className="flex flex-col gap-1 text-sm">
+                  <span className="font-medium text-texto-suave">Item da mesa (criado pelos mestres)</span>
+                  <select value="" onChange={(e) => {
+                    const escolhido = daMesa.data?.find((x) => x.id === e.target.value)
+                    if (escolhido) adicionar({ id: '', tipo: 'PROPRIO', ref: escolhido.id, nome: '', descricao: '', rotulo: escolhido.nome })
+                  }} className="rounded-lg border border-borda bg-fundo px-3 py-2 text-sm">
+                    <option value="">Escolha…</option>
+                    {daMesa.data?.map((x) => <option key={x.id} value={x.id}>{x.nome}</option>)}
+                  </select>
+                </label>
+              )}
               <form className="flex flex-wrap items-end gap-2" onSubmit={(e) => {
                 e.preventDefault()
                 adicionar({ id: '', tipo: 'LIVRE', ref: null, nome: livre.nome.trim(), descricao: livre.descricao.trim(),
                   rotulo: livre.nome.trim() })
                 setLivre({ nome: '', descricao: '' })
               }}>
-                <Campo rotulo="Item da mesa" value={livre.nome} maxLength={120} placeholder="Ex.: Mapa da Cripta"
+                <Campo rotulo="Item livre" value={livre.nome} maxLength={120} placeholder="Ex.: Mapa da Cripta"
                   onChange={(e) => setLivre({ ...livre, nome: e.target.value })} />
                 <Campo rotulo="Descrição" value={livre.descricao} maxLength={2000}
                   onChange={(e) => setLivre({ ...livre, descricao: e.target.value })} />
