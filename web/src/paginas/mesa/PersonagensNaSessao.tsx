@@ -5,7 +5,7 @@
 import { useState } from 'react'
 
 import { useAcaoNoPersonagem, useCurarCicatriz, useFichaNaMesa, useJogo, useParticipar } from '../../api/consultas'
-import type { Mesa, ResultadoDano, Sessao } from '../../api/tipos'
+import type { DefesaDeCarta, Mesa, ResultadoDano, Sessao } from '../../api/tipos'
 import Condicoes from '../../componentes/Condicoes'
 import { MiniFicha } from '../../componentes/FichaResumida'
 import { Foto } from '../../componentes/Foto'
@@ -16,6 +16,12 @@ import { NOME_GRAVIDADE, NOME_IMPACTO } from '../../lib/rotulos'
 function descrever(r: ResultadoDano) {
   return `${r.dano} de dano (${NOME_GRAVIDADE[r.gravidade]})${r.usou_armadura ? ', reduzido pela armadura' : ''}: `
     + `${r.pv_marcados} PV marcado${r.pv_marcados === 1 ? '' : 's'}${r.caiu ? '. Caiu: movimento de morte!' : '.'}`
+    + ((r.notas ?? []).length ? ` ${(r.notas ?? []).join('. ')}.` : '')
+}
+
+function custo(d: DefesaDeCarta) {
+  return [d.custo_fadiga ? `marca ${d.custo_fadiga} PF` : '', d.custo_esperanca ? `gasta ${d.custo_esperanca} de Esperança` : '']
+    .filter(Boolean).join(', ')
 }
 
 function CartaoPersonagem({ mesa, pid, nome, jogador, foto }:
@@ -25,6 +31,8 @@ function CartaoPersonagem({ mesa, pid, nome, jogador, foto }:
   const curar = useCurarCicatriz(mesa.id, pid)
   const [dano, setDano] = useState('')
   const [armadura, setArmadura] = useState(false)
+  // cartas de defesa que o jogador decidiu usar neste dano (Get Back Up, Brace...)
+  const [cartas, setCartas] = useState<string[]>([])
   const pode = (p: string) => (mesa.minhas_permissoes as string[]).includes(p)
 
   if (ficha.isPending) return <Carregando />
@@ -69,7 +77,8 @@ function CartaoPersonagem({ mesa, pid, nome, jogador, foto }:
       {pode('aplicar_dano') && (
         <form className="flex flex-wrap items-end gap-2" onSubmit={(e) => {
           e.preventDefault()
-          acao.mutate({ tipo: 'dano', dano: Number(dano), usar_armadura: armadura }, { onSuccess: () => setDano('') })
+          acao.mutate({ tipo: 'dano', dano: Number(dano), usar_armadura: armadura, cartas },
+            { onSuccess: () => { setDano(''); setCartas([]) } })
         }}>
           <Campo rotulo="Dano" type="number" min={0} className="w-24" value={dano}
             onChange={(e) => setDano(e.target.value)} aria-label={`Dano em ${nome}`} />
@@ -78,6 +87,18 @@ function CartaoPersonagem({ mesa, pid, nome, jogador, foto }:
             Jogador usa armadura
           </label>
           <Botao type="submit" variante="secundario" className="mb-0.5" disabled={acao.isPending || dano === ''}>Aplicar dano</Botao>
+          {(f.defesas_de_carta ?? []).length > 0 && (
+            <fieldset className="w-full space-y-1 text-xs">
+              <legend className="text-texto-suave">O jogador usa (só paga se precisar):</legend>
+              {(f.defesas_de_carta ?? []).map((d) => (
+                <label key={d.carta} className="flex items-center gap-1.5">
+                  <input type="checkbox" checked={cartas.includes(d.carta)}
+                    onChange={() => setCartas(cartas.includes(d.carta) ? cartas.filter((c) => c !== d.carta) : [...cartas, d.carta])} />
+                  {d.nome} ({custo(d)})
+                </label>
+              ))}
+            </fieldset>
+          )}
         </form>
       )}
       {acao.data?.resultado && <p className="text-sm text-esperanca" aria-live="polite">{descrever(acao.data.resultado)}</p>}

@@ -144,6 +144,7 @@ class Efeito(str, Enum):
     OSSOS_EXPOSTOS = "OSSOS_EXPOSTOS"  # Bare Bones: sem armadura, Pontuação 3 + Força e limiares por patamar
     INTOCAVEL = "INTOCAVEL"            # Untouchable: Evasão + metade da Agilidade (nunca tira)
     VERSATIL = "VERSATIL"              # Versatile Fighter: outro atributo no ataque de uma arma equipada
+    LEVANTE = "LEVANTE"                # Rise Up: limiar grave + Proficiência
 
 
 _EFEITOS_SRD = {
@@ -354,6 +355,8 @@ _PASSIVOS_CARTAS: dict[str, PassivoDeCarta] = {
     "core_domain_card_untouchable": PassivoDeCarta(efeito=Efeito.INTOCAVEL),
     # o atributo escolhido fica no equipamento (Equipamento.traco_principal/secundaria)
     "core_domain_card_versatile_fighter": PassivoDeCarta(efeito=Efeito.VERSATIL),
+    # a outra parte (limpa 1 PF ao marcar PV) é no dano (Sessao.receber_dano)
+    "core_domain_card_rise_up": PassivoDeCarta(efeito=Efeito.LEVANTE),
     "core_domain_card_arcana_touched": PassivoDeCarta((Modificador(Alvo.CONJURACAO, 1),), condicao="dominio:ARCANA"),
     "core_domain_card_blade_touched": PassivoDeCarta(
         (Modificador(Alvo.ATAQUE, 2), Modificador(Alvo.LIMIAR_GRAVE, 4)), condicao="dominio:BLADE"),
@@ -365,6 +368,19 @@ _ESCOLHAS_CARTAS = {
     "core_domain_card_vitality": EscolhaDeCarta.VITALIDADE,
     "core_domain_card_master_of_the_craft": EscolhaDeCarta.MESTRE_DO_OFICIO,
 }
+# Cartas que o jogador escolhe usar ao receber dano (Sessao.receber_dano): custo em
+# (Esperança, PF). As automáticas (Unyielding Armor, On the Brink, Rise Up) não estão aqui.
+DEFESAS_DE_CARTAS: dict[str, tuple[int, int]] = {
+    "core_domain_card_get_back_up": (0, 1),    # dano Grave: reduz um nível
+    "core_domain_card_shrug_it_off": (0, 1),   # reduz um nível; d6 até 3: vai para a reserva
+    "core_domain_card_brace": (0, 1),          # marca mais um espaço de armadura
+    "core_domain_card_rune_ward": (1, 0),      # reduz 1d8 do dano; 8: acaba até o descanso
+}
+# No lugar do movimento de morte (Sessao.evitar_morte_com_carta)
+ALTERNATIVAS_A_MORTE = ("core_domain_card_battle_hardened", "core_domain_card_unbreakable")
+# Fora do limite da mão (5) e não vai para a reserva
+FORA_DO_LIMITE_DA_MAO = ("core_domain_card_notorious",)
+
 # Bare Bones: limiares base por patamar (a ficha soma o nível, como nas armaduras)
 LIMIARES_OSSOS_EXPOSTOS = {1: (9, 19), 2: (11, 24), 3: (13, 31), 4: (15, 38)}
 PONTUACAO_OSSOS_EXPOSTOS = 3   # + Força
@@ -384,6 +400,7 @@ class CartaDeDominio:
     passivo: PassivoDeCarta | None = None      # aplicado na ficha enquanto estiver na mão
     escolha: EscolhaDeCarta | None = None      # pede uma escolha ao ser pega (SubidaDeNivel.beneficios_de_carta)
     reserva_permanente: bool = False           # depois de pega, fica na reserva para sempre
+    fora_do_limite: bool = False               # Notorious: não conta na mão e não vai para a reserva
 
 
 class CategoriaArma(str, Enum):
@@ -592,6 +609,7 @@ class Biblioteca:
                 passivo=_PASSIVOS_CARTAS.get(c["id"]),
                 escolha=_ESCOLHAS_CARTAS.get(c["id"]),
                 reserva_permanente=c["id"] in _ESCOLHAS_CARTAS,   # as duas: "place this card in your vault permanently"
+                fora_do_limite=c["id"] in FORA_DO_LIMITE_DA_MAO,
             )
             for c in self._ler(srd / "domain-cards.json")
         }

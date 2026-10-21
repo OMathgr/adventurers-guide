@@ -882,6 +882,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/personagens/{personagem_id}/sessao/morte/carta": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Evitar Morte Com Carta
+         * @description No lugar do movimento de morte, uma carta da mão (Battle Hardened, Unbreakable).
+         */
+        post: operations["evitar_morte_com_carta_personagens__personagem_id__sessao_morte_carta_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/personagens/{personagem_id}/sessao/cicatrizes/{indice}": {
         parameters: {
             query?: never;
@@ -2869,6 +2889,24 @@ export interface components {
              * @default false
              */
             reserva_permanente: boolean;
+            /**
+             * Fora Do Limite
+             * @default false
+             */
+            fora_do_limite: boolean;
+        };
+        /** CartaNaMorte */
+        CartaNaMorte: {
+            /**
+             * Carta
+             * @description Uma de Ficha.alternativas_a_morte (Battle Hardened, Unbreakable)
+             */
+            carta: string;
+            /**
+             * Rolagem
+             * @description Unbreakable: o d6 da mesa; sem ele, o app rola
+             */
+            rolagem?: number | null;
         };
         /** Cartao */
         Cartao: {
@@ -3162,6 +3200,8 @@ export interface components {
             rolagem_d6?: number | null;
             /** Rolagens Vinculo */
             rolagens_vinculo?: number[] | null;
+            /** Cartas */
+            cartas?: string[];
         };
         /** DanoAdversario */
         DanoAdversario: {
@@ -3190,6 +3230,26 @@ export interface components {
         DanoSaida: {
             resultado: components["schemas"]["ResultadoDano"];
             ficha: components["schemas"]["Ficha"];
+        };
+        /**
+         * DefesaDeCarta
+         * @description Carta que o jogador pode usar ao receber dano (Get Back Up, Brace...).
+         */
+        DefesaDeCarta: {
+            /** Carta */
+            carta: string;
+            /** Nome */
+            nome: string;
+            /**
+             * Custo Esperanca
+             * @default 0
+             */
+            custo_esperanca: number;
+            /**
+             * Custo Fadiga
+             * @default 0
+             */
+            custo_fadiga: number;
         };
         /** Descanso */
         Descanso: {
@@ -3224,7 +3284,7 @@ export interface components {
          *     funcionam. O nome no SRD está no comentário.
          * @enum {string}
          */
-        Efeito: "FORTIFICADA" | "DOLOROSA" | "ESPERANCOSA" | "REFORCADA" | "RESILIENTE" | "IMPENETRAVEL" | "SO_FISICO" | "SO_MAGICO" | "PROTEGIDA" | "CURA" | "VIGOR" | "FOLEGO" | "AGIL" | "PROPOSITO" | "CASCO" | "EFICIENTE" | "TRANSE" | "CARTA_EXTRA" | "TREINAMENTO_DE_COMBATE" | "OSSOS_EXPOSTOS" | "INTOCAVEL" | "VERSATIL";
+        Efeito: "FORTIFICADA" | "DOLOROSA" | "ESPERANCOSA" | "REFORCADA" | "RESILIENTE" | "IMPENETRAVEL" | "SO_FISICO" | "SO_MAGICO" | "PROTEGIDA" | "CURA" | "VIGOR" | "FOLEGO" | "AGIL" | "PROPOSITO" | "CASCO" | "EFICIENTE" | "TRANSE" | "CARTA_EXTRA" | "TREINAMENTO_DE_COMBATE" | "OSSOS_EXPOSTOS" | "INTOCAVEL" | "VERSATIL" | "LEVANTE";
         /**
          * EfeitoConsumivel
          * @description O que um consumível faz na ficha, lido do texto do SRD.
@@ -3514,6 +3574,10 @@ export interface components {
             padroes_estranhos: number | null;
             /** Cartas Aplicadas */
             cartas_aplicadas: string[];
+            /** Defesas De Carta */
+            defesas_de_carta: components["schemas"]["DefesaDeCarta"][];
+            /** Alternativas A Morte */
+            alternativas_a_morte: string[];
         };
         /** FichaCompanheiro */
         FichaCompanheiro: {
@@ -4398,6 +4462,12 @@ export interface components {
         NomeLoja: {
             /** Nome */
             nome: string;
+        };
+        /** NotasSaida */
+        NotasSaida: {
+            /** Notas */
+            notas: string[];
+            ficha: components["schemas"]["Ficha"];
         };
         /** NovaMesa */
         NovaMesa: {
@@ -7170,6 +7240,41 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["MorteSaida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    evitar_morte_com_carta_personagens__personagem_id__sessao_morte_carta_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                personagem_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CartaNaMorte"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NotasSaida"];
                 };
             };
             /** @description Validation Error */

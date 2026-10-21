@@ -172,6 +172,8 @@ class Dano(BaseModel):
     evitar_queda: bool = False
     rolagem_d6: int | None = None
     rolagens_vinculo: list[int] | None = None
+    # cartas da mão que o jogador usa ao receber o dano (Ficha.defesas_de_carta)
+    cartas: list[str] = Field(default_factory=list)
 
 
 class Quantidade(BaseModel):

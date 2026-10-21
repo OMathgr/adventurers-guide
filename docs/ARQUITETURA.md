@@ -239,6 +239,19 @@ Vitality e Master of the Craft pedem a escolha ao serem pegas.
   mostra `Ataque.traco` (o usado) e `traco_da_arma`. Igual ao da arma ou sem arma,
   fica vazio; trocar de arma volta ao atributo dela. A segunda parte é a reação
   `versatile_fighter` no dano (1 PF: o dado que mais ganha vira o máximo).
+- **No dano e na morte** (2026-10-21, etapa 1 das cartas): `Sessao.receber_dano(cartas=[...])`
+  recebe as cartas que o jogador usa (`DEFESAS_DE_CARTAS`: Get Back Up e Shrug It
+  Off reduzem um nível marcando 1 PF; Brace marca mais um espaço de armadura por 1
+  PF; Rune Ward reduz 1d8 por 1 Esperança e apaga até o descanso no 8). Custo só se
+  precisar; validado antes de marcar nada. Automáticas na mão: Unyielding Armor
+  (Proficiência d6 ao usar armadura; um 6 reduz sem marcar), On the Brink (sem dano
+  Menor com 2 PV ou menos), Rise Up (grave + Proficiência; limpa 1 PF ao marcar PV).
+  `Ficha.defesas_de_carta` diz quais dá para usar (o mestre marca no dano). No lugar
+  do movimento de morte: `evitar_morte_com_carta` (Battle Hardened 1x por descanso
+  longo; Unbreakable limpa 1d6 e vai para a reserva), em `Ficha.alternativas_a_morte`.
+  Limites de cartas usam `Sessao.usos_rolagem` com a chave `carta:<id>`.
+- Notorious (`fora_do_limite`): não conta nas 5 da mão e não vai para a reserva; o +10
+  é uma opção de rolagem (1 PF).
 - Os condicionais (Shadowhunter, Frenzy, Deadly Focus...) continuam texto ou
   efeito de rolagem: dependem de cena ou de ativação.
 - **Escolha ao pegar** (`CartaDeDominio.escolha`): `SubidaDeNivel.beneficios_de_carta`

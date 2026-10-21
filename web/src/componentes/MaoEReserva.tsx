@@ -18,7 +18,7 @@ function Trazer({ ficha, carta, custo, aoTrazer, enviando }: {
   const nomes = useNomes(ficha)
   const [emDescanso, setEmDescanso] = useState(true)
   const [noLugarDe, setNoLugarDe] = useState('')
-  const cheia = ficha.cartas_ativas.length >= LIMITE_MAO
+  const cheia = ficha.cartas_ativas.filter((c) => !nomes.carta(c)?.fora_do_limite).length >= LIMITE_MAO
   return (
     <div className="mt-3 space-y-2 border-t border-borda pt-3 text-sm">
       <fieldset className="space-y-1">
@@ -36,7 +36,8 @@ function Trazer({ ficha, carta, custo, aoTrazer, enviando }: {
         <select value={noLugarDe} onChange={(e) => setNoLugarDe(e.target.value)} aria-label="Carta que vai para a reserva"
           className="w-full rounded-lg border border-borda bg-fundo px-3 py-2">
           <option value="">Mão cheia: qual vai para a reserva?</option>
-          {ficha.cartas_ativas.map((c) => <option key={c} value={c}>{nomes.carta(c)?.nome ?? c}</option>)}
+          {ficha.cartas_ativas.filter((c) => !nomes.carta(c)?.fora_do_limite)
+            .map((c) => <option key={c} value={c}>{nomes.carta(c)?.nome ?? c}</option>)}
         </select>
       )}
       <Botao variante="secundario" disabled={enviando || (cheia && !noLugarDe)}
@@ -62,6 +63,8 @@ export default function MaoEReserva({ ficha, personagemId }: { ficha: Ficha; per
   const guardar = useGuardarCarta(personagemId ?? '')
   const recuperar = useRecuperarCarta(personagemId ?? '')
   const editavel = !!personagemId
+  // Notorious não conta no limite da mão
+  const naMao = ficha.cartas_ativas.filter((c) => !nomes.carta(c)?.fora_do_limite).length
 
   const lista = (ids: string[], naReserva: boolean) => (
     <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
@@ -82,7 +85,8 @@ export default function MaoEReserva({ ficha, personagemId }: { ficha: Ficha; per
               </span>
             </summary>
             {carta && <p className="mt-2 whitespace-pre-line text-sm text-texto-suave">{carta.texto}</p>}
-            {editavel && !naReserva && (
+            {carta?.fora_do_limite && !naReserva && <p className="mt-2 text-xs text-texto-suave">Não conta no limite da mão e não vai para a reserva.</p>}
+            {editavel && !naReserva && !carta?.fora_do_limite && (
               <Botao variante="fantasma" className="mt-2 !px-0" disabled={guardar.isPending}
                 onClick={() => guardar.mutate(id)}>Mandar para a reserva</Botao>
             )}
@@ -98,7 +102,7 @@ export default function MaoEReserva({ ficha, personagemId }: { ficha: Ficha; per
   )
 
   return (
-    <Cartao titulo={`Cartas de domínio: mão (${ficha.cartas_ativas.length}/${LIMITE_MAO})`} className="lg:col-span-3">
+    <Cartao titulo={`Cartas de domínio: mão (${naMao}/${LIMITE_MAO})`} className="lg:col-span-3">
       <Aviso erro={guardar.error ?? recuperar.error} />
       {ficha.cartas_ativas.length === 0 && <p className="text-sm text-texto-suave">Nenhuma carta na mão.</p>}
       {lista(ficha.cartas_ativas, false)}

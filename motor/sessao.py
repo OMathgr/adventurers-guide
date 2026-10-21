@@ -16,7 +16,17 @@ from typing import TYPE_CHECKING
 
 from .companheiro import OpcaoTreino
 from .erros import RegraViolada
-from .srd import Efeito, TipoDano
+from .srd import ALTERNATIVAS_A_MORTE, DEFESAS_DE_CARTAS, Efeito, TipoDano
+
+# cartas de domínio que mexem no dano recebido e no movimento de morte
+GET_BACK_UP = "core_domain_card_get_back_up"
+SHRUG_IT_OFF = "core_domain_card_shrug_it_off"
+BRACE = "core_domain_card_brace"
+RUNE_WARD = "core_domain_card_rune_ward"
+UNYIELDING_ARMOR = "core_domain_card_unyielding_armor"
+ON_THE_BRINK = "core_domain_card_on_the_brink"
+RISE_UP = "core_domain_card_rise_up"
+BATTLE_HARDENED = "core_domain_card_battle_hardened"
 
 if TYPE_CHECKING:
     from .personagem import Personagem
@@ -172,7 +182,8 @@ class Sessao:
     def receber_dano(self, dano: int, usar_armadura: bool = False,
                      tipo: TipoDano | None = None, evitar_queda: bool = False,
                      rolagem_d6: int | None = None,
-                     rolagens_vinculo: list[int] | None = None) -> ResultadoDano:
+                     rolagens_vinculo: list[int] | None = None,
+                     cartas: list[str] | None = None) -> ResultadoDano:
         """Marca PV conforme os limiares, aplicando as características equipadas.
 
         - `usar_armadura`: marca um espaço e reduz a gravidade em um nível
@@ -183,6 +194,9 @@ class Sessao:
           lugar do último PV.
         - `rolagem_d6`: o d6 do Resilient, se rolado na mesa (senão o motor rola).
         - `rolagens_vinculo`: os d6 do Bonded (companheiro), se rolados na mesa.
+        - `cartas`: cartas da mão que o jogador usa (`DEFESAS_DE_CARTAS`: Get Back
+          Up, Shrug It Off, Brace, Rune Ward), pagando o custo só se precisar.
+          Unyielding Armor, On the Brink e Rise Up valem sozinhas (na mão).
 
         A gravidade é medida antes de marcar o espaço; por isso o +2 do
         Reinforced vale a partir do dano seguinte.
@@ -196,20 +210,46 @@ class Sessao:
         if usar_armadura and tipo is TipoDano.FISICO and Efeito.SO_MAGICO in efeitos:
             raise RegraViolada("Sua armadura (Mágica) não reduz dano físico.")
 
+        mao = set(self.personagem.cartas_na_mao())
+        escolhidas = self._validar_defesas(cartas or [], mao, usar_armadura)
+        bib = self.personagem.bib
+
         notas: list[str] = []
         estresse_antes = self.estresse_marcado
         if tipo is TipoDano.MAGICO and Efeito.PROTEGIDA in efeitos and f.pontuacao_armadura:
             reduzido = min(dano, f.pontuacao_armadura)
             dano -= reduzido
             notas.append(f"Égide: dano mágico reduzido em {reduzido}")
+        if RUNE_WARD in escolhidas and dano > 0:
+            self.gastar_esperanca(1)
+            d8 = self.rng.randint(1, 8)
+            dano = max(dano - d8, 0)
+            notas.append(f"{bib.cartas[RUNE_WARD].nome}: d8 = {d8}, dano reduzido para {dano}")
+            if d8 == 8:
+                self.usos_rolagem[f"carta:{RUNE_WARD}"] = "descanso"
+                notas.append(f"{bib.cartas[RUNE_WARD].nome}: tirou 8, o amuleto se apaga até o próximo descanso")
 
         gravidade = self.gravidade(dano)
         pv = int(gravidade)
+        if (pv == int(Gravidade.MENOR) and ON_THE_BRINK in mao
+                and self._ficha().pv_max - self.pv_marcados <= 2):
+            pv = 0
+            notas.append(f"{bib.cartas[ON_THE_BRINK].nome}: com 2 PV ou menos, não sofre dano Menor")
         usou = False
         espacos = 0
         d6 = None
-        if usar_armadura and pv > 0 and self.armadura_livre > 0:
+        inabalavel = []
+        if usar_armadura and pv > 0 and self.armadura_livre > 0 and UNYIELDING_ARMOR in mao:
+            # Unyielding Armor: Proficiência d6; algum 6 reduz sem marcar espaço
+            inabalavel = [self.rng.randint(1, 6) for _ in range(self._ficha().proficiencia)]
+        if 6 in inabalavel:
             usou = True
+            pv = max(pv - 1, 0)
+            notas.append(f"{bib.cartas[UNYIELDING_ARMOR].nome}: {inabalavel}, reduziu sem marcar espaço")
+        elif usar_armadura and pv > 0 and self.armadura_livre > 0:
+            usou = True
+            if inabalavel:
+                notas.append(f"{bib.cartas[UNYIELDING_ARMOR].nome}: {inabalavel}, sem 6")
             if Efeito.RESILIENTE in efeitos and self.armadura_livre == 1:
                 d6 = rolagem_d6 or self.rng.randint(1, 6)
                 if d6 == 6:
@@ -221,6 +261,25 @@ class Sessao:
             if reducao == 2:
                 notas.append("Fortificação: reduziu dois níveis")
             pv = max(pv - reducao, 0)
+            if BRACE in escolhidas and pv > 0 and self.armadura_livre > 0:
+                self.pagar_estresse(1)
+                self._marcar_espaco(efeitos, notas)
+                espacos += 1
+                pv -= 1
+                notas.append(f"{bib.cartas[BRACE].nome}: marcou 1 PF e mais um espaço de armadura")
+
+        if GET_BACK_UP in escolhidas and gravidade >= Gravidade.GRAVE and pv > 0:
+            self.pagar_estresse(1)
+            pv -= 1
+            notas.append(f"{bib.cartas[GET_BACK_UP].nome}: marcou 1 PF e reduziu um nível")
+        if SHRUG_IT_OFF in escolhidas and pv > 0:
+            self.pagar_estresse(1)
+            pv -= 1
+            d6 = self.rng.randint(1, 6)
+            notas.append(f"{bib.cartas[SHRUG_IT_OFF].nome}: marcou 1 PF e reduziu um nível (d6 = {d6})")
+            if d6 <= 3:
+                self.personagem.guardar_carta(SHRUG_IT_OFF)
+                notas.append(f"{bib.cartas[SHRUG_IT_OFF].nome} foi para a reserva")
 
         if (evitar_queda and pv > 0 and Efeito.IMPENETRAVEL in efeitos
                 and Efeito.IMPENETRAVEL not in self.usados_no_descanso
@@ -233,10 +292,61 @@ class Sessao:
 
         self._exigir_vivo()
         self.marcar_pv(pv)
+        if pv > 0 and RISE_UP in mao and self.estresse_marcado > 0:
+            self.limpar_estresse(1)
+            notas.append(f"{bib.cartas[RISE_UP].nome}: limpou 1 PF")
         if pv > 0 and self.caido:
             self._vinculo(notas, rolagens_vinculo)
         return ResultadoDano(dano, gravidade, pv, usou, self.caido, espacos,
                              self.estresse_marcado - estresse_antes, d6, notas)
+
+    def _validar_defesas(self, cartas: list[str], mao: set[str], usar_armadura: bool) -> set[str]:
+        """Confere as cartas de defesa escolhidas antes de mexer em qualquer coisa."""
+        escolhidas = set(cartas)
+        nomes = self.personagem.bib.cartas
+        for c in escolhidas:
+            if c not in DEFESAS_DE_CARTAS:
+                raise RegraViolada("Essa carta não se usa ao receber dano.")
+            if c not in mao:
+                raise RegraViolada(f"{nomes[c].nome} precisa estar na mão.")
+            if f"carta:{c}" in self.usos_rolagem:
+                raise RegraViolada(f"{nomes[c].nome} só volta no próximo descanso.")
+        if BRACE in escolhidas and not usar_armadura:
+            raise RegraViolada(f"{nomes[BRACE].nome} só vale quando você marca armadura.")
+        esperanca = sum(DEFESAS_DE_CARTAS[c][0] for c in escolhidas)
+        fadiga = sum(DEFESAS_DE_CARTAS[c][1] for c in escolhidas)
+        if esperanca > self.esperanca:
+            raise RegraViolada(f"Esperança insuficiente: as cartas pedem {esperanca}.")
+        if fadiga > self.estresse_livre:
+            raise RegraViolada(f"Fadiga insuficiente: as cartas pedem {fadiga} PF livres.")
+        return escolhidas
+
+    def evitar_morte_com_carta(self, carta: str, rolagem: int | None = None) -> list[str]:
+        """No lugar do movimento de morte: Battle Hardened (1x por descanso longo,
+        gasta 1 Esperança e limpa 1 PV) ou Unbreakable (limpa 1d6 PV e vai para a reserva)."""
+        self._exigir_vivo()
+        if not self.precisa_movimento_de_morte:
+            raise RegraViolada("Só quem marcou o último PV pode usar isso.")
+        nome = self.personagem.bib.cartas[carta].nome if carta in self.personagem.bib.cartas else carta
+        if carta not in ALTERNATIVAS_A_MORTE:
+            raise RegraViolada(f"{nome} não substitui o movimento de morte.")
+        if carta not in self.personagem.cartas_na_mao():
+            raise RegraViolada(f"{nome} precisa estar na mão.")
+        if f"carta:{carta}" in self.usos_rolagem:
+            raise RegraViolada(f"{nome} só volta no próximo descanso longo.")
+        if carta == BATTLE_HARDENED:
+            if self.esperanca < 1:
+                raise RegraViolada(f"{nome} custa 1 de Esperança.")
+            self.gastar_esperanca(1)
+            self.limpar_pv(1)
+            self.usos_rolagem[f"carta:{carta}"] = "descanso_longo"
+            return [f"{nome}: gastou 1 de Esperança e limpou 1 PV no lugar do movimento de morte."]
+        if rolagem is not None and not 1 <= rolagem <= 6:
+            raise RegraViolada(f"Rolagem de d6 inválida: {rolagem}.")
+        d6 = rolagem or self.rng.randint(1, 6)
+        self.limpar_pv(d6)
+        self.personagem.guardar_carta(carta)
+        return [f"{nome}: d6 = {d6}, limpou {d6} PV no lugar do movimento de morte. A carta foi para a reserva."]
 
     def marcar_pv(self, quantidade: int = 1):
         self._exigir_positivo(quantidade)

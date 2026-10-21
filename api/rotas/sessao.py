@@ -136,6 +136,25 @@ def movimento_de_morte(personagem_id: str, pedido: MovimentoDeMorteEntrada, a: A
     return MorteSaida(resultado=resultado, ficha=ficha_saida(ficha))
 
 
+class CartaNaMorte(BaseModel):
+    carta: str = Field(description="Uma de Ficha.alternativas_a_morte (Battle Hardened, Unbreakable)")
+    rolagem: int | None = Field(None, ge=1, le=6, description="Unbreakable: o d6 da mesa; sem ele, o app rola")
+
+
+class NotasSaida(BaseModel):
+    notas: list[str]
+    ficha: FichaSaida
+
+
+@rotas.post("/morte/carta", response_model=NotasSaida)
+def evitar_morte_com_carta(personagem_id: str, pedido: CartaNaMorte, a: Acesso = Depends(acesso)):
+    """No lugar do movimento de morte, uma carta da mão (Battle Hardened, Unbreakable)."""
+    def acao(p: Personagem):
+        return p.sessao.evitar_morte_com_carta(pedido.carta, pedido.rolagem), p.ficha()
+    notas, ficha = em_jogo(a, personagem_id, acao)
+    return NotasSaida(notas=notas, ficha=ficha_saida(ficha))
+
+
 @rotas.put("/cicatrizes/{indice}", response_model=FichaSaida)
 def definir_cicatriz(personagem_id: str, indice: int, pedido: CicatrizEntrada, a: Acesso = Depends(acesso)):
     """O impacto narrativo da cicatriz (física, memória dolorosa, medo paralisante ou outro)."""

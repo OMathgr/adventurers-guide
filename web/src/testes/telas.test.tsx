@@ -175,7 +175,7 @@ describe('Espaços', () => {
 describe('Cartas com passivo', () => {
   const carta = (id: string, nome: string, extra: Partial<CartaDeDominio> = {}): CartaDeDominio => ({
     id, nome, nome_original: nome, dominio: 'BLADE', nivel: 1, tipo: 'ABILITY', custo_recall: 1, texto: '',
-    formulas: [], passivo: null, escolha: null, reserva_permanente: false, ...extra,
+    formulas: [], passivo: null, escolha: null, reserva_permanente: false, fora_do_limite: false, ...extra,
   })
   const VITALIDADE = carta('vit', 'Vitalidade', { nivel: 5, escolha: 'VITALIDADE', reserva_permanente: true })
   const ARMEIRO = carta('arm', 'Armeiro', { passivo: { modificadores: [], condicao: 'com_armadura' } })

@@ -9,6 +9,7 @@ import type { Ficha, Mesa, Repouso, Sessao } from '../api/tipos'
 import { ProvedorAutenticacao } from '../auth/Autenticacao'
 import Morte from '../componentes/Morte'
 import PainelDeRepouso from '../componentes/Repouso'
+import PersonagensNaSessao from '../paginas/mesa/PersonagensNaSessao'
 
 function api(rotas: Record<string, unknown>) {
   return vi.fn(async (url: string, _opcoes?: RequestInit) => {
@@ -112,5 +113,45 @@ describe('Movimento de morte', () => {
       cicatrizes: [{ impacto: 'MEDO', descricao: 'Água funda' }] } as unknown as Ficha} />)
     expect(screen.getByText(/atravessou o véu da morte/)).toBeInTheDocument()
     expect(screen.getByLabelText('Impacto da cicatriz 1')).toHaveValue('MEDO')
+  })
+})
+
+describe('Cartas no dano e na morte', () => {
+  it('no movimento de morte, oferece a carta que vai no lugar', async () => {
+    const ficha = { nome: 'Bram', pv_marcados: 6, pv_max: 6, precisa_movimento_de_morte: true, morto: false,
+      inconsciente: false, cicatrizes: [], alternativas_a_morte: ['bh'] } as unknown as Ficha
+    const fetch = api({
+      '/srd/cartas': [{ id: 'bh', nome: 'Calejado pela Batalha', texto: '' }],
+      '/personagens/p1/sessao/morte/carta': { notas: ['Calejado pela Batalha: limpou 1 PV.'],
+        ficha: { ...ficha, precisa_movimento_de_morte: false, pv_marcados: 5 } },
+    })
+    vi.stubGlobal('fetch', fetch)
+    montar(<Morte personagemId="p1" ficha={ficha} />)
+    await userEvent.click(await screen.findByRole('button', { name: 'Calejado pela Batalha' }))
+    expect(fetch).toHaveBeenCalledWith('/api/personagens/p1/sessao/morte/carta', expect.objectContaining({
+      method: 'POST', body: JSON.stringify({ carta: 'bh' }) }))
+    expect(await screen.findByText('Calejado pela Batalha: limpou 1 PV.')).toBeInTheDocument()
+  })
+
+  it('o mestre marca a carta de defesa que o jogador usa no dano', async () => {
+    const mesa = { id: 'm1', minhas_permissoes: ['ver_fichas', 'aplicar_dano'] } as unknown as Mesa
+    const sessao = { id: 's1', status: 'em_andamento', sou_responsavel: false } as unknown as Sessao
+    const ficha = { nome: 'Bram', pv_max: 6, pv_marcados: 0, estresse_max: 6, estresse_marcado: 0, esperanca: 2,
+      esperanca_max: 6, pontuacao_armadura: 0, armadura_marcada: 0, evasao: 9, limiar_maior: 1, limiar_grave: 2,
+      condicoes: [], cicatrizes: [], defesas_de_carta: [{ carta: 'gbu', nome: 'Levantar', custo_esperanca: 0, custo_fadiga: 1 }] }
+    const fetch = api({
+      '/mesas/m1/sessoes/s1/jogo': { participantes: [{ personagem_id: 'p1', resumo: { nome: 'Bram', jogador: 'Bia', foto: null } }] },
+      '/mesas/m1/personagens/p1': ficha,
+      '/mesas/m1/personagens/p1/dano': { ficha, resultado: { dano: 30, gravidade: 'GRAVE', pv_marcados: 2, usou_armadura: false,
+        caiu: false, espacos_marcados: 0, estresse_marcado: 1, notas: ['Levantar: marcou 1 PF e reduziu um nível'] } },
+    })
+    vi.stubGlobal('fetch', fetch)
+    montar(<PersonagensNaSessao mesa={mesa} sessao={sessao} />)
+    await userEvent.type(await screen.findByLabelText('Dano em Bram'), '30')
+    await userEvent.click(screen.getByRole('checkbox', { name: 'Levantar (marca 1 PF)' }))
+    await userEvent.click(screen.getByRole('button', { name: 'Aplicar dano' }))
+    expect(fetch).toHaveBeenCalledWith('/api/mesas/m1/personagens/p1/dano', expect.objectContaining({
+      body: JSON.stringify({ dano: 30, usar_armadura: false, cartas: ['gbu'] }) }))
+    expect(await screen.findByText(/reduziu um nível/)).toBeInTheDocument()
   })
 })

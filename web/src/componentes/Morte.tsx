@@ -4,7 +4,7 @@
 // narrativo. Os dados podem vir da mesa (digitados) ou o app rola.
 import { useState } from 'react'
 
-import { useDefinirCicatriz, useMovimentoDeMorte } from '../api/consultas'
+import { useCartas, useDefinirCicatriz, useEvitarMorteComCarta, useMovimentoDeMorte } from '../api/consultas'
 import type { Ficha, ImpactoDaCicatriz, MovimentoDeMorte } from '../api/tipos'
 import { NOME_IMPACTO, NOME_MOVIMENTO_MORTE } from '../lib/rotulos'
 import { Aviso, Botao, Cartao, Escolhivel } from './ui'
@@ -32,7 +32,31 @@ function Dado({ rotulo, valor, aoMudar }: { rotulo: string; valor: string; aoMud
   )
 }
 
-function EscolherMovimento({ ficha, morte }: { ficha: Ficha; morte: ReturnType<typeof useMovimentoDeMorte> }) {
+/** Battle Hardened e Unbreakable: no lugar do movimento de morte. */
+function CartasNoLugar({ ficha, usar }: { ficha: Ficha; usar: ReturnType<typeof useEvitarMorteComCarta> }) {
+  const cartas = useCartas()
+  const ids = ficha.alternativas_a_morte ?? []
+  if (ids.length === 0) return null
+  return (
+    <div className="space-y-1">
+      <p className="text-sm">Ou use uma carta da mão no lugar:</p>
+      <div className="flex flex-wrap gap-2">
+        {ids.map((id) => {
+          const c = cartas.data?.find((x) => x.id === id)
+          return (
+            <Botao key={id} variante="secundario" disabled={usar.isPending} title={c?.texto}
+              onClick={() => usar.mutate(id)}>{c?.nome ?? id}</Botao>
+          )
+        })}
+      </div>
+      <Aviso erro={usar.error} />
+    </div>
+  )
+}
+
+function EscolherMovimento({ ficha, morte, usar }: {
+  ficha: Ficha; morte: ReturnType<typeof useMovimentoDeMorte>; usar: ReturnType<typeof useEvitarMorteComCarta>
+}) {
   const [movimento, setMovimento] = useState<MovimentoDeMorte | null>(null)
   const [esperanca, setEsperanca] = useState('')
   const [medo, setMedo] = useState('')
@@ -82,6 +106,7 @@ function EscolherMovimento({ ficha, morte }: { ficha: Ficha; morte: ReturnType<t
       )}
       <Aviso erro={morte.error} />
       <Botao variante="perigo" disabled={!movimento || morte.isPending} onClick={confirmar}>Confirmar</Botao>
+      <CartasNoLugar ficha={ficha} usar={usar} />
     </div>
   )
 }
@@ -114,6 +139,7 @@ function Cicatriz({ personagemId, indice, impacto, descricao }: {
 /** Movimento de morte (quando precisa), estado e cicatrizes. Na página do personagem. */
 export default function Morte({ personagemId, ficha }: { personagemId: string; ficha: Ficha }) {
   const morte = useMovimentoDeMorte(personagemId)
+  const usar = useEvitarMorteComCarta(personagemId)
   const cicatrizes = ficha.cicatrizes ?? []
   return (
     <>
@@ -131,7 +157,8 @@ export default function Morte({ personagemId, ficha }: { personagemId: string; f
           ou mais, ou no fim de um descanso longo.
         </p>
       )}
-      {ficha.precisa_movimento_de_morte && <EscolherMovimento key={ficha.pv_marcados} ficha={ficha} morte={morte} />}
+      {ficha.precisa_movimento_de_morte && <EscolherMovimento key={ficha.pv_marcados} ficha={ficha} morte={morte} usar={usar} />}
+      {usar.data && <p role="status" className="rounded-xl border border-borda bg-superficie p-3 text-sm">{usar.data.notas.join(' ')}</p>}
       {morte.data && (
         <p role="status" className="rounded-xl border border-borda bg-superficie p-3 text-sm">
           <b>{NOME_MOVIMENTO_MORTE[morte.data.resultado.movimento]}</b>

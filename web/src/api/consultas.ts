@@ -625,7 +625,7 @@ export const useFichaNaMesa = (mesaId: string, pid: string, ativo = true) =>
   })
 
 type AcaoNoPersonagem =
-  | { tipo: 'dano'; dano: number; usar_armadura: boolean }
+  | { tipo: 'dano'; dano: number; usar_armadura: boolean; cartas?: string[] }   // cartas: Ficha.defesas_de_carta
   | { tipo: 'condicao'; condicao: string }
   | { tipo: 'tirar_condicao'; condicao: string }
 
@@ -636,7 +636,7 @@ export function useAcaoNoPersonagem(mesaId: string, pid: string) {
     mutationFn: async (a: AcaoNoPersonagem): Promise<{ ficha: Ficha; resultado?: ResultadoDano }> => {
       if (a.tipo === 'dano') {
         return chamar<{ ficha: Ficha; resultado: ResultadoDano }>(`${base}/dano`,
-          { corpo: { dano: a.dano, usar_armadura: a.usar_armadura } })
+          { corpo: { dano: a.dano, usar_armadura: a.usar_armadura, cartas: a.cartas ?? [] } })
       }
       const ficha = a.tipo === 'condicao'
         ? await chamar<Ficha>(`${base}/condicoes`, { corpo: { condicao: a.condicao } })
@@ -951,6 +951,16 @@ export function useMovimentoDeMorte(personagemId: string) {
   return useMutation({
     mutationFn: (p: { movimento: MovimentoDeMorte; rolagem_esperanca: number | null; rolagem_medo: number | null; pv: number | null }) =>
       chamar<{ resultado: ResultadoMorte; ficha: Ficha }>(`/personagens/${personagemId}/sessao/morte`, { corpo: p }),
+    onSuccess: (r) => cliente.setQueryData(chaves.ficha(personagemId), r.ficha),
+  })
+}
+
+/** No lugar do movimento de morte: Battle Hardened ou Unbreakable (Ficha.alternativas_a_morte). */
+export function useEvitarMorteComCarta(personagemId: string) {
+  const cliente = useQueryClient()
+  return useMutation({
+    mutationFn: (carta: string) =>
+      chamar<{ notas: string[]; ficha: Ficha }>(`/personagens/${personagemId}/sessao/morte/carta`, { corpo: { carta } }),
     onSuccess: (r) => cliente.setQueryData(chaves.ficha(personagemId), r.ficha),
   })
 }

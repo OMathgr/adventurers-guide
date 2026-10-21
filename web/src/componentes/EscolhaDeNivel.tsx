@@ -164,7 +164,10 @@ export default function EscolhaDeNivel({ id, ficha, proximo, quadros, aoConcluir
   // as que vão direto para a reserva para sempre (Vitality...) não ocupam a mão
   const permanentes = novas.filter((c) => nomes.carta(c)?.reserva_permanente).length
   const cartasNovas = 1 + nExtras + marcados.filter((m) => m.opcao === 'CARTA_DOMINIO').length - permanentes
-  const excesso = ficha.cartas_ativas.length + cartasNovas - LIMITE_MAO
+  // Notorious não conta no limite da mão (nem a que entra agora)
+  const foraDoLimite = novas.filter((c) => nomes.carta(c)?.fora_do_limite).length
+  const naMao = ficha.cartas_ativas.filter((c) => !nomes.carta(c)?.fora_do_limite).length
+  const excesso = naMao + cartasNovas - foraDoLimite - LIMITE_MAO
   const maxReserva = Math.max(0, Math.min(excesso, cartasNovas))
   const reservaValida = paraReserva.filter((c) => c !== troca?.antiga).slice(0, maxReserva)
 
@@ -296,7 +299,7 @@ export default function EscolhaDeNivel({ id, ficha, proximo, quadros, aoConcluir
             para a reserva.
           </p>
           <div className="space-y-1">
-            {ficha.cartas_ativas.filter((c) => c !== troca?.antiga).map((c) => {
+            {ficha.cartas_ativas.filter((c) => c !== troca?.antiga && !nomes.carta(c)?.fora_do_limite).map((c) => {
               const marcada = reservaValida.includes(c)
               return (
                 <label key={c} className="flex items-center gap-2 text-sm">

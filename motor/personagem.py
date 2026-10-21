@@ -30,7 +30,7 @@ from .rolagem import (TIPOS_DE_TESTE, Bonus, DadoRolado, Dualidade, EfeitoDeRola
                       ResultadoRolagem, _delta, _ganhar_esperanca, _limpar_fadiga, aplicar_teste, dado, desfazer,
                       expandir, ler_expressao, recalcular_teste, resolver, rolar_dano, rolar_dualidade, rolar_teste)
 from .sessao import Cicatriz, Sessao
-from .srd import (LIMIARES_OSSOS_EXPOSTOS, PONTUACAO_OSSOS_EXPOSTOS, Alvo, Arma, Armadura, Biblioteca, Caracteristica,
+from .srd import (ALTERNATIVAS_A_MORTE, DEFESAS_DE_CARTAS, LIMIARES_OSSOS_EXPOSTOS, PONTUACAO_OSSOS_EXPOSTOS, Alvo, Arma, Armadura, Biblioteca, Caracteristica,
                   CartaDeDominio, Efeito, EscolhaDeCarta, Modificador, PassivoDeCarta, Referencia, Subclasse, TipoDano,
                   TipoDeItem, Traco)
 
@@ -224,6 +224,16 @@ class HabilidadeNaFicha:
 
 
 @dataclass
+class DefesaDeCarta:
+    """Carta que o jogador pode usar ao receber dano (Get Back Up, Brace...)."""
+
+    carta: str
+    nome: str
+    custo_esperanca: int = 0
+    custo_fadiga: int = 0
+
+
+@dataclass
 class Conjuracao:
     subclasse: str   # nome de exibição da subclasse que dá o atributo
     traco: Traco     # atributo de conjuração da subclasse
@@ -289,6 +299,9 @@ class Ficha:
     bonus_limiares: int = 0
     # cartas na mão cujo passivo já está aplicado nos números da ficha
     cartas_aplicadas: list[str] = field(default_factory=list)
+    # cartas da mão que dá para usar agora ao receber dano / no lugar do movimento de morte
+    defesas_de_carta: list[DefesaDeCarta] = field(default_factory=list)
+    alternativas_a_morte: list[str] = field(default_factory=list)
 
 
 class Personagem:
@@ -356,7 +369,14 @@ class Personagem:
             c.fora_de_cena = s.companheiro_fora
         f.esperanca_max = max(f.esperanca_max - len(s.cicatrizes), 0)   # espaços riscados
         f.precisa_movimento_de_morte = f.pv_marcados >= f.pv_max and not s.inconsciente and not s.morto
+        mao = set(f.cartas_ativas)
+        f.defesas_de_carta = [DefesaDeCarta(c, self.bib.cartas[c].nome, *custo) for c, custo in DEFESAS_DE_CARTAS.items()
+                              if c in mao and f"carta:{c}" not in s.usos_rolagem]
+        f.alternativas_a_morte = [c for c in ALTERNATIVAS_A_MORTE if c in mao and f"carta:{c}" not in s.usos_rolagem]
         return f
+
+    def cartas_na_mao(self) -> list[str]:
+        return [c for c in self._ficha_base().cartas if c not in self.cofre]
 
     def subir_de_nivel(self, subida: SubidaDeNivel) -> Ficha:
         """Valida e registra o nível. Se algo for inválido, nada muda.
@@ -1087,6 +1107,8 @@ class Personagem:
             raise RegraViolada("Você só pode guardar uma carta que tem.")
         if carta in self.cofre:
             raise RegraViolada(f"{self._nome(self.bib.cartas, carta)} já está na reserva.")
+        if self.bib.cartas[carta].fora_do_limite:
+            raise RegraViolada(f"{self.bib.cartas[carta].nome} não vai para a reserva.")
         self.cofre.append(carta)
         return self.ficha()
 
@@ -1103,7 +1125,7 @@ class Personagem:
             raise RegraViolada(f"{self._nome(self.bib.cartas, carta)} não está na reserva.")
         if self.bib.cartas[carta].reserva_permanente:
             raise RegraViolada(f"{self.bib.cartas[carta].nome} fica na reserva para sempre.")
-        ativas = [c for c in self._ficha_base().cartas if c not in self.cofre]
+        ativas = [c for c in self._ficha_base().cartas if c not in self.cofre and not self.bib.cartas[c].fora_do_limite]
         if no_lugar_de is not None and no_lugar_de not in ativas:
             raise RegraViolada("A carta que sai precisa estar na mão.")
         if no_lugar_de is None and len(ativas) >= self._limite_loadout:
@@ -1593,9 +1615,11 @@ class Personagem:
         """
         cartas = self._ficha_base().cartas
         self.cofre = [c for c in self.cofre if c in cartas]
-        # Vitality, Master of the Craft: depois de pegas, ficam na reserva para sempre
+        # Vitality, Master of the Craft: depois de pegas, ficam na reserva para sempre;
+        # Notorious nunca vai para a reserva e não conta no limite da mão
+        self.cofre = [c for c in self.cofre if not self.bib.cartas[c].fora_do_limite]
         self.cofre += [c for c in cartas if self.bib.cartas[c].reserva_permanente and c not in self.cofre]
-        ativas = [c for c in cartas if c not in self.cofre]
+        ativas = [c for c in cartas if c not in self.cofre and not self.bib.cartas[c].fora_do_limite]
         while len(ativas) > self._limite_loadout:
             self.cofre.append(ativas.pop())
 
@@ -1750,6 +1774,8 @@ class Personagem:
             f.pontuacao_armadura += PONTUACAO_OSSOS_EXPOSTOS + f.tracos[Traco.FORCA]
         if Efeito.INTOCAVEL in efeitos_cartas:
             f.evasao += max(0, metade(f.tracos[Traco.AGILIDADE]))   # bônus: Agilidade negativa não tira
+        if Efeito.LEVANTE in efeitos_cartas:
+            f.limiar_grave += f.proficiencia
         f.cartas_aplicadas = [c for c, _ in passivos]
 
         # Blade-Touched: "+2 to your attack rolls" vale para todas as armas
