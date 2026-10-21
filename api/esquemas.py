@@ -132,6 +132,9 @@ class EquipamentoEntrada(BaseModel):
     principal: str | None = None
     secundaria: str | None = None
     armadura: str | None = None
+    # Versatilidade (Versatile Fighter): outro atributo no ataque de cada arma
+    traco_principal: Traco | None = None
+    traco_secundaria: Traco | None = None
 
 
 class EquipamentoAtual(EquipamentoEntrada):

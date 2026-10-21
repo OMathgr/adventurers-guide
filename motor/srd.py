@@ -143,6 +143,7 @@ class Efeito(str, Enum):
     # cartas de domínio
     OSSOS_EXPOSTOS = "OSSOS_EXPOSTOS"  # Bare Bones: sem armadura, Pontuação 3 + Força e limiares por patamar
     INTOCAVEL = "INTOCAVEL"            # Untouchable: Evasão + metade da Agilidade (nunca tira)
+    VERSATIL = "VERSATIL"              # Versatile Fighter: outro atributo no ataque de uma arma equipada
 
 
 _EFEITOS_SRD = {
@@ -351,6 +352,8 @@ _PASSIVOS_CARTAS: dict[str, PassivoDeCarta] = {
     "core_domain_card_fortified_armor": PassivoDeCarta((Modificador(Alvo.LIMIARES, 2),), condicao="com_armadura"),
     "core_domain_card_bare_bones": PassivoDeCarta(efeito=Efeito.OSSOS_EXPOSTOS, condicao="sem_armadura"),
     "core_domain_card_untouchable": PassivoDeCarta(efeito=Efeito.INTOCAVEL),
+    # o atributo escolhido fica no equipamento (Equipamento.traco_principal/secundaria)
+    "core_domain_card_versatile_fighter": PassivoDeCarta(efeito=Efeito.VERSATIL),
     "core_domain_card_arcana_touched": PassivoDeCarta((Modificador(Alvo.CONJURACAO, 1),), condicao="dominio:ARCANA"),
     "core_domain_card_blade_touched": PassivoDeCarta(
         (Modificador(Alvo.ATAQUE, 2), Modificador(Alvo.LIMIAR_GRAVE, 4)), condicao="dominio:BLADE"),

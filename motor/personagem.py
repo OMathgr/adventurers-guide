@@ -145,6 +145,9 @@ class Equipamento:
     principal: str | None = None
     secundaria: str | None = None
     armadura: str | None = None
+    # Versatile Fighter: atributo do ataque no lugar do da arma (só vale com a carta na mão)
+    traco_principal: Traco | None = None
+    traco_secundaria: Traco | None = None
 
 
 # --- Saída: a ficha calculada ----------------------------------------------
@@ -159,6 +162,7 @@ class Ataque:
     tipo_dano: TipoDano
     caracteristicas: list[Caracteristica] = field(default_factory=list)
     arma_original: str = ""   # nome no SRD (inglês)
+    traco_da_arma: Traco | None = None   # Versatilidade: o atributo que a arma pede (quando `traco` é outro)
 
 
 @dataclass
@@ -446,12 +450,21 @@ class Personagem:
                 raise RegraViolada("Só vão para a reserva cartas que você já tinha e que continuam com você.")
 
     def equipar(self, principal: str | None = None, secundaria: str | None = None,
-                armadura: str | None = None) -> Ficha:
+                armadura: str | None = None, traco_principal: Traco | str | None = None,
+                traco_secundaria: Traco | str | None = None) -> Ficha:
         """Define o equipamento completo; o que não for passado fica vazio.
 
+        `traco_*`: Versatile Fighter (o atributo do ataque com aquela arma; só
+        vale com a carta na mão). Igual ao da arma, ou sem arma, fica vazio.
         Tudo é validado antes de trocar, então um erro não muda nada.
         """
-        novo = Equipamento(principal, secundaria, armadura)
+        def traco(arma_id, valor):
+            if not valor or not arma_id or arma_id not in self.bib.armas:
+                return None
+            valor = Traco(valor)
+            return None if valor is self.bib.armas[arma_id].traco else valor
+        novo = Equipamento(principal, secundaria, armadura,
+                           traco(principal, traco_principal), traco(secundaria, traco_secundaria))
         base = self._ficha_base()
         self._validar_equipamento(base, novo)
         self._validar_requisitos(self._vestir(base, novo), novo)
@@ -462,7 +475,8 @@ class Personagem:
     def estado(self) -> dict:
         """Estado atual (fora do histórico) em tipos simples, para salvar."""
         return {
-            "equipamento": dataclasses.asdict(self.equipamento),
+            "equipamento": {k: v.value if isinstance(v, Traco) else v
+                        for k, v in dataclasses.asdict(self.equipamento).items()},
             "cofre": list(self.cofre),
             "sessao": self.sessao.estado(),
             "inventario": self.inventario.estado(),
@@ -551,7 +565,8 @@ class Personagem:
                                "(uma mão por uma mão, duas mãos por duas mãos).")
         if em_perigo and self.sessao.estresse_livre < 1:
             raise RegraViolada("Fadiga insuficiente: trocar de arma em perigo custa 1 PF.")
-        novo = dataclasses.replace(eq, **{lugar: guardada.id})
+        # arma nova: o atributo da Versatilidade volta ao dela
+        novo = dataclasses.replace(eq, **{lugar: guardada.id, f"traco_{lugar}": None})
         self.equipar(**dataclasses.asdict(novo))   # valida (arma mágica, duas mãos...)
         if ativa_id:
             inv.armas[indice] = ativa_id
@@ -1031,6 +1046,14 @@ class Personagem:
             for d in novo.dados:
                 if not d.descartado:
                     d.original, d.valor = d.valor, dono.sessao.rng.randint(1, d.faces)
+            novo.total = sum(d.valor for d in novo.dados if not d.descartado) + sum(b.valor for b in novo.bonus)
+        elif efeito == "maximiza_um_dado":
+            # Versatile Fighter: o dado que mais ganha vira o máximo dele
+            validos = [d for d in novo.dados if not d.descartado and d.valor < d.faces]
+            if not validos:
+                raise RegraViolada(f"{o.nome}: todos os dados já estão no máximo.")
+            d = max(validos, key=lambda x: x.faces - x.valor)
+            d.original, d.valor = d.valor, d.faces
             novo.total = sum(d.valor for d in novo.dados if not d.descartado) + sum(b.valor for b in novo.bonus)
         if novo.tipo in TIPOS_DE_TESTE:
             _, automaticos = dono._escolhidas(novo.tipo, novo.traco, novo.ataque, novo.carta, ())
@@ -1731,7 +1754,9 @@ class Personagem:
 
         # Blade-Touched: "+2 to your attack rolls" vale para todas as armas
         ataque_cartas = sum(self._valor(f, m) for m in mods_cartas if m.alvo is Alvo.ATAQUE)
-        f.ataques = [self._ataque(f, arma, ataque_cartas) for arma in armas]
+        versatil = Efeito.VERSATIL in efeitos_cartas
+        trocas = {eq.principal: eq.traco_principal, eq.secundaria: eq.traco_secundaria} if versatil else {}
+        f.ataques = [self._ataque(f, arma, ataque_cartas, trocas.get(arma.id)) for arma in armas]
         bonus_conjuracao = sum(self._valor(f, m) for m in mods + mods_cartas if m.alvo is Alvo.CONJURACAO)
         f.conjuracoes = [Conjuracao(sub.nome, sub.traco_conjuracao,
                                     f.tracos[sub.traco_conjuracao] + bonus_conjuracao)
@@ -1794,7 +1819,7 @@ class Personagem:
             valem.append((c, p))
         return valem
 
-    def _ataque(self, f: Ficha, arma: Arma, bonus_cartas: int = 0) -> Ataque:
+    def _ataque(self, f: Ficha, arma: Arma, bonus_cartas: int = 0, traco: Traco | None = None) -> Ataque:
         mods = [m for c in arma.caracteristicas for m in c.modificadores]
         bonus_ataque = bonus_cartas + sum(self._valor(f, m) for m in mods if m.alvo is Alvo.ATAQUE)
         bonus_dano = arma.modificador_dano + sum(
@@ -1804,10 +1829,12 @@ class Personagem:
         dano = f"{f.proficiencia}{arma.dado}"
         if bonus_dano:
             dano += f"{bonus_dano:+d}"   # "+5" ou "-1"
-        return Ataque(arma=arma.nome, traco=arma.traco,
-                      bonus=f.tracos[arma.traco] + bonus_ataque,
+        usado = traco or arma.traco
+        return Ataque(arma=arma.nome, traco=usado,
+                      bonus=f.tracos[usado] + bonus_ataque,
                       alcance=arma.alcance, dano=dano, tipo_dano=arma.tipo_dano,
-                      caracteristicas=list(arma.caracteristicas), arma_original=arma.nome_original)
+                      caracteristicas=list(arma.caracteristicas), arma_original=arma.nome_original,
+                      traco_da_arma=arma.traco if traco else None)
 
     def _pecas(self, eq: Equipamento) -> list[Arma | Armadura]:
         """Armas e armadura do equipamento, como objetos da Biblioteca."""

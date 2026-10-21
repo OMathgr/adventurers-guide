@@ -104,7 +104,8 @@ describe('Entregar e equipar', () => {
     await userEvent.click(botao)
     await userEvent.click(screen.getByRole('button', { name: 'Salvar equipamento' }))
     // só o equipamento vai no corpo (as listas de recebidas não)
-    expect(corpoDe(fetch, '/personagens/p1/equipamento', 'PUT')).toEqual({ principal: 'proprio_abc', secundaria: null, armadura: null })
+    expect(corpoDe(fetch, '/personagens/p1/equipamento', 'PUT')).toEqual({ principal: 'proprio_abc', secundaria: null, armadura: null,
+      traco_principal: null, traco_secundaria: null })
   })
 })
 

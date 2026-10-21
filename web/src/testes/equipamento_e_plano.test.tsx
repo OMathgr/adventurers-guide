@@ -57,7 +57,8 @@ describe('Equipamento', () => {
     expect(screen.getByText('Pontuação 3 · Limiares 8/15 no seu nível')).toBeInTheDocument()
     await userEvent.click(screen.getByRole('button', { name: 'Salvar equipamento' }))
     expect(fetch).toHaveBeenCalledWith('/api/personagens/p1/equipamento', expect.objectContaining({
-      method: 'PUT', body: JSON.stringify({ principal: 'montante', secundaria: null, armadura: 'couro' }) }))
+      method: 'PUT', body: JSON.stringify({ principal: 'montante', secundaria: null, armadura: 'couro',
+        traco_principal: null, traco_secundaria: null }) }))
   })
 })
 
@@ -108,6 +109,27 @@ describe('Foto', () => {
     await userEvent.upload(entrada, new File(['png'], 'foto.png', { type: 'image/png' }))
     await vi.waitFor(() => expect(aoMudar).toHaveBeenCalledWith('img1'))
     expect(fetch.mock.calls[0][1]?.body).toBeInstanceOf(FormData)
+  })
+})
+
+describe('Versatilidade no equipamento', () => {
+  it('com a carta na mão, escolhe outro atributo para o ataque da arma', async () => {
+    const fetch = api({
+      '/personagens/p1/equipamento': { principal: 'espada', secundaria: null, armadura: null, traco_principal: null,
+        traco_secundaria: null, versao: 'v1', armas_proprias: [], armaduras_proprias: [] },
+      '/srd/armas': [arma('espada', 'Espada Larga', { traco: 'AGILITY' })], '/srd/armaduras': [COURO],
+    })
+    vi.stubGlobal('fetch', fetch)
+    const ficha = (aplicadas: string[]) => ({ nivel: 3, conjuracoes: [], cartas_aplicadas: aplicadas }) as unknown as Ficha
+    const { unmount } = montar(<AbaEquipamento personagemId="p1" ficha={ficha([])} />)
+    await screen.findByRole('button', { name: 'Salvar equipamento' })   // carregou
+    expect(screen.queryByLabelText('Atributo do ataque (Espada Larga)')).not.toBeInTheDocument()   // sem a carta
+    unmount()
+    montar(<AbaEquipamento personagemId="p1" ficha={ficha(['core_domain_card_versatile_fighter'])} />)
+    await userEvent.selectOptions(await screen.findByLabelText('Atributo do ataque (Espada Larga)'), 'PRESENCE')
+    await userEvent.click(screen.getByRole('button', { name: 'Salvar equipamento' }))
+    const envio = fetch.mock.calls.find(([u, o]) => u.startsWith('/api/personagens/p1/equipamento') && o?.method === 'PUT')
+    expect(JSON.parse(envio![1]!.body as string)).toMatchObject({ principal: 'espada', traco_principal: 'PRESENCE' })
   })
 })
 

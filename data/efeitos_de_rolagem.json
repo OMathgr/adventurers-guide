@@ -70,6 +70,8 @@
     {"id": "channel_raw_power", "fonte": {"tipo": "habilidade", "nome": "Channel Raw Power"}, "momento": "antes", "rolagens": ["dano"],
      "limite": "descanso_longo", "condicao": "informe o nível da carta que foi para a reserva", "quantidade": {"max": 10},
      "efeitos": [{"tipo": "bonus", "ref": "2xn"}]},
+    {"id": "versatile_fighter", "fonte": {"tipo": "carta", "id": "core_domain_card_versatile_fighter"}, "momento": "depois",
+     "rolagens": ["dano"], "custo": {"fadiga": 1}, "efeitos": [{"tipo": "maximiza_um_dado"}]},
     {"id": "volatile_magic", "fonte": {"tipo": "habilidade", "nome": "Volatile Magic"}, "momento": "depois", "rolagens": ["dano"],
      "auto": "dano_magico", "custo": {"esperanca": 3}, "efeitos": [{"tipo": "rerrola_dano"}]},
     {"id": "slayer", "fonte": {"tipo": "habilidade", "nome": "Slayer"}, "momento": "antes", "rolagens": ["ataque", "dano"],

@@ -119,6 +119,7 @@ def equipamento_atual(personagem_id: str, a: Acesso = Depends(acesso)):
     p = repositorio.carregar(a.banco, a.usuario_id, personagem_id)
     eq = p.equipamento
     return EquipamentoAtual(principal=eq.principal, secundaria=eq.secundaria, armadura=eq.armadura,
+                            traco_principal=eq.traco_principal, traco_secundaria=eq.traco_secundaria,
                             versao=versao_de(dataclasses.asdict(eq)),
                             armas_proprias=p.armas_proprias(), armaduras_proprias=p.armaduras_proprias())
 

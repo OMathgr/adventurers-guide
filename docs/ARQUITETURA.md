@@ -233,6 +233,12 @@ Vitality e Master of the Craft pedem a escolha ao serem pegas.
   diz quais estão valendo agora (a tela mostra "na ficha"). Os bônus de
   Arcana/Blade-Touched saíram de `efeitos_de_rolagem.json`: a rolagem usa o
   bônus da ficha e eles contariam duas vezes.
+- **Versatilidade** (Versatile Fighter, efeito `VERSATIL`): o atributo do ataque
+  de cada arma fica no equipamento (`Equipamento.traco_principal`/`traco_secundaria`,
+  escolhido na aba Equipamento, 2026-10-21) e só vale com a carta na mão; a ficha
+  mostra `Ataque.traco` (o usado) e `traco_da_arma`. Igual ao da arma ou sem arma,
+  fica vazio; trocar de arma volta ao atributo dela. A segunda parte é a reação
+  `versatile_fighter` no dano (1 PF: o dado que mais ganha vira o máximo).
 - Os condicionais (Shadowhunter, Frenzy, Deadly Focus...) continuam texto ou
   efeito de rolagem: dependem de cena ou de ativação.
 - **Escolha ao pegar** (`CartaDeDominio.escolha`): `SubidaDeNivel.beneficios_de_carta`

@@ -185,3 +185,67 @@ def test_nivel_salvo_antes_da_regra_ainda_abre(bib):
     assert outro.ficha().nivel == 5 and carta("vitality") in outro.ficha().cartas
     with pytest.raises(RegraViolada, match="Vitality"):   # uma subida nova continua exigindo
         p.subir_de_nivel(salvos[-1])
+
+
+# --- Versatilidade (Versatile Fighter) ------------------------------------------------------------
+
+class _Dados:
+    """rng falso: devolve os valores na ordem."""
+    def __init__(self, *valores):
+        self.valores = list(valores)
+
+    def randint(self, a, b):
+        return self.valores.pop(0)
+
+
+def versatil(bib):
+    p = guardiao(bib, cartas=[carta("get_back_up"), carta("whirlwind")])   # Presença 2, Agilidade 1
+    subir_ate(p, 3, cartas={3: carta("versatile_fighter")})
+    return p
+
+
+def test_versatilidade_troca_o_atributo_do_ataque(bib):
+    p = versatil(bib)
+    f = p.equipar(principal=ESPADA)   # Espada Larga pede Agilidade
+    assert (f.ataques[0].traco, f.ataques[0].traco_da_arma) == (Traco.AGILIDADE, None)
+    com_agilidade = f.ataques[0].bonus   # Agilidade + 1 (Confiável)
+    f = p.equipar(principal=ESPADA, traco_principal="PRESENCE")
+    assert (f.ataques[0].traco, f.ataques[0].traco_da_arma) == (Traco.PRESENCA, Traco.AGILIDADE)
+    assert f.ataques[0].bonus == com_agilidade - f.tracos[Traco.AGILIDADE] + f.tracos[Traco.PRESENCA]
+    # o mesmo atributo da arma não é troca; secundária vazia não guarda nada
+    assert p.equipar(principal=ESPADA, traco_principal="AGILITY", traco_secundaria="PRESENCE").ataques[0].traco_da_arma is None
+    assert p.equipamento.traco_secundaria is None
+    # na reserva, a carta não vale (a escolha fica guardada para quando voltar)
+    p.equipar(principal=ESPADA, traco_principal="PRESENCE")
+    p.guardar_carta(carta("versatile_fighter"))
+    assert p.ficha().ataques[0].traco is Traco.AGILIDADE and p.equipamento.traco_principal is Traco.PRESENCA
+    p.recuperar_carta(carta("versatile_fighter"), no_lugar_de=p.ficha().cartas_ativas[0], em_descanso=True)
+    assert p.ficha().ataques[0].traco is Traco.PRESENCA
+
+
+def test_versatilidade_volta_ao_atributo_da_arma_nova_e_salva(bib, criacao_bardo):
+    p = versatil(bib)
+    p.equipar(principal=ESPADA, traco_principal="PRESENCE")
+    estado = p.estado()
+    assert estado["equipamento"]["traco_principal"] == "PRESENCE"   # JSON simples para o banco
+    outro = Personagem(bib, p.criacao)
+    outro.refazer_historico(p.historico)
+    outro.restaurar_estado(estado)
+    assert outro.ficha().ataques[0].traco is Traco.PRESENCA
+    p.inventario.guardar_arma(bib, "core_weapon_mace")
+    f = p.trocar_arma(0, em_perigo=False)   # Maça pede Força: a escolha não passa para ela
+    assert f.ataques[0].traco is Traco.FORCA and p.equipamento.traco_principal is None
+
+
+def test_versatilidade_dano_maximo_num_dado_marcando_pf(bib):
+    p = versatil(bib)
+    p.equipar(principal=ESPADA)
+    p.sessao.rng = _Dados(3, 5)   # sem 1 e 2 (Not Good Enough rerrola esses)
+    r = p.rolar_dano(ataque=0)   # 2d8 (Proficiência 2 no nível 3)
+    novo = p.reagir(r, "versatile_fighter")
+    assert [d.valor for d in novo.dados] == [8, 5] and novo.dados[0].original == 3   # o que mais ganha
+    assert novo.total == r.total + 5 and p.sessao.estresse_marcado == 1
+    novo = p.reagir(novo, "versatile_fighter")   # de novo: agora o outro
+    assert [d.valor for d in novo.dados] == [8, 8]
+    with pytest.raises(RegraViolada, match="no máximo"):
+        p.reagir(novo, "versatile_fighter")

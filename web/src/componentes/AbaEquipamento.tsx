@@ -1,19 +1,21 @@
 // Equipamento do personagem: arma principal, secundária e armadura, do
 // catálogo do SRD ou criadas pelo mestre e recebidas (marcadas "da mesa"). As regras (secundária com arma de duas mãos, arma mágica
 // sem atributo de conjuração, requisitos como Pompous) são do motor: a tela
-// avisa o óbvio e mostra a mensagem da API.
+// avisa o óbvio e mostra a mensagem da API. Com a Versatilidade na mão, cada
+// arma equipada pode usar outro atributo no ataque (só vale com a carta na mão).
 import { useMemo, useState } from 'react'
 
 import { useArmaduras, useArmas, useEquipamento, useEquipar } from '../api/consultas'
-import type { Arma, Armadura, Equipamento, Ficha } from '../api/tipos'
+import type { Arma, Armadura, Equipamento, Ficha, Traco } from '../api/tipos'
 import { semConflito } from '../lib/conflito'
-import { NOME_ALCANCE, NOME_TIPO_DANO, NOME_TRACO } from '../lib/rotulos'
+import { NOME_ALCANCE, NOME_TIPO_DANO, NOME_TRACO, TRACOS } from '../lib/rotulos'
 import { AvisoDeConflito } from './Conflito'
 import { Aviso, Botao, Carregando, Cartao, Escolhivel, Original, Selecao, Selo } from './ui'
 
 type Vaga = 'principal' | 'secundaria' | 'armadura'
 
 const NOME_VAGA: Record<Vaga, string> = { principal: 'Arma principal', secundaria: 'Arma secundária', armadura: 'Armadura' }
+const VERSATILIDADE = 'core_domain_card_versatile_fighter'
 
 function Caracteristicas({ lista }: { lista: { nome: string; descricao: string; nome_original?: string }[] }) {
   if (lista.length === 0) return null
@@ -100,6 +102,16 @@ function Catalogo<T extends { id: string; nome: string; nome_original: string; t
   )
 }
 
+/** Versatilidade: outro atributo para o ataque desta arma (vazio: o da arma). */
+function AtributoDoAtaque({ arma, valor, mudar }: { arma: Arma; valor?: Traco | null; mudar: (t: Traco | null) => void }) {
+  return (
+    <Selecao rotulo={`Atributo do ataque (${arma.nome})`} className="mt-1" value={valor ?? ''}
+      onChange={(e) => mudar((e.target.value || null) as Traco | null)}
+      opcoes={[['', `${NOME_TRACO[arma.traco]} (o da arma)`],
+        ...TRACOS.filter((t) => t !== arma.traco).map((t): [string, string] => [t, `${NOME_TRACO[t]} (Versatilidade)`])]} />
+  )
+}
+
 export default function AbaEquipamento({ personagemId, ficha }: { personagemId: string; ficha: Ficha }) {
   const atual = useEquipamento(personagemId)
   const armas = useArmas()
@@ -114,8 +126,10 @@ export default function AbaEquipamento({ personagemId, ficha }: { personagemId: 
   }
   // as recebidas do mestre primeiro
   const listaArmaduras: Armadura[] = [...(atual.data.armaduras_proprias ?? []), ...armaduras.data]
-  const { principal: p, secundaria: s, armadura: ar, versao } = atual.data
-  const salvo: Equipamento & { versao?: string } = { principal: p, secundaria: s, armadura: ar, versao }
+  const { principal: p, secundaria: s, armadura: ar, traco_principal: tp, traco_secundaria: ts, versao } = atual.data
+  const salvo: Equipamento & { versao?: string } = {
+    principal: p, secundaria: s, armadura: ar, traco_principal: tp ?? null, traco_secundaria: ts ?? null, versao }
+  const versatil = (ficha.cartas_aplicadas ?? []).includes(VERSATILIDADE)
   const eq: Equipamento = rascunho ?? salvo
   const porId = new Map([...(atual.data.armas_proprias ?? []), ...armas.data].map((a) => [a.id, a]))
   const principal = eq.principal ? porId.get(eq.principal) : undefined
@@ -124,6 +138,9 @@ export default function AbaEquipamento({ personagemId, ficha }: { personagemId: 
 
   function escolher(id: string | null) {
     const novo = { ...eq, [vaga]: id }
+    // arma nova: o atributo da Versatilidade volta ao dela
+    if (vaga === 'principal') novo.traco_principal = null
+    if (vaga === 'secundaria') novo.traco_secundaria = null
     // arma de duas mãos não deixa mão livre para a secundária
     if (vaga === 'principal' && id && porId.get(id)?.duas_maos) novo.secundaria = null
     setRascunho(novo)
@@ -148,6 +165,10 @@ export default function AbaEquipamento({ personagemId, ficha }: { personagemId: 
                   <span className="block text-xs text-texto-suave">{NOME_VAGA[v]}</span>
                   <span className="font-medium">{bloqueada ? 'Mãos ocupadas (duas mãos)' : resumo(v)}</span>
                 </Escolhivel>
+                {versatil && v !== 'armadura' && eq[v] && porId.get(eq[v]!) && (
+                  <AtributoDoAtaque arma={porId.get(eq[v]!)!} valor={v === 'principal' ? eq.traco_principal : eq.traco_secundaria}
+                    mudar={(t) => { setRascunho({ ...eq, [`traco_${v}`]: t }); equipar.reset() }} />
+                )}
               </li>
             )
           })}

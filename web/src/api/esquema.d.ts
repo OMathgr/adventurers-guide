@@ -2752,6 +2752,7 @@ export interface components {
              * @default
              */
             arma_original: string;
+            traco_da_arma?: components["schemas"]["Traco"] | null;
         };
         /**
          * AvancosDoNivel
@@ -3223,7 +3224,7 @@ export interface components {
          *     funcionam. O nome no SRD está no comentário.
          * @enum {string}
          */
-        Efeito: "FORTIFICADA" | "DOLOROSA" | "ESPERANCOSA" | "REFORCADA" | "RESILIENTE" | "IMPENETRAVEL" | "SO_FISICO" | "SO_MAGICO" | "PROTEGIDA" | "CURA" | "VIGOR" | "FOLEGO" | "AGIL" | "PROPOSITO" | "CASCO" | "EFICIENTE" | "TRANSE" | "CARTA_EXTRA" | "TREINAMENTO_DE_COMBATE" | "OSSOS_EXPOSTOS" | "INTOCAVEL";
+        Efeito: "FORTIFICADA" | "DOLOROSA" | "ESPERANCOSA" | "REFORCADA" | "RESILIENTE" | "IMPENETRAVEL" | "SO_FISICO" | "SO_MAGICO" | "PROTEGIDA" | "CURA" | "VIGOR" | "FOLEGO" | "AGIL" | "PROPOSITO" | "CASCO" | "EFICIENTE" | "TRANSE" | "CARTA_EXTRA" | "TREINAMENTO_DE_COMBATE" | "OSSOS_EXPOSTOS" | "INTOCAVEL" | "VERSATIL";
         /**
          * EfeitoConsumivel
          * @description O que um consumível faz na ficha, lido do texto do SRD.
@@ -3306,6 +3307,8 @@ export interface components {
             secundaria?: string | null;
             /** Armadura */
             armadura?: string | null;
+            traco_principal?: components["schemas"]["Traco"] | null;
+            traco_secundaria?: components["schemas"]["Traco"] | null;
             /**
              * Versao
              * @default
@@ -3324,6 +3327,8 @@ export interface components {
             secundaria?: string | null;
             /** Armadura */
             armadura?: string | null;
+            traco_principal?: components["schemas"]["Traco"] | null;
+            traco_secundaria?: components["schemas"]["Traco"] | null;
         };
         /**
          * Escolha

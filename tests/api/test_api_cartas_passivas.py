@@ -49,3 +49,14 @@ def test_vitality_pela_subida_de_nivel(cliente):
     assert VITALITY in f["cartas_cofre"]
     r = cliente.post(f"/personagens/{pid}/cartas/{VITALITY}/recuperar", json={"em_descanso": True})
     assert r.status_code == 422 and "para sempre" in r.json()["detail"]
+
+
+def test_versatilidade_no_equipamento(cliente):
+    pid = cliente.post("/personagens", json=GUARDIAO).json()["id"]
+    subir(cliente, pid, 2)
+    assert subir(cliente, pid, 3, "core_domain_card_versatile_fighter").status_code == 200
+    f = cliente.put(f"/personagens/{pid}/equipamento",
+                    json={"principal": "core_weapon_broadsword", "traco_principal": "STRENGTH"}).json()
+    assert (f["ataques"][0]["traco"], f["ataques"][0]["traco_da_arma"]) == ("STRENGTH", "AGILITY")
+    eq = cliente.get(f"/personagens/{pid}/equipamento").json()
+    assert (eq["traco_principal"], eq["traco_secundaria"]) == ("STRENGTH", None)

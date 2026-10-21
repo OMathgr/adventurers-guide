@@ -14,7 +14,7 @@ TIPOS_CONHECIDOS = {
     "nota_d6", "dado_de_dano", "dado_extra_descarta_menor", "explode_maximo", "troca_valor", "rerrola_valores",
     "dobra_iguais", "dobra_maior_dado", "multiplica_dano", "soma_dado_medo_do_ataque", "nota_valor", "rolagem_extra",
     "rerrola_dualidade", "rerrola_teste", "rerrola_esperanca", "rerrola_um_dado", "troca_dualidade",
-    "medo_vira_esperanca", "rerrola_dano",
+    "medo_vira_esperanca", "rerrola_dano", "maximiza_um_dado",
 }
 
 TRACOS = {Traco.FORCA: 2, Traco.AGILIDADE: 1, Traco.INSTINTO: 1, Traco.ACUIDADE: 0, Traco.PRESENCA: 0,

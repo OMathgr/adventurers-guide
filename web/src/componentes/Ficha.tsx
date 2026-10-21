@@ -108,7 +108,8 @@ export default function FichaVisao({ ficha, personagemId, semVida }: {
             <li key={a.arma} className="rounded-xl border border-borda bg-fundo/60 p-3">
               <div className="flex flex-wrap items-baseline justify-between gap-2">
                 <span className="font-titulo text-lg">{a.arma}<Original nome={a.arma} original={a.arma_original} /></span>
-                <span className="text-sm"><b className="text-esperanca">{comSinal(a.bonus)}</b> {NOME_TRACO[a.traco]} ·{' '}
+                <span className="text-sm"><b className="text-esperanca">{comSinal(a.bonus)}</b> {NOME_TRACO[a.traco]}
+                  {a.traco_da_arma && <span className="text-texto-suave"> (Versatilidade; a arma pede {NOME_TRACO[a.traco_da_arma]})</span>} ·{' '}
                   <b>{a.dano}</b> {NOME_TIPO_DANO[a.tipo_dano]} · {NOME_ALCANCE[a.alcance] ?? a.alcance}</span>
               </div>
               {(a.caracteristicas ?? []).length > 0 && <div className="mt-2"><ListaCaracteristicas lista={a.caracteristicas ?? []} /></div>}
