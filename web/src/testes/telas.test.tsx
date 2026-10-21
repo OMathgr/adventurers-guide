@@ -5,7 +5,7 @@ import type { ReactNode } from 'react'
 import { MemoryRouter } from 'react-router'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import type { EventoLinhaDoTempo, Ficha, OpcaoNoQuadro, ProximoNivel, QuadroDeAvanco } from '../api/tipos'
+import type { CartaDeDominio, EventoLinhaDoTempo, Ficha, OpcaoNoQuadro, ProximoNivel, QuadroDeAvanco } from '../api/tipos'
 import { ProvedorAutenticacao } from '../auth/Autenticacao'
 import LinhaDoTempo from '../componentes/LinhaDoTempo'
 import MaoEReserva from '../componentes/MaoEReserva'
@@ -169,5 +169,56 @@ describe('Espaços', () => {
   it('padrão de PV/PF: começa cheio e esvazia com o dano', () => {
     render(<Espacos total={6} marcados={2} rotulo="Pontos de Vida" restantes />)
     expect(screen.getByRole('img', { name: 'Pontos de Vida restantes: 4 de 6' })).toBeInTheDocument()
+  })
+})
+
+describe('Cartas com passivo', () => {
+  const carta = (id: string, nome: string, extra: Partial<CartaDeDominio> = {}): CartaDeDominio => ({
+    id, nome, nome_original: nome, dominio: 'BLADE', nivel: 1, tipo: 'ABILITY', custo_recall: 1, texto: '',
+    formulas: [], passivo: null, escolha: null, reserva_permanente: false, ...extra,
+  })
+  const VITALIDADE = carta('vit', 'Vitalidade', { nivel: 5, escolha: 'VITALIDADE', reserva_permanente: true })
+  const ARMEIRO = carta('arm', 'Armeiro', { passivo: { modificadores: [], condicao: 'com_armadura' } })
+  const TOQUE = carta('toque', 'Toque da Lâmina', { passivo: { modificadores: [], condicao: 'dominio:BLADE' } })
+
+  it('ao pegar Vitalidade, pede os dois benefícios e manda junto com o nível', async () => {
+    const fetch = vi.fn(async (url: string, _opcoes?: RequestInit) => {
+      const corpo = url.endsWith('/proximo-nivel') ? PROXIMO : url.endsWith('/cartas/extras') ? 0
+        : url.includes('/cartas/opcoes') || url.includes('/srd/cartas') ? [VITALIDADE] : []
+      return new Response(JSON.stringify(corpo), { status: 200 })
+    })
+    vi.stubGlobal('fetch', fetch)
+    const eventos: EventoLinhaDoTempo[] = [
+      { nivel: 1, tier: 1, status: 'feito', titulo: 'Criação', itens: [], quadros: [], planejado: false, bloqueado_pela_mesa: false },
+      { nivel: 2, tier: 2, status: 'feito', titulo: 'Nível 2', itens: [], quadros: [quadroTier2('neste')], planejado: false, bloqueado_pela_mesa: false },
+      { nivel: 3, tier: 2, status: 'futuro', titulo: 'Nível 3', itens: [], quadros: [quadroTier2('antes')], planejado: false, bloqueado_pela_mesa: false },
+    ]
+    const ficha = { nome: 'Lia', experiencias: { A: 2 }, cartas: [], cartas_ativas: [], cartas_cofre: [], companheiro: null } as unknown as Ficha
+    montar(<LinhaDoTempo eventos={eventos} personagemId="p1" ficha={ficha} aoDesfazer={vi.fn()} desfazendo={false} />)
+    await userEvent.click(await screen.findByRole('checkbox', { name: '+1 espaço de Ponto de Vida (2º patamar), quadradinho 2' }))
+    await userEvent.click(screen.getByRole('checkbox', { name: /Fadiga.*quadradinho 1/ }))
+    await userEvent.click(await screen.findByRole('button', { name: /Vitalidade/ }))
+    expect(await screen.findByText('Benefícios: Vitalidade')).toBeInTheDocument()
+    const confirmar = screen.getByRole('button', { name: 'Confirmar nível 3' })
+    expect(confirmar).toBeDisabled()
+    await userEvent.click(screen.getByRole('checkbox', { name: '+1 espaço de Ponto de Vida' }))
+    await userEvent.click(screen.getByRole('checkbox', { name: '+2 nos limiares de dano' }))
+    expect(screen.getByRole('checkbox', { name: '+1 espaço de Fadiga' })).toBeDisabled()   // só dois
+    await userEvent.click(confirmar)
+    const envio = fetch.mock.calls.find(([u, o]) => u === '/api/personagens/p1/niveis' && o?.method === 'POST')
+    expect(JSON.parse(envio![1]!.body as string).beneficios_de_carta).toEqual({ vit: ['PV', 'LIMIARES'] })
+  })
+
+  it('mostra se o passivo está na ficha e trava a reserva permanente', async () => {
+    vi.stubGlobal('fetch', vi.fn(async (url: string) =>
+      new Response(JSON.stringify(url.includes('/srd/cartas') ? [VITALIDADE, ARMEIRO, TOQUE] : []), { status: 200 })))
+    const f = { cartas: ['arm', 'toque', 'vit'], cartas_ativas: ['arm', 'toque'], cartas_cofre: ['vit'],
+      cartas_aplicadas: ['arm'] } as unknown as Ficha
+    montar(<MaoEReserva ficha={f} personagemId="p1" />)
+    expect(await screen.findByText('na ficha')).toBeInTheDocument()
+    expect(screen.getByText(/^precisa de 4 cartas de .+ na mão$/)).toBeInTheDocument()
+    await userEvent.click(screen.getByText('Vitalidade'))
+    expect(screen.getByText('reserva para sempre')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Trazer para a mão' })).not.toBeInTheDocument()
   })
 })

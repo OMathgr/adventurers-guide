@@ -20,6 +20,8 @@ def test_todo_efeito_existe_no_srd(bib):
     habilidades = [h for c in bib.classes.values() for h in c.habilidades]
     habilidades += [h for s in bib.subclasses.values() for _, h in s.habilidades_ate("maestria")]
     encontrados |= {h.efeito for h in habilidades if h.efeito}
+    # passivos de cartas de domínio (Bare Bones, Untouchable)
+    encontrados |= {c.passivo.efeito for c in bib.cartas.values() if c.passivo and c.passivo.efeito}
     assert encontrados == set(Efeito)
 
 

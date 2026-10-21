@@ -13,7 +13,8 @@ from motor import Arma, Armadura, Escolha, Ficha, Movimento, Opcao, Traco, Resul
 
 # Campos de controle interno do motor, que não interessam a quem usa a API
 # (e um deles tem tupla como chave, o que nem cabe em JSON).
-_INTERNOS = {"slots_usados", "subclasse_bloqueada_tiers", "multiclasse_bloqueada"}
+_INTERNOS = {"slots_usados", "subclasse_bloqueada_tiers", "multiclasse_bloqueada",
+             "bonus_limiares"}   # já somado nos limiares
 
 FichaSaida = create_model(
     "Ficha",

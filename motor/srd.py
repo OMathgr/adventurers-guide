@@ -140,6 +140,9 @@ class Efeito(str, Enum):
     # classes e subclasses
     CARTA_EXTRA = "CARTA_EXTRA"    # Prepared/Accomplished/Brilliant: uma carta de domínio a mais
     TREINAMENTO_DE_COMBATE = "TREINAMENTO_DE_COMBATE"   # Combat Training: ignora empunhadura; +nível no dano físico
+    # cartas de domínio
+    OSSOS_EXPOSTOS = "OSSOS_EXPOSTOS"  # Bare Bones: sem armadura, Pontuação 3 + Força e limiares por patamar
+    INTOCAVEL = "INTOCAVEL"            # Untouchable: Evasão + metade da Agilidade (nunca tira)
 
 
 _EFEITOS_SRD = {
@@ -324,6 +327,46 @@ def _formulas(texto: str) -> tuple[Formula, ...]:
     return tuple(vistas)
 
 
+class EscolhaDeCarta(str, Enum):
+    """Cartas que pedem uma escolha ao serem pegas (bônus permanente)."""
+
+    VITALIDADE = "VITALIDADE"              # Vitality: dois entre PV, ESTRESSE e LIMIARES
+    MESTRE_DO_OFICIO = "MESTRE_DO_OFICIO"  # Master of the Craft: +2 em duas Experiências ou +3 em uma
+
+
+@dataclass(frozen=True)
+class PassivoDeCarta:
+    """Efeito passivo de uma carta NA MÃO (na reserva, a carta não vale)."""
+
+    modificadores: tuple[Modificador, ...] = ()   # ATAQUE vale para todas as armas
+    efeito: Efeito | None = None
+    # quando vale: "com_armadura", "sem_armadura" ou "dominio:<código>" (4+ cartas do domínio na mão)
+    condicao: str | None = None
+
+
+# Cartas com passivo que muda números da ficha. As outras (condicionais,
+# ativadas) ficam como texto, ou em data/efeitos_de_rolagem.json se mexem em rolagens.
+_PASSIVOS_CARTAS: dict[str, PassivoDeCarta] = {
+    "core_domain_card_armorer": PassivoDeCarta((Modificador(Alvo.PONTUACAO_ARMADURA, 1),), condicao="com_armadura"),
+    "core_domain_card_fortified_armor": PassivoDeCarta((Modificador(Alvo.LIMIARES, 2),), condicao="com_armadura"),
+    "core_domain_card_bare_bones": PassivoDeCarta(efeito=Efeito.OSSOS_EXPOSTOS, condicao="sem_armadura"),
+    "core_domain_card_untouchable": PassivoDeCarta(efeito=Efeito.INTOCAVEL),
+    "core_domain_card_arcana_touched": PassivoDeCarta((Modificador(Alvo.CONJURACAO, 1),), condicao="dominio:ARCANA"),
+    "core_domain_card_blade_touched": PassivoDeCarta(
+        (Modificador(Alvo.ATAQUE, 2), Modificador(Alvo.LIMIAR_GRAVE, 4)), condicao="dominio:BLADE"),
+    "core_domain_card_bone_touched": PassivoDeCarta((Modificador(Traco.AGILIDADE, 1),), condicao="dominio:BONE"),
+    "core_domain_card_splendor_touched": PassivoDeCarta((Modificador(Alvo.LIMIAR_GRAVE, 3),), condicao="dominio:SPLENDOR"),
+    "core_domain_card_valor_touched": PassivoDeCarta((Modificador(Alvo.PONTUACAO_ARMADURA, 1),), condicao="dominio:VALOR"),
+}
+_ESCOLHAS_CARTAS = {
+    "core_domain_card_vitality": EscolhaDeCarta.VITALIDADE,
+    "core_domain_card_master_of_the_craft": EscolhaDeCarta.MESTRE_DO_OFICIO,
+}
+# Bare Bones: limiares base por patamar (a ficha soma o nível, como nas armaduras)
+LIMIARES_OSSOS_EXPOSTOS = {1: (9, 19), 2: (11, 24), 3: (13, 31), 4: (15, 38)}
+PONTUACAO_OSSOS_EXPOSTOS = 3   # + Força
+
+
 @dataclass(frozen=True)
 class CartaDeDominio:
     id: str
@@ -335,6 +378,9 @@ class CartaDeDominio:
     texto: str = ""   # o que a carta faz (só para exibição)
     nome_original: str = ""
     formulas: tuple[Formula, ...] = ()   # rolagens do texto (do inglês: a tradução não muda)
+    passivo: PassivoDeCarta | None = None      # aplicado na ficha enquanto estiver na mão
+    escolha: EscolhaDeCarta | None = None      # pede uma escolha ao ser pega (SubidaDeNivel.beneficios_de_carta)
+    reserva_permanente: bool = False           # depois de pega, fica na reserva para sempre
 
 
 class CategoriaArma(str, Enum):
@@ -540,6 +586,9 @@ class Biblioteca:
                 texto="\n\n".join((f"{_texto(f['name'])}: " if "name" in f else "")
                                   + _texto_completo(f["description"]) for f in c.get("features", [])),
                 formulas=_formulas(" ".join(_texto_completo(f["description"]) for f in c.get("features", []))),
+                passivo=_PASSIVOS_CARTAS.get(c["id"]),
+                escolha=_ESCOLHAS_CARTAS.get(c["id"]),
+                reserva_permanente=c["id"] in _ESCOLHAS_CARTAS,   # as duas: "place this card in your vault permanently"
             )
             for c in self._ler(srd / "domain-cards.json")
         }

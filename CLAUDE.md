@@ -32,7 +32,9 @@ Edição simultânea protegida: ações se refazem sozinhas; formulários avisam
 conflito (api/concorrencia.py). Repouso do grupo (o mestre abre, cada jogador
 escolhe os movimentos, inclusive em aliados) e movimentos de morte com
 cicatrizes prontos. Habilidades de classe e de subclasse na ficha (as de número
-fixo já aplicadas; cartas a mais do Discípulo do Conhecimento) prontas. Sessão de
+fixo já aplicadas; cartas a mais do Discípulo do Conhecimento) prontas. Passivos
+das cartas de domínio na mão (Armorer, Bare Bones, Untouchable, as "-Touched";
+Vitality e Master of the Craft com escolha na subida) aplicados na ficha. Sessão de
 jogo pronta: a mesa é o grupo, cada sessão um dia de jogo; em andamento, os
 jogadores entram e jogam lá (marcas por sessão em `participacoes`, começam
 limpas; encerradas ficam para consulta); a página do personagem é para ver e

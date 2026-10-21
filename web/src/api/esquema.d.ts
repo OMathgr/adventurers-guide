@@ -2861,6 +2861,13 @@ export interface components {
              * @default []
              */
             formulas: components["schemas"]["Formula"][];
+            passivo?: components["schemas"]["PassivoDeCarta"] | null;
+            escolha?: components["schemas"]["EscolhaDeCarta"] | null;
+            /**
+             * Reserva Permanente
+             * @default false
+             */
+            reserva_permanente: boolean;
         };
         /** Cartao */
         Cartao: {
@@ -3216,7 +3223,7 @@ export interface components {
          *     funcionam. O nome no SRD está no comentário.
          * @enum {string}
          */
-        Efeito: "FORTIFICADA" | "DOLOROSA" | "ESPERANCOSA" | "REFORCADA" | "RESILIENTE" | "IMPENETRAVEL" | "SO_FISICO" | "SO_MAGICO" | "PROTEGIDA" | "CURA" | "VIGOR" | "FOLEGO" | "AGIL" | "PROPOSITO" | "CASCO" | "EFICIENTE" | "TRANSE" | "CARTA_EXTRA" | "TREINAMENTO_DE_COMBATE";
+        Efeito: "FORTIFICADA" | "DOLOROSA" | "ESPERANCOSA" | "REFORCADA" | "RESILIENTE" | "IMPENETRAVEL" | "SO_FISICO" | "SO_MAGICO" | "PROTEGIDA" | "CURA" | "VIGOR" | "FOLEGO" | "AGIL" | "PROPOSITO" | "CASCO" | "EFICIENTE" | "TRANSE" | "CARTA_EXTRA" | "TREINAMENTO_DE_COMBATE" | "OSSOS_EXPOSTOS" | "INTOCAVEL";
         /**
          * EfeitoConsumivel
          * @description O que um consumível faz na ficha, lido do texto do SRD.
@@ -3346,6 +3353,12 @@ export interface components {
             subclasse?: string | null;
             companheiro?: components["schemas"]["Companheiro"] | null;
         };
+        /**
+         * EscolhaDeCarta
+         * @description Cartas que pedem uma escolha ao serem pegas (bônus permanente).
+         * @enum {string}
+         */
+        EscolhaDeCarta: "VITALIDADE" | "MESTRE_DO_OFICIO";
         /** EscolhaEntrada */
         EscolhaEntrada: {
             /** Movimentos */
@@ -3494,6 +3507,8 @@ export interface components {
             habilidades: components["schemas"]["HabilidadeNaFicha"][];
             /** Padroes Estranhos */
             padroes_estranhos: number | null;
+            /** Cartas Aplicadas */
+            cartas_aplicadas: string[];
         };
         /** FichaCompanheiro */
         FichaCompanheiro: {
@@ -4734,6 +4749,20 @@ export interface components {
             dono_id: string;
             resumo: components["schemas"]["FichaResumida"];
         };
+        /**
+         * PassivoDeCarta
+         * @description Efeito passivo de uma carta NA MÃO (na reserva, a carta não vale).
+         */
+        PassivoDeCarta: {
+            /**
+             * Modificadores
+             * @default []
+             */
+            modificadores: components["schemas"]["Modificador"][];
+            efeito?: components["schemas"]["Efeito"] | null;
+            /** Condicao */
+            condicao?: string | null;
+        };
         /** PedidoDeReacao */
         PedidoDeReacao: {
             /** Personagem Id */
@@ -5386,6 +5415,10 @@ export interface components {
             para_reserva?: string[];
             /** Cartas Extras */
             cartas_extras?: string[];
+            /** Beneficios De Carta */
+            beneficios_de_carta?: {
+                [key: string]: string[];
+            };
         };
         /**
          * TipoAdversario

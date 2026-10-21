@@ -213,6 +213,40 @@ só `cofre`; toda carta que ele tem e não está no cofre está na mão.
 - `guardar_carta` é grátis. `recuperar_carta` marca o custo de troca em PF
   (0 em descanso) e é recusada sem PF livre suficiente. Com a mão cheia,
   exige `no_lugar_de`.
+
+### Passivos das cartas (`_PASSIVOS_CARTAS` em `srd.py`)
+
+Decisões do projeto (2026-10-20): só valem na **mão** (na reserva a carta fica
+inativa, como no SRD); Bare Bones soma o nível aos limiares (o texto diz "base
+damage thresholds", como nas armaduras); Untouchable nunca tira Evasão;
+Vitality e Master of the Craft pedem a escolha ao serem pegas.
+
+- `CartaDeDominio.passivo` (`PassivoDeCarta`: modificadores, efeito,
+  condição). Condições: `com_armadura` (Armorer +1 Pontuação, Fortified Armor
+  +2 nos limiares), `sem_armadura` (Bare Bones: Pontuação 3 + Força, limiares
+  base do patamar 9/19, 11/24, 13/31, 15/38 + nível) e `dominio:<código>` (4
+  cartas do domínio na mão: Arcana +1 conjuração, Blade +2 ataque e +4 grave,
+  Bone +1 Agilidade, Splendor +3 grave, Valor +1 Pontuação). Untouchable:
+  Evasão + metade da Agilidade (arredonda para cima, mínimo 0).
+- Aplicados em `_vestir` (depende do equipamento e da mão); o ataque das
+  cartas (Blade-Touched) vale para todas as armas. `Ficha.cartas_aplicadas`
+  diz quais estão valendo agora (a tela mostra "na ficha"). Os bônus de
+  Arcana/Blade-Touched saíram de `efeitos_de_rolagem.json`: a rolagem usa o
+  bônus da ficha e eles contariam duas vezes.
+- Os condicionais (Shadowhunter, Frenzy, Deadly Focus...) continuam texto ou
+  efeito de rolagem: dependem de cena ou de ativação.
+- **Escolha ao pegar** (`CartaDeDominio.escolha`): `SubidaDeNivel.beneficios_de_carta`
+  (carta -> escolhas), aplicado em `_aplicar` para as cartas que entraram no
+  nível (passo 4, avanço, troca, cartas a mais). Vitality: dois entre `PV`,
+  `ESTRESSE` (respeitam os limites) e `LIMIARES` (+2 em `Ficha.bonus_limiares`,
+  somado em `_vestir`). Master of the Craft: duas Experiências (+2) ou uma
+  (+3). Ficam no histórico, então valem para sempre, mesmo trocando a carta.
+  Só `subir_de_nivel` exige a escolha; ao refazer o histórico salvo
+  (`refazer_historico`, usado ao carregar e copiar), um nível de antes da regra
+  entra sem o benefício em vez de deixar o personagem sem abrir.
+- `reserva_permanente`: `_ajustar_cofre` põe a carta na reserva e
+  `recuperar_carta` recusa. Ela não ocupa a mão (o assistente não pede
+  "mão cheia" por ela).
 - Desfazer um nível tira da reserva as cartas que deixaram de existir.
 - Interface: `MaoEReserva` na ficha (mandar para a reserva, trazer no
   descanso ou agora) e a seção "Mão cheia" ao subir de nível.

@@ -1,10 +1,12 @@
 // Cartas de domínio divididas em mão (até 5 ativas) e reserva. Mandar para
 // a reserva é grátis; trazer de volta é grátis num descanso e, fora dele,
-// marca PF igual ao custo de troca da carta. As regras são do motor.
+// marca PF igual ao custo de troca da carta. Cartas com passivo (Armorer,
+// Bare Bones, as "-Touched"...) mostram se o efeito já está na ficha; na
+// reserva elas não valem. As regras são do motor.
 import { useState } from 'react'
 
 import { useGuardarCarta, useRecuperarCarta } from '../api/consultas'
-import type { Ficha } from '../api/tipos'
+import type { CartaDeDominio, Ficha } from '../api/tipos'
 import { useNomeDominio, useNomes } from '../lib/nomes'
 import { LIMITE_MAO } from '../lib/regras'
 import { Aviso, Botao, Cartao, Original, Selo } from './ui'
@@ -45,6 +47,15 @@ function Trazer({ ficha, carta, custo, aoTrazer, enviando }: {
   )
 }
 
+/** Por que o passivo não vale agora (a carta está na mão). */
+function semEfeito(carta: CartaDeDominio, nomeDominio: (d: string) => string): string {
+  const cond = carta.passivo?.condicao ?? ''
+  if (cond === 'com_armadura') return 'só com armadura'
+  if (cond === 'sem_armadura') return 'só sem armadura'
+  if (cond.startsWith('dominio:')) return `precisa de 4 cartas de ${nomeDominio(cond.split(':')[1])} na mão`
+  return 'sem efeito agora'
+}
+
 export default function MaoEReserva({ ficha, personagemId }: { ficha: Ficha; personagemId?: string }) {
   const nomes = useNomes(ficha)
   const dominio = useNomeDominio()
@@ -63,6 +74,11 @@ export default function MaoEReserva({ ficha, personagemId }: { ficha: Ficha; per
               <span className="mt-1 flex flex-wrap gap-1.5">
                 {carta && <Selo>{dominio(carta.dominio)} · nível {carta.nivel}</Selo>}
                 {carta && <Selo>troca {carta.custo_recall}</Selo>}
+                {carta?.passivo && !naReserva && (ficha.cartas_aplicadas ?? []).includes(id) && <Selo destaque>na ficha</Selo>}
+                {carta?.passivo && !naReserva && !(ficha.cartas_aplicadas ?? []).includes(id) && (
+                  <span className="text-xs text-texto-suave">{semEfeito(carta, dominio)}</span>
+                )}
+                {carta?.reserva_permanente && naReserva && <Selo>reserva para sempre</Selo>}
               </span>
             </summary>
             {carta && <p className="mt-2 whitespace-pre-line text-sm text-texto-suave">{carta.texto}</p>}
@@ -70,7 +86,8 @@ export default function MaoEReserva({ ficha, personagemId }: { ficha: Ficha; per
               <Botao variante="fantasma" className="mt-2 !px-0" disabled={guardar.isPending}
                 onClick={() => guardar.mutate(id)}>Mandar para a reserva</Botao>
             )}
-            {editavel && naReserva && (
+            {carta?.passivo && naReserva && <p className="mt-2 text-xs text-texto-suave">Na reserva, o efeito não vale.</p>}
+            {editavel && naReserva && !carta?.reserva_permanente && (
               <Trazer ficha={ficha} carta={id} custo={carta?.custo_recall ?? 0} enviando={recuperar.isPending}
                 aoTrazer={(p) => recuperar.mutate({ carta: id, ...p })} />
             )}

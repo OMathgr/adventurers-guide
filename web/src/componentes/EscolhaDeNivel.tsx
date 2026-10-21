@@ -9,7 +9,7 @@ import {
   useCartasExtras, useClasses, useOpcoesDeCarta, useSubclasses, useSubirDeNivel,
 } from '../api/consultas'
 import type {
-  AlvoFeroz, Escolha, Ficha, Opcao, OpcaoTreino, ProximoNivel, QuadroDeAvanco, Traco, Treino,
+  AlvoFeroz, Escolha, EscolhaDeCarta, Ficha, Opcao, OpcaoTreino, ProximoNivel, QuadroDeAvanco, Traco, Treino,
 } from '../api/tipos'
 import { useNomeDominio, useNomes } from '../lib/nomes'
 import { type AvancoMarcado, custoTotal, LIMITE_MAO, podeMarcar, treinosExigidos } from '../lib/regras'
@@ -96,6 +96,8 @@ export default function EscolhaDeNivel({ id, ficha, proximo, quadros, aoConcluir
   const [troca, setTroca] = useState<{ antiga?: string; nova?: string } | null>(null)
   const [paraReserva, setParaReserva] = useState<string[]>([])
   const [extras, setExtras] = useState<string[]>([])
+  // Vitality, Master of the Craft: carta id -> escolhas
+  const [beneficios, setBeneficios] = useState<Record<string, string[]>>({})
   const subir = useSubirDeNivel(id)
   const nomes = useNomes(ficha)
 
@@ -117,7 +119,15 @@ export default function EscolhaDeNivel({ id, ficha, proximo, quadros, aoConcluir
   const extrasValidas = extras.slice(0, nExtras)
   const cartaOk = !!carta && (troca === null || (!!troca.antiga && !!troca.nova))
     && extrasValidas.length === nExtras && extrasValidas.every(Boolean)
-  const pronto = conquistaOk && avancosOk && treinosOk && cartaOk
+  // cartas que entram neste nível; as que pedem escolha recebem os benefícios
+  const novas = [carta, troca?.nova, ...extrasValidas, ...escolhas.map((e) => e.carta)]
+    .filter((c): c is string => !!c)
+  const comEscolha = novas.filter((c) => nomes.carta(c)?.escolha)
+  const beneficiosOk = comEscolha.every((c) => {
+    const n = (beneficios[c] ?? []).length
+    return nomes.carta(c)?.escolha === 'VITALIDADE' ? n === 2 : n === 1 || n === 2
+  })
+  const pronto = conquistaOk && avancosOk && treinosOk && cartaOk && beneficiosOk
 
   const daApi = (tier: number, opcao: Opcao) => proximo.opcoes.find((o) => o.tier === tier && o.opcao === opcao)
 
@@ -151,7 +161,9 @@ export default function EscolhaDeNivel({ id, ficha, proximo, quadros, aoConcluir
     setDetalhes((d) => ({ ...d, [chave]: { ...(d[chave] ?? DETALHE_VAZIO), ...parcial } }))
 
   // mão cheia: cartas antigas podem ir para a reserva sem custo para as novas entrarem
-  const cartasNovas = 1 + nExtras + marcados.filter((m) => m.opcao === 'CARTA_DOMINIO').length
+  // as que vão direto para a reserva para sempre (Vitality...) não ocupam a mão
+  const permanentes = novas.filter((c) => nomes.carta(c)?.reserva_permanente).length
+  const cartasNovas = 1 + nExtras + marcados.filter((m) => m.opcao === 'CARTA_DOMINIO').length - permanentes
   const excesso = ficha.cartas_ativas.length + cartasNovas - LIMITE_MAO
   const maxReserva = Math.max(0, Math.min(excesso, cartasNovas))
   const reservaValida = paraReserva.filter((c) => c !== troca?.antiga).slice(0, maxReserva)
@@ -166,6 +178,7 @@ export default function EscolhaDeNivel({ id, ficha, proximo, quadros, aoConcluir
       experiencia_companheiro: proximo.experiencia_companheiro ? expCompanheiro.trim() : null,
       troca_carta: troca ? [troca.antiga!, troca.nova!] : null,
       cartas_extras: extrasValidas,
+      beneficios_de_carta: Object.fromEntries(comEscolha.map((c) => [c, beneficios[c] ?? []])),
       treinos,
     }, { onSuccess: aoConcluir })
   }
@@ -267,6 +280,14 @@ export default function EscolhaDeNivel({ id, ficha, proximo, quadros, aoConcluir
         </Secao>
       )}
 
+      {comEscolha.map((c) => (
+        <Secao key={c} titulo={`Benefícios: ${nomes.carta(c)?.nome ?? c}`}>
+          <BeneficiosDaCarta tipo={nomes.carta(c)!.escolha!} experiencias={experienciasDisponiveis}
+            valor={beneficios[c] ?? []} mudar={(v) => setBeneficios((b) => ({ ...b, [c]: v }))} />
+          <p className="text-xs text-texto-suave">Permanente. Depois a carta vai para a reserva para sempre.</p>
+        </Secao>
+      ))}
+
       {maxReserva > 0 && (
         <Secao titulo="Mão cheia">
           <p className="text-sm text-texto-suave">
@@ -356,6 +377,36 @@ function DetalheAvanco({ id, ficha, proximo, marcado, detalhe, outrosTracos, exp
 }
 
 /** O que a carta de subclasse aprimorada traz (especialização ou maestria). */
+const NOME_BENEFICIO_VITALIDADE: [string, string][] = [
+  ['PV', '+1 espaço de Ponto de Vida'], ['ESTRESSE', '+1 espaço de Fadiga'], ['LIMIARES', '+2 nos limiares de dano'],
+]
+
+/** Vitality: dois dos três benefícios. Master of the Craft: +2 em duas Experiências ou +3 em uma. */
+function BeneficiosDaCarta({ tipo, experiencias, valor, mudar }: {
+  tipo: EscolhaDeCarta; experiencias: string[]; valor: string[]; mudar: (v: string[]) => void
+}) {
+  const opcoes = tipo === 'VITALIDADE' ? NOME_BENEFICIO_VITALIDADE : experiencias.map((e): [string, string] => [e, e])
+  const limite = 2
+  return (
+    <div className="space-y-1">
+      <p className="text-sm text-texto-suave">
+        {tipo === 'VITALIDADE' ? 'Escolha dois.' : 'Escolha duas Experiências (+2 cada) ou só uma (+3).'}
+      </p>
+      {opcoes.map(([v, rotulo]) => {
+        const marcada = valor.includes(v)
+        return (
+          <label key={v} className="flex items-center gap-2 text-sm">
+            <input type="checkbox" checked={marcada} disabled={!marcada && valor.length >= limite}
+              onChange={() => mudar(marcada ? valor.filter((x) => x !== v) : [...valor, v])} />
+            {rotulo}
+            {tipo === 'MESTRE_DO_OFICIO' && marcada && <Selo>{valor.length === 1 ? '+3' : '+2'}</Selo>}
+          </label>
+        )
+      })}
+    </div>
+  )
+}
+
 function ProximaCartaDeSubclasse({ ficha }: { ficha: Ficha }) {
   const subclasses = useSubclasses(ficha.classe)
   const sub = subclasses.data?.find((s) => s.id === ficha.subclasse)

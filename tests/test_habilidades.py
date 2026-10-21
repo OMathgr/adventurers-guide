@@ -11,7 +11,9 @@ TRACOS = {Traco.PRESENCA: 2, Traco.AGILIDADE: 1, Traco.CONHECIMENTO: 1,
 
 def cartas_nivel_1(bib, classe, quantas=2):
     dominios = bib.classes[classe].dominios
-    return sorted(c.id for c in bib.cartas.values() if c.nivel == 1 and c.dominio in dominios)[:quantas]
+    # sem as cartas com passivo (Bare Bones, Untouchable...): aqui só contam as habilidades
+    return sorted(c.id for c in bib.cartas.values()
+                  if c.nivel == 1 and c.dominio in dominios and c.passivo is None)[:quantas]
 
 
 def criar(bib, classe, subclasse, cartas=2):
@@ -23,7 +25,8 @@ def criar(bib, classe, subclasse, cartas=2):
 
 def carta_nova(p, escolhas=(), menos=()):
     """Primeira carta possível no próximo nível que não esteja em `menos`."""
-    return next(c.id for c in p.cartas_para_nivel(list(escolhas)) if c.id not in menos)
+    return next(c.id for c in p.cartas_para_nivel(list(escolhas))
+                if c.id not in menos and c.passivo is None and c.escolha is None)
 
 
 def subir(p, escolhas, extras=0):

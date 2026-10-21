@@ -14,6 +14,7 @@ Isso dá de graça:
 import copy
 import dataclasses
 import re
+from collections import Counter
 from dataclasses import dataclass, field
 from enum import Enum
 
@@ -29,8 +30,9 @@ from .rolagem import (TIPOS_DE_TESTE, Bonus, DadoRolado, Dualidade, EfeitoDeRola
                       ResultadoRolagem, _delta, _ganhar_esperanca, _limpar_fadiga, aplicar_teste, dado, desfazer,
                       expandir, ler_expressao, recalcular_teste, resolver, rolar_dano, rolar_dualidade, rolar_teste)
 from .sessao import Cicatriz, Sessao
-from .srd import (Alvo, Arma, Armadura, Biblioteca, Caracteristica, CartaDeDominio, Efeito,
-                  Modificador, Referencia, Subclasse, TipoDano, TipoDeItem, Traco)
+from .srd import (LIMIARES_OSSOS_EXPOSTOS, PONTUACAO_OSSOS_EXPOSTOS, Alvo, Arma, Armadura, Biblioteca, Caracteristica,
+                  CartaDeDominio, Efeito, EscolhaDeCarta, Modificador, PassivoDeCarta, Referencia, Subclasse, TipoDano,
+                  TipoDeItem, Traco)
 
 DISTRIBUICAO_TRACOS = sorted([2, 1, 1, 0, 0, -1])
 
@@ -129,6 +131,10 @@ class SubidaDeNivel:
     # Cartas a mais que uma habilidade ganha neste nível dá (Discípulo do
     # Conhecimento: Talentoso/Brilhante, ou Promissor numa multiclasse)
     cartas_extras: list[str] = field(default_factory=list)
+    # Cartas que pedem escolha ao serem pegas neste nível (carta id -> escolhas):
+    # Vitality: dois entre "PV", "ESTRESSE" e "LIMIARES"; Master of the Craft:
+    # duas Experiências (+2 cada) ou uma (+3).
+    beneficios_de_carta: dict[str, list[str]] = field(default_factory=dict)
 
 
 @dataclass(frozen=True)
@@ -275,6 +281,10 @@ class Ficha:
     # de classe (e da multiclasse) e das cartas de subclasse que o personagem tem
     habilidades: list[HabilidadeNaFicha] = field(default_factory=list)
     padroes_estranhos: int | None = None   # Mago: o número escolhido (estado de sessão)
+    # permanente, de cartas como Vitality (somado aos dois limiares em _vestir)
+    bonus_limiares: int = 0
+    # cartas na mão cujo passivo já está aplicado nos números da ficha
+    cartas_aplicadas: list[str] = field(default_factory=list)
 
 
 class Personagem:
@@ -297,6 +307,9 @@ class Personagem:
         # Regra opcional das moedas definida pela mesa (None: sem mesa, vale a
         # escolha do próprio inventário). Como o nível limite, quem carrega define.
         self.moedas_da_mesa: bool | None = None
+        # recarregando níveis já salvos (refazer_historico): não exige o que uma
+        # regra nova passou a pedir depois (ex.: a escolha da Vitality)
+        self._refazendo = False
         self._ficha_inicial = self._criar(criacao)
         if criacao.pocao_inicial or criacao.item_de_classe:
             self.inventario = inventario_inicial(biblioteca, criacao.classe, criacao.pocao_inicial or "",
@@ -350,7 +363,13 @@ class Personagem:
         if self.nivel_limite is not None and subida.nivel > self.nivel_limite:
             raise RegraViolada(f"A mesa está no nível {self.nivel_limite}: o mestre ainda não "
                                f"liberou o nível {subida.nivel}.")
-        nova = self._vestir(self._aplicar(self._ficha_base(), subida), self.equipamento)
+        base = self._ficha_base()
+        nova = self._vestir(self._aplicar(base, subida), self.equipamento)
+        if not self._refazendo:
+            for c in nova.cartas:
+                carta = self.bib.cartas[c]
+                if c not in base.cartas and carta.escolha and not subida.beneficios_de_carta.get(c):
+                    raise RegraViolada(f"{carta.nome}: escolha os benefícios da carta.")
         # ex.: subir a Presença com uma arma Pompous equipada
         self._validar_requisitos(nova, self.equipamento)
         self._validar_para_reserva(subida, cartas_antes=self._ficha_base().cartas, cartas_depois=nova.cartas)
@@ -365,6 +384,17 @@ class Personagem:
         # o que estava planejado para este nível (ou antes) foi superado
         self.plano = [s for s in self.plano if s.nivel > subida.nivel]
         return self.ficha()
+
+    def refazer_historico(self, subidas: list[SubidaDeNivel]):
+        """Recarrega níveis já salvos. Um nível salvo antes de uma carta passar a
+        pedir escolha (Vitality, Master of the Craft) entra sem o benefício, em vez
+        de deixar o personagem sem abrir; uma subida nova continua exigindo."""
+        self._refazendo = True
+        try:
+            for subida in subidas:
+                self.subir_de_nivel(subida)
+        finally:
+            self._refazendo = False
 
     # --- Plano e cópia -------------------------------------------------------
 
@@ -388,9 +418,7 @@ class Personagem:
         reserva e inventário vão junto quando ainda valem; marcas de sessão começam zeradas."""
         nova = Personagem(self.bib, self.criacao)
         corte = nivel_maximo if nivel_maximo is not None else len(self.historico) + 1
-        for s in self.historico:
-            if s.nivel <= corte:
-                nova.subir_de_nivel(copy.deepcopy(s))
+        nova.refazer_historico([copy.deepcopy(s) for s in self.historico if s.nivel <= corte])
         nova.plano = [copy.deepcopy(s) for s in self.historico if s.nivel > corte] + copy.deepcopy(self.plano)
         try:
             nova.equipar(**dataclasses.asdict(self.equipamento))
@@ -1050,6 +1078,8 @@ class Personagem:
         """
         if carta not in self.cofre:
             raise RegraViolada(f"{self._nome(self.bib.cartas, carta)} não está na reserva.")
+        if self.bib.cartas[carta].reserva_permanente:
+            raise RegraViolada(f"{self.bib.cartas[carta].nome} fica na reserva para sempre.")
         ativas = [c for c in self._ficha_base().cartas if c not in self.cofre]
         if no_lugar_de is not None and no_lugar_de not in ativas:
             raise RegraViolada("A carta que sai precisa estar na mão.")
@@ -1371,7 +1401,43 @@ class Personagem:
         self._ganhar_cartas_extras(anterior, f, s)
         if s.troca_carta:
             self._trocar_carta(f, *s.troca_carta)
+        self._beneficios_de_cartas(anterior, f, s)
         return f
+
+    def _beneficios_de_cartas(self, anterior: Ficha, f: Ficha, s: SubidaDeNivel):
+        """Bônus permanentes de cartas pegas neste nível que pedem escolha."""
+        novas = [c for c in f.cartas if c not in anterior.cartas]
+        for carta_id in s.beneficios_de_carta:
+            if carta_id not in novas or self.bib.cartas[carta_id].escolha is None:
+                raise RegraViolada("Só cartas pegas neste nível que pedem escolha recebem benefícios.")
+        for carta_id in novas:
+            carta = self.bib.cartas[carta_id]
+            escolhas = s.beneficios_de_carta.get(carta_id, [])
+            if not escolhas:
+                continue   # nível salvo antes da regra (subir_de_nivel exige a escolha)
+            if carta.escolha is EscolhaDeCarta.VITALIDADE:
+                self._vitalidade(f, carta, escolhas)
+            elif carta.escolha is EscolhaDeCarta.MESTRE_DO_OFICIO:
+                validas = len(escolhas) in (1, 2) and len(set(escolhas)) == len(escolhas)
+                if not validas or any(x not in f.experiencias for x in escolhas):
+                    raise RegraViolada(f"{carta.nome}: escolha duas Experiências que você tem (+2 cada) ou uma (+3).")
+                for x in escolhas:
+                    f.experiencias[x] += 3 if len(escolhas) == 1 else 2
+
+    def _vitalidade(self, f: Ficha, carta: CartaDeDominio, escolhas: list[str]):
+        if len(set(escolhas)) != 2 or not set(escolhas) <= {"PV", "ESTRESSE", "LIMIARES"}:
+            raise RegraViolada(f"{carta.nome}: escolha dois benefícios diferentes (PV, Fadiga ou limiares).")
+        prog = self.bib.progressao
+        if "PV" in escolhas:
+            if f.pv_max >= prog["limite_pv"]:
+                raise RegraViolada("Limite de Pontos de Vida atingido: escolha outro benefício.")
+            f.pv_max += 1
+        if "ESTRESSE" in escolhas:
+            if f.estresse_max >= prog["limite_estresse"]:
+                raise RegraViolada("Limite de Fadiga atingido: escolha outro benefício.")
+            f.estresse_max += 1
+        if "LIMIARES" in escolhas:
+            f.bonus_limiares += 2
 
     def _aplicar_escolha(self, f: Ficha, e: Escolha, tier_atual: int, nivel: int):
         tier = e.tier or tier_atual
@@ -1504,6 +1570,8 @@ class Personagem:
         """
         cartas = self._ficha_base().cartas
         self.cofre = [c for c in self.cofre if c in cartas]
+        # Vitality, Master of the Craft: depois de pegas, ficam na reserva para sempre
+        self.cofre += [c for c in cartas if self.bib.cartas[c].reserva_permanente and c not in self.cofre]
         ativas = [c for c in cartas if c not in self.cofre]
         while len(ativas) > self._limite_loadout:
             self.cofre.append(ativas.pop())
@@ -1630,6 +1698,14 @@ class Personagem:
         else:
             # regra do SRD para quem está sem armadura
             f.limiar_maior, f.limiar_grave, f.pontuacao_armadura = f.nivel, 2 * f.nivel, 0
+        passivos = self._passivos_de_cartas(f, eq)
+        efeitos_cartas = {p.efeito for _, p in passivos if p.efeito}
+        if Efeito.OSSOS_EXPOSTOS in efeitos_cartas:
+            # Bare Bones: limiares base do patamar + nível (a Pontuação vem no fim, com a Força)
+            maior, grave = LIMIARES_OSSOS_EXPOSTOS[self.bib.tier_do_nivel(f.nivel)]
+            f.limiar_maior, f.limiar_grave = maior + f.nivel, grave + f.nivel
+        f.limiar_maior += f.bonus_limiares
+        f.limiar_grave += f.bonus_limiares
         if any(c.efeito is Efeito.CASCO for c in f.caracteristicas_ancestralidade):
             # Shell (Galapa): limiares + Proficiência
             f.limiar_maior += f.proficiencia
@@ -1644,11 +1720,19 @@ class Personagem:
                          for origem, tipo, h in habilidades]
 
         mods = [m for peca in self._pecas(eq) for c in peca.caracteristicas for m in c.modificadores]
-        for m in mods:
+        mods_cartas = [m for _, p in passivos for m in p.modificadores]
+        for m in mods + mods_cartas:
             self._modificar(f, m)
+        if Efeito.OSSOS_EXPOSTOS in efeitos_cartas:
+            f.pontuacao_armadura += PONTUACAO_OSSOS_EXPOSTOS + f.tracos[Traco.FORCA]
+        if Efeito.INTOCAVEL in efeitos_cartas:
+            f.evasao += max(0, metade(f.tracos[Traco.AGILIDADE]))   # bônus: Agilidade negativa não tira
+        f.cartas_aplicadas = [c for c, _ in passivos]
 
-        f.ataques = [self._ataque(f, arma) for arma in armas]
-        bonus_conjuracao = sum(self._valor(f, m) for m in mods if m.alvo is Alvo.CONJURACAO)
+        # Blade-Touched: "+2 to your attack rolls" vale para todas as armas
+        ataque_cartas = sum(self._valor(f, m) for m in mods_cartas if m.alvo is Alvo.ATAQUE)
+        f.ataques = [self._ataque(f, arma, ataque_cartas) for arma in armas]
+        bonus_conjuracao = sum(self._valor(f, m) for m in mods + mods_cartas if m.alvo is Alvo.CONJURACAO)
         f.conjuracoes = [Conjuracao(sub.nome, sub.traco_conjuracao,
                                     f.tracos[sub.traco_conjuracao] + bonus_conjuracao)
                          for sub in self._subclasses(f) if sub.traco_conjuracao]
@@ -1693,9 +1777,26 @@ class Personagem:
             return f.tracos[m.igual_a]
         return m.valor
 
-    def _ataque(self, f: Ficha, arma: Arma) -> Ataque:
+    def _passivos_de_cartas(self, f: Ficha, eq: Equipamento) -> list[tuple[str, PassivoDeCarta]]:
+        """Cartas NA MÃO com passivo que vale agora (a reserva não conta)."""
+        mao = [c for c in f.cartas if c not in self.cofre]
+        dominios = Counter(self.bib.cartas[c].dominio for c in mao)
+        valem = []
+        for c in mao:
+            p = self.bib.cartas[c].passivo
+            if p is None:
+                continue
+            cond = p.condicao or ""
+            if (cond == "com_armadura" and not eq.armadura) or (cond == "sem_armadura" and eq.armadura):
+                continue
+            if cond.startswith("dominio:") and dominios[cond.split(":", 1)[1]] < 4:
+                continue
+            valem.append((c, p))
+        return valem
+
+    def _ataque(self, f: Ficha, arma: Arma, bonus_cartas: int = 0) -> Ataque:
         mods = [m for c in arma.caracteristicas for m in c.modificadores]
-        bonus_ataque = sum(self._valor(f, m) for m in mods if m.alvo is Alvo.ATAQUE)
+        bonus_ataque = bonus_cartas + sum(self._valor(f, m) for m in mods if m.alvo is Alvo.ATAQUE)
         bonus_dano = arma.modificador_dano + sum(
             self._valor(f, m) for m in mods if m.alvo is Alvo.DANO)
         if arma.tipo_dano is TipoDano.FISICO and self._tem_efeito(f, Efeito.TREINAMENTO_DE_COMBATE):

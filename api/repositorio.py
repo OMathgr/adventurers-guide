@@ -111,8 +111,7 @@ def montar(linha: PersonagemTabela, participacao=ATIVA) -> Personagem:
             # fraca, e reler no gravar perderia uma gravação simultânea sem conflito
             banco.info.setdefault("participacoes", {})[linha.id] = participacao
     personagem = Personagem(biblioteca(), _CRIACAO.validate_python(linha.criacao))
-    for subida in linha.subidas:
-        personagem.subir_de_nivel(_SUBIDA.validate_python(subida.dados))
+    personagem.refazer_historico([_SUBIDA.validate_python(subida.dados) for subida in linha.subidas])
     permanente = {k: v for k, v in (linha.sessao or {}).items() if k in Sessao.CAMPOS_PERMANENTES}
     da_sessao = participacao.estado if participacao is not None else {}
     personagem.restaurar_estado({"equipamento": linha.equipamento, "cofre": linha.cofre,
