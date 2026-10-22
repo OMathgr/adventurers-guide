@@ -2565,6 +2565,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/mesas/{mesa_id}/sessoes/{sessao_id}/cartas/usar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Usar */
+        post: operations["usar_mesas__mesa_id__sessoes__sessao_id__cartas_usar_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -2894,6 +2911,7 @@ export interface components {
              * @default false
              */
             fora_do_limite: boolean;
+            uso?: components["schemas"]["UsoDeCarta"] | null;
         };
         /** CartaNaMorte */
         CartaNaMorte: {
@@ -3133,6 +3151,32 @@ export interface components {
             /** Item De Classe */
             item_de_classe?: string | null;
         };
+        /**
+         * Custo
+         * @description Cada valor é uma expressão (Copycat: "metade:n").
+         */
+        Custo: {
+            /**
+             * Esperanca
+             * @default 0
+             */
+            esperanca: string | number;
+            /**
+             * Fadiga
+             * @default 0
+             */
+            fadiga: string | number;
+            /**
+             * Armadura
+             * @default 0
+             */
+            armadura: string | number;
+            /**
+             * Marcadores
+             * @default 0
+             */
+            marcadores: string | number;
+        };
         /** DadoRolado */
         DadoRolado: {
             /** Faces */
@@ -3309,6 +3353,38 @@ export interface components {
              * @default false
              */
             escolha: boolean;
+        };
+        /** EfeitoDeCarta */
+        EfeitoDeCarta: {
+            /** Tipo */
+            tipo: string;
+            /**
+             * Q
+             * @default 1
+             */
+            q: string | number;
+            /**
+             * Em
+             * @default alvo
+             */
+            em: string;
+            /**
+             * Condicao
+             * @default
+             */
+            condicao: string;
+            /**
+             * Modificadores
+             * @default []
+             */
+            modificadores: {
+                [key: string]: unknown;
+            }[];
+            /**
+             * Duracao
+             * @default descanso
+             */
+            duracao: string;
         };
         /** Encerrar */
         Encerrar: {
@@ -3578,6 +3654,12 @@ export interface components {
             defesas_de_carta: components["schemas"]["DefesaDeCarta"][];
             /** Alternativas A Morte */
             alternativas_a_morte: string[];
+            /** Marcadores Cartas */
+            marcadores_cartas: {
+                [key: string]: number;
+            };
+            /** Usos De Carta Gastos */
+            usos_de_carta_gastos: string[];
         };
         /** FichaCompanheiro */
         FichaCompanheiro: {
@@ -4689,6 +4771,50 @@ export interface components {
              */
             motivo: string;
         };
+        /** OpcaoDeUso */
+        OpcaoDeUso: {
+            /** Id */
+            id: string;
+            /** Rotulo */
+            rotulo: string;
+            /**
+             * @default {
+             *       "esperanca": 0,
+             *       "fadiga": 0,
+             *       "armadura": 0,
+             *       "marcadores": 0
+             *     }
+             */
+            custo: components["schemas"]["Custo"];
+            /**
+             * @default {
+             *       "esperanca": 0,
+             *       "fadiga": 0,
+             *       "armadura": 0,
+             *       "marcadores": 0
+             *     }
+             */
+            por_unidade: components["schemas"]["Custo"];
+            /**
+             * Efeitos
+             * @default []
+             */
+            efeitos: components["schemas"]["EfeitoDeCarta"][];
+            /** Alvo */
+            alvo?: string | null;
+            /** Limite */
+            limite?: string | null;
+            /**
+             * Quantidade
+             * @default true
+             */
+            quantidade: boolean;
+            /**
+             * Teste
+             * @default
+             */
+            teste: string;
+        };
         /**
          * OpcaoEscolhida
          * @description Opção pedida numa rolagem.
@@ -5580,6 +5706,106 @@ export interface components {
         UsarMoedas: {
             /** Usar */
             usar: boolean;
+        };
+        /**
+         * UsoDeCarta
+         * @description Como a carta se ativa. `por_unidade`: custo de cada unidade de `quantidade`.
+         */
+        UsoDeCarta: {
+            /**
+             * @default {
+             *       "esperanca": 0,
+             *       "fadiga": 0,
+             *       "armadura": 0,
+             *       "marcadores": 0
+             *     }
+             */
+            custo: components["schemas"]["Custo"];
+            /**
+             * @default {
+             *       "esperanca": 0,
+             *       "fadiga": 0,
+             *       "armadura": 0,
+             *       "marcadores": 0
+             *     }
+             */
+            por_unidade: components["schemas"]["Custo"];
+            /** Quantidade Max */
+            quantidade_max?: string | number | null;
+            /**
+             * Quantidade Min
+             * @default 1
+             */
+            quantidade_min: number;
+            /**
+             * Quantidade Rotulo
+             * @default
+             */
+            quantidade_rotulo: string;
+            /** Limite */
+            limite?: string | null;
+            /**
+             * Alvo
+             * @default si
+             */
+            alvo: string;
+            /** Condicao */
+            condicao?: string | null;
+            /**
+             * Teste
+             * @default
+             */
+            teste: string;
+            /**
+             * Opcoes
+             * @default []
+             */
+            opcoes: components["schemas"]["OpcaoDeUso"][];
+            /**
+             * Efeitos
+             * @default []
+             */
+            efeitos: components["schemas"]["EfeitoDeCarta"][];
+            /** Recarga */
+            recarga?: string | number | null;
+            /**
+             * Recarga Quando
+             * @default descanso_longo
+             */
+            recarga_quando: string;
+            /**
+             * Nota
+             * @default
+             */
+            nota: string;
+        };
+        /** UsoDeCartaSaida */
+        UsoDeCartaSaida: {
+            /** Notas */
+            notas: string[];
+            /** Teste */
+            teste: string;
+            ficha: components["schemas"]["Ficha"];
+            registro: components["schemas"]["RolagemSaida"];
+        };
+        /** UsoEntrada */
+        UsoEntrada: {
+            /**
+             * Personagem Id
+             * @description O seu personagem, jogando esta sessão
+             */
+            personagem_id: string;
+            /** Carta */
+            carta: string;
+            /**
+             * Alvos
+             * @description Aliados da sessão (ids de personagem). Vazio em "todos os aliados": todos.
+             */
+            alvos?: string[];
+            /** Opcao */
+            opcao?: string | null;
+            /** Quantidade */
+            quantidade?: number | null;
         };
         /** UsoSaida */
         UsoSaida: {
@@ -11160,6 +11386,42 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["RolagemSaida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    usar_mesas__mesa_id__sessoes__sessao_id__cartas_usar_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mesa_id: string;
+                sessao_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UsoEntrada"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UsoDeCartaSaida"];
                 };
             };
             /** @description Validation Error */

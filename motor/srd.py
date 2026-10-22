@@ -401,6 +401,7 @@ class CartaDeDominio:
     escolha: EscolhaDeCarta | None = None      # pede uma escolha ao ser pega (SubidaDeNivel.beneficios_de_carta)
     reserva_permanente: bool = False           # depois de pega, fica na reserva para sempre
     fora_do_limite: bool = False               # Notorious: não conta na mão e não vai para a reserva
+    uso: "UsoDeCarta | None" = None            # como se ativa na sessão (data/usos_de_cartas.json)
 
 
 class CategoriaArma(str, Enum):
@@ -651,6 +652,9 @@ class Biblioteca:
             )
             for a in self._ler(srd / "armors.json")
         }
+        from .usos_de_cartas import ler_catalogo   # aqui para evitar import circular (usa rolagem)
+        usos = ler_catalogo(self._ler(pasta / "usos_de_cartas.json"))
+        self.cartas = {i: dataclasses.replace(c, uso=usos.get(i)) for i, c in self.cartas.items()}
         self.progressao = self._ler(pasta / "progressao.json")
         self.companheiro = self._ler(pasta / "companheiro.json")   # ficha do Ranger Companion
         # habilidades, características e cartas que mexem em rolagens (motor/rolagem.py)
@@ -836,3 +840,7 @@ class Biblioteca:
             if nivel in info["niveis"]:
                 return int(tier)
         raise ValueError(f"Nível inválido: {nivel}")
+
+
+# no fim: usos_de_cartas usa rolagem, que usa as classes acima (o tipo de CartaDeDominio.uso)
+from .usos_de_cartas import UsoDeCarta  # noqa: E402

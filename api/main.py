@@ -12,7 +12,7 @@ from motor import RegraViolada
 from . import concorrencia
 from .mesas import SemPermissao
 from .repositorio import NaoEncontrado
-from .rotas import (auth, conteudo, encontros, eventos, imagens, inventario, itens_da_mesa, jogo, lojas, mesas, rolagens, personagens, quadro, repouso,
+from .rotas import (auth, cartas, conteudo, encontros, eventos, imagens, inventario, itens_da_mesa, jogo, lojas, mesas, rolagens, personagens, quadro, repouso,
                     revelado, sessao, sessoes, srd)
 
 app = FastAPI(
@@ -39,6 +39,7 @@ app.include_router(lojas.rotas)
 app.include_router(repouso.rotas)
 app.include_router(jogo.rotas)
 app.include_router(rolagens.rotas)
+app.include_router(cartas.rotas)
 
 
 concorrencia.registrar(app)

@@ -8,6 +8,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { CartaDeDominio, EventoLinhaDoTempo, Ficha, OpcaoNoQuadro, ProximoNivel, QuadroDeAvanco } from '../api/tipos'
 import { ProvedorAutenticacao } from '../auth/Autenticacao'
 import LinhaDoTempo from '../componentes/LinhaDoTempo'
+import { ContextoDaSessao } from '../componentes/contextoDaSessao'
 import MaoEReserva from '../componentes/MaoEReserva'
 import QuadroAvanco from '../componentes/QuadroAvanco'
 import { Espacos } from '../componentes/ui'
@@ -220,5 +221,53 @@ describe('Cartas com passivo', () => {
     await userEvent.click(screen.getByText('Vitalidade'))
     expect(screen.getByText('reserva para sempre')).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Trazer para a mão' })).not.toBeInTheDocument()
+  })
+})
+
+describe('Usar carta na sessão', () => {
+  const uso = (extra: Record<string, unknown>) => ({
+    custo: { esperanca: 0, fadiga: 0, armadura: 0, marcadores: 1 }, por_unidade: { esperanca: 0, fadiga: 0, armadura: 0, marcadores: 0 },
+    quantidade_max: null, quantidade_min: 1, quantidade_rotulo: '', limite: null, alvo: 'aliado', condicao: null, teste: '',
+    opcoes: [], efeitos: [], recarga: 'PRESENCE', recarga_quando: 'descanso_longo', nota: '', ...extra,
+  })
+  const PALAVRAS = {
+    id: 'pal', nome: 'Palavras Inspiradoras', nome_original: 'Inspirational Words', dominio: 'GRACE', nivel: 1, tipo: 'ABILITY',
+    custo_recall: 1, texto: '', formulas: [], passivo: null, escolha: null, reserva_permanente: false, fora_do_limite: false,
+    uso: uso({ opcoes: [
+      { id: 'pf', rotulo: 'O aliado limpa 1 PF', custo: {}, por_unidade: {}, efeitos: [], alvo: null, limite: null, quantidade: true, teste: '' },
+      { id: 'pv', rotulo: 'O aliado limpa 1 PV', custo: {}, por_unidade: {}, efeitos: [], alvo: null, limite: 'descanso', quantidade: true, teste: '' },
+    ] }),
+  }
+  const sessao = { mesaId: 'm1', sessaoId: 's1', aliados: [{ id: 'bram', nome: 'Bram' }] }
+
+  it('escolhe opção e aliado e manda para a sessão', async () => {
+    const fetch = vi.fn(async (url: string, _o?: RequestInit) => new Response(JSON.stringify(
+      url.includes('/srd/cartas') ? [PALAVRAS]
+        : url.includes('/cartas/usar') ? { notas: ['Usou Palavras Inspiradoras.', 'Bram: limpou 1 PF.'], teste: '', ficha: {} } : []),
+    { status: 200 }))
+    vi.stubGlobal('fetch', fetch)
+    const f = { cartas: ['pal'], cartas_ativas: ['pal'], cartas_cofre: [], cartas_aplicadas: [], esperanca: 2,
+      marcadores_cartas: { pal: 2 }, usos_de_carta_gastos: ['carta:pal:pv'] } as unknown as Ficha
+    montar(<ContextoDaSessao.Provider value={sessao}><MaoEReserva ficha={f} personagemId="p1" /></ContextoDaSessao.Provider>)
+    await userEvent.click(await screen.findByText('Palavras Inspiradoras'))
+    expect(screen.getByText('2')).toBeInTheDocument()   // marcadores na carta
+    expect(screen.getByRole('radio', { name: /limpa 1 PV/ })).toBeDisabled()   // limite já gasto
+    const botao = screen.getByRole('button', { name: 'Usar Palavras Inspiradoras' })
+    await userEvent.click(screen.getByRole('radio', { name: 'O aliado limpa 1 PF' }))
+    expect(botao).toBeDisabled()   // falta o aliado
+    await userEvent.selectOptions(screen.getByLabelText('Alvo de Palavras Inspiradoras'), 'bram')
+    await userEvent.click(botao)
+    const envio = fetch.mock.calls.find(([u]) => u === '/api/mesas/m1/sessoes/s1/cartas/usar')
+    expect(JSON.parse(envio![1]!.body as string)).toEqual(
+      { personagem_id: 'p1', carta: 'pal', opcao: 'pf', quantidade: null, alvos: ['bram'] })
+    expect(await screen.findByText(/Bram: limpou 1 PF/)).toBeInTheDocument()
+  })
+
+  it('fora da sessão de jogo, a carta não tem Usar', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify([PALAVRAS]), { status: 200 })))
+    const f = { cartas: ['pal'], cartas_ativas: ['pal'], cartas_cofre: [], cartas_aplicadas: [] } as unknown as Ficha
+    montar(<MaoEReserva ficha={f} personagemId="p1" />)
+    await userEvent.click(await screen.findByText('Palavras Inspiradoras'))
+    expect(screen.queryByRole('button', { name: 'Usar Palavras Inspiradoras' })).not.toBeInTheDocument()
   })
 })

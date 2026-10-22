@@ -76,7 +76,7 @@ function Registro({ r, cores, personagemId, mesaId, sessaoId }: {
           {r.substituida && <span className="ml-2 text-xs text-texto-suave">(refeita)</span>}</p>
         <p className="flex items-center gap-2">
           {dual && <Selo destaque={dual !== 'medo'}>{NOME_DUALIDADE[dual]}</Selo>}
-          <span className="font-titulo text-2xl text-esperanca">{res.total}</span>
+          {res.tipo !== 'carta' && <span className="font-titulo text-2xl text-esperanca">{res.total}</span>}
         </p>
       </div>
       <div className="flex flex-wrap items-center gap-1.5">

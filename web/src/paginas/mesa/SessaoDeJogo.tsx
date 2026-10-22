@@ -8,6 +8,7 @@ import { useFicha, useFichaNaSessao, useJogo, useParticipar } from '../../api/co
 import type { Mesa, VistaDaSessao } from '../../api/tipos'
 import { useAutenticacao } from '../../auth/Autenticacao'
 import FichaDeJogo from '../../componentes/FichaDeJogo'
+import { ContextoDaSessao } from '../../componentes/contextoDaSessao'
 import RolagemDeDados from '../../componentes/RolagemDeDados'
 import FichaVisao from '../../componentes/Ficha'
 import { MiniFicha } from '../../componentes/FichaResumida'
@@ -68,7 +69,12 @@ function MinhaFicha({ mesa, sessao, pid }: { mesa: Mesa; sessao: VistaDaSessao; 
     <section className="space-y-3">
       {emJogo ? (
         <>
-          <FichaDeJogo personagemId={pid} ficha={f} />
+          {/* as cartas da mão ganham "Usar" (com os aliados desta sessão como alvo) */}
+          <ContextoDaSessao.Provider value={{ mesaId: mesa.id, sessaoId: sessao.id,
+            aliados: sessao.participantes.filter((x) => x.personagem_id !== pid)
+              .map((x) => ({ id: x.personagem_id, nome: x.resumo.nome || 'Sem nome' })) }}>
+            <FichaDeJogo personagemId={pid} ficha={f} />
+          </ContextoDaSessao.Provider>
           <Botao variante="fantasma" disabled={participar.isPending}
             onClick={() => confirm(`Tirar ${f.nome || 'o personagem'} desta sessão? As marcas dele nesta sessão se perdem.`)
               && participar.mutate({ personagemId: pid, sair: true })}>

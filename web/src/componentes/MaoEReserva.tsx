@@ -10,6 +10,8 @@ import type { CartaDeDominio, Ficha } from '../api/tipos'
 import { useNomeDominio, useNomes } from '../lib/nomes'
 import { LIMITE_MAO } from '../lib/regras'
 import { Aviso, Botao, Cartao, Original, Selo } from './ui'
+import { useSessaoEmJogo } from './contextoDaSessao'
+import UsarCarta from './UsarCarta'
 
 function Trazer({ ficha, carta, custo, aoTrazer, enviando }: {
   ficha: Ficha; carta: string; custo: number; enviando: boolean
@@ -63,6 +65,7 @@ export default function MaoEReserva({ ficha, personagemId }: { ficha: Ficha; per
   const guardar = useGuardarCarta(personagemId ?? '')
   const recuperar = useRecuperarCarta(personagemId ?? '')
   const editavel = !!personagemId
+  const sessao = useSessaoEmJogo()   // na tela de jogo: as cartas da mão ganham "Usar"
   // Notorious não conta no limite da mão
   const naMao = ficha.cartas_ativas.filter((c) => !nomes.carta(c)?.fora_do_limite).length
 
@@ -85,6 +88,9 @@ export default function MaoEReserva({ ficha, personagemId }: { ficha: Ficha; per
               </span>
             </summary>
             {carta && <p className="mt-2 whitespace-pre-line text-sm text-texto-suave">{carta.texto}</p>}
+            {carta?.uso && !naReserva && sessao && personagemId && (
+              <UsarCarta carta={carta} ficha={ficha} personagemId={personagemId} sessao={sessao} />
+            )}
             {carta?.fora_do_limite && !naReserva && <p className="mt-2 text-xs text-texto-suave">Não conta no limite da mão e não vai para a reserva.</p>}
             {editavel && !naReserva && !carta?.fora_do_limite && (
               <Botao variante="fantasma" className="mt-2 !px-0" disabled={guardar.isPending}

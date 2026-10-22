@@ -30,9 +30,18 @@ from .rolagem import (TIPOS_DE_TESTE, Bonus, DadoRolado, Dualidade, EfeitoDeRola
                       ResultadoRolagem, _delta, _ganhar_esperanca, _limpar_fadiga, aplicar_teste, dado, desfazer,
                       expandir, ler_expressao, recalcular_teste, resolver, rolar_dano, rolar_dualidade, rolar_teste)
 from .sessao import Cicatriz, Sessao
+from .sessao import normalizar_condicao
+from .usos_de_cartas import ResultadoDeUso, quanto
+
+
+_NOME_LIMITE = {"sessao": "uma vez por sessão", "descanso": "volta no próximo descanso",
+                "descanso_longo": "volta no próximo descanso longo"}
 from .srd import (ALTERNATIVAS_A_MORTE, DEFESAS_DE_CARTAS, LIMIARES_OSSOS_EXPOSTOS, PONTUACAO_OSSOS_EXPOSTOS, Alvo, Arma, Armadura, Biblioteca, Caracteristica,
                   CartaDeDominio, Efeito, EscolhaDeCarta, Modificador, PassivoDeCarta, Referencia, Subclasse, TipoDano,
                   TipoDeItem, Traco)
+
+_NOME_ALVO = {"PONTUACAO_ARMADURA": "Pontuação de Armadura", "EVASAO": "Evasão", "LIMIARES": "limiares",
+              **{t.value: t.rotulo for t in Traco}}
 
 DISTRIBUICAO_TRACOS = sorted([2, 1, 1, 0, 0, -1])
 
@@ -302,6 +311,10 @@ class Ficha:
     # cartas da mão que dá para usar agora ao receber dano / no lugar do movimento de morte
     defesas_de_carta: list[DefesaDeCarta] = field(default_factory=list)
     alternativas_a_morte: list[str] = field(default_factory=list)
+    # Usar carta (estado de sessão): marcadores em cada carta da mão que usa
+    # marcadores, e os usos com limite já gastos ("carta:<id>" ou "carta:<id>:<opção>")
+    marcadores_cartas: dict[str, int] = field(default_factory=dict)
+    usos_de_carta_gastos: list[str] = field(default_factory=list)
 
 
 class Personagem:
@@ -373,10 +386,196 @@ class Personagem:
         f.defesas_de_carta = [DefesaDeCarta(c, self.bib.cartas[c].nome, *custo) for c, custo in DEFESAS_DE_CARTAS.items()
                               if c in mao and f"carta:{c}" not in s.usos_rolagem]
         f.alternativas_a_morte = [c for c in ALTERNATIVAS_A_MORTE if c in mao and f"carta:{c}" not in s.usos_rolagem]
+        if "Selo da Vida" in s.condicoes:   # Life Ward de um aliado
+            f.alternativas_a_morte.append("core_domain_card_life_ward")
+        f.marcadores_cartas = {c: self.marcadores_da_carta(c, f) for c in f.cartas_ativas
+                               if self.bib.cartas[c].uso and (self.bib.cartas[c].uso.recarga is not None
+                                                              or c in s.marcadores_cartas)}
+        f.usos_de_carta_gastos = sorted(k for k in s.usos_rolagem if k.startswith("carta:"))
         return f
 
     def cartas_na_mao(self) -> list[str]:
         return [c for c in self._ficha_base().cartas if c not in self.cofre]
+
+    # --- Usar carta (motor/usos_de_cartas.py) --------------------------------------
+
+    def marcadores_da_carta(self, carta: str, f: Ficha | None = None) -> int:
+        """Marcadores na carta agora. Antes do primeiro uso na sessão, os que ela
+        dá (recarga): começar a sessão conta como ter descansado."""
+        s = self.sessao
+        if carta not in s.marcadores_cartas:
+            uso = self.bib.cartas[carta].uso
+            return self._quanto(uso.recarga, 0, f=f) if uso and uso.recarga is not None else 0
+        return s.marcadores_cartas[carta]
+
+    def recarregar_cartas(self, quando: tuple[str, ...]):
+        """Fim de descanso: as cartas que recarregam nele voltam ao que dão."""
+        for c in self._ficha_base().cartas:
+            uso = self.bib.cartas[c].uso
+            if uso and uso.recarga is not None and uso.recarga_quando in quando:
+                self.sessao.marcadores_cartas[c] = self._quanto(uso.recarga, 0)
+
+    def _quanto(self, expr, n: int, maximo: int = 0, carta: str | None = None,
+                alvo: "Personagem | None" = None, f: Ficha | None = None) -> int:
+        f = f or self.ficha()
+        v = self._valores(f, n)
+        v["esperanca"] = self.sessao.esperanca
+        if carta is not None:   # os da carta (antes do primeiro uso, os iniciais)
+            v["marcadores"] = self.marcadores_da_carta(carta)
+        if alvo is not None:
+            v["pf_alvo"], v["pv_alvo"] = alvo.sessao.estresse_marcado, alvo.sessao.pv_marcados
+        for c in f.cartas:   # "cartas:SAGE": cartas do domínio (mão e reserva)
+            chave = f"cartas:{self.bib.cartas[c].dominio}"
+            v[chave] = v.get(chave, 0) + 1
+        return quanto(expr, v, self.sessao.rng, maximo)
+
+    def usos_de_carta(self) -> list[str]:
+        """Cartas da mão que se usam pelo botão (têm uso no catálogo)."""
+        return [c for c in self.cartas_na_mao() if self.bib.cartas[c].uso]
+
+    def usar_carta(self, carta: str, alvos: "list[Personagem] | None" = None, opcao: str | None = None,
+                   quantidade: int | None = None) -> ResultadoDeUso:
+        """Usa uma carta da mão: paga o custo, marca o limite e aplica os efeitos em
+        você ou nos `alvos` (outros personagens da sessão, que quem chama salva
+        junto). Tudo é conferido antes de mexer em qualquer coisa."""
+        c = self.bib.cartas.get(carta)
+        if c is None or c.uso is None:
+            raise RegraViolada("Essa carta não se usa assim (o efeito dela é automático ou só texto).")
+        uso, s = c.uso, self.sessao
+        if carta not in self.cartas_na_mao():
+            raise RegraViolada(f"{c.nome} precisa estar na mão.")
+        if uso.condicao and uso.condicao.startswith("dominio:"):
+            dominio = uso.condicao.split(":", 1)[1]
+            if sum(1 for x in self.cartas_na_mao() if self.bib.cartas[x].dominio == dominio) < 4:
+                raise RegraViolada(f"{c.nome}: precisa de 4 cartas de {self.bib.nome_dominio(dominio)} na mão.")
+        escolhida = next((o for o in uso.opcoes if o.id == opcao), None)
+        if uso.opcoes and escolhida is None:
+            raise RegraViolada(f"{c.nome}: escolha uma das opções.")
+        for limite, chave in ((uso.limite, f"carta:{carta}"),
+                              (escolhida.limite if escolhida else None, f"carta:{carta}:{opcao}")):
+            if limite and chave in s.usos_rolagem:
+                raise RegraViolada(f"{c.nome}: já usada ({_NOME_LIMITE[limite]}).")
+        tipo_alvo = (escolhida.alvo if escolhida and escolhida.alvo else uso.alvo)
+        alvos = [a for a in (alvos or []) if a is not self]
+        if tipo_alvo == "aliado" and len(alvos) != 1:
+            raise RegraViolada(f"{c.nome}: escolha um aliado da sessão.")
+        if tipo_alvo == "qualquer" and len(alvos) > 1:
+            raise RegraViolada(f"{c.nome}: escolha um alvo.")
+        if tipo_alvo == "si" and alvos:
+            raise RegraViolada(f"{c.nome} é só em você.")
+        alvos_finais = {"si": [self], "aliado": alvos, "qualquer": alvos or [self],
+                        "aliados": alvos, "grupo": [self, *alvos]}[tipo_alvo]
+
+        n = 0
+        pede = uso.quantidade_max is not None and (escolhida is None or escolhida.quantidade)
+        if pede:
+            maximo = self._quanto(uso.quantidade_max, 0, carta=carta, alvo=alvos_finais[0])
+            if quantidade is None or not uso.quantidade_min <= quantidade <= maximo:
+                raise RegraViolada(f"{c.nome}: escolha {uso.quantidade_rotulo or 'a quantidade'} "
+                                   f"(de {uso.quantidade_min} a {maximo}).")
+            n = quantidade
+        partes = [uso.custo, *( [escolhida.custo] if escolhida else [])]
+        unidades = [uso.por_unidade, *([escolhida.por_unidade] if escolhida else [])]
+        custo = {k: sum(self._quanto(getattr(p, k), n, carta=carta) for p in partes)
+                 + n * sum(self._quanto(getattr(u, k), n, carta=carta) for u in unidades)
+                 for k in ("esperanca", "fadiga", "armadura", "marcadores")}
+        if custo["esperanca"] > s.esperanca:
+            raise RegraViolada(f"Esperança insuficiente: {c.nome} custa {custo['esperanca']}.")
+        if custo["fadiga"] > s.estresse_livre:
+            raise RegraViolada(f"Fadiga insuficiente: {c.nome} custa {custo['fadiga']} PF.")
+        if custo["armadura"] > s.armadura_livre:
+            raise RegraViolada(f"Armadura insuficiente: {c.nome} marca {custo['armadura']} espaço(s).")
+        marcadores = self.marcadores_da_carta(carta)
+        if custo["marcadores"] > marcadores:
+            raise RegraViolada(f"{c.nome} tem {marcadores} marcador(es).")
+
+        teste = escolhida.teste if escolhida and escolhida.teste else uso.teste
+        valores = {**self._valores(self.ficha(), n), "n": n}
+        r = ResultadoDeUso(teste=re.sub(r"\{(\w+)\}", lambda m: str(valores.get(m.group(1), m.group(0))), teste))
+        if custo["esperanca"]:
+            s.gastar_esperanca(custo["esperanca"])
+        if custo["fadiga"]:
+            s.pagar_estresse(custo["fadiga"])
+        if custo["armadura"]:
+            s.marcar_armadura(custo["armadura"])
+        s.marcadores_cartas[carta] = marcadores - custo["marcadores"]
+        pagos = [f"{custo['esperanca']} de Esperança", f"{custo['fadiga']} PF", f"{custo['armadura']} de armadura",
+                 f"{custo['marcadores']} marcador(es)"]
+        pagos = [p for p, k in zip(pagos, ("esperanca", "fadiga", "armadura", "marcadores")) if custo[k]]
+        r.notas.append(f"Usou {c.nome}" + (f": {escolhida.rotulo}" if escolhida else "")
+                       + (f" ({', '.join(pagos)})" if pagos else "") + ".")
+        for e in (*uso.efeitos, *(escolhida.efeitos if escolhida else ())):
+            self._efeito_de_carta(c, e, alvos_finais, n, r)
+        if uso.limite:
+            s.usos_rolagem[f"carta:{carta}"] = uso.limite
+        if escolhida and escolhida.limite:
+            s.usos_rolagem[f"carta:{carta}:{opcao}"] = escolhida.limite
+        if uso.nota:
+            r.notas.append(uso.nota)
+        return r
+
+    def _efeito_de_carta(self, c: CartaDeDominio, e, alvos: "list[Personagem]", n: int, r: ResultadoDeUso):
+        """Um efeito da carta. Dados rolam uma vez só, para todos os alvos."""
+        quem_todos = [self] if e.em == "si" else alvos
+        if e.tipo == "tira_medo":
+            r.medo += self._quanto(e.q, n, carta=c.id)
+            r.notas.append(f"Tirou {self._quanto(e.q, n, carta=c.id)} de Medo do mestre.")
+            return
+        if e.tipo == "reserva":
+            self.guardar_carta(c.id)
+            r.notas.append(f"{c.nome} foi para a reserva.")
+            return
+        if e.tipo == "marcadores":
+            q = self._quanto(e.q, n, carta=c.id)
+            self.sessao.marcadores_cartas[c.id] = max(q, 0)
+            r.notas.append(f"{c.nome}: {max(q, 0)} marcador(es) na carta.")
+            return
+        rolado = None   # um dado ("1d4") rola uma vez para todos
+        for quem in quem_todos:
+            s = quem.sessao
+            nome = "Você" if quem is self else (quem.criacao.nome or "O aliado")
+            def valor(maximo: int = 0):
+                nonlocal rolado
+                if rolado is None or not isinstance(e.q, str) or "d" not in e.q:
+                    rolado = self._quanto(e.q, n, maximo, carta=c.id, alvo=quem)
+                return rolado
+            if e.tipo == "limpa_pv":
+                q = min(valor(s.pv_marcados), s.pv_marcados)
+                if q:
+                    s.limpar_pv(q)
+                r.notas.append(f"{nome}: limpou {q} PV.")
+            elif e.tipo == "limpa_pf":
+                q = min(valor(s.estresse_marcado), s.estresse_marcado)
+                if q:
+                    s.limpar_estresse(q)
+                r.notas.append(f"{nome}: limpou {q} PF.")
+            elif e.tipo == "limpa_armadura":
+                q = min(valor(s.armadura_marcada), s.armadura_marcada)
+                s.armadura_marcada -= q
+                r.notas.append(f"{nome}: limpou {q} espaço(s) de armadura.")
+            elif e.tipo == "ganha_esperanca":
+                antes = s.esperanca
+                s.ganhar_esperanca(valor())
+                r.notas.append(f"{nome}: ganhou {s.esperanca - antes} de Esperança.")
+            elif e.tipo == "marca_pf":
+                q = valor()
+                s.marcar_estresse(q)
+                r.notas.append(f"{nome}: marcou {q} PF.")
+            elif e.tipo == "condicao":
+                if normalizar_condicao(e.condicao) not in s.condicoes:
+                    s.aplicar_condicao(e.condicao)
+                r.notas.append(f"{nome}: {e.condicao}.")
+            elif e.tipo == "tira_condicao":
+                if normalizar_condicao(e.condicao) in s.condicoes:
+                    s.remover_condicao(e.condicao)
+                    r.notas.append(f"{nome}: deixou de estar {e.condicao}.")
+            elif e.tipo == "bonus_temporario":
+                mods = [{"alvo": m["alvo"], "valor": self._quanto(m.get("q", 0), n)} for m in e.modificadores]
+                s.bonus_temporarios[c.id] = {"modificadores": mods, "ate": e.duracao}
+                s.ajustar()
+                ate = "o descanso longo" if e.duracao == "descanso_longo" else "o próximo descanso"
+                r.notas.append(f"{nome}: " + ", ".join(f"{m['valor']:+d} em {_NOME_ALVO.get(m['alvo'], m['alvo'])}"
+                                                       for m in mods) + f" até {ate}.")
 
     def subir_de_nivel(self, subida: SubidaDeNivel) -> Ficha:
         """Valida e registra o nível. Se algo for inválido, nada muda.
@@ -1767,7 +1966,7 @@ class Personagem:
                          for origem, tipo, h in habilidades]
 
         mods = [m for peca in self._pecas(eq) for c in peca.caracteristicas for m in c.modificadores]
-        mods_cartas = [m for _, p in passivos for m in p.modificadores]
+        mods_cartas = [m for _, p in passivos for m in p.modificadores] + self._bonus_temporarios()
         for m in mods + mods_cartas:
             self._modificar(f, m)
         if Efeito.OSSOS_EXPOSTOS in efeitos_cartas:
@@ -1827,6 +2026,18 @@ class Personagem:
         if isinstance(m.igual_a, Traco):
             return f.tracos[m.igual_a]
         return m.valor
+
+    def _bonus_temporarios(self) -> list[Modificador]:
+        """Bônus de cartas usadas que valem até o descanso (estado da sessão)."""
+        sessao = getattr(self, "sessao", None)   # a ficha inicial é montada antes da sessão
+        if sessao is None:
+            return []
+        mods = []
+        for b in sessao.bonus_temporarios.values():
+            for m in b["modificadores"]:
+                alvo = Alvo(m["alvo"]) if m["alvo"] in Alvo.__members__.values() else Traco(m["alvo"])
+                mods.append(Modificador(alvo, m["valor"]))
+        return mods
 
     def _passivos_de_cartas(self, f: Ficha, eq: Equipamento) -> list[tuple[str, PassivoDeCarta]]:
         """Cartas NA MÃO com passivo que vale agora (a reserva não conta)."""

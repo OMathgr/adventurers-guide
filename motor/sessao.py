@@ -27,6 +27,8 @@ UNYIELDING_ARMOR = "core_domain_card_unyielding_armor"
 ON_THE_BRINK = "core_domain_card_on_the_brink"
 RISE_UP = "core_domain_card_rise_up"
 BATTLE_HARDENED = "core_domain_card_battle_hardened"
+LIFE_WARD = "core_domain_card_life_ward"
+SELO_DA_VIDA = "Selo da Vida"   # condição que o Life Ward de um aliado deixa
 
 if TYPE_CHECKING:
     from .personagem import Personagem
@@ -164,6 +166,10 @@ class Sessao:
         self.marcadores_rolagem: dict[str, int] = {}
         self.ultimo_ataque: dict | None = None
         self.proxima_vantagem = False
+        # Cartas usadas (motor/usos_de_cartas.py): marcadores em cada carta e bônus
+        # que valem até o descanso ({carta: {"modificadores": [...], "ate": "descanso"}})
+        self.marcadores_cartas: dict[str, int] = {}
+        self.bonus_temporarios: dict[str, dict] = {}
 
     # --- Dano e PV --------------------------------------------------------------
 
@@ -328,6 +334,12 @@ class Sessao:
         if not self.precisa_movimento_de_morte:
             raise RegraViolada("Só quem marcou o último PV pode usar isso.")
         nome = self.personagem.bib.cartas[carta].nome if carta in self.personagem.bib.cartas else carta
+        if carta == LIFE_WARD:   # o selo de um aliado: não precisa ter a carta
+            if SELO_DA_VIDA not in self.condicoes:
+                raise RegraViolada(f"Só com o {SELO_DA_VIDA} que um aliado pôs em você.")
+            self.remover_condicao(SELO_DA_VIDA)
+            self.limpar_pv(1)
+            return [f"{SELO_DA_VIDA}: limpou 1 PV no lugar do movimento de morte, e o selo se apagou."]
         if carta not in ALTERNATIVAS_A_MORTE:
             raise RegraViolada(f"{nome} não substitui o movimento de morte.")
         if carta not in self.personagem.cartas_na_mao():
@@ -630,6 +642,9 @@ class Sessao:
         # efeitos de rolagem "uma vez por descanso" (e, no longo, os de descanso longo)
         voltam = ("descanso", "descanso_longo") if longo else ("descanso",)
         self.usos_rolagem = {k: v for k, v in self.usos_rolagem.items() if v not in voltam}
+        # cartas: bônus "até o descanso" acabam; marcadores voltam ao que a carta dá
+        self.bonus_temporarios = {k: v for k, v in self.bonus_temporarios.items() if v.get("ate") not in voltam}
+        self.personagem.recarregar_cartas(voltam)
         if longo:
             self.inconsciente = False   # o grupo terminou um descanso longo: volta a si
         return resultados
@@ -752,6 +767,8 @@ class Sessao:
             "marcadores_rolagem": dict(self.marcadores_rolagem),
             "ultimo_ataque": self.ultimo_ataque,
             "proxima_vantagem": self.proxima_vantagem,
+            "marcadores_cartas": dict(self.marcadores_cartas),
+            "bonus_temporarios": dict(self.bonus_temporarios),
             "usados_no_descanso": sorted(f"{type(e).__name__}:{e.value}"
                                          for e in self.usados_no_descanso),
         }
@@ -772,6 +789,8 @@ class Sessao:
         self.marcadores_rolagem = dict(estado.get("marcadores_rolagem", {}))
         self.ultimo_ataque = estado.get("ultimo_ataque")
         self.proxima_vantagem = bool(estado.get("proxima_vantagem", False))
+        self.marcadores_cartas = dict(estado.get("marcadores_cartas", {}))
+        self.bonus_temporarios = dict(estado.get("bonus_temporarios", {}))
         self.morto = bool(estado.get("morto", False))
         self.cicatrizes = [Cicatriz(ImpactoDaCicatriz(c.get("impacto", "")), c.get("descricao", ""))
                            for c in estado.get("cicatrizes", [])]

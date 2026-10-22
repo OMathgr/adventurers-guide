@@ -34,7 +34,10 @@ escolhe os movimentos, inclusive em aliados) e movimentos de morte com
 cicatrizes prontos. Habilidades de classe e de subclasse na ficha (as de número
 fixo já aplicadas; cartas a mais do Discípulo do Conhecimento) prontas. Passivos
 das cartas de domínio na mão (Armorer, Bare Bones, Untouchable, as "-Touched";
-Vitality e Master of the Craft com escolha na subida) aplicados na ficha. Sessão de
+Vitality e Master of the Craft com escolha na subida) aplicados na ficha;
+defesas de cartas no dano e na morte; "Usar carta" na sessão para todas as cartas
+que se ativam (custo, limite, marcadores, efeitos em você e nos aliados,
+`data/usos_de_cartas.json`). Sessão de
 jogo pronta: a mesa é o grupo, cada sessão um dia de jogo; em andamento, os
 jogadores entram e jogam lá (marcas por sessão em `participacoes`, começam
 limpas; encerradas ficam para consulta); a página do personagem é para ver e

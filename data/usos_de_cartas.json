@@ -1,0 +1,406 @@
+{
+  "_aviso": "Como cada carta de domínio se usa na sessão (botão Usar), interpretado por motor/usos_de_cartas.py. custo/por_unidade: esperanca, fadiga, armadura, marcadores (da carta). limite: sessao, descanso, descanso_longo. alvo: si, aliado, qualquer, aliados, grupo. opcoes: quando a carta tem mais de um efeito (cada uma com custo, limite, alvo e quantidade próprios). efeitos: limpa_pv, limpa_pf, limpa_armadura, ganha_esperanca, marca_pf, condicao, tira_condicao, marcadores, bonus_temporario, reserva, tira_medo. teste: o que rolar (a rolagem fica com a tela de dados; o mestre aplica no inimigo). nota: o que não é automático. Rótulos, testes e notas em português (exibição). As cartas automáticas (passivos, defesas no dano, efeitos de rolagem) não estão aqui.",
+  "usos": {
+    "core_domain_card_unleash_chaos": {
+      "recarga": {"q": "conjuracao", "quando": "sessao"},
+      "quantidade": {"max": "marcadores", "rotulo": "marcadores a gastar"},
+      "opcoes": [
+        {"id": "lancar", "rotulo": "Lançar gastando marcadores", "por_unidade": {"marcadores": 1},
+         "teste": "Conjuração contra um alvo em alcance distante; no sucesso, role {n}d10 de dano mágico"},
+        {"id": "recarregar", "rotulo": "Recarregar a carta (1 PF)", "quantidade": false, "custo": {"fadiga": 1},
+         "efeitos": [{"tipo": "marcadores", "q": "conjuracao"}]}
+      ]
+    },
+    "core_domain_card_wall_walk": {"custo": {"esperanca": 1}, "alvo": "qualquer",
+      "efeitos": [{"tipo": "condicao", "condicao": "Anda pelas paredes"}], "nota": "Até o fim da cena ou até lançar de novo."},
+    "core_domain_card_cinder_grasp": {"teste": "Conjuração contra um alvo corpo a corpo: 1d20+3 de dano mágico e Em Chamas"},
+    "core_domain_card_floating_eye": {"custo": {"esperanca": 1}},
+    "core_domain_card_counterspell": {"teste": "Reação com o atributo de conjuração",
+      "opcoes": [{"id": "sucesso", "rotulo": "Deu certo (a carta vai para a reserva)", "efeitos": [{"tipo": "reserva"}]},
+                 {"id": "falha", "rotulo": "Não deu certo"}]},
+    "core_domain_card_flight": {
+      "opcoes": [
+        {"id": "voar", "rotulo": "Começar a voar", "teste": "Conjuração (15)",
+         "efeitos": [{"tipo": "marcadores", "q": "min1:AGILITY"}, {"tipo": "condicao", "condicao": "Voando"}]},
+        {"id": "gastar", "rotulo": "Fez um teste voando (gasta 1 marcador)", "custo": {"marcadores": 1}},
+        {"id": "pousar", "rotulo": "Pousar", "efeitos": [{"tipo": "tira_condicao", "condicao": "Voando"}]}
+      ]},
+    "core_domain_card_blink_out": {"teste": "Conjuração (12)", "custo": {"esperanca": 1},
+      "quantidade": {"max": 6, "min": 0, "rotulo": "criaturas que vão junto"}, "por_unidade": {"esperanca": 1}},
+    "core_domain_card_preservation_blast": {"teste": "Conjuração contra todos em alcance corpo a corpo: empurra e d8+3 de dano mágico"},
+    "core_domain_card_chain_lightning": {"custo": {"fadiga": 2}, "teste": "Conjuração contra todos em alcance próximo; quem falhar na reação sofre 2d8+4"},
+    "core_domain_card_premonition": {"limite": "descanso_longo", "nota": "Desfaça a jogada e as consequências e faça outra."},
+    "core_domain_card_rift_walker": {"teste": "Conjuração (15)"},
+    "core_domain_card_telekinesis": {"teste": "Conjuração contra um alvo em alcance distante; arremessar: outra Conjuração, d12+4 físico"},
+    "core_domain_card_cloaking_blast": {"custo": {"esperanca": 1}, "efeitos": [{"tipo": "condicao", "condicao": "Encoberto"}],
+      "nota": "Depois de lançar outro feitiço com sucesso."},
+    "core_domain_card_arcane_reflection": {"quantidade": {"max": "esperanca", "rotulo": "Esperança a gastar"},
+      "por_unidade": {"esperanca": 1}, "teste": "Role {n}d6: com um 6, o ataque mágico volta para quem o lançou"},
+    "core_domain_card_confusing_aura": {
+      "quantidade": {"max": 6, "min": 0, "rotulo": "camadas a mais (1 PF cada)"},
+      "opcoes": [
+        {"id": "criar", "rotulo": "Criar a aura", "teste": "Conjuração (14)", "limite": "descanso_longo",
+         "por_unidade": {"fadiga": 1}, "efeitos": [{"tipo": "marcadores", "q": "n+1"}]},
+        {"id": "perder", "rotulo": "Um ataque destruiu uma camada", "quantidade": false, "custo": {"marcadores": 1}}
+      ], "nota": "A cada ataque contra você, role um d6 por camada: com 5 ou mais, perde uma camada e o ataque falha."},
+    "core_domain_card_earthquake": {"limite": "descanso", "teste": "Conjuração (16); quem falhar na reação (18) sofre 3d10+8 e fica Vulnerável"},
+    "core_domain_card_sensory_projection": {"limite": "descanso", "teste": "Conjuração (15)"},
+    "core_domain_card_adjust_reality": {"custo": {"esperanca": 5}, "nota": "Troque o resultado da rolagem por outro possível."},
+    "core_domain_card_falling_sky": {"quantidade": {"max": 6, "rotulo": "PF a marcar"}, "por_unidade": {"fadiga": 1},
+      "teste": "Conjuração contra todos em alcance distante; no sucesso, 1d20+2 de dano mágico por PF ({n}d20+{n}x2)"},
+
+    "core_domain_card_whirlwind": {"custo": {"esperanca": 1}, "nota": "O ataque vale para todos os outros em alcance muito próximo (metade do dano)."},
+    "core_domain_card_a_soldiers_bond": {"limite": "descanso_longo", "alvo": "aliado",
+      "efeitos": [{"tipo": "ganha_esperanca", "q": 3}, {"tipo": "ganha_esperanca", "q": 3, "em": "si"}]},
+    "core_domain_card_scramble": {"limite": "descanso", "nota": "Evita o ataque e sai do alcance corpo a corpo."},
+    "core_domain_card_champions_edge": {
+      "opcoes": [
+        {"id": "pv", "rotulo": "Limpar 1 PV", "custo": {"esperanca": 1}, "efeitos": [{"tipo": "limpa_pv", "q": 1}]},
+        {"id": "armadura", "rotulo": "Limpar 1 espaço de armadura", "custo": {"esperanca": 1}, "efeitos": [{"tipo": "limpa_armadura", "q": 1}]},
+        {"id": "alvo", "rotulo": "O alvo marca mais 1 PV", "custo": {"esperanca": 1}}
+      ], "nota": "Num sucesso crítico de ataque: até 3 de Esperança, uma opção diferente por Esperança."},
+    "core_domain_card_glancing_blow": {"custo": {"fadiga": 1}, "teste": "Ataque falhou: dano da arma com metade da Proficiência"},
+    "core_domain_card_battle_cry": {"limite": "descanso_longo", "alvo": "aliados",
+      "efeitos": [{"tipo": "limpa_pf", "q": 1}, {"tipo": "ganha_esperanca", "q": 1}],
+      "nota": "Os aliados têm vantagem nos ataques até alguém falhar com Medo."},
+    "core_domain_card_gore_and_glory": {
+      "opcoes": [
+        {"id": "esperanca", "rotulo": "Ganhar 1 de Esperança", "efeitos": [{"tipo": "ganha_esperanca", "q": 1}]},
+        {"id": "pf", "rotulo": "Limpar 1 PF", "efeitos": [{"tipo": "limpa_pf", "q": 1}]}
+      ], "nota": "Num sucesso crítico com arma, ou ao derrotar um inimigo."},
+    "core_domain_card_reapers_strike": {"limite": "descanso_longo", "custo": {"esperanca": 1},
+      "teste": "Ataque: o mestre diz contra quem acertaria; um deles marca 5 PV"},
+    "core_domain_card_battle_monster": {"custo": {"fadiga": 4}, "nota": "O alvo marca tantos PV quanto os que você tem marcados (sem rolar dano)."},
+    "core_domain_card_onslaught": {"custo": {"fadiga": 1}, "teste": "O atacante faz uma reação (15); se falhar, marca 1 PV",
+      "nota": "Seus ataques com arma sempre causam pelo menos dano Maior."},
+
+    "core_domain_card_i_see_it_coming": {"custo": {"fadiga": 1}, "teste": "Role 1d4 e some à Evasão contra o ataque"},
+    "core_domain_card_ferocity": {"custo": {"esperanca": 2}, "nota": "Evasão + PV que o inimigo marcou, até o próximo ataque contra você."},
+    "core_domain_card_tactician": {"alvo": "aliado", "nota": "O aliado pode gastar 1 de Esperança para somar uma Experiência sua; no Trabalho em Equipe, role d20 como Dado de Esperança."},
+    "core_domain_card_redirect": {"custo": {"fadiga": 1}, "teste": "Role {proficiencia}d6: com um 6, redireciona o ataque a um inimigo muito próximo"},
+    "core_domain_card_know_thy_enemy": {"custo": {"esperanca": 1}, "teste": "Instinto contra o alvo",
+      "opcoes": [
+        {"id": "info", "rotulo": "Pedir uma informação ao mestre"},
+        {"id": "medo", "rotulo": "Informação e tirar 1 Medo do mestre (1 PF)", "custo": {"fadiga": 1}, "efeitos": [{"tipo": "tira_medo", "q": 1}]}
+      ]},
+    "core_domain_card_rapid_riposte": {"custo": {"fadiga": 1}, "teste": "Ataque contra você falhou: dano de uma arma ativa no atacante"},
+    "core_domain_card_recovery": {
+      "opcoes": [
+        {"id": "eu", "rotulo": "Movimento de descanso longo para você"},
+        {"id": "aliado", "rotulo": "Para um aliado também (1 de Esperança)", "custo": {"esperanca": 1}, "alvo": "aliado"}
+      ], "nota": "No descanso curto, escolha um movimento do descanso longo."},
+    "core_domain_card_wrangle": {"custo": {"esperanca": 1}, "teste": "Agilidade contra todos em alcance próximo"},
+    "core_domain_card_splintering_strike": {"custo": {"esperanca": 1}, "limite": "descanso_longo",
+      "teste": "Ataque contra todos no alcance da arma; divida o dano e some um dado a mais por alvo"},
+    "core_domain_card_deathrun": {"custo": {"esperanca": 3}, "teste": "Ataque contra todos no caminho; o primeiro com +1 de Proficiência, depois um dado a menos por alvo"},
+    "core_domain_card_swift_step": {
+      "opcoes": [
+        {"id": "pf", "rotulo": "Limpar 1 PF", "efeitos": [{"tipo": "limpa_pf", "q": 1}]},
+        {"id": "esperanca", "rotulo": "Ganhar 1 de Esperança (sem PF marcado)", "efeitos": [{"tipo": "ganha_esperanca", "q": 1}]}
+      ], "nota": "Quando um ataque contra você falha."},
+
+    "core_domain_card_book_of_ava": {
+      "opcoes": [
+        {"id": "empurrao", "rotulo": "Empurrão de Poder", "teste": "Conjuração contra um alvo corpo a corpo: empurra e d10+2 de dano mágico"},
+        {"id": "armadura", "rotulo": "Armadura de Tava (+1 de Pontuação até o descanso)", "custo": {"esperanca": 1}, "alvo": "qualquer",
+         "efeitos": [{"tipo": "bonus_temporario", "modificadores": [{"alvo": "PONTUACAO_ARMADURA", "q": 1}]}]},
+        {"id": "estaca", "rotulo": "Estaca de Gelo", "teste": "Conjuração (12); como arma, contra a Dificuldade do alvo: d6 físico"}
+      ]},
+    "core_domain_card_book_of_illiat": {
+      "opcoes": [
+        {"id": "sono", "rotulo": "Sono", "teste": "Conjuração contra um alvo muito próximo"},
+        {"id": "rajada", "rotulo": "Rajada Arcana", "limite": "descanso", "teste": "Role {n}d6 de dano mágico",
+         "por_unidade": {"esperanca": 1}},
+        {"id": "telepatia", "rotulo": "Telepatia", "custo": {"esperanca": 1}, "quantidade": false}
+      ], "quantidade": {"max": "esperanca", "rotulo": "Esperança na Rajada"}},
+    "core_domain_card_book_of_tyfar": {
+      "opcoes": [
+        {"id": "chama", "rotulo": "Chama Selvagem", "teste": "Conjuração contra até três inimigos corpo a corpo: 2d6 mágico e marcam 1 PF"},
+        {"id": "mao", "rotulo": "Mão Mágica"},
+        {"id": "nevoa", "rotulo": "Névoa Misteriosa", "teste": "Conjuração (13)"}
+      ]},
+    "core_domain_card_book_of_sitil": {
+      "opcoes": [
+        {"id": "aparencia", "rotulo": "Mudar a Aparência"},
+        {"id": "paralela", "rotulo": "Paralela", "custo": {"esperanca": 2}, "alvo": "qualquer",
+         "efeitos": [{"tipo": "condicao", "condicao": "Paralela"}]},
+        {"id": "ilusao", "rotulo": "Ilusão", "teste": "Conjuração (14)"}
+      ]},
+    "core_domain_card_book_of_vagras": {
+      "opcoes": [
+        {"id": "tranca", "rotulo": "Tranca Rúnica", "limite": "descanso", "teste": "Conjuração (15)"},
+        {"id": "porta", "rotulo": "Porta Arcana", "custo": {"esperanca": 1}, "teste": "Conjuração (13)"},
+        {"id": "revelar", "rotulo": "Revelar", "teste": "Conjuração"}
+      ]},
+    "core_domain_card_book_of_korvax": {
+      "opcoes": [
+        {"id": "levitar", "rotulo": "Levitação", "teste": "Conjuração"},
+        {"id": "retratar", "rotulo": "Retratação", "custo": {"esperanca": 1}, "teste": "O alvo faz uma reação (15)"},
+        {"id": "circulo", "rotulo": "Círculo Rúnico", "custo": {"fadiga": 1}, "teste": "Quem estiver corpo a corpo sofre 2d12+4 de dano mágico"}
+      ]},
+    "core_domain_card_book_of_norai": {
+      "opcoes": [
+        {"id": "amarra", "rotulo": "Amarra Mística", "teste": "Conjuração contra um alvo distante: Contido e marca 1 PF"},
+        {"id": "bola", "rotulo": "Bola de Fogo", "teste": "Conjuração contra um alvo; reação (13) de todos perto: d20+5 mágico"}
+      ]},
+    "core_domain_card_book_of_exota": {
+      "opcoes": [
+        {"id": "repudiar", "rotulo": "Repudiar", "limite": "descanso", "teste": "Reação com o atributo de conjuração"},
+        {"id": "construto", "rotulo": "Criar Construto", "custo": {"esperanca": 1}, "teste": "Conjuração para comandar; ataques de 2d10+3 físico"}
+      ]},
+    "core_domain_card_book_of_grynn": {
+      "opcoes": [
+        {"id": "deflexao", "rotulo": "Deflexão Arcana", "custo": {"esperanca": 1}, "limite": "descanso_longo"},
+        {"id": "tempo", "rotulo": "Trava do Tempo"},
+        {"id": "parede", "rotulo": "Muralha de Chamas", "teste": "Conjuração (15)"}
+      ]},
+    "core_domain_card_manifest_wall": {"limite": "descanso", "custo": {"esperanca": 1}, "teste": "Conjuração (15)"},
+    "core_domain_card_teleport": {"limite": "descanso_longo", "teste": "Conjuração (16): +3 se conhece bem o lugar, +1 se visita sempre, -2 se foi só uma vez"},
+    "core_domain_card_banish": {"teste": "Conjuração contra um alvo próximo; role {conjuracao}d20 e o maior é a Dificuldade da reação dele"},
+    "core_domain_card_book_of_homet": {
+      "opcoes": [
+        {"id": "atravessar", "rotulo": "Atravessar", "limite": "descanso", "teste": "Conjuração (13)"},
+        {"id": "portal", "rotulo": "Portal Planar", "limite": "descanso_longo", "teste": "Conjuração (14)"}
+      ]},
+    "core_domain_card_codex_touched": {"condicao": "dominio:CODEX",
+      "opcoes": [
+        {"id": "proficiencia", "rotulo": "Somar a Proficiência numa Conjuração (1 PF)", "custo": {"fadiga": 1}},
+        {"id": "trocar", "rotulo": "Trocar esta carta por uma da reserva, sem custo", "limite": "descanso"}
+      ]},
+    "core_domain_card_book_of_vyola": {
+      "opcoes": [
+        {"id": "memoria", "rotulo": "Mergulho na Memória", "teste": "Conjuração contra um alvo distante"},
+        {"id": "clareza", "rotulo": "Clareza Compartilhada", "custo": {"esperanca": 1}, "limite": "descanso_longo"}
+      ]},
+    "core_domain_card_safe_haven": {"custo": {"esperanca": 2}, "nota": "Descansando no Refúgio, escolha um movimento a mais."},
+    "core_domain_card_book_of_ronin": {
+      "opcoes": [
+        {"id": "transformar", "rotulo": "Transformar", "teste": "Conjuração (15)"},
+        {"id": "enervacao", "rotulo": "Enervação Eterna", "limite": "descanso_longo", "teste": "Conjuração contra um alvo próximo: Vulnerável para sempre"}
+      ]},
+    "core_domain_card_disintegration_wave": {"limite": "descanso_longo", "teste": "Conjuração (18)",
+      "quantidade": {"max": 12, "rotulo": "inimigos atingidos (1 PF cada)"}, "por_unidade": {"fadiga": 1}},
+    "core_domain_card_book_of_yarrow": {
+      "opcoes": [
+        {"id": "tempo", "rotulo": "Para-Tempo", "teste": "Conjuração (18)"},
+        {"id": "imunidade", "rotulo": "Imunidade Mágica", "custo": {"esperanca": 5},
+         "efeitos": [{"tipo": "condicao", "condicao": "Imune a dano mágico"}]}
+      ]},
+    "core_domain_card_transcendent_union": {"custo": {"esperanca": 5}, "limite": "descanso_longo",
+      "nota": "Até o descanso, quem estiver na união escolhe quem marca PF ou PV."},
+
+    "core_domain_card_enrapture": {
+      "opcoes": [
+        {"id": "encantar", "rotulo": "Encantar", "teste": "Conjuração contra um alvo próximo"},
+        {"id": "pf", "rotulo": "O encantado marca 1 PF (você também)", "custo": {"fadiga": 1}, "limite": "descanso"}
+      ]},
+    "core_domain_card_inspirational_words": {"recarga": {"q": "PRESENCE", "quando": "descanso_longo"},
+      "custo": {"marcadores": 1}, "alvo": "aliado",
+      "opcoes": [
+        {"id": "pf", "rotulo": "O aliado limpa 1 PF", "efeitos": [{"tipo": "limpa_pf", "q": 1}]},
+        {"id": "pv", "rotulo": "O aliado limpa 1 PV", "efeitos": [{"tipo": "limpa_pv", "q": 1}]},
+        {"id": "esperanca", "rotulo": "O aliado ganha 1 de Esperança", "efeitos": [{"tipo": "ganha_esperanca", "q": 1}]}
+      ]},
+    "core_domain_card_tell_no_lies": {"teste": "Conjuração contra um alvo muito próximo"},
+    "core_domain_card_troublemaker": {"limite": "descanso", "teste": "Presença contra o alvo; role {proficiencia}d4 e ele marca PF igual ao maior"},
+    "core_domain_card_hypnotic_shimmer": {"limite": "descanso", "teste": "Conjuração contra os inimigos à frente: Atordoados e marcam 1 PF"},
+    "core_domain_card_invisibility": {
+      "opcoes": [
+        {"id": "lancar", "rotulo": "Ficar invisível", "custo": {"fadiga": 1}, "alvo": "qualquer", "teste": "Conjuração (10)",
+         "efeitos": [{"tipo": "condicao", "condicao": "Invisível"}, {"tipo": "marcadores", "q": "conjuracao"}]},
+        {"id": "gastar", "rotulo": "O invisível agiu (gasta 1 marcador)", "custo": {"marcadores": 1}},
+        {"id": "acabar", "rotulo": "Acabou a invisibilidade", "alvo": "qualquer",
+         "efeitos": [{"tipo": "tira_condicao", "condicao": "Invisível"}]}
+      ]},
+    "core_domain_card_soothing_speech": {"alvo": "aliado",
+      "efeitos": [{"tipo": "limpa_pv", "q": 1}, {"tipo": "limpa_pv", "q": 2, "em": "si"}],
+      "nota": "No descanso curto, ao Cuidar de Ferimentos dele."},
+    "core_domain_card_through_your_eyes": {"nota": "Até lançar outro feitiço ou o próximo descanso."},
+    "core_domain_card_thought_delver": {"custo": {"esperanca": 1}, "teste": "Conjuração contra o alvo para pensamentos mais fundos"},
+    "core_domain_card_words_of_discord": {"teste": "Conjuração (13): o inimigo marca 1 PF e ataca outro inimigo"},
+    "core_domain_card_share_the_burden": {"limite": "descanso", "alvo": "aliado",
+      "quantidade": {"max": "pf_alvo", "rotulo": "PF que você assume"},
+      "efeitos": [{"tipo": "limpa_pf", "q": "n"}, {"tipo": "marca_pf", "q": "n", "em": "si"},
+                  {"tipo": "ganha_esperanca", "q": "n", "em": "si"}]},
+    "core_domain_card_grace_touched": {"condicao": "dominio:GRACE",
+      "nota": "Pode marcar armadura no lugar de PF; ao forçar um alvo a marcar PV, pode ser PF."},
+    "core_domain_card_astral_projection": {"custo": {"fadiga": 1}, "limite": "descanso_longo"},
+    "core_domain_card_mass_enrapture": {
+      "opcoes": [
+        {"id": "encantar", "rotulo": "Encantar", "teste": "Conjuração contra todos em alcance distante"},
+        {"id": "pf", "rotulo": "Os encantados marcam 1 PF (fim do feitiço)", "custo": {"fadiga": 1}}
+      ]},
+    "core_domain_card_copycat": {"limite": "descanso_longo", "quantidade": {"max": 8, "rotulo": "nível da carta copiada"},
+      "custo": {"esperanca": "metade:n"}, "nota": "Copia a carta da mão de outro jogador até o próximo descanso."},
+    "core_domain_card_encore": {"teste": "Conjuração contra o mesmo alvo: o mesmo dano que o aliado causou",
+      "opcoes": [
+        {"id": "esperanca", "rotulo": "Deu certo com Esperança (ou falhou)"},
+        {"id": "medo", "rotulo": "Deu certo com Medo (a carta vai para a reserva)", "efeitos": [{"tipo": "reserva"}]}
+      ]},
+
+    "core_domain_card_midnight_spirit": {"custo": {"esperanca": 1},
+      "teste": "Para atacar: Conjuração contra um alvo; role {conjuracao}d6 de dano mágico"},
+    "core_domain_card_shadowbind": {"teste": "Conjuração contra todos muito próximos: Contidos"},
+    "core_domain_card_glyph_of_nightfall": {"custo": {"esperanca": 1}, "teste": "Conjuração contra um alvo muito próximo: Dificuldade cai {KNOWLEDGE} (mínimo 1)"},
+    "core_domain_card_stealth_expertise": {"custo": {"fadiga": 1}, "alvo": "qualquer", "nota": "O resultado com Medo vira com Esperança."},
+    "core_domain_card_hush": {"custo": {"esperanca": 1}, "teste": "Conjuração contra um alvo próximo: Silenciado"},
+    "core_domain_card_phantom_retreat": {
+      "opcoes": [
+        {"id": "marcar", "rotulo": "Marcar o lugar", "custo": {"esperanca": 1}},
+        {"id": "voltar", "rotulo": "Sumir e reaparecer lá", "custo": {"esperanca": 1}}
+      ]},
+    "core_domain_card_dark_whispers": {"custo": {"fadiga": 1}, "teste": "Conjuração contra a pessoa para fazer uma pergunta"},
+    "core_domain_card_vanishing_dodge": {"custo": {"esperanca": 1}, "efeitos": [{"tipo": "condicao", "condicao": "OCULTO"}],
+      "nota": "Teleporta para perto do atacante; fica Oculto até o próximo teste."},
+    "core_domain_card_night_terror": {"limite": "descanso_longo", "teste": "Os alvos fazem uma reação (16); quem falhar fica Horrorizado (Vulnerável)",
+      "quantidade": {"max": 12, "rotulo": "Medo roubado (um por Horrorizado)"},
+      "efeitos": [{"tipo": "tira_medo", "q": "n"}], "nota": "Role um d6 por Medo roubado: o total é o dano em cada Horrorizado."},
+    "core_domain_card_eclipse": {"limite": "descanso_longo", "teste": "Conjuração (16)"},
+    "core_domain_card_specter_of_the_dark": {"custo": {"fadiga": 1}, "efeitos": [{"tipo": "condicao", "condicao": "Espectral"}],
+      "nota": "Imune a dano físico até fazer um teste contra outra criatura."},
+
+    "core_domain_card_gifted_tracker": {"quantidade": {"max": "esperanca", "rotulo": "perguntas (1 de Esperança cada)"},
+      "por_unidade": {"esperanca": 1}},
+    "core_domain_card_vicious_entangle": {"teste": "Conjuração contra um alvo distante: 1d8+1 físico e Contido",
+      "opcoes": [
+        {"id": "um", "rotulo": "Um alvo"},
+        {"id": "dois", "rotulo": "Conter outro inimigo perto (1 de Esperança)", "custo": {"esperanca": 1}}
+      ]},
+    "core_domain_card_conjure_swarm": {
+      "opcoes": [
+        {"id": "besouros", "rotulo": "Besouros Encouraçados", "custo": {"fadiga": 1},
+         "efeitos": [{"tipo": "condicao", "condicao": "Besouros encouraçados"}]},
+        {"id": "vagalumes", "rotulo": "Vaga-lumes de Fogo", "custo": {"esperanca": 1},
+         "teste": "Conjuração contra todos em alcance próximo: 2d8+3 de dano mágico"}
+      ], "nota": "Besouros: no próximo dano, reduza um nível (1 de Esperança para mantê-los)."},
+    "core_domain_card_corrosive_projectile": {"teste": "Conjuração contra um alvo distante: d6+4 de dano mágico",
+      "quantidade": {"max": 12, "min": 2, "rotulo": "PF para Corroer"},
+      "opcoes": [
+        {"id": "dano", "rotulo": "Só o dano", "quantidade": false},
+        {"id": "corroer", "rotulo": "Corroer (-1 de Dificuldade a cada 2 PF)", "por_unidade": {"fadiga": 1}}
+      ]},
+    "core_domain_card_towering_stalk": {
+      "opcoes": [
+        {"id": "talo", "rotulo": "Erguer o talo", "limite": "descanso"},
+        {"id": "ataque", "rotulo": "Atacar com o talo", "custo": {"fadiga": 1}, "teste": "Conjuração contra inimigos próximos: d8 físico"}
+      ]},
+    "core_domain_card_death_grip": {"teste": "Conjuração contra um alvo próximo (puxar, apertar ou vinhas)"},
+    "core_domain_card_healing_field": {"limite": "descanso_longo", "alvo": "grupo",
+      "opcoes": [
+        {"id": "um", "rotulo": "Todos limpam 1 PV", "efeitos": [{"tipo": "limpa_pv", "q": 1}]},
+        {"id": "dois", "rotulo": "Todos limpam 2 PV (2 de Esperança)", "custo": {"esperanca": 2}, "efeitos": [{"tipo": "limpa_pv", "q": 2}]}
+      ]},
+    "core_domain_card_thorn_skin": {"recarga": {"q": 0, "quando": "descanso"},
+      "quantidade": {"max": "marcadores", "rotulo": "marcadores a gastar"},
+      "opcoes": [
+        {"id": "brotar", "rotulo": "Brotar espinhos", "custo": {"esperanca": 1}, "limite": "descanso", "quantidade": false,
+         "efeitos": [{"tipo": "marcadores", "q": "conjuracao"}]},
+        {"id": "gastar", "rotulo": "Recebeu dano: gastar marcadores", "por_unidade": {"marcadores": 1},
+         "teste": "Role {n}d6: reduz o dano nesse valor (e devolve ao atacante corpo a corpo)"}
+      ]},
+    "core_domain_card_wild_fortress": {"custo": {"esperanca": 2}, "teste": "Conjuração (13)"},
+    "core_domain_card_forager": {"teste": "Role 1d6 para ver o que encontrou", "nota": "Movimento de descanso a mais; o achado entra no inventário como consumível."},
+    "core_domain_card_wild_surge": {
+      "opcoes": [
+        {"id": "ativar", "rotulo": "Ativar (dado em 1)", "custo": {"fadiga": 1}, "limite": "descanso_longo",
+         "efeitos": [{"tipo": "marcadores", "q": 1}]},
+        {"id": "subir", "rotulo": "Somei o dado num teste (o dado sobe 1)", "efeitos": [{"tipo": "marcadores", "q": "marcadores+1"}]},
+        {"id": "fim", "rotulo": "A forma acabou (marca 1 PF)", "custo": {"fadiga": 1}, "efeitos": [{"tipo": "marcadores", "q": 0}]}
+      ], "nota": "Some o valor do dado (os marcadores) a todo teste de ação."},
+    "core_domain_card_forest_sprites": {"teste": "Conjuração (13)",
+      "quantidade": {"max": "esperanca", "rotulo": "fadas (1 de Esperança cada)"}, "por_unidade": {"esperanca": 1},
+      "efeitos": [{"tipo": "marcadores", "q": "n"}]},
+    "core_domain_card_rejuvenation_barrier": {"limite": "descanso", "teste": "Conjuração (15)", "alvo": "grupo",
+      "efeitos": [{"tipo": "limpa_pv", "q": "1d4"}], "nota": "Dentro da barreira, resistência a dano físico de fora."},
+    "core_domain_card_fane_of_the_wilds": {"recarga": {"q": "cartas:SAGE", "quando": "descanso_longo"},
+      "quantidade": {"max": "marcadores", "rotulo": "marcadores a gastar"}, "por_unidade": {"marcadores": 1},
+      "nota": "Depois de uma Conjuração, +1 por marcador gasto."},
+    "core_domain_card_plant_dominion": {"limite": "descanso_longo", "teste": "Conjuração (18)"},
+    "core_domain_card_tempest": {
+      "opcoes": [
+        {"id": "nevasca", "rotulo": "Nevasca", "teste": "Conjuração contra todos em alcance distante: 2d20+8 mágico e Vulneráveis"},
+        {"id": "furacao", "rotulo": "Furacão", "teste": "Conjuração contra todos em alcance distante: 3d10+10 mágico"},
+        {"id": "areia", "rotulo": "Tempestade de Areia", "teste": "Conjuração contra todos em alcance distante: 5d6+9 mágico"}
+      ]},
+
+    "core_domain_card_bolt_beacon": {"custo": {"esperanca": 1}, "teste": "Conjuração contra um alvo distante: d8+2 de dano mágico e Vulnerável"},
+    "core_domain_card_mending_touch": {"custo": {"esperanca": 2}, "alvo": "qualquer",
+      "opcoes": [
+        {"id": "pv", "rotulo": "Limpar 1 PV", "efeitos": [{"tipo": "limpa_pv", "q": 1}]},
+        {"id": "pf", "rotulo": "Limpar 1 PF", "efeitos": [{"tipo": "limpa_pf", "q": 1}]},
+        {"id": "pv2", "rotulo": "Limpar 2 PV (contando algo sobre vocês)", "limite": "descanso_longo", "efeitos": [{"tipo": "limpa_pv", "q": 2}]},
+        {"id": "pf2", "rotulo": "Limpar 2 PF (contando algo sobre vocês)", "limite": "descanso_longo", "efeitos": [{"tipo": "limpa_pf", "q": 2}]}
+      ]},
+    "core_domain_card_final_words": {"teste": "Conjuração (13): com Esperança, três perguntas; com Medo, uma"},
+    "core_domain_card_healing_hands": {"custo": {"fadiga": 1}, "alvo": "aliado", "teste": "Conjuração (13)",
+      "opcoes": [
+        {"id": "pv2", "rotulo": "Sucesso: limpar 2 PV", "efeitos": [{"tipo": "limpa_pv", "q": 2}]},
+        {"id": "pf2", "rotulo": "Sucesso: limpar 2 PF", "efeitos": [{"tipo": "limpa_pf", "q": 2}]},
+        {"id": "pv1", "rotulo": "Falha: limpar 1 PV", "efeitos": [{"tipo": "limpa_pv", "q": 1}]},
+        {"id": "pf1", "rotulo": "Falha: limpar 1 PF", "efeitos": [{"tipo": "limpa_pf", "q": 1}]}
+      ], "nota": "Não cura o mesmo alvo de novo até o próximo descanso longo."},
+    "core_domain_card_second_wind": {"limite": "descanso",
+      "opcoes": [
+        {"id": "pf", "rotulo": "Limpar 3 PF", "efeitos": [{"tipo": "limpa_pf", "q": 3}]},
+        {"id": "pv", "rotulo": "Limpar 1 PV", "efeitos": [{"tipo": "limpa_pv", "q": 1}]}
+      ], "nota": "Ao acertar um ataque; com Esperança, um aliado próximo também (use de novo nele)."},
+    "core_domain_card_divination": {"custo": {"esperanca": 3}, "limite": "descanso_longo"},
+    "core_domain_card_life_ward": {"custo": {"esperanca": 3}, "alvo": "aliado",
+      "efeitos": [{"tipo": "condicao", "condicao": "Selo da Vida"}],
+      "nota": "Quando o aliado marcar o último PV, ele limpa 1 PV no lugar do movimento de morte."},
+    "core_domain_card_shape_material": {"custo": {"esperanca": 1}},
+    "core_domain_card_restoration": {"recarga": {"q": "conjuracao", "quando": "descanso_longo"}, "alvo": "qualquer",
+      "quantidade": {"max": "marcadores", "rotulo": "marcadores a gastar"},
+      "opcoes": [
+        {"id": "pv", "rotulo": "Limpar 2 PV por marcador", "por_unidade": {"marcadores": 1}, "efeitos": [{"tipo": "limpa_pv", "q": "2xn"}]},
+        {"id": "pf", "rotulo": "Limpar 2 PF por marcador", "por_unidade": {"marcadores": 1}, "efeitos": [{"tipo": "limpa_pf", "q": "2xn"}]},
+        {"id": "vulneravel", "rotulo": "Tirar Vulnerável (1 marcador)", "quantidade": false, "custo": {"marcadores": 1},
+         "efeitos": [{"tipo": "tira_condicao", "condicao": "VULNERAVEL"}]}
+      ]},
+    "core_domain_card_zone_of_protection": {
+      "opcoes": [
+        {"id": "criar", "rotulo": "Criar a zona (dado em 1)", "limite": "descanso_longo", "teste": "Conjuração (16)",
+         "efeitos": [{"tipo": "marcadores", "q": 1}]},
+        {"id": "subir", "rotulo": "Um aliado reduziu o dano (o dado sobe 1)", "efeitos": [{"tipo": "marcadores", "q": "marcadores+1"}]}
+      ], "nota": "Aliado na zona reduz o dano pelo valor do dado; passando de 6, acaba."},
+    "core_domain_card_healing_strike": {"custo": {"esperanca": 2}, "alvo": "aliado", "efeitos": [{"tipo": "limpa_pv", "q": 1}],
+      "nota": "Ao causar dano a um inimigo."},
+    "core_domain_card_shield_aura": {"custo": {"fadiga": 1}, "alvo": "qualquer",
+      "efeitos": [{"tipo": "condicao", "condicao": "Aura de Escudo"}],
+      "nota": "Ao marcar armadura, reduz mais um nível; acaba quando evitar todo o PV."},
+    "core_domain_card_stunning_sunlight": {"teste": "Conjuração contra os inimigos à frente; reação (14): 3d20+3, ou 4d20+5 e Atordoado",
+      "quantidade": {"max": "esperanca", "rotulo": "alvos (1 de Esperança cada)"}, "por_unidade": {"esperanca": 1}},
+    "core_domain_card_overwhelming_aura": {"custo": {"esperanca": 2}, "teste": "Conjuração (15)",
+      "efeitos": [{"tipo": "bonus_temporario", "duracao": "descanso_longo",
+                   "modificadores": [{"alvo": "PRESENCE", "q": "conjuracao-PRESENCE"}]}],
+      "nota": "Enquanto durar, quem atacar você marca 1 PF."},
+    "core_domain_card_salvation_beam": {"teste": "Conjuração (16)", "alvo": "qualquer",
+      "quantidade": {"max": 12, "rotulo": "PF a marcar (PV a dividir)"}, "por_unidade": {"fadiga": 1},
+      "efeitos": [{"tipo": "limpa_pv", "q": "n"}], "nota": "Para dividir entre vários aliados, use uma vez para cada um."},
+    "core_domain_card_invigoration": {"quantidade": {"max": "esperanca", "rotulo": "Esperança a gastar"},
+      "por_unidade": {"esperanca": 1}, "teste": "Role {n}d6: com um 6, a habilidade limitada pode ser usada de novo"},
+    "core_domain_card_resurrection": {"teste": "Conjuração (20); depois role 1d6: 5 ou menos, a carta vai para a reserva para sempre"},
+
+    "core_domain_card_i_am_your_shield": {"custo": {"fadiga": 1}, "nota": "Você vira o alvo do ataque no lugar do aliado e pode marcar quanta armadura quiser."},
+    "core_domain_card_critical_inspiration": {"limite": "descanso", "alvo": "aliados",
+      "opcoes": [
+        {"id": "pf", "rotulo": "Os aliados limpam 1 PF", "efeitos": [{"tipo": "limpa_pf", "q": 1}]},
+        {"id": "esperanca", "rotulo": "Os aliados ganham 1 de Esperança", "efeitos": [{"tipo": "ganha_esperanca", "q": 1}]}
+      ], "nota": "Num sucesso crítico de ataque (cada aliado escolhe; se escolherem diferente, use uma opção por vez)."},
+    "core_domain_card_lean_on_me": {"limite": "descanso_longo", "alvo": "aliado",
+      "efeitos": [{"tipo": "limpa_pf", "q": 2}, {"tipo": "limpa_pf", "q": 2, "em": "si"}]},
+    "core_domain_card_goad_them_on": {"teste": "Presença contra o alvo: marca 1 PF e ataca você com desvantagem"},
+    "core_domain_card_rousing_strike": {"limite": "descanso", "alvo": "grupo",
+      "opcoes": [
+        {"id": "pv", "rotulo": "Todos limpam 1 PV", "efeitos": [{"tipo": "limpa_pv", "q": 1}]},
+        {"id": "pf", "rotulo": "Todos limpam 1d4 PF", "efeitos": [{"tipo": "limpa_pf", "q": "1d4"}]}
+      ], "nota": "Num sucesso crítico de ataque."},
+    "core_domain_card_full_surge": {"custo": {"fadiga": 3}, "limite": "descanso_longo",
+      "efeitos": [{"tipo": "bonus_temporario", "duracao": "descanso", "modificadores": [
+        {"alvo": "AGILITY", "q": 2}, {"alvo": "STRENGTH", "q": 2}, {"alvo": "FINESSE", "q": 2},
+        {"alvo": "INSTINCT", "q": 2}, {"alvo": "PRESENCE", "q": 2}, {"alvo": "KNOWLEDGE", "q": 2}]}]},
+    "core_domain_card_ground_pound": {"custo": {"esperanca": 2}, "teste": "Força contra todos muito próximos; reação (17): 4d10+8 (metade se passarem)"},
+    "core_domain_card_hold_the_line": {"custo": {"esperanca": 1}, "nota": "Inimigos que chegarem muito perto são puxados e ficam Contidos."},
+    "core_domain_card_lead_by_example": {"custo": {"fadiga": 1}, "nota": "O próximo personagem que atacar esse inimigo limpa 1 PF ou ganha 1 de Esperança."}
+  }
+}

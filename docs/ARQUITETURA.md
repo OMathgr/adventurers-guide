@@ -252,6 +252,24 @@ Vitality e Master of the Craft pedem a escolha ao serem pegas.
   Limites de cartas usam `Sessao.usos_rolagem` com a chave `carta:<id>`.
 - Notorious (`fora_do_limite`): não conta nas 5 da mão e não vai para a reserva; o +10
   é uma opção de rolagem (1 PF).
+- **Usar carta** (2026-10-22, etapa 2): `data/usos_de_cartas.json` diz como cada carta
+  que se ativa é usada (`motor/usos_de_cartas.py`, em `CartaDeDominio.uso`): custo
+  (Esperança, PF, armadura, marcadores da carta; expressões como "metade:n"),
+  quantidade escolhida (`n`), limite (sessão, descanso, descanso longo; também por
+  opção), alvo (`si`, `aliado`, `qualquer`, `aliados`, `grupo`), opções (grimórios,
+  escolhas) e efeitos: limpar PV/PF/armadura, ganhar Esperança, marcar PF, condição,
+  marcadores, bônus até o descanso (`Sessao.bonus_temporarios`, somados em `_vestir`:
+  Full Surge, Armadura de Tava, Aura Avassaladora), reserva e tirar Medo do mestre.
+  `Personagem.usar_carta` confere tudo antes de pagar. Marcadores ficam em
+  `Sessao.marcadores_cartas`; antes do primeiro uso valem a `recarga` (começar a
+  sessão conta como descansado) e voltam a ela no descanso que a carta pede. O teste
+  e o dano contra inimigos continuam na rolagem (o uso devolve a dica do teste) e o
+  mestre aplica no inimigo. API: `POST /mesas/{m}/sessoes/{s}/cartas/usar` (o seu
+  personagem e os aliados que estão na sessão, salvos juntos; entra no registro ao
+  vivo como `tipo: "carta"`). Tela: "Usar" nas cartas da mão na tela de jogo
+  (`ContextoDaSessao` leva os aliados). Life Ward deixa o "Selo da Vida" no aliado,
+  que vira uma alternativa ao movimento de morte. Um teste garante que toda carta
+  do SRD tem algum efeito no app.
 - Os condicionais (Shadowhunter, Frenzy, Deadly Focus...) continuam texto ou
   efeito de rolagem: dependem de cena ou de ativação.
 - **Escolha ao pegar** (`CartaDeDominio.escolha`): `SubidaDeNivel.beneficios_de_carta`

@@ -854,6 +854,24 @@ export function useMarcarNaSessao(personagemId: string) {
 
 const chaveRolagens = (mesaId: string, sid: string) => ['mesas', mesaId, 'sessoes', sid, 'rolagens'] as const
 
+/** Usar uma carta da mão na sessão (custo, limite, efeitos em você e nos aliados). */
+export function useUsarCarta(mesaId: string, sid: string, personagemId: string) {
+  const cliente = useQueryClient()
+  return useMutation({
+    mutationFn: (p: { carta: string; alvos: string[]; opcao: string | null; quantidade: number | null }) =>
+      chamar<{ notas: string[]; teste: string; ficha: Ficha }>(`/mesas/${mesaId}/sessoes/${sid}/cartas/usar`,
+        { corpo: { personagem_id: personagemId, ...p } }),
+    onSuccess: (r) => {
+      cliente.setQueryData(chaves.ficha(personagemId), r.ficha)
+      // os aliados (mini fichas) e o registro ao vivo mudaram
+      return Promise.all([
+        cliente.invalidateQueries({ queryKey: chaveJogo(mesaId, sid) }),
+        cliente.invalidateQueries({ queryKey: chaveRolagens(mesaId, sid) }),
+      ])
+    },
+  })
+}
+
 /** O registro da sessão (atualiza ao vivo). Com o seu personagem, traz as reações que ele pode usar. */
 export const useRolagens = (mesaId: string, sid: string, personagemId?: string | null) =>
   useQuery({
