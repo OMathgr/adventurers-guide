@@ -270,6 +270,18 @@ Vitality e Master of the Craft pedem a escolha ao serem pegas.
   (`ContextoDaSessao` leva os aliados). Life Ward deixa o "Selo da Vida" no aliado,
   que vira uma alternativa ao movimento de morte. Um teste garante que toda carta
   do SRD tem algum efeito no app.
+- **Disparadas por rolagens** (2026-10-22, etapa 3): `UsoDeCarta.gatilho` (`Gatilho`:
+  tipos de rolagem, `se` = critico/sucesso/falha/com_esperanca/com_medo/qualquer,
+  `de` = si/aliado/qualquer). Sem Dificuldade informada, sucesso e falha valem (o
+  mestre confere). `Personagem.cartas_para_rolagem` diz quais cartas da mão a rolagem
+  dispara; o registro traz isso em `RolagemSaida.cartas` e a tela abre o "Usar" ligado
+  à rolagem (`rolagem_id`). Cada carta vale uma vez por rolagem (por opção, se tiver:
+  Champion's Edge), anotada em `ResultadoRolagem.cartas_usadas`. Os efeitos
+  `soma_na_rolagem` (Fane of the Wilds, Codex-Touched, Wild Surge) e `vira_esperanca`
+  (Stealth Expertise, também na rolagem de um aliado) refazem a rolagem como uma
+  reação (`Personagem.ajustar_rolagem`: desfaz e reaplica Esperança/Medo); a versão
+  nova substitui a antiga no registro. Cartas que reagem a ataques de inimigos
+  (Swift Step, Rapid Riposte, Redirect...) continuam pelo "Usar" da mão.
 - Os condicionais (Shadowhunter, Frenzy, Deadly Focus...) continuam texto ou
   efeito de rolagem: dependem de cena ou de ativação.
 - **Escolha ao pegar** (`CartaDeDominio.escolha`): `SubidaDeNivel.beneficios_de_carta`

@@ -92,6 +92,8 @@ class ResultadoRolagem:
     limpa_fadiga_no_sucesso: bool = False
     padroes_estranhos: int | None = None
     reacao_de: str | None = None        # nome da reação que gerou esta versão
+    # cartas usadas por causa desta rolagem ("carta" ou "carta:opção"): uma vez cada
+    cartas_usadas: list[str] = field(default_factory=list)
 
 
 @dataclass(frozen=True)

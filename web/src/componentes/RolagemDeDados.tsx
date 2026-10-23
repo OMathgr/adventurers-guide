@@ -10,6 +10,8 @@ import { useCartas, useFicha, useOpcoesDeRolagem, usePadroesEstranhos, useRolage
 import type { DadoRolado, Ficha, OpcaoDeRolagem, OpcaoEscolhida, PedidoDeRolagem, Rolagem, Traco } from '../api/tipos'
 import { type CoresDosDados, type GrupoDeDados, useCoresDosDados } from '../lib/coresDosDados'
 import { NOME_TRACO, TRACOS } from '../lib/rotulos'
+import { useSessaoEmJogo } from './contextoDaSessao'
+import UsarCarta from './UsarCarta'
 import { Abas, Aviso, Botao, Campo, Cartao, Selecao, Selo } from './ui'
 
 // three.js é pesado: só carrega quando a aba de dados abre
@@ -60,6 +62,28 @@ function Dado({ d, cores }: { d: DadoRolado; cores: CoresDosDados }) {
   )
 }
 
+/** Cartas da sua mão que esta rolagem dispara (crítico, falha, dano...): cada uma abre o "Usar". */
+function CartasDaRolagem({ r, personagemId }: { r: Rolagem; personagemId: string }) {
+  const ficha = useFicha(personagemId)
+  const cartas = useCartas()
+  const sessao = useSessaoEmJogo()
+  if (!ficha.data || !sessao) return null
+  return (
+    <div className="space-y-1 border-t border-borda pt-2">
+      {(r.cartas ?? []).map((id) => {
+        const c = cartas.data?.find((x) => x.id === id)
+        if (!c?.uso) return null
+        return (
+          <details key={id}>
+            <summary className="cursor-pointer text-xs text-esperanca">Carta: {c.nome}</summary>
+            <UsarCarta carta={c} ficha={ficha.data} personagemId={personagemId} sessao={sessao} rolagemId={r.id} />
+          </details>
+        )
+      })}
+    </div>
+  )
+}
+
 function Registro({ r, cores, personagemId, mesaId, sessaoId }: {
   r: Rolagem; cores: CoresDosDados; personagemId?: string | null; mesaId: string; sessaoId: string
 }) {
@@ -94,6 +118,7 @@ function Registro({ r, cores, personagemId, mesaId, sessaoId }: {
       {(res.efeitos ?? []).length > 0 && (
         <ul className="list-inside list-disc text-xs text-texto-suave">{(res.efeitos ?? []).map((e, i) => <li key={i}>{e}</li>)}</ul>
       )}
+      {personagemId && (r.cartas ?? []).length > 0 && <CartasDaRolagem r={r} personagemId={personagemId} />}
       {personagemId && (r.reacoes ?? []).length > 0 && (
         <div className="flex flex-wrap items-center gap-1.5 border-t border-borda pt-2">
           {(r.reacoes ?? []).map((o) => (

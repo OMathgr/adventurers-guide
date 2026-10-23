@@ -858,7 +858,7 @@ const chaveRolagens = (mesaId: string, sid: string) => ['mesas', mesaId, 'sessoe
 export function useUsarCarta(mesaId: string, sid: string, personagemId: string) {
   const cliente = useQueryClient()
   return useMutation({
-    mutationFn: (p: { carta: string; alvos: string[]; opcao: string | null; quantidade: number | null }) =>
+    mutationFn: (p: { carta: string; alvos: string[]; opcao: string | null; quantidade: number | null; rolagem_id?: string | null }) =>
       chamar<{ notas: string[]; teste: string; ficha: Ficha }>(`/mesas/${mesaId}/sessoes/${sid}/cartas/usar`,
         { corpo: { personagem_id: personagemId, ...p } }),
     onSuccess: (r) => {

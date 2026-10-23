@@ -69,12 +69,7 @@ function MinhaFicha({ mesa, sessao, pid }: { mesa: Mesa; sessao: VistaDaSessao; 
     <section className="space-y-3">
       {emJogo ? (
         <>
-          {/* as cartas da mão ganham "Usar" (com os aliados desta sessão como alvo) */}
-          <ContextoDaSessao.Provider value={{ mesaId: mesa.id, sessaoId: sessao.id,
-            aliados: sessao.participantes.filter((x) => x.personagem_id !== pid)
-              .map((x) => ({ id: x.personagem_id, nome: x.resumo.nome || 'Sem nome' })) }}>
-            <FichaDeJogo personagemId={pid} ficha={f} />
-          </ContextoDaSessao.Provider>
+          <FichaDeJogo personagemId={pid} ficha={f} />
           <Botao variante="fantasma" disabled={participar.isPending}
             onClick={() => confirm(`Tirar ${f.nome || 'o personagem'} desta sessão? As marcas dele nesta sessão se perdem.`)
               && participar.mutate({ personagemId: pid, sair: true })}>
@@ -104,8 +99,14 @@ export default function SessaoDeJogo({ mesa, sid }: { mesa: Mesa; sid: string })
   const atual = s.meus.includes(meu ?? '') ? meu! : s.meus[0]
   const nomes = Object.fromEntries(s.participantes.map((p) => [p.personagem_id, p.resumo.nome || 'Sem nome']))
   const aliados = s.participantes.filter((p) => p.personagem_id !== atual)
+  // as cartas da mão (na ficha e no registro de rolagens) ganham "Usar", com os aliados como alvo
+  const contexto = emJogo && atual ? {
+    mesaId: mesa.id, sessaoId: s.id,
+    aliados: aliados.map((x) => ({ id: x.personagem_id, nome: x.resumo.nome || 'Sem nome' })),
+  } : null
 
   return (
+    <ContextoDaSessao.Provider value={contexto}>
     <div className="space-y-4">
       <div>
         <h2 className="flex flex-wrap items-center gap-2 text-xl">
@@ -151,5 +152,6 @@ export default function SessaoDeJogo({ mesa, sid }: { mesa: Mesa; sid: string })
       </Cartao>
       </>}
     </div>
+    </ContextoDaSessao.Provider>
   )
 }

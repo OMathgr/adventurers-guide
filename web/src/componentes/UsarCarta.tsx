@@ -1,7 +1,8 @@
 // "Usar" de uma carta da mão durante a sessão de jogo: escolhe a opção, o alvo
 // (você ou um aliado da sessão) e a quantidade, e o motor paga o custo, marca o
 // limite e aplica os efeitos (motor/usos_de_cartas.py). O teste e o dano contra
-// inimigos continuam na aba Rolagem de dados; o mestre aplica no inimigo.
+// inimigos continuam na aba Rolagem de dados; o mestre aplica no inimigo. Com
+// `rolagemId`, a carta foi disparada por essa rolagem do registro (crítico, falha...).
 import { useState } from 'react'
 
 import { useUsarCarta } from '../api/consultas'
@@ -22,8 +23,8 @@ function maximo(uso: UsoDeCarta, ficha: Ficha, carta: string): number | undefine
   return undefined
 }
 
-export default function UsarCarta({ carta, ficha, personagemId, sessao }: {
-  carta: CartaDeDominio; ficha: Ficha; personagemId: string; sessao: SessaoEmJogo
+export default function UsarCarta({ carta, ficha, personagemId, sessao, rolagemId }: {
+  carta: CartaDeDominio; ficha: Ficha; personagemId: string; sessao: SessaoEmJogo; rolagemId?: string
 }) {
   const uso = carta.uso!
   const usar = useUsarCarta(sessao.mesaId, sessao.sessaoId, personagemId)
@@ -46,6 +47,7 @@ export default function UsarCarta({ carta, ficha, personagemId, sessao }: {
     usar.mutate({
       carta: carta.id, opcao: escolhida?.id ?? null, quantidade: pedeQuantidade ? Number(quantidade) : null,
       alvos: (tipoAlvo === 'aliado' || tipoAlvo === 'qualquer') && alvo ? [alvo] : [],
+      ...(rolagemId ? { rolagem_id: rolagemId } : {}),
     })
   }
 

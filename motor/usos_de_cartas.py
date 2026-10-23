@@ -31,7 +31,10 @@ from .rolagem import expandir, resolver
 LIMITES = ("sessao", "descanso", "descanso_longo")
 ALVOS = ("si", "aliado", "qualquer", "aliados", "grupo")
 TIPOS_DE_EFEITO = ("limpa_pv", "limpa_pf", "limpa_armadura", "ganha_esperanca", "marca_pf", "condicao",
-                   "tira_condicao", "marcadores", "bonus_temporario", "reserva", "tira_medo")
+                   "tira_condicao", "marcadores", "bonus_temporario", "reserva", "tira_medo",
+                   # mudam a rolagem que disparou a carta (só com gatilho)
+                   "soma_na_rolagem", "vira_esperanca")
+RESULTADOS = ("qualquer", "critico", "sucesso", "falha", "com_esperanca", "com_medo")
 _DADO = re.compile(r"(\d+)d(\d+)(?:\+(\d+))?")
 
 
@@ -68,6 +71,38 @@ class Custo:
 
 
 @dataclass(frozen=True)
+class Gatilho:
+    """A rolagem que dispara a carta: o registro oferece a carta nela.
+
+    `se`: critico, sucesso, falha, com_esperanca, com_medo ou qualquer. Sem
+    Dificuldade informada, o sucesso não é conhecido: sucesso e falha valem
+    (o mestre confere). `de`: rolagem sua ("si"), de um aliado ou "qualquer"."""
+
+    rolagens: tuple[str, ...] = ("teste", "ataque", "conjuracao", "reacao")
+    se: str = "qualquer"
+    de: str = "si"
+
+    @classmethod
+    def de_json(cls, d: dict | None) -> "Gatilho | None":
+        if not d:
+            return None
+        g = cls(tuple(d.get("rolagens", cls.rolagens)), d.get("se", "qualquer"), d.get("de", "si"))
+        if g.se not in RESULTADOS or g.de not in ("si", "aliado", "qualquer"):
+            raise ValueError(f"gatilho inválido: {d}")
+        return g
+
+    def vale(self, r, propria: bool) -> bool:
+        """`r`: ResultadoRolagem; `propria`: a rolagem é do personagem da carta."""
+        if r.tipo not in self.rolagens or (self.de == "si" and not propria) or (self.de == "aliado" and propria):
+            return False
+        dual = r.dualidade.value if r.dualidade is not None else None
+        return {"qualquer": True, "critico": dual == "critico",
+                "sucesso": r.sucesso is not False or dual == "critico",
+                "falha": r.sucesso is not True and dual != "critico",
+                "com_esperanca": dual == "esperanca", "com_medo": dual == "medo"}[self.se]
+
+
+@dataclass(frozen=True)
 class OpcaoDeUso:
     id: str
     rotulo: str
@@ -99,6 +134,7 @@ class UsoDeCarta:
     recarga: str | int | None = None
     recarga_quando: str = "descanso_longo"   # "descanso_longo", "descanso" ou "sessao" (só no começo)
     nota: str = ""                # o que a carta não automatiza (a tela mostra junto)
+    gatilho: Gatilho | None = None   # a rolagem que dispara a carta (etapa 3)
 
     @classmethod
     def de_json(cls, d: dict) -> UsoDeCarta:
@@ -114,7 +150,7 @@ class UsoDeCarta:
                   teste=d.get("teste", ""), opcoes=opcoes,
                   efeitos=tuple(EfeitoDeCarta.de_json(e) for e in d.get("efeitos", ())),
                   recarga=recarga.get("q"), recarga_quando=recarga.get("quando", "descanso_longo"),
-                  nota=d.get("nota", ""))
+                  nota=d.get("nota", ""), gatilho=Gatilho.de_json(d.get("gatilho")))
         validos = all(x in (None, *LIMITES) for x in (uso.limite, *(o.limite for o in opcoes)))
         if not validos or any(x not in ALVOS for x in (uso.alvo, *(o.alvo for o in opcoes if o.alvo))):
             raise ValueError(f"uso de carta inválido: {d}")
@@ -151,6 +187,7 @@ class ResultadoDeUso:
     notas: list[str] = field(default_factory=list)
     teste: str = ""   # o que rolar agora (se a carta pede)
     medo: int = 0     # Medo tirado do mestre (a API aplica na sessão)
+    rolagem: object = None   # a versão nova da rolagem, se a carta mudou a que a disparou
 
 
-__all__ = ["Custo", "EfeitoDeCarta", "OpcaoDeUso", "ResultadoDeUso", "UsoDeCarta", "ler_catalogo", "quanto"]
+__all__ = ["Custo", "EfeitoDeCarta", "Gatilho", "OpcaoDeUso", "ResultadoDeUso", "UsoDeCarta", "ler_catalogo", "quanto"]

@@ -433,11 +433,34 @@ class Personagem:
         """Cartas da mão que se usam pelo botão (têm uso no catálogo)."""
         return [c for c in self.cartas_na_mao() if self.bib.cartas[c].uso]
 
+    def cartas_para_rolagem(self, r: ResultadoRolagem, propria: bool) -> list[str]:
+        """Cartas da mão que esta rolagem dispara agora (gatilho, limite, já usadas nela)."""
+        gastos = self.sessao.usos_rolagem
+
+        def ainda_vale(c: str) -> bool:
+            u = self.bib.cartas[c].uso
+            if not (u and u.gatilho and u.gatilho.vale(r, propria)):
+                return False
+            if u.limite and f"carta:{c}" in gastos:
+                return False
+            if not u.opcoes:
+                return c not in r.cartas_usadas
+            # com opções: falta alguma que não foi usada nesta rolagem nem esgotou o limite
+            return any(f"{c}:{o.id}" not in r.cartas_usadas and not (o.limite and f"carta:{c}:{o.id}" in gastos)
+                       for o in u.opcoes)
+        return [c for c in self.cartas_na_mao() if ainda_vale(c)]
+
     def usar_carta(self, carta: str, alvos: "list[Personagem] | None" = None, opcao: str | None = None,
-                   quantidade: int | None = None) -> ResultadoDeUso:
+                   quantidade: int | None = None, rolagem: ResultadoRolagem | None = None,
+                   dono_da_rolagem: "Personagem | None" = None) -> ResultadoDeUso:
         """Usa uma carta da mão: paga o custo, marca o limite e aplica os efeitos em
         você ou nos `alvos` (outros personagens da sessão, que quem chama salva
-        junto). Tudo é conferido antes de mexer em qualquer coisa."""
+        junto). Tudo é conferido antes de mexer em qualquer coisa.
+
+        `rolagem`: a que disparou a carta (gatilho). A carta vale uma vez por
+        rolagem (por opção, se tiver); se ela muda a rolagem (soma, vira com
+        Esperança), a versão nova vem em `ResultadoDeUso.rolagem`, refeita na
+        ficha de `dono_da_rolagem` (você, se não informado)."""
         c = self.bib.cartas.get(carta)
         if c is None or c.uso is None:
             raise RegraViolada("Essa carta não se usa assim (o efeito dela é automático ou só texto).")
@@ -451,6 +474,17 @@ class Personagem:
         escolhida = next((o for o in uso.opcoes if o.id == opcao), None)
         if uso.opcoes and escolhida is None:
             raise RegraViolada(f"{c.nome}: escolha uma das opções.")
+        dono = dono_da_rolagem or self
+        chave_na_rolagem = f"{carta}:{opcao}" if escolhida else carta
+        efeitos_na_rolagem = {"soma_na_rolagem", "vira_esperanca"}
+        todos = (*uso.efeitos, *(escolhida.efeitos if escolhida else ()))
+        if rolagem is not None:
+            if not (uso.gatilho and uso.gatilho.vale(rolagem, dono is self)):
+                raise RegraViolada(f"{c.nome} não vale para esta rolagem.")
+            if chave_na_rolagem in rolagem.cartas_usadas or carta in rolagem.cartas_usadas:
+                raise RegraViolada(f"{c.nome} já foi usada nesta rolagem.")
+        elif any(e.tipo in efeitos_na_rolagem for e in todos):
+            raise RegraViolada(f"{c.nome}: use pela rolagem, no registro.")
         for limite, chave in ((uso.limite, f"carta:{carta}"),
                               (escolhida.limite if escolhida else None, f"carta:{carta}:{opcao}")):
             if limite and chave in s.usos_rolagem:
@@ -504,8 +538,19 @@ class Personagem:
         pagos = [p for p, k in zip(pagos, ("esperanca", "fadiga", "armadura", "marcadores")) if custo[k]]
         r.notas.append(f"Usou {c.nome}" + (f": {escolhida.rotulo}" if escolhida else "")
                        + (f" ({', '.join(pagos)})" if pagos else "") + ".")
-        for e in (*uso.efeitos, *(escolhida.efeitos if escolhida else ())):
-            self._efeito_de_carta(c, e, alvos_finais, n, r)
+        soma, vira = 0, False
+        for e in todos:
+            if e.tipo == "soma_na_rolagem":
+                soma += self._quanto(e.q, n, carta=carta)
+            elif e.tipo == "vira_esperanca":
+                vira = True
+            else:
+                self._efeito_de_carta(c, e, alvos_finais, n, r)
+        if rolagem is not None:
+            rolagem.cartas_usadas.append(chave_na_rolagem)
+            if soma or vira:
+                r.rolagem = dono.ajustar_rolagem(rolagem, c.nome, soma, vira)
+                r.notas.append(f"{c.nome}: {f'{soma:+d} na rolagem' if soma else 'agora é com Esperança'}.")
         if uso.limite:
             s.usos_rolagem[f"carta:{carta}"] = uso.limite
         if escolhida and escolhida.limite:
@@ -513,6 +558,25 @@ class Personagem:
         if uso.nota:
             r.notas.append(uso.nota)
         return r
+
+    def ajustar_rolagem(self, r: ResultadoRolagem, nome: str, soma: int = 0,
+                        vira_esperanca: bool = False) -> ResultadoRolagem:
+        """Refaz uma rolagem deste personagem com uma carta (Fane of the Wilds soma,
+        Stealth Expertise vira com Esperança): desfaz o que ela aplicou na ficha e
+        aplica de novo, como numa reação. Devolve a versão nova."""
+        novo = copy.deepcopy(r)
+        desfazer(novo, self.sessao)
+        if soma:
+            novo.bonus.append(Bonus(nome, soma))
+        if novo.tipo in TIPOS_DE_TESTE:
+            recalcular_teste(novo, forcar=Dualidade.ESPERANCA if vira_esperanca else None)
+            _, automaticos = self._escolhidas(novo.tipo, novo.traco, novo.ataque, novo.carta, ())
+            self._pos_teste(novo, automaticos)
+        else:
+            novo.total += soma
+        novo.reacao_de = nome
+        novo.efeitos.insert(0, f"{nome}.")
+        return novo
 
     def _efeito_de_carta(self, c: CartaDeDominio, e, alvos: "list[Personagem]", n: int, r: ResultadoDeUso):
         """Um efeito da carta. Dados rolam uma vez só, para todos os alvos."""

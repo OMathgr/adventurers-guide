@@ -3794,6 +3794,36 @@ export interface components {
             custo: number;
         };
         /**
+         * Gatilho
+         * @description A rolagem que dispara a carta: o registro oferece a carta nela.
+         *
+         *     `se`: critico, sucesso, falha, com_esperanca, com_medo ou qualquer. Sem
+         *     Dificuldade informada, o sucesso não é conhecido: sucesso e falha valem
+         *     (o mestre confere). `de`: rolagem sua ("si"), de um aliado ou "qualquer".
+         */
+        Gatilho: {
+            /**
+             * Rolagens
+             * @default [
+             *       "teste",
+             *       "ataque",
+             *       "conjuracao",
+             *       "reacao"
+             *     ]
+             */
+            rolagens: string[];
+            /**
+             * Se
+             * @default qualquer
+             */
+            se: string;
+            /**
+             * De
+             * @default si
+             */
+            de: string;
+        };
+        /**
          * Gravidade
          * @description Quantos PV um dano marca, pela comparação com os limiares.
          * @enum {integer}
@@ -5453,6 +5483,8 @@ export interface components {
             padroes_estranhos?: number | null;
             /** Reacao De */
             reacao_de?: string | null;
+            /** Cartas Usadas */
+            cartas_usadas?: string[];
         };
         /** RolagemSaida */
         RolagemSaida: {
@@ -5478,6 +5510,11 @@ export interface components {
              * @default []
              */
             reacoes: components["schemas"]["OpcaoDeRolagem"][];
+            /**
+             * Cartas
+             * @default []
+             */
+            cartas: string[];
         };
         /** Sessao */
         Sessao: {
@@ -5778,6 +5815,7 @@ export interface components {
              * @default
              */
             nota: string;
+            gatilho?: components["schemas"]["Gatilho"] | null;
         };
         /** UsoDeCartaSaida */
         UsoDeCartaSaida: {
@@ -5806,6 +5844,11 @@ export interface components {
             opcao?: string | null;
             /** Quantidade */
             quantidade?: number | null;
+            /**
+             * Rolagem Id
+             * @description A rolagem do registro que disparou a carta (RolagemSaida.cartas)
+             */
+            rolagem_id?: string | null;
         };
         /** UsoSaida */
         UsoSaida: {

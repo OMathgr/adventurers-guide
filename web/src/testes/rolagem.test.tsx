@@ -5,6 +5,7 @@ import { MemoryRouter } from 'react-router'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import type { Rolagem } from '../api/tipos'
+import { ContextoDaSessao } from '../componentes/contextoDaSessao'
 import RolagemDeDados, { gruposDaRolagem } from '../componentes/RolagemDeDados'
 import { CORES_PADRAO, notacao } from '../lib/coresDosDados'
 
@@ -77,5 +78,41 @@ describe('Rolagem de dados', () => {
     const grupos = gruposDaRolagem(ROLAGEM, CORES_PADRAO)
     expect(grupos.map((g) => [g.cor, notacao(g)])).toEqual([
       [CORES_PADRAO.esperanca, '1d12@9'], [CORES_PADRAO.medo, '1d12@4']])
+  })
+})
+
+describe('Carta disparada pela rolagem', () => {
+  it('o registro oferece a carta e usa ligada àquela rolagem', async () => {
+    const FEROCIDADE = {
+      id: 'fer', nome: 'Ferocidade', nome_original: 'Ferocity', dominio: 'BONE', nivel: 2, tipo: 'ABILITY', custo_recall: 2,
+      texto: '', formulas: [], passivo: null, escolha: null, reserva_permanente: false, fora_do_limite: false,
+      uso: { custo: { esperanca: 2 }, por_unidade: {}, quantidade_max: null, quantidade_min: 1, quantidade_rotulo: '',
+        limite: null, alvo: 'si', condicao: null, teste: '', opcoes: [], efeitos: [], recarga: null,
+        recarga_quando: 'descanso_longo', nota: 'Evasão + PV que o inimigo marcou.', gatilho: { rolagens: ['dano'], se: 'qualquer', de: 'si' } },
+    }
+    const dano = { ...ROLAGEM, id: 'd1', cartas: ['fer'], resultado: { ...ROLAGEM.resultado, titulo: 'Dano: Espada', tipo: 'dano',
+      dualidade: null, sucesso: null, dificuldade: null } } as unknown as Rolagem
+    const chamadas: { url: string; corpo?: unknown }[] = []
+    vi.stubGlobal('fetch', vi.fn(async (url: string, opcoes?: RequestInit) => {
+      const caminho = url.replace(/^\/api/, '')
+      chamadas.push({ url: caminho, corpo: opcoes?.body ? JSON.parse(String(opcoes.body)) : undefined })
+      const corpo = caminho.startsWith('/personagens/lira') ? { ...FICHA, esperanca: 3, marcadores_cartas: {}, usos_de_carta_gastos: [] }
+        : caminho.includes('/cartas/usar') ? { notas: ['Usou Ferocidade (2 de Esperança).'], teste: '', ficha: FICHA }
+        : caminho.includes('/rolagens/opcoes') ? []
+        : caminho.includes('/rolagens') ? [dano]
+        : caminho === '/srd/cartas' ? [FEROCIDADE] : {}
+      return new Response(JSON.stringify(corpo), { status: 200 })
+    }))
+    const cliente = new QueryClient({ defaultOptions: { queries: { retry: false } } })
+    render(<QueryClientProvider client={cliente}><MemoryRouter>
+      <ContextoDaSessao.Provider value={{ mesaId: 'm1', sessaoId: 's1', aliados: [] }}>
+        <RolagemDeDados mesaId="m1" sessaoId="s1" personagemId="lira" souMestre={false} emAndamento />
+      </ContextoDaSessao.Provider>
+    </MemoryRouter></QueryClientProvider>)
+    await userEvent.click(await screen.findByText('Carta: Ferocidade'))
+    await userEvent.click(await screen.findByRole('button', { name: 'Usar Ferocidade' }))
+    expect(chamadas.find((c) => c.url === '/mesas/m1/sessoes/s1/cartas/usar')?.corpo).toEqual(
+      { personagem_id: 'lira', carta: 'fer', opcao: null, quantidade: null, alvos: [], rolagem_id: 'd1' })
+    expect(await screen.findByText(/Usou Ferocidade/)).toBeInTheDocument()
   })
 })

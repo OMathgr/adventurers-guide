@@ -71,6 +71,7 @@ class RolagemSaida(BaseModel):
     criado_em: str
     resultado: ResultadoRolagem
     reacoes: list[OpcaoDeRolagem] = []       # o que VOCÊ pode fazer nesta rolagem agora
+    cartas: list[str] = []                   # cartas da SUA mão que esta rolagem dispara (usar com rolagem_id)
 
 
 def _sessao(a: Acesso, mesa_id: str, sessao_id: str, rolar: bool = False) -> SessaoTabela:
@@ -95,12 +96,13 @@ def _meu_personagem(a: Acesso, s: SessaoTabela, personagem_id: str) -> tuple[Per
     return linha, repositorio.montar(linha)
 
 
-def _saida(a: Acesso, linha: RolagemTabela, reacoes: list[OpcaoDeRolagem] | None = None) -> RolagemSaida:
+def _saida(a: Acesso, linha: RolagemTabela, reacoes: list[OpcaoDeRolagem] | None = None,
+           cartas: list[str] | None = None) -> RolagemSaida:
     return RolagemSaida(
         id=linha.id, autor=linha.usuario.nome, usuario_id=linha.usuario_id, personagem_id=linha.personagem_id,
         personagem=(linha.personagem.nome or "Sem nome") if linha.personagem else None, oculta=linha.oculta,
         substituida=linha.substituida_por is not None, criado_em=linha.criado_em.isoformat(),
-        resultado=_RESULTADO.validate_python(linha.resultado), reacoes=reacoes or [])
+        resultado=_RESULTADO.validate_python(linha.resultado), reacoes=reacoes or [], cartas=cartas or [])
 
 
 def _somar_medo(s: SessaoTabela, delta: int):
@@ -133,14 +135,16 @@ def registro(mesa_id: str, sessao_id: str, personagem_id: str | None = None, a: 
             eu = None
     saida = []
     for x in linhas:
-        reacoes = []
+        reacoes, cartas = [], []
         if eu is not None and x.personagem_id and x.substituida_por is None:
             r = _RESULTADO.validate_python(x.resultado)
             proprio = x.personagem_id == personagem_id
             reacoes = [o for o in eu.opcoes_de_rolagem(r.tipo, r.traco, r.ataque if proprio else None,
                                                         r.carta if proprio else None)
                        if o.momento == "depois" and (o.alvo == "qualquer" or (o.alvo == "aliado") != proprio)]
-        saida.append(_saida(a, x, reacoes))
+            if r.tipo != "carta":
+                cartas = eu.cartas_para_rolagem(r, proprio)
+        saida.append(_saida(a, x, reacoes, cartas))
     return saida
 
 
