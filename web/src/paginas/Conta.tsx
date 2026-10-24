@@ -1,8 +1,10 @@
 // Conta: jeitos de entrar (senha e Google). Quem entrou só pelo Google cria
 // uma senha pelo mesmo link de "esqueci minha senha"; desligar o Google exige
-// ter senha (senão não haveria como entrar).
+// ter senha (senão não haveria como entrar). Excluir a conta pede o e-mail
+// digitado; mesas e sessões ficam com outros mestres (api/conta.py).
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useSearchParams } from 'react-router'
+import { useState } from 'react'
+import { useNavigate, useSearchParams } from 'react-router'
 
 import { chamar } from '../api/cliente'
 import type { Usuario } from '../api/tipos'
@@ -11,7 +13,9 @@ import { Aviso, Botao, Cartao, Selo } from '../componentes/ui'
 import { abertoComoApp, ehIOS, useInstalar } from '../lib/pwa'
 
 export default function Conta() {
-  const { usuario } = useAutenticacao()
+  const { usuario, sair } = useAutenticacao()
+  const navegar = useNavigate()
+  const [confirmacao, setConfirmacao] = useState('')
   const cliente = useQueryClient()
   const [busca] = useSearchParams()
   const provedores = useQuery({
@@ -29,6 +33,11 @@ export default function Conta() {
   const desligar = useMutation({
     mutationFn: () => chamar<Usuario>('/auth/google', { metodo: 'DELETE' }),
     onSuccess: () => cliente.invalidateQueries({ queryKey: ['eu'] }),
+  })
+
+  const excluir = useMutation({
+    mutationFn: () => chamar<void>('/auth/eu', { metodo: 'DELETE', corpo: { email: confirmacao } }),
+    onSuccess: () => { cliente.clear(); sair(); navegar('/') },
   })
 
   const instalar = useInstalar()
@@ -109,6 +118,29 @@ export default function Conta() {
             <p className="text-xs text-texto-suave">Para desligar o Google, crie uma senha antes.</p>
           )}
           <Aviso erro={ligar.error ?? desligar.error} />
+        </div>
+      </Cartao>
+
+      <Cartao titulo="Excluir conta">
+        <div className="space-y-3 text-sm">
+          <p>Excluir é para sempre e não dá para desfazer:</p>
+          <ul className="list-inside list-disc space-y-1 text-texto-suave">
+            <li>seus personagens são apagados, com as fichas, o inventário e as rolagens;</li>
+            <li>as mesas que você criou continuam com os outros membros: passam para o mestre mais antigo
+              (sem mestre, para o jogador mais antigo). Mesa sem mais ninguém é apagada;</li>
+            <li>as sessões que você mestrou ficam com quem criou a mesa, e seus NPCs também.</li>
+          </ul>
+          <label className="flex flex-col gap-1">
+            <span className="text-texto-suave">Para confirmar, digite o seu e-mail ({usuario.email})</span>
+            <input type="email" value={confirmacao} onChange={(e) => setConfirmacao(e.target.value)} autoComplete="off"
+              aria-label="E-mail para confirmar a exclusão"
+              className="rounded-lg border border-borda bg-fundo px-3 py-2" />
+          </label>
+          <Botao variante="perigo" disabled={excluir.isPending
+            || confirmacao.trim().toLowerCase() !== usuario.email.toLowerCase()} onClick={() => excluir.mutate()}>
+            {excluir.isPending ? 'Excluindo…' : 'Excluir minha conta'}
+          </Botao>
+          <Aviso erro={excluir.error} />
         </div>
       </Cartao>
     </div>

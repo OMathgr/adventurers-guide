@@ -89,7 +89,8 @@ def test_personagem_de_outro_usuario_parece_inexistente(cliente, bardo_id):
 
 
 def test_apagar_conta_apaga_os_personagens(cliente, bardo_id):
-    assert cliente.delete("/auth/eu").status_code == 204
+    r = cliente.request("DELETE", "/auth/eu", json={"email": "ANA@exemplo.com "})   # confirma digitando o e-mail
+    assert r.status_code == 204
     assert cliente.get(f"/personagens/{bardo_id}").status_code == 401   # token de conta apagada
     novo = entrar(cliente, "ana@exemplo.com")                             # recria a conta
     assert cliente.get("/personagens", headers=novo).json() == []

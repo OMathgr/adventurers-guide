@@ -13,7 +13,9 @@ from pydantic import BaseModel, EmailStr, Field
 from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
-from .. import correio, google
+from motor import RegraViolada
+
+from .. import conta, correio, google
 from ..autenticacao import usuario_atual
 from ..db import sessao_do_banco
 from ..seguranca import TokenInvalido, assinar, criar_token, gerar_hash, ler_assinado, verificar_senha
@@ -110,12 +112,18 @@ def eu(usuario: UsuarioTabela = Depends(usuario_atual), banco: Session = Depends
     return _usuario(banco, usuario)
 
 
+class ConfirmacaoDeExclusao(BaseModel):
+    email: str = Field(description="O e-mail da conta, digitado para confirmar")
+
+
 @rotas.delete("/eu", status_code=204)
-def apagar_conta(usuario: UsuarioTabela = Depends(usuario_atual),
+def apagar_conta(dados: ConfirmacaoDeExclusao, usuario: UsuarioTabela = Depends(usuario_atual),
                  banco: Session = Depends(sessao_do_banco)):
-    """Apaga a conta e todos os personagens dela."""
-    banco.delete(usuario)   # mesma sessão da dependência (o FastAPI reaproveita)
-    banco.commit()
+    """Apaga a conta e os personagens dela, para sempre. As mesas que ela criou
+    passam para outro mestre e as sessões que ela mestrou ficam (api/conta.py)."""
+    if dados.email.strip().lower() != usuario.email.lower():
+        raise RegraViolada("Digite o e-mail da sua conta para confirmar.")
+    conta.apagar_conta(banco, usuario)   # mesma sessão da dependência (o FastAPI reaproveita)
     return Response(status_code=204)
 
 

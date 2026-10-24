@@ -589,6 +589,14 @@ Decisões do projeto (2026-10-13): só Google por enquanto; e-mail por SMTP
 configurável; mesmo e-mail (verificado pelo Google) junta as contas; quem
 entrou só pelo Google cria senha pelo "esqueci minha senha".
 
+- **Excluir a conta** (2026-10-23): `DELETE /auth/eu` com `{"email"}` digitado
+  (confere sem diferenciar maiúsculas). Antes da cascata do banco, `api/conta.py`:
+  mesas que a pessoa criou passam para o mestre mais antigo (sem mestre, o jogador
+  mais antigo, que vira mestre) e mesa sem mais ninguém é apagada; sessões que ela
+  mestrou passam para quem criou a mesa; ela sai de `compartilhada_com`; fotos dela
+  em NPCs e inimigos de mesas que continuam passam para quem criou a mesa (a cascata
+  das imagens as apagaria). Personagens dela são apagados; NPCs dela passam sozinhos
+  para quem criou a mesa (`api/npcs.py`). Tela: cartão "Excluir conta" na página Conta.
 - **Esqueci minha senha**: `POST /auth/recuperar` responde sempre a mesma coisa
   (e o e-mail sai depois da resposta, em segundo plano), para ninguém descobrir
   quem tem conta. O token do link é aleatório; o banco guarda só o sha256

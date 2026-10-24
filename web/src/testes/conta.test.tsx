@@ -7,6 +7,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { ProvedorAutenticacao, useAutenticacao } from '../auth/Autenticacao'
 import { Entrar, EntrarComGoogle, RecuperarSenha, RedefinirSenha } from '../paginas/Acesso'
+import Conta from '../paginas/Conta'
 
 /** fetch falso: responde por caminho (sem o /api) e guarda as chamadas. */
 function api(rotas: Record<string, unknown>) {
@@ -164,5 +165,25 @@ describe('Aviso antes de cair', () => {
     renovacaoFunciona = true
     await userEvent.click(screen.getByRole('button', { name: 'Continuar conectado' }))
     await waitFor(() => expect(screen.queryByRole('alert')).not.toBeInTheDocument(), { timeout: 3000 })
+  })
+})
+
+describe('Excluir conta', () => {
+  it('só libera com o e-mail digitado e depois sai', async () => {
+    localStorage.setItem('ag.token', 'token-da-ana')
+    const fetch = api({ '/auth/eu': { id: 'u', nome: 'Ana', email: 'ana@exemplo.com', google: false, tem_senha: true },
+      '/auth/provedores': { google: false } })
+    vi.stubGlobal('fetch', fetch)
+    montar(<Conta />, '/conta')
+    const botao = await screen.findByRole('button', { name: 'Excluir minha conta' })
+    expect(botao).toBeDisabled()
+    await userEvent.type(screen.getByLabelText('E-mail para confirmar a exclusão'), 'outro@exemplo.com')
+    expect(botao).toBeDisabled()
+    await userEvent.clear(screen.getByLabelText('E-mail para confirmar a exclusão'))
+    await userEvent.type(screen.getByLabelText('E-mail para confirmar a exclusão'), 'ANA@exemplo.com')
+    await userEvent.click(botao)
+    await waitFor(() => expect(fetch).toHaveBeenCalledWith('/api/auth/eu', expect.objectContaining({
+      method: 'DELETE', body: JSON.stringify({ email: 'ANA@exemplo.com' }) })))
+    await waitFor(() => expect(localStorage.getItem('ag.token')).toBeNull())
   })
 })

@@ -75,7 +75,8 @@ export interface paths {
         post?: never;
         /**
          * Apagar Conta
-         * @description Apaga a conta e todos os personagens dela.
+         * @description Apaga a conta e os personagens dela, para sempre. As mesas que ela criou
+         *     passam para outro mestre e as sessões que ela mestrou ficam (api/conta.py).
          */
         delete: operations["apagar_conta_auth_eu_delete"];
         options?: never;
@@ -3100,6 +3101,14 @@ export interface components {
             /** Condicao */
             condicao: string;
         };
+        /** ConfirmacaoDeExclusao */
+        ConfirmacaoDeExclusao: {
+            /**
+             * Email
+             * @description O e-mail da conta, digitado para confirmar
+             */
+            email: string;
+        };
         /** Conforto */
         Conforto: {
             /** Ganhar Esperanca */
@@ -6086,7 +6095,11 @@ export interface operations {
             path?: never;
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ConfirmacaoDeExclusao"];
+            };
+        };
         responses: {
             /** @description Successful Response */
             204: {
@@ -6094,6 +6107,15 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
             };
         };
     };
