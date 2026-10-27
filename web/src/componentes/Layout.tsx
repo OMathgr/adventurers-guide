@@ -4,6 +4,7 @@ import { Link, NavLink, Outlet } from 'react-router'
 import { useAoVivo } from '../api/aoVivo'
 import { useAutenticacao } from '../auth/Autenticacao'
 import { useInstalar, useOnline } from '../lib/pwa'
+import Rodape from './Rodape'
 
 const CHAVE_TEMA = 'ag.tema'
 
@@ -77,6 +78,7 @@ export default function Layout() {
       <main className="mx-auto max-w-5xl px-4 py-6">
         <Outlet />
       </main>
+      <Rodape />
     </div>
   )
 }

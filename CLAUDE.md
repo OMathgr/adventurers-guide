@@ -27,7 +27,10 @@ armaduras na aba Itens da mesa; entregues direto ou vendidos nas lojas; quem
 recebe guarda uma cópia, `motor/itens_proprios.py`) prontos. Conta: esqueci minha senha (link por e-mail via SMTP) e login
 com o Google (contas com o mesmo e-mail se juntam) e sessão por uso (renova
 enquanto se usa; cai depois de 2 h parado) e excluir a conta (digitando o e-mail;
-mesas e sessões ficam com outros mestres, `api/conta.py`) prontos. Jogadores veem a ficha
+mesas e sessões ficam com outros mestres, `api/conta.py`) prontos. Rodapé em todas
+as páginas com o aviso de projeto de fã e a atribuição DPCGL (`web/src/componentes/Rodape.tsx`)
+e Aviso de privacidade público em `/privacidade` (link no rodapé e no cadastro);
+se mudar o que o site guarda, atualize o aviso. Jogadores veem a ficha
 simplificada (quem é, PV, PF e Esperança) dos outros personagens da mesa.
 Edição simultânea protegida: ações se refazem sozinhas; formulários avisam do
 conflito (api/concorrencia.py). Repouso do grupo (o mestre abre, cada jogador

@@ -17,6 +17,7 @@ import Mesas from './paginas/Mesas'
 import NovoPersonagem from './paginas/NovoPersonagem'
 import Personagem from './paginas/Personagem'
 import Personagens from './paginas/Personagens'
+import Privacidade from './paginas/Privacidade'
 
 const clienteConsultas = new QueryClient({
   defaultOptions: {
@@ -49,6 +50,7 @@ createRoot(document.getElementById('root')!).render(
             <Route path="/entrar/google" element={<EntrarComGoogle />} />
             <Route path="/recuperar-senha" element={<RecuperarSenha />} />
             <Route path="/redefinir-senha" element={<RedefinirSenha />} />
+            <Route path="/privacidade" element={<Privacidade />} />
             <Route element={<SoLogado />}>
               <Route element={<Layout />}>
                 <Route path="/personagens" element={<Personagens />} />

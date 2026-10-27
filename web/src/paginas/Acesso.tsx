@@ -7,6 +7,7 @@ import { chamar } from '../api/cliente'
 import { useAutenticacao } from '../auth/Autenticacao'
 import { motivoDaSaida } from '../auth/sessao'
 import { Logo } from '../componentes/Layout'
+import Rodape from '../componentes/Rodape'
 import { Aviso, Botao, Campo } from '../componentes/ui'
 import { useInstalar } from '../lib/pwa'
 
@@ -53,7 +54,8 @@ function BotaoGoogle({ destino }: { destino: string }) {
 function Moldura({ titulo, children }: { titulo: string; children: React.ReactNode }) {
   const instalar = useInstalar()
   return (
-    <div className="flex min-h-screen items-center justify-center px-4">
+    <div className="flex min-h-screen flex-col">
+      <div className="flex flex-1 items-center justify-center px-4 py-6">
       <div className="w-full max-w-sm space-y-6">
         <div className="flex justify-center"><Logo /></div>
         {instalar && (
@@ -67,6 +69,8 @@ function Moldura({ titulo, children }: { titulo: string; children: React.ReactNo
           {children}
         </div>
       </div>
+      </div>
+      <Rodape />
     </div>
   )
 }
@@ -159,6 +163,9 @@ export function Cadastro() {
         <Campo rotulo="E-mail" name="email" type="email" autoComplete="email" required />
         <Campo rotulo="Senha" name="senha" type="password" autoComplete="new-password" required
           minLength={8} dica="Pelo menos 8 caracteres." />
+        <p className="text-xs text-texto-suave">
+          Veja o que guardamos e por quê no <Link to="/privacidade" className="text-esperanca hover:underline">Aviso de privacidade</Link>.
+        </p>
         <Aviso erro={erro} />
         <Botao type="submit" disabled={enviando} className="w-full">{enviando ? 'Criando…' : 'Criar conta'}</Botao>
       </form>
