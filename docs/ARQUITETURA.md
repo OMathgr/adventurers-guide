@@ -990,6 +990,25 @@ as sessões compartilhadas; com presença (bolinha verde em quem está online).
   desconecta). Com a página aberta, depois de mudar o Python pare a API e rode
   de novo.
 
+## Acesso: quem decide é a API
+
+A tela só esconde botões (`minhas_permissoes`, `sou_criador`, `posso_gerir`) para não
+oferecer o que daria erro; toda decisão de acesso e todo filtro do que cada um vê
+ficam na API: membro (`membro`, senão 404), mestre (`exigir_mestre`, jogador recebe
+404), permissões dos mestres (`exigir`, 403), dono do personagem (`linha_do_dono`),
+mestre responsável da sessão (`sessao_do_mestre`), personagem jogando a sessão
+(`_meu_personagem`). Respostas para jogadores já saem filtradas do servidor
+(revelado: vitalidade em categorias, nunca PV; NPCs sem notas; quadro só com o
+revelado; rolagens ocultas só para quem rolou; ficha dos outros só resumida).
+Exceção deliberada: `GET /imagens/{id}` é público pelo id (aleatório), porque o
+navegador carrega a foto por `<img>`, sem o login.
+
+`tests/api/test_acesso.py` (2026-10-27) garante isso: monta uma mesa com mestre,
+dois jogadores e alguém de fora, e chama TODAS as rotas do OpenAPI (as novas entram
+sozinhas), com corpos válidos gerados do esquema, como quem não deveria poder;
+cada uma tem de recusar (401, 403 ou 404). Rota nova que um membro qualquer pode
+usar entra em `DE_QUALQUER_MEMBRO`; rota só do próprio usuário, em `PROPRIAS`.
+
 ## Produção (`api/servidor.py`, `Dockerfile`, `deploy/`)
 
 Decisões do projeto (2026-10-14): VM gratuita da Oracle, HTTPS com DuckDNS +

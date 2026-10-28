@@ -61,6 +61,9 @@ personagem é guardado como criação + histórico de subidas de nível; a ficha
   `.venv\Scripts\python -m pytest` antes de concluir (as dependências da API
   estão no `.venv`).
 - Mudou `api/tabelas.py`? Gere a migração: `alembic revision --autogenerate -m "..."`.
+- Acesso só na API: a tela pode esconder botões, mas quem permite ou recusa (e
+  filtra o que cada um vê) é a API. Rota nova entra sozinha em
+  `tests/api/test_acesso.py`; se um membro qualquer puder usá-la, liste-a lá.
 - Front (`web/`): textos em português, regras só no motor (a tela guia e
   mostra o erro da API). Mudou a API? `npm run api:tipos` regenera
   `web/src/api/esquema.d.ts`. Antes de concluir: `npm test` e `npm run build`
