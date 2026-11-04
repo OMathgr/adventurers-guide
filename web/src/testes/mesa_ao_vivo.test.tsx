@@ -12,6 +12,9 @@ import { Botao, Escolhivel, Espacos } from '../componentes/ui'
 import Mesa from '../paginas/Mesa'
 import Personagens from '../paginas/Personagens'
 
+// a mesa 3D precisa de WebGL: no teste, fica de fora
+vi.mock('../componentes/Dados3D', () => ({ default: () => null }))
+
 function respostas(rotas: Record<string, unknown>) {
   return vi.fn(async (url: string) => {
     const caminho = url.replace(/^\/api/, '')
@@ -99,6 +102,62 @@ describe('Sessão do mestre', () => {
   })
 })
 
+describe('Sessão do jogador', () => {
+  const FICHA = {
+    nome: 'Lira', tracos: { AGILITY: 1, PRESENCE: 2, STRENGTH: -1, FINESSE: 0, INSTINCT: 0, KNOWLEDGE: 1 },
+    experiencias: {}, ataques: [], conjuracoes: [], cartas_ativas: [], cartas_cofre: [], cartas_aplicadas: [], habilidades: [],
+    proficiencia: 1, condicoes: [], cicatrizes: [], morto: false, pv_max: 5, pv_marcados: 1, estresse_max: 6, estresse_marcado: 0,
+    esperanca: 2, esperanca_max: 6, pontuacao_armadura: 0, armadura_marcada: 0, tracos_marcados: [],
+    caracteristicas_armadura: [], caracteristicas_ancestralidade: [], caracteristicas_comunidade: [],
+  }
+  const resumo = { id: 's1', titulo: 'A ponte', data: null, status: 'em_andamento', medo: 3, responsavel_id: 'u1', responsavel: 'Ana',
+    sou_responsavel: false, posso_gerir: false, participantes: 1 }
+  const vista = { ...resumo, mestre: 'Ana', meus: ['lira'], combate: [], npcs: [], lojas: [],
+    participantes: [{ personagem_id: 'lira', resumo: { nome: 'Lira' } }] }
+
+  function abrir(status = 'em_andamento') {
+    const rotas: Record<string, unknown> = {
+      '/mesas/m1': { ...MESA, meu_papel: 'jogador', sou_criador: false, minhas_permissoes: [], codigo_convite: null },
+      '/mesas/m1/sessoes': [{ ...resumo, status }], [`${base}/jogo`]: { ...vista, status },
+      [`${base}/rolagens`]: [], [`${base}/repouso`]: null, '/personagens/lira': FICHA, '/personagens/lira/sessao/pv': FICHA,
+      '/personagens': [], '/srd/cartas': [], '/srd/classes': [],
+    }
+    const fetch = vi.fn(async (url: string, opcoes?: RequestInit) => {
+      const caminho = url.replace(/^\/api/, '').split('?')[0]
+      if (opcoes?.method && opcoes.method !== 'GET' && caminho.startsWith('/personagens/lira/sessao')) {
+        return new Response(JSON.stringify(FICHA), { status: 200 })
+      }
+      return new Response(JSON.stringify(rotas[caminho] ?? (caminho.includes('/lira') ? FICHA : [])), { status: 200 })
+    })
+    vi.stubGlobal('fetch', fetch)
+    montarEm('/mesas/m1?aba=sessao', <Mesa />, '/mesas/:id')
+    return fetch
+  }
+
+  it('o painel de PV, PF e Esperança continua na aba de dados, e marca de lá', async () => {
+    const fetch = abrir()
+    await userEvent.click(await screen.findByRole('tab', { name: 'Rolagem de dados' }))
+    const painel = await screen.findByRole('group', { name: 'Marcas da sessão' })
+    expect(painel).toHaveClass('sm:hidden')   // no computador, a aba de dados segue sem ele
+    await userEvent.click(within(painel).getByRole('button', { name: 'Marcar 1 PV' }))
+    expect(fetch).toHaveBeenCalledWith(expect.stringContaining('/personagens/lira/sessao'), expect.objectContaining({ method: expect.any(String) }))
+  })
+
+  it('na aba de jogo o painel é um só, e também aparece no computador', async () => {
+    abrir()
+    const painel = await screen.findByRole('group', { name: 'Marcas da sessão' })
+    expect(painel).not.toHaveClass('sm:hidden')
+    expect(screen.getAllByRole('group', { name: 'Marcas da sessão' })).toHaveLength(1)
+  })
+
+  it('sessão encerrada não tem painel na aba de dados', async () => {
+    abrir('encerrada')
+    await userEvent.click(await screen.findByRole('tab', { name: 'Rolagem de dados' }))
+    expect(await screen.findByRole('region', { name: 'Registro de rolagens' })).toBeInTheDocument()
+    expect(screen.queryByRole('group', { name: 'Marcas da sessão' })).not.toBeInTheDocument()
+  })
+})
+
 describe('Lista de personagens', () => {
   const lista = [
     { id: 'p1', nome: 'Lira', nivel: 1, classe: 'bardo', mesa_id: 'm1', foto: null, em_jogo: { sessao_id: 's1', titulo: 'A ponte' } },
@@ -121,6 +180,48 @@ describe('Lista de personagens', () => {
     montarEm('/x', <Layout />, '/x')
     const menu = screen.getByRole('navigation', { name: 'Principal' })
     expect(await within(menu).findByRole('link', { name: 'Sessão' })).toHaveAttribute('href', '/mesas/m1?aba=sessao&sessao=s1')
+  })
+})
+
+describe('Menu na sessão em que se está jogando', () => {
+  const lista = [{ id: 'p1', nome: 'Lira', nivel: 1, classe: 'bardo', mesa_id: 'm1', foto: null, em_jogo: { sessao_id: 's1', titulo: 'A ponte' } }]
+  const marcados = async (caminho: string) => {
+    vi.stubGlobal('fetch', respostas({ '/personagens': lista }))
+    montarEm(caminho, <Layout />, '/mesas/:id')
+    const menu = screen.getByRole('navigation', { name: 'Principal' })
+    await within(menu).findByRole('link', { name: 'Sessão' })
+    return within(menu).getAllByRole('link').filter((l) => l.getAttribute('aria-current') === 'page').map((l) => l.textContent)
+  }
+
+  it('dentro da sessão, marca "Sessão" e não "Mesas"', async () => {
+    expect(await marcados('/mesas/m1?aba=sessao&sessao=s1')).toEqual(['Sessão'])
+  })
+
+  it('na aba de sessões, que abre a sessão em andamento, também', async () => {
+    expect(await marcados('/mesas/m1?aba=sessao')).toEqual(['Sessão'])
+  })
+
+  it('em outra aba da mesa, marca "Mesas"', async () => {
+    expect(await marcados('/mesas/m1')).toEqual(['Mesas'])
+  })
+
+  it('em outra sessão da mesma mesa, marca "Mesas"', async () => {
+    expect(await marcados('/mesas/m1?aba=sessao&sessao=s2')).toEqual(['Mesas'])
+  })
+
+  it('com personagens em duas sessões, marca "Sessão" na segunda e aponta para ela', async () => {
+    const duas = [...lista, { ...lista[0], id: 'p2', mesa_id: 'm2', em_jogo: { sessao_id: 's9', titulo: 'Outra' } }]
+    vi.stubGlobal('fetch', respostas({ '/personagens': duas }))
+    montarEm('/mesas/m2?aba=sessao&sessao=s9', <Layout />, '/mesas/:id')
+    const menu = screen.getByRole('navigation', { name: 'Principal' })
+    const sessaoLink = await within(menu).findByRole('link', { name: 'Sessão' })
+    expect(sessaoLink).toHaveAttribute('aria-current', 'page')
+    expect(sessaoLink).toHaveAttribute('href', '/mesas/m2?aba=sessao&sessao=s9')
+    expect(within(menu).getByRole('link', { name: 'Mesas' })).not.toHaveAttribute('aria-current')
+  })
+
+  it('em outra mesa, marca "Mesas"', async () => {
+    expect(await marcados('/mesas/m2?aba=sessao')).toEqual(['Mesas'])
   })
 })
 

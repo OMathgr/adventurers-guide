@@ -7,7 +7,7 @@ import { useState } from 'react'
 import { useFicha, useFichaNaSessao, useJogo, useParticipar } from '../../api/consultas'
 import type { Mesa, VistaDaSessao } from '../../api/tipos'
 import { useAutenticacao } from '../../auth/Autenticacao'
-import FichaDeJogo from '../../componentes/FichaDeJogo'
+import FichaDeJogo, { MarcasPrincipais } from '../../componentes/FichaDeJogo'
 import { ContextoDaSessao } from '../../componentes/contextoDaSessao'
 import RolagemDeDados from '../../componentes/RolagemDeDados'
 import FichaVisao from '../../componentes/Ficha'
@@ -87,6 +87,12 @@ function MinhaFicha({ mesa, sessao, pid }: { mesa: Mesa; sessao: VistaDaSessao; 
   )
 }
 
+/** Rolou e precisa marcar: no celular, o painel de PV, PF e Esperança continua à mão na aba de dados. */
+function MarcasNaRolagem({ pid }: { pid: string }) {
+  const ficha = useFicha(pid)
+  return ficha.data ? <MarcasPrincipais personagemId={pid} ficha={ficha.data} soCelular /> : null
+}
+
 export default function SessaoDeJogo({ mesa, sid }: { mesa: Mesa; sid: string }) {
   const jogo = useJogo(mesa.id, sid)
   const [meu, setMeu] = useState<string | null>(null)
@@ -121,7 +127,10 @@ export default function SessaoDeJogo({ mesa, sid }: { mesa: Mesa; sid: string })
       <Abas<'jogo' | 'dados'> atual={parte} aoTrocar={setParte}
         abas={[['jogo', emJogo ? 'Jogo' : 'Como terminou'], ['dados', 'Rolagem de dados']]} />
       {parte === 'dados' && (
-        <RolagemDeDados mesaId={mesa.id} sessaoId={s.id} personagemId={atual ?? null} souMestre={false} emAndamento={emJogo} />
+        <>
+          <RolagemDeDados mesaId={mesa.id} sessaoId={s.id} personagemId={atual ?? null} souMestre={false} emAndamento={emJogo} />
+          {emJogo && atual && <MarcasNaRolagem pid={atual} />}
+        </>
       )}
       {parte === 'jogo' && <>
       {emJogo && <PainelDeRepouso mesa={mesa} sessao={s} />}

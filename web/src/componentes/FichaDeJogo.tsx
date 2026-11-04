@@ -51,17 +51,16 @@ function Contador({ rotulo, detalhe, menos, mais, ocupado, children, curto, cont
   )
 }
 
-/** O cartão "Vida e Fadiga" com os controles de jogo. */
-export function MarcasDeJogo({ personagemId, ficha: f }: { personagemId: string; ficha: Ficha }) {
+/** PV, Fadiga e Esperança, o que mais muda em jogo: no celular ficam sempre à mão,
+    logo acima do menu. Com `soCelular`, não aparecem no computador (na rolagem, onde
+    a ficha não está na tela). O erro fica junto, senão não seria visto ao rolar a página. */
+export function MarcasPrincipais({ personagemId, ficha: f, soCelular }: { personagemId: string; ficha: Ficha; soCelular?: boolean }) {
   const marcar = useMarcarNaSessao(personagemId)
   const fazer = (m: MarcaDeJogo) => () => marcar.mutate(m)
   const ocupado = marcar.isPending || f.morto
-  const livresArmadura = f.pontuacao_armadura - f.armadura_marcada
-
   return (
-    <div className="space-y-4">
-      {/* o que mais muda em jogo: no celular fica sempre à mão, logo acima do menu */}
-      <div aria-label="Marcas da sessão" role="group" data-marcas-fixas className="space-y-4 max-sm:fixed max-sm:inset-x-0 max-sm:bottom-14 max-sm:z-20 max-sm:grid max-sm:grid-cols-3 max-sm:gap-2 max-sm:space-y-0 max-sm:border-t max-sm:border-borda max-sm:bg-superficie max-sm:p-2">
+    <div aria-label="Marcas da sessão" role="group" data-marcas-fixas
+      className={`space-y-4 max-sm:fixed max-sm:inset-x-0 max-sm:bottom-14 max-sm:z-20 max-sm:grid max-sm:grid-cols-3 max-sm:gap-2 max-sm:space-y-0 max-sm:border-t max-sm:border-borda max-sm:bg-superficie max-sm:p-2 ${soCelular ? 'sm:hidden' : ''}`}>
       <Contador rotulo="Pontos de Vida" detalhe={`restam ${f.pv_max - f.pv_marcados}/${f.pv_max}`} ocupado={ocupado}
         curto="PV" contagem={`${f.pv_max - f.pv_marcados}/${f.pv_max}`} corDaContagem="text-pv"
         menos={{ texto: 'Marcar 1 PV', acao: fazer({ tipo: 'pv', acao: 'marcar', quantidade: 1 }), pode: f.pv_marcados < f.pv_max }}
@@ -80,7 +79,21 @@ export function MarcasDeJogo({ personagemId, ficha: f }: { personagemId: string;
         mais={{ texto: 'Ganhar 1 de Esperança', acao: fazer({ tipo: 'esperanca', acao: 'ganhar', quantidade: 1 }), pode: f.esperanca < f.esperanca_max }}>
         <Esperanca atual={f.esperanca} maximo={f.esperanca_max} />
       </Contador>
-      </div>
+      <div className="max-sm:col-span-3"><Aviso erro={marcar.error} /></div>
+    </div>
+  )
+}
+
+/** O cartão "Vida e Fadiga" com os controles de jogo. */
+export function MarcasDeJogo({ personagemId, ficha: f }: { personagemId: string; ficha: Ficha }) {
+  const marcar = useMarcarNaSessao(personagemId)
+  const fazer = (m: MarcaDeJogo) => () => marcar.mutate(m)
+  const ocupado = marcar.isPending || f.morto
+  const livresArmadura = f.pontuacao_armadura - f.armadura_marcada
+
+  return (
+    <div className="space-y-4">
+      <MarcasPrincipais personagemId={personagemId} ficha={f} />
       {f.pontuacao_armadura > 0 && (
         <Contador rotulo="Armadura" detalhe={`livres ${livresArmadura}/${f.pontuacao_armadura}`} ocupado={ocupado}
           menos={{ texto: 'Marcar 1 espaço de armadura', acao: fazer({ tipo: 'armadura', quantidade: 1 }), pode: livresArmadura > 0 }}>
