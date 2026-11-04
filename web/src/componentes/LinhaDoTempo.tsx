@@ -27,7 +27,7 @@ function ProximoNivelColuna({ evento, proximo, personagemId, ficha }:
   if (proximo.bloqueado_pela_mesa) {
     return (
       <div className="space-y-3">
-        <p className="rounded-xl border border-medo/50 bg-medo/10 p-3 text-sm">
+        <p className="rounded-xl border border-borda-campo bg-superficie-2 p-3 text-sm">
           A mesa está no nível {proximo.limite_mesa}. O mestre ainda não liberou o nível {proximo.nivel}.
         </p>
         {proximo.planejado && <Itens itens={evento.itens} apagado />}

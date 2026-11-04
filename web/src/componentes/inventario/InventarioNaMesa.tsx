@@ -60,7 +60,7 @@ export default function InventarioNaMesa({ mesaId, pid, nome, podeDar }: {
                   <li key={i.id}>
                     <button type="button" disabled={dar.isPending}
                       onClick={() => dar.mutate({ tipo: 'da_mesa', item_id: i.id, quantidade: 1 })}
-                      className="w-full rounded-lg border border-borda bg-superficie px-3 py-2 text-left text-sm hover:border-esperanca">
+                      className="w-full rounded-lg border border-borda bg-superficie px-3 py-2 text-left text-sm hover:border-texto-suave">
                       <span className="flex items-center justify-between gap-2">
                         <span className="font-medium">{i.nome}</span>
                         <span className="text-xs text-texto-suave">{NOME_TIPO_PROPRIO[i.tipo]}</span>

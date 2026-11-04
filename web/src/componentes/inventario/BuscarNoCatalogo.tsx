@@ -68,7 +68,7 @@ export function BuscarNoCatalogo({ tipos, aoEscolher }: {
           {filtradas.slice(0, LIMITE).map((l) => (
             <li key={l.id}>
               <button type="button" onClick={() => aoEscolher({ tipo: l.tipo, id: l.id, nome: l.nome })}
-                className="w-full rounded-lg border border-borda bg-superficie px-3 py-2 text-left text-sm hover:border-esperanca">
+                className="w-full rounded-lg border border-borda bg-superficie px-3 py-2 text-left text-sm hover:border-texto-suave">
                 <span className="flex items-center justify-between gap-2">
                   <span className="font-medium">{l.nome}<Original nome={l.nome} original={l.original} /></span>
                   {l.patamar && <Selo>P{l.patamar}</Selo>}

@@ -39,11 +39,11 @@ export default function CartaoHabilidades({ ficha }: { ficha: Ficha }) {
     else grupos.push({ origem: h.origem, itens: [h] })
   }
   return (
-    <Cartao titulo="Habilidades" className="lg:col-span-3">
+    <Cartao titulo="Habilidades" destaque>
       <div className="grid gap-5 md:grid-cols-2">
         {grupos.map((g) => (
           <section key={g.origem} className="space-y-3">
-            <h3 className="text-sm text-esperanca">{g.origem}</h3>
+            <h3 className="text-base text-esperanca-forte">{g.origem}</h3>
             {Object.keys(NOME_ORIGEM_HABILIDADE).map((tipo) => {
               const itens = g.itens.filter((h) => h.tipo === tipo)
               if (itens.length === 0) return null

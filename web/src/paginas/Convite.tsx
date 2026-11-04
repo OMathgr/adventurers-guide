@@ -21,7 +21,7 @@ export default function Convite() {
     return (
       <div className="space-y-3">
         <Aviso erro={entrar.error} />
-        <Link to="/mesas" className="text-esperanca hover:underline">Ir para suas mesas</Link>
+        <Link to="/mesas" className="enlace">Ir para suas mesas</Link>
       </div>
     )
   }

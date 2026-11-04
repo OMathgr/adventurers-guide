@@ -50,6 +50,7 @@ export default function Conta() {
       <h1 className="text-2xl">Conta</h1>
       <Cartao titulo={usuario.nome}>
         <p className="text-sm text-texto-suave">{usuario.email}</p>
+        <Botao variante="secundario" className="mt-3 sm:hidden" onClick={sair}>Sair da conta</Botao>
       </Cartao>
 
       <Cartao titulo="App no celular">

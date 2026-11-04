@@ -33,7 +33,7 @@ export function MiniFicha({ f }: { f: Resumo }) {
         </div>
         <div>
           <p className="text-xs text-texto-suave">Fadiga: {f.estresse_max - f.estresse_marcado}/{f.estresse_max} PF</p>
-          <Espacos total={f.estresse_max} marcados={f.estresse_marcado} rotulo={`PF de ${nome}`} cor="medo" restantes />
+          <Espacos total={f.estresse_max} marcados={f.estresse_marcado} rotulo={`PF de ${nome}`} cor="fadiga" restantes />
         </div>
         <div>
           <p className="text-xs text-texto-suave">Esperança: {f.esperanca}/{f.esperanca_max}</p>

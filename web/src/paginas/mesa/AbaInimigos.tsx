@@ -175,7 +175,7 @@ export default function AbaInimigos({ mesaId, podeEditar }: { mesaId: string; po
         {painel.modo === 'editar' && (
           <form className="space-y-4 rounded-2xl border border-borda bg-superficie p-4 sm:p-5"
             onSubmit={(e) => { e.preventDefault(); salvarEdicao(painel.inimigo) }}>
-            <h2 className="text-lg text-esperanca">{painel.inimigo.id ? `Editar ${painel.inimigo.nome}` : 'Novo inimigo'}</h2>
+            <h2 className="text-lg text-texto">{painel.inimigo.id ? `Editar ${painel.inimigo.nome}` : 'Novo inimigo'}</h2>
             <EditorInimigo key={painel.inimigo.id || 'novo'} valor={painel.inimigo}
               aoMudar={(inimigo) => setPainel({ modo: 'editar', inimigo })} />
             <AvisoDeConflito erro={salvar.error} ocupado={salvar.isPending}

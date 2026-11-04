@@ -11,7 +11,7 @@ const EMAIL = 'o.mathgr@outlook.com'
 function Secao({ titulo, children }: { titulo: string; children: React.ReactNode }) {
   return (
     <section className="space-y-2">
-      <h2 className="text-lg text-esperanca">{titulo}</h2>
+      <h2 className="text-lg text-texto">{titulo}</h2>
       {children}
     </section>
   )
@@ -19,7 +19,7 @@ function Secao({ titulo, children }: { titulo: string; children: React.ReactNode
 
 export default function Privacidade() {
   const { logado } = useAutenticacao()
-  const email = <a href={`mailto:${EMAIL}`} className="text-esperanca underline">{EMAIL}</a>
+  const email = <a href={`mailto:${EMAIL}`} className="text-texto underline">{EMAIL}</a>
   return (
     <div className="min-h-screen">
       <header className="border-b border-borda bg-superficie/80">

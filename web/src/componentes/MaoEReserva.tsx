@@ -74,9 +74,9 @@ export default function MaoEReserva({ ficha, personagemId }: { ficha: Ficha; per
       {ids.map((id) => {
         const carta = nomes.carta(id)
         return (
-          <details key={id} className={`rounded-xl border border-borda bg-fundo/60 p-3 ${naReserva ? 'opacity-75' : ''}`}>
+          <details key={id} className={`carta p-4 ${naReserva ? 'opacity-75' : ''}`}>
             <summary className="cursor-pointer list-none">
-              <span className="font-titulo">{carta?.nome ?? id}</span><Original nome={carta?.nome} original={carta?.nome_original} />
+              <span className="font-titulo font-bold text-esperanca-forte">{carta?.nome ?? id}</span><Original nome={carta?.nome} original={carta?.nome_original} />
               <span className="mt-1 flex flex-wrap gap-1.5">
                 {carta && <Selo>{dominio(carta.dominio)} · nível {carta.nivel}</Selo>}
                 {carta && <Selo>troca {carta.custo_recall}</Selo>}
@@ -108,13 +108,13 @@ export default function MaoEReserva({ ficha, personagemId }: { ficha: Ficha; per
   )
 
   return (
-    <Cartao titulo={`Cartas de domínio: mão (${naMao}/${LIMITE_MAO})`} className="lg:col-span-3">
+    <Cartao titulo={`Cartas de domínio: mão (${naMao}/${LIMITE_MAO})`} destaque>
       <Aviso erro={guardar.error ?? recuperar.error} />
       {ficha.cartas_ativas.length === 0 && <p className="text-sm text-texto-suave">Nenhuma carta na mão.</p>}
       {lista(ficha.cartas_ativas, false)}
       {ficha.cartas_cofre.length > 0 && (
         <>
-          <h3 className="mb-2 mt-4 text-sm text-esperanca">Reserva ({ficha.cartas_cofre.length})</h3>
+          <h3 className="mb-2 mt-4 text-base text-esperanca-forte">Reserva ({ficha.cartas_cofre.length})</h3>
           {lista(ficha.cartas_cofre, true)}
         </>
       )}

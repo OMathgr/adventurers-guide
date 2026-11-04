@@ -12,7 +12,7 @@ export default function MedoDoMestre({ medo, titulo = 'Medo', aoMudar, ocupado, 
   const podeMudar = !!aoMudar
   const pip = (i: number) => {
     const cheio = i < medo
-    const classe = `h-5 w-5 rotate-45 rounded-[3px] border-2 border-medo ${cheio ? 'bg-medo' : 'bg-fundo'}`
+    const classe = `h-5 w-5 rotate-45 rounded-[3px] border-2 border-medo max-sm:h-7 max-sm:w-7 ${cheio ? 'bg-medo' : 'bg-fundo'}`
     if (!aoMudar) return <span key={i} className={classe} />
     return (
       <button key={i} type="button" aria-label={`Medo ${i + 1}`} aria-pressed={cheio} disabled={ocupado}
@@ -20,11 +20,14 @@ export default function MedoDoMestre({ medo, titulo = 'Medo', aoMudar, ocupado, 
         className={`${classe} transition hover:border-texto`} />
     )
   }
+  // quanto mais Medo, mais a mesa sente: de 9 em diante o painel pesa
+  const alto = medo >= 9
   return (
-    <section aria-label={titulo} className="rounded-2xl border border-medo/50 bg-medo/10 p-4">
+    <section aria-label={titulo} data-alto={alto || undefined}
+      className={`rounded-2xl border p-4 ${alto ? 'border-2 border-medo bg-medo/25' : 'border-medo/60 bg-medo/10'}`}>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 className="font-titulo text-base">
-          {titulo} <span className="text-2xl text-medo" aria-live="polite">{medo}</span>
+          {titulo} <span className={`${alto ? 'text-4xl' : 'text-2xl'} font-bold text-medo`} aria-live="polite">{medo}</span>
           <span className="text-sm text-texto-suave">/{MAXIMO}</span>
         </h2>
         {aoMudar && (
@@ -36,7 +39,7 @@ export default function MedoDoMestre({ medo, titulo = 'Medo', aoMudar, ocupado, 
           </div>
         )}
       </div>
-      <div className="mt-3 flex flex-wrap gap-2.5 pl-1" role={podeMudar ? 'group' : 'img'}
+      <div className="mt-3 grid w-fit grid-cols-6 gap-3 pl-1 max-sm:gap-4" role={podeMudar ? 'group' : 'img'}
         aria-label={`${titulo}: ${medo} de ${MAXIMO}`}>
         {Array.from({ length: MAXIMO }, (_, i) => pip(i))}
       </div>

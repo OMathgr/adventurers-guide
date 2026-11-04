@@ -22,7 +22,7 @@ export default function AbaConvite({ mesa }: { mesa: Mesa }) {
   return (
     <Cartao titulo="Convite">
       <p className="text-sm text-texto-suave">Passe o código ou o link para quem vai jogar. Quem entra começa como jogador.</p>
-      <p className="my-3 font-titulo text-3xl tracking-[0.3em] text-esperanca" aria-label="Código de convite">
+      <p className="my-3 font-titulo text-3xl tracking-[0.3em] text-texto" aria-label="Código de convite">
         {mesa.codigo_convite}
       </p>
       <p className="break-all text-xs text-texto-suave">{link}</p>

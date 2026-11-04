@@ -32,7 +32,7 @@ export default function GuiaDeBatalha({ mesaId, sid, encontroId, guia, podeEdita
   return (
     <section aria-label="Guia de Batalha" className="space-y-3 rounded-2xl border border-borda bg-superficie p-4">
       <header className="flex flex-wrap items-baseline justify-between gap-2">
-        <h3 className="text-sm text-esperanca">Guia de Batalha</h3>
+        <h3 className="text-sm text-texto">Guia de Batalha</h3>
         <p className="text-sm">
           <b className={passou ? 'text-perigo' : 'text-texto'}>{guia.gasto}</b>
           <span className="text-texto-suave"> de {guia.total} PB gastos · </span>
@@ -43,7 +43,7 @@ export default function GuiaDeBatalha({ mesaId, sid, encontroId, guia, podeEdita
       </header>
       <div className="h-2 overflow-hidden rounded-full bg-superficie-2" role="img"
         aria-label={`${guia.gasto} de ${guia.total} Pontos de Batalha gastos`}>
-        <div className={`h-full ${passou ? 'bg-perigo' : 'bg-esperanca'}`} style={{ width: `${proporcao}%` }} />
+        <div className={`h-full ${passou ? 'bg-perigo' : 'bg-texto-suave'}`} style={{ width: `${proporcao}%` }} />
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">

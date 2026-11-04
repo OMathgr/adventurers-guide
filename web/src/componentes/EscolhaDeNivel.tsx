@@ -71,7 +71,7 @@ function paraEscolha(m: AvancoMarcado, d: Detalhe): Escolha {
 function Secao({ titulo, children }: { titulo: string; children: React.ReactNode }) {
   return (
     <section className="space-y-2">
-      <h4 className="text-xs uppercase tracking-wider text-esperanca">{titulo}</h4>
+      <h4 className="text-xs uppercase tracking-wider text-esperanca-forte">{titulo}</h4>
       {children}
     </section>
   )
@@ -221,7 +221,7 @@ export default function EscolhaDeNivel({ id, ficha, proximo, quadros, aoConcluir
           </details>
         )}
         {comDetalhe.map((m) => (
-          <div key={m.chave} className="rounded-xl border border-esperanca/40 p-3">
+          <div key={m.chave} className="rounded-xl border border-esperanca/60 p-3">
             <p className="mb-2 text-sm font-medium">
               {NOME_OPCAO[m.opcao]} <span className="text-xs text-texto-suave">({m.tier}º patamar)</span>
             </p>

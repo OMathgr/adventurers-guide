@@ -31,7 +31,7 @@ export default function QuadroAvanco({ quadro, interacao }: { quadro: QuadroDeAv
   return (
     <section className="rounded-xl border border-borda bg-superficie-2/40 text-sm"
       aria-label={`${quadro.tier}º patamar`}>
-      <h4 className="rounded-t-xl bg-medo/25 px-3 py-1.5 font-titulo text-xs uppercase tracking-wider">
+      <h4 className="rounded-t-xl bg-superficie-2 px-3 py-1.5 font-titulo text-xs uppercase tracking-wider">
         {quadro.tier}º patamar <span className="text-texto-suave">· níveis {inicio} a {fim}</span>
       </h4>
       <ul className="space-y-1.5 p-3">
@@ -68,7 +68,7 @@ export default function QuadroAvanco({ quadro, interacao }: { quadro: QuadroDeAv
                   )
                 })}
               </span>
-              <span className={cortada ? 'text-texto-suave line-through' : sel > 0 ? 'text-esperanca' : ''}>
+              <span className={cortada ? 'text-texto-suave line-through' : sel > 0 ? 'font-semibold text-esperanca-forte' : ''}>
                 {nome}{o.custo === 2 && <span className="text-xs text-texto-suave"> (vale 2 avanços)</span>}
               </span>
             </li>

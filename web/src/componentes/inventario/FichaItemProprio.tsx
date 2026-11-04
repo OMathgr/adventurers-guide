@@ -11,7 +11,7 @@ export default function FichaItemProprio({ item, acoes }: { item: ItemProprio; a
     <article className="space-y-3 rounded-2xl border border-borda bg-superficie p-4 sm:p-5">
       <header className="flex flex-wrap items-start justify-between gap-2">
         <div>
-          <h2 className="text-lg text-esperanca">{item.nome}</h2>
+          <h2 className="text-lg text-texto">{item.nome}</h2>
           <p className="text-sm text-texto-suave">{resumoDoItem(item)}</p>
         </div>
         <span className="flex gap-1">

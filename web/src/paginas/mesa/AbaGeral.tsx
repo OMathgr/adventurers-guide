@@ -64,7 +64,7 @@ function Personagens({ mesa }: { mesa: Mesa }) {
                 <span className="ml-2 text-sm text-texto-suave">Nível {x.nivel} · {nomeClasse(x.classe)} · {x.jogador}</span>
               </span>
               {podeTirar(x.id) && (
-                <Botao variante="perigo" className="shrink-0 px-3 py-1" disabled={remover.isPending}
+                <Botao variante="fantasma" className="shrink-0 px-3 py-1 !text-perigo" disabled={remover.isPending}
                   onClick={() => confirm(`Tirar ${x.nome || 'este personagem'} da mesa? Ele continua existindo, `
                     + 'só fica sem mesa. Se estiver numa sessão em andamento, sai dela e as marcas dela se perdem.')
                     && remover.mutate(x.id)}>
@@ -112,7 +112,7 @@ export default function AbaGeral({ mesa }: { mesa: Mesa }) {
     <div className="grid gap-4 lg:grid-cols-2">
       {/* Medo, repouso, revelado, lojas e as fichas de jogo ficam em cada sessão (aba Sessões) */}
       {mesa.medo_em_jogo.length > 0 && (
-        <p className="rounded-xl border border-esperanca/50 bg-esperanca/10 px-3 py-2 text-sm lg:col-span-2">
+        <p className="rounded-xl border border-borda-campo bg-superficie-2 px-3 py-2 text-sm lg:col-span-2">
           Há sessão em andamento: entre pela aba <b>Sessões</b>.
         </p>
       )}

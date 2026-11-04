@@ -27,7 +27,7 @@ const ROLAGEM: Rolagem = {
   },
 } as unknown as Rolagem
 
-function montar() {
+function montar(rolagem: Rolagem = ROLAGEM) {
   const chamadas: { url: string; corpo?: unknown }[] = []
   vi.stubGlobal('fetch', vi.fn(async (url: string, opcoes?: RequestInit) => {
     const caminho = url.replace(/^\/api/, '')
@@ -37,8 +37,8 @@ function montar() {
         { id: 'privilege', nome: 'Privilégio', momento: 'antes', condicao: 'conviver com nobres', disponivel: true,
           custo_esperanca: 0, custo_fadiga: 0, escolha: [] },
         { id: 'arcana_touched', nome: 'Toque Arcano', momento: 'automatico', disponivel: true, escolha: [] }]
-      : caminho.includes('/rolagens') && opcoes?.method === 'POST' ? ROLAGEM
-      : caminho.includes('/rolagens') ? [ROLAGEM]
+      : caminho.includes('/rolagens') && opcoes?.method === 'POST' ? rolagem
+      : caminho.includes('/rolagens') ? [rolagem]
       : caminho === '/srd/cartas' ? [] : {}
     return new Response(JSON.stringify(corpo), { status: 200 })
   }))
@@ -63,6 +63,23 @@ describe('Rolagem de dados', () => {
     const pedido = chamadas.find((c) => c.url === '/mesas/m1/sessoes/s1/rolagens' && c.corpo)?.corpo as Record<string, unknown>
     expect(pedido).toMatchObject({ tipo: 'atributo', traco: 'PRESENCE', personagem_id: 'lira', experiencias: ['Diplomata'],
       dificuldade: 12, opcoes: [{ id: 'privilege', quantidade: null, escolha: null }] })
+  })
+
+  it.each([
+    ['esperanca', 'com Esperança', 'text-esperanca-forte', 'border-esperanca'],
+    ['critico', 'Crítico!', 'text-esperanca-forte', 'border-esperanca'],
+    ['medo', 'com Medo', 'text-medo', 'border-medo'],
+  ])('a rolagem %s acompanha a cor do resultado', async (dualidade, selo, cor, borda) => {
+    montar({ ...ROLAGEM, resultado: { ...ROLAGEM.resultado, dualidade } } as unknown as Rolagem)
+    const registro = await screen.findByRole('region', { name: 'Registro de rolagens' })
+    expect(await within(registro).findByText('15')).toHaveClass(cor)
+    expect(within(registro).getByText(selo).closest('li')).toHaveClass(borda)
+  })
+
+  it('rolagem sem dualidade (dano) fica neutra', async () => {
+    montar({ ...ROLAGEM, resultado: { ...ROLAGEM.resultado, dualidade: null, tipo: 'dano' } } as unknown as Rolagem)
+    const registro = await screen.findByRole('region', { name: 'Registro de rolagens' })
+    expect(await within(registro).findByText('15')).toHaveClass('text-texto')
   })
 
   it('o registro mostra os dados, o total e o que foi aplicado', async () => {

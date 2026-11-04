@@ -213,7 +213,7 @@ export default function Lojas({ mesa, sessao }: { mesa: Mesa; sessao: Sessao }) 
     <section className="space-y-3">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h3 className="text-lg text-esperanca">Lojas</h3>
+          <h3 className="text-lg text-texto">Lojas</h3>
           <p className="text-xs text-texto-suave">Lugares onde os personagens podem comprar nesta sessão.</p>
         </div>
         {sessao.sou_responsavel && (

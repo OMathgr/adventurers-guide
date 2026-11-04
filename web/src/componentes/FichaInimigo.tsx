@@ -31,7 +31,7 @@ export default function FichaInimigo({ adversario: a, acoes }: { adversario: Adv
         <div className="flex items-center gap-3">
           {a.foto && <Foto id={a.foto} nome={a.nome} />}
           <div>
-            <h2 className="text-xl text-esperanca">
+            <h2 className="text-xl text-texto">
               {a.nome}<Original nome={a.nome} original={a.nome_original} />
             </h2>
             <p className="text-sm font-medium uppercase tracking-wide text-texto-suave">
@@ -56,7 +56,7 @@ export default function FichaInimigo({ adversario: a, acoes }: { adversario: Adv
 
       <div className="mt-2 grid gap-1.5 sm:grid-cols-2">
         <Espacos total={a.pv} marcados={0} rotulo="Pontos de Vida" restantes />
-        <Espacos total={a.pf} marcados={0} rotulo="Pontos de Fadiga" cor="medo" restantes />
+        <Espacos total={a.pf} marcados={0} rotulo="Pontos de Fadiga" cor="fadiga" restantes />
       </div>
 
       <p className="mt-3 text-sm">

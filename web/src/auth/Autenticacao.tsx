@@ -20,21 +20,21 @@ function AvisoDeInatividade({ restante }: { restante: number }) {
   const fracao = Math.max(0, Math.min(1, restante / AVISO_ANTES_MS))
   return (
     <div role="alert" className="fixed inset-x-0 bottom-0 z-50 px-4 pb-4 sm:bottom-4 sm:left-auto sm:right-4 sm:w-96 sm:px-0 sm:pb-0">
-      <div className="overflow-hidden rounded-2xl border border-esperanca/60 bg-superficie shadow-lg">
+      <div className="overflow-hidden rounded-2xl border border-borda-campo bg-superficie shadow-lg">
         <div className="space-y-2 p-4">
           <p className="font-semibold">Você está sem usar o app</p>
           <p className="text-sm text-texto-suave">
             Por segurança, vamos desconectar em{' '}
-            <b aria-hidden className="font-titulo text-lg tabular-nums text-esperanca">{formatarContagem(restante)}</b>
+            <b aria-hidden className="font-titulo text-lg tabular-nums text-texto">{formatarContagem(restante)}</b>
             <span className="sr-only">alguns minutos</span>.
           </p>
           <button type="button"
-            className="w-full rounded-lg bg-esperanca px-4 py-2 text-sm font-semibold text-sobre-esperanca hover:bg-esperanca-forte">
+            className="w-full botao-principal">
             Continuar conectado
           </button>
         </div>
         <div className="h-1.5 bg-borda" aria-hidden>
-          <div className="h-full bg-esperanca transition-[width] duration-1000 ease-linear" style={{ width: `${fracao * 100}%` }} />
+          <div className="h-full bg-texto-suave transition-[width] duration-1000 ease-linear" style={{ width: `${fracao * 100}%` }} />
         </div>
       </div>
     </div>

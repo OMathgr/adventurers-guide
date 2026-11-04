@@ -14,7 +14,7 @@ import { Aviso, Cartao } from './ui'
 /** Três barrinhas: cheia (3), metade (2), baixa (1), derrotado (0). */
 const NIVEL: Record<string, number> = { vida_cheia: 3, metade_da_vida: 2, vida_baixa: 1, derrotado: 0 }
 const COR: Record<string, string> = {
-  vida_cheia: 'bg-sucesso', metade_da_vida: 'bg-esperanca', vida_baixa: 'bg-perigo', derrotado: 'bg-borda',
+  vida_cheia: 'bg-sucesso', metade_da_vida: 'bg-texto-suave', vida_baixa: 'bg-perigo', derrotado: 'bg-borda',
 }
 
 function Vitalidade({ estado }: { estado: string }) {
@@ -77,7 +77,7 @@ export function Revelado({ v }: { v: Vista }) {
               <li key={i.id} className={`rounded-xl border border-borda bg-fundo/60 p-3 text-sm ${i.estoque === 0 ? 'opacity-50' : ''}`}>
                 <p className="flex items-center justify-between gap-2">
                   <span className="font-medium">{i.nome}</span>
-                  <span className="text-esperanca">{i.preco.total === 0 && !i.preco.moedas ? 'de graça' : formatarOuro(i.preco.total, i.preco.moedas ?? 0)}</span>
+                  <span className="text-texto">{i.preco.total === 0 && !i.preco.moedas ? 'de graça' : formatarOuro(i.preco.total, i.preco.moedas ?? 0)}</span>
                 </p>
                 {i.proprio && <p className="mt-1 text-xs text-texto-suave">{resumoDoItem(i.proprio)}</p>}
                 {i.texto && <p className="mt-1 text-xs text-texto-suave">{i.texto}</p>}

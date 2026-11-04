@@ -41,7 +41,7 @@ export default function Mesas() {
         {mesas.data?.map((m) => (
           <li key={m.id}>
             <Link to={`/mesas/${m.id}`}
-              className="flex items-center justify-between gap-2 rounded-2xl border border-borda bg-superficie p-4 transition hover:border-esperanca">
+              className="flex items-center justify-between gap-2 rounded-2xl border border-borda bg-superficie p-4 transition hover:border-texto-suave">
               <span className="font-titulo text-lg">{m.nome}</span>
               <Selo destaque={m.meu_papel === 'mestre'}>{NOME_PAPEL[m.meu_papel] ?? m.meu_papel}</Selo>
             </Link>

@@ -93,7 +93,7 @@ export default function UsarCarta({ carta, ficha, personagemId, sessao, rolagemI
       {uso.nota && <p className="text-xs text-texto-suave">{uso.nota}</p>}
       <Botao variante="secundario" disabled={!pronto || usar.isPending} onClick={enviar}>Usar {carta.nome}</Botao>
       {usar.data && (
-        <div role="status" className="rounded-lg border border-esperanca/40 bg-esperanca/10 p-2 text-xs">
+        <div role="status" className="rounded-lg border border-borda-campo bg-superficie-2 p-2 text-xs">
           {usar.data.notas.join(' ')}
           {usar.data.teste && <p className="mt-1 font-medium">Role agora: {usar.data.teste} (aba Rolagem de dados).</p>}
         </div>

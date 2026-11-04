@@ -12,7 +12,7 @@ type VarianteBotao = 'primario' | 'secundario' | 'perigo' | 'fantasma'
 
 const ESTILO_BOTAO: Record<VarianteBotao, string> = {
   primario: 'bg-esperanca text-sobre-esperanca hover:bg-esperanca-forte font-semibold',
-  secundario: 'bg-superficie-2 text-texto border border-borda hover:border-esperanca',
+  secundario: 'bg-superficie-2 text-texto border border-borda-campo hover:border-texto',
   perigo: 'bg-transparent text-perigo border border-perigo/60 hover:bg-perigo/10',
   fantasma: 'bg-transparent text-texto-suave hover:text-texto',
 }
@@ -23,21 +23,24 @@ export function Botao({ variante = 'primario', className, ...props }:
     <button
       {...props}
       className={juntar(
-        'inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm transition',
-        'disabled:cursor-not-allowed disabled:opacity-50',
+        'inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm transition max-sm:min-h-11',
+        // desabilitado é sempre neutro: o laranja apagado sobre o azul virava marrom
+        'disabled:cursor-not-allowed disabled:border disabled:border-borda disabled:bg-superficie-2 disabled:font-normal disabled:text-texto-suave',
         ESTILO_BOTAO[variante], className,
       )}
     />
   )
 }
 
-export function Cartao({ titulo, acao, children, className }:
-  { titulo?: ReactNode; acao?: ReactNode; children: ReactNode; className?: string }) {
+/** `destaque`: o título em laranja, para o que é do personagem (habilidades, herança, cartas). */
+export function Cartao({ titulo, acao, children, className, destaque }:
+  { titulo?: ReactNode; acao?: ReactNode; children: ReactNode; className?: string; destaque?: boolean }) {
   return (
     <section className={juntar('rounded-2xl border border-borda bg-superficie p-4 sm:p-5', className)}>
       {(titulo || acao) && (
-        <header className="mb-3 flex items-center justify-between gap-2">
-          {titulo && <h2 className="text-base text-esperanca">{titulo}</h2>}
+        <header className="mb-3 flex items-center gap-3">
+          {titulo && <h2 className={juntar('rubrica', destaque && 'text-esperanca-forte')}>{titulo}</h2>}
+          <span aria-hidden className="h-px min-w-4 flex-1 bg-borda" />
           {acao}
         </header>
       )}
@@ -47,7 +50,7 @@ export function Cartao({ titulo, acao, children, className }:
 }
 
 const ESTILO_ENTRADA =
-  'rounded-lg border border-borda bg-fundo px-3 py-2 text-texto placeholder:text-texto-suave/60 focus:border-esperanca focus:outline-none'
+  'rounded-lg border border-borda-campo bg-fundo px-3 py-2 text-texto placeholder:text-texto-suave focus:border-esperanca focus:outline-none max-sm:min-h-11'
 
 /** Rótulo + entrada + dica. A dica fica fora do <label> (não entra no nome
     acessível) e é ligada à entrada por aria-describedby. */
@@ -116,7 +119,7 @@ export function Abas<T extends string>({ abas, atual, aoTrocar }:
         <button key={id} role="tab" type="button" aria-selected={id === atual} onClick={() => aoTrocar(id)}
           className={juntar(
             'shrink-0 whitespace-nowrap border-b-2 px-3 py-2 text-sm transition sm:px-4',
-            id === atual ? 'border-esperanca text-esperanca' : 'border-transparent text-texto-suave hover:text-texto',
+            id === atual ? 'border-esperanca font-semibold text-esperanca-forte' : 'border-transparent text-texto-suave hover:text-texto',
           )}>
           {nome}
         </button>
@@ -139,29 +142,37 @@ export function Carregando({ texto = 'Carregando…' }: { texto?: string }) {
   return <p className="py-8 text-center text-texto-suave" aria-live="polite">{texto}</p>
 }
 
-export function Selo({ children, destaque }: { children: ReactNode; destaque?: boolean }) {
+export function Selo({ children, destaque, tom }: { children: ReactNode; destaque?: boolean; tom?: 'esperanca' | 'medo' }) {
   return (
     <span className={juntar(
-      'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium',
-      destaque ? 'bg-esperanca/15 text-esperanca' : 'bg-superficie-2 text-texto-suave',
+      'inline-flex items-center whitespace-nowrap rounded-sm border px-2 py-0.5 text-xs font-medium',
+      tom === 'esperanca' ? 'border-esperanca text-esperanca-forte'
+        : tom === 'medo' ? 'border-medo text-medo'
+          : destaque ? 'border-texto text-texto' : 'border-borda-campo text-texto-suave',
     )}>
       {children}
     </span>
   )
 }
 
+// cada recurso tem a sua cor: laranja é só da Esperança, azul é só do Medo
+type CorDeEspaco = 'pv' | 'fadiga' | 'armadura' | 'perigo'
+const FUNDO_DE_ESPACO: Record<CorDeEspaco, string> = {
+  pv: 'bg-pv', fadiga: 'bg-fadiga', armadura: 'bg-texto-suave', perigo: 'bg-perigo',
+}
+
 /** Quadradinhos de PV/Fadiga/armadura. Com `restantes`, o padrão do projeto
     para PV/PF (PJs e inimigos): começam cheios e esvaziam com o dano
     (quadradinho cheio = o que resta). A API continua contando os marcados. */
-export function Espacos({ total, marcados, rotulo, cor = 'esperanca', restantes }:
-  { total: number; marcados: number; rotulo: string; cor?: 'esperanca' | 'medo' | 'perigo'; restantes?: boolean }) {
-  const fundo = { esperanca: 'bg-esperanca', medo: 'bg-medo', perigo: 'bg-perigo' }[cor]
+export function Espacos({ total, marcados, rotulo, cor = 'pv', restantes }:
+  { total: number; marcados: number; rotulo: string; cor?: CorDeEspaco; restantes?: boolean }) {
+  const fundo = FUNDO_DE_ESPACO[cor]
   const cheios = restantes ? total - marcados : marcados
   const descricao = restantes ? `${rotulo} restantes: ${cheios} de ${total}` : `${rotulo}: ${marcados} de ${total} marcados`
   return (
     <div className="flex flex-wrap gap-1" role="img" aria-label={descricao}>
       {Array.from({ length: total }, (_, i) => (
-        <span key={i} className={juntar('h-4 w-6 rounded-sm border border-borda', i < cheios && fundo)} />
+        <span key={i} className={juntar('h-4 w-6 rounded-sm border border-borda-campo', i < cheios && fundo)} />
       ))}
     </div>
   )
@@ -169,13 +180,13 @@ export function Espacos({ total, marcados, rotulo, cor = 'esperanca', restantes 
 
 /** Quadradinhos clicáveis: clicar no quadradinho N deixa N marcados; clicar
     no último marcado desmarca ele (como riscar e apagar na ficha de papel). */
-export function EspacosClicaveis({ total, marcados, rotulo, cor = 'esperanca', aoMudar, desabilitado, sufixo = 'marcados' }: {
-  total: number; marcados: number; rotulo: string; cor?: 'esperanca' | 'medo' | 'perigo'
+export function EspacosClicaveis({ total, marcados, rotulo, cor = 'pv', aoMudar, desabilitado, sufixo = 'marcados' }: {
+  total: number; marcados: number; rotulo: string; cor?: CorDeEspaco
   aoMudar: (marcados: number) => void; desabilitado?: boolean
   /** Fim da descrição para leitores de tela ("2 de 4 marcados"); vazio quando o rótulo já diz o que conta. */
   sufixo?: string
 }) {
-  const fundo = { esperanca: 'bg-esperanca', medo: 'bg-medo', perigo: 'bg-perigo' }[cor]
+  const fundo = FUNDO_DE_ESPACO[cor]
   return (
     <div className="flex flex-wrap gap-1" role="group"
       aria-label={`${rotulo}: ${marcados} de ${total}${sufixo ? ` ${sufixo}` : ''}`}>
@@ -183,7 +194,7 @@ export function EspacosClicaveis({ total, marcados, rotulo, cor = 'esperanca', a
         <button key={i} type="button" disabled={desabilitado}
           aria-label={`${rotulo} ${i + 1}`} aria-pressed={i < marcados}
           onClick={() => aoMudar(i + 1 === marcados ? i : i + 1)}
-          className={juntar('h-5 w-6 rounded-sm border border-borda transition hover:border-texto disabled:cursor-wait',
+          className={juntar('h-5 w-6 rounded-sm border border-borda-campo transition hover:border-texto disabled:cursor-wait max-sm:h-8 max-sm:w-8',
             i < marcados && fundo)} />
       ))}
     </div>
@@ -221,11 +232,17 @@ export function Escolhivel({ selecionado, desabilitado, onClick, children }:
       disabled={desabilitado}
       aria-pressed={selecionado}
       className={juntar(
-        'w-full rounded-xl border p-3 text-left transition',
-        selecionado ? 'border-esperanca bg-esperanca/10' : 'border-borda bg-superficie hover:border-texto-suave',
+        'relative w-full rounded-xl border p-3 text-left transition',
+        selecionado ? 'border-esperanca bg-esperanca/10 pr-8' : 'border-borda-campo bg-superficie hover:border-texto-suave',
         desabilitado && 'cursor-not-allowed opacity-40',
       )}
     >
+      {/* a seleção não depende só da cor */}
+      {selecionado && (
+        <svg viewBox="0 0 16 16" aria-hidden className="absolute right-2.5 top-3 h-4 w-4 text-esperanca-forte">
+          <path d="M3 8.5 6.5 12 13 4.5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      )}
       {children}
     </button>
   )
@@ -237,10 +254,10 @@ export function Etapas({ etapas, atual }: { etapas: string[]; atual: number }) {
     <ol className="mb-6 flex flex-wrap gap-x-4 gap-y-2 text-xs" aria-label="Etapas">
       {etapas.map((nome, i) => (
         <li key={nome} aria-current={i === atual ? 'step' : undefined}
-          className={juntar('flex items-center gap-1.5', i === atual ? 'text-esperanca' : i < atual ? 'text-texto' : 'text-texto-suave')}>
+          className={juntar('flex items-center gap-1.5', i === atual ? 'font-semibold text-esperanca-forte' : i < atual ? 'text-texto' : 'text-texto-suave')}>
           <span className={juntar(
-            'flex h-5 w-5 items-center justify-center rounded-full border text-[10px]',
-            i === atual ? 'border-esperanca bg-esperanca text-sobre-esperanca' : 'border-borda',
+            'flex h-6 w-6 items-center justify-center rounded-sm border text-xs',
+            i === atual ? 'border-esperanca bg-esperanca text-sobre-esperanca' : 'border-borda-campo',
           )}>{i + 1}</span>
           {nome}
         </li>

@@ -75,13 +75,20 @@ function CartasDaRolagem({ r, personagemId }: { r: Rolagem; personagemId: string
         if (!c?.uso) return null
         return (
           <details key={id}>
-            <summary className="cursor-pointer text-xs text-esperanca">Carta: {c.nome}</summary>
+            <summary className="cursor-pointer text-xs text-texto">Carta: {c.nome}</summary>
             <UsarCarta carta={c} ficha={ficha.data} personagemId={personagemId} sessao={sessao} rolagemId={r.id} />
           </details>
         )
       })}
     </div>
   )
+}
+
+// a rolagem acompanha o resultado: Esperança em laranja, Medo em azul; o crítico vale como Esperança
+const TOM_DA_DUALIDADE: Record<string, { tom: 'esperanca' | 'medo'; total: string; borda: string }> = {
+  esperanca: { tom: 'esperanca', total: 'text-esperanca-forte', borda: 'border-esperanca' },
+  critico: { tom: 'esperanca', total: 'text-esperanca-forte', borda: 'border-2 border-esperanca' },
+  medo: { tom: 'medo', total: 'text-medo', borda: 'border-medo' },
 }
 
 function Registro({ r, cores, personagemId, mesaId, sessaoId }: {
@@ -91,16 +98,17 @@ function Registro({ r, cores, personagemId, mesaId, sessaoId }: {
   const [escolha, setEscolha] = useState<Record<string, string>>({})
   const res = r.resultado
   const dual = res.dualidade
+  const tom = dual ? TOM_DA_DUALIDADE[dual] : undefined
   return (
-    <li className={`space-y-2 rounded-xl border border-borda bg-fundo/60 p-3 text-sm ${r.substituida ? 'opacity-50' : ''}`}>
+    <li data-resultado={dual ?? undefined} className={`space-y-2 rounded-xl border ${tom?.borda ?? 'border-borda'} bg-fundo/60 p-3 text-sm ${r.substituida ? 'opacity-50' : ''}`}>
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <p><b>{r.personagem ?? r.autor}</b> <span className="text-texto-suave">· {res.titulo}</span>
           {r.oculta && <span className="ml-2"><Selo>oculta</Selo></span>}
           {res.reacao_de && <span className="ml-2"><Selo destaque>{res.reacao_de}</Selo></span>}
           {r.substituida && <span className="ml-2 text-xs text-texto-suave">(refeita)</span>}</p>
         <p className="flex items-center gap-2">
-          {dual && <Selo destaque={dual !== 'medo'}>{NOME_DUALIDADE[dual]}</Selo>}
-          {res.tipo !== 'carta' && <span className="font-titulo text-2xl text-esperanca">{res.total}</span>}
+          {dual && <Selo tom={tom?.tom}>{NOME_DUALIDADE[dual]}</Selo>}
+          {res.tipo !== 'carta' && <span className={`font-titulo text-2xl font-bold ${tom?.total ?? 'text-texto'}`}>{res.total}</span>}
         </p>
       </div>
       <div className="flex flex-wrap items-center gap-1.5">
@@ -173,7 +181,7 @@ function Opcoes({ opcoes, escolhidas, mudar }: {
               <input type="checkbox" className="mt-1" checked={marcada} disabled={!o.disponivel} onChange={alternar} />
               <span>
                 <b>{o.nome}</b>
-                {custo(o) && <span className="ml-1 text-xs text-esperanca">({custo(o)})</span>}
+                {custo(o) && <span className="ml-1 text-xs text-texto">({custo(o)})</span>}
                 {o.limite && <span className="ml-1 text-xs text-texto-suave">· {LIMITE[o.limite]}</span>}
                 {(o.condicao || o.motivo) && (
                   <span className="block text-xs text-texto-suave">{o.disponivel ? o.condicao : o.motivo}</span>
@@ -375,6 +383,24 @@ function Cores({ cores, mudar }: { cores: CoresDosDados; mudar: (p: Partial<Core
   )
 }
 
+/** As últimas rolagens, para acompanhar a mesa sem sair da tela de jogo. */
+export function RegistroRecente({ mesaId, sessaoId }: { mesaId: string; sessaoId: string }) {
+  const registro = useRolagens(mesaId, sessaoId, null)
+  const [cores] = useCoresDosDados()
+  return (
+    <section aria-label="Últimas rolagens" className="space-y-2">
+      <h3 className="rubrica">Últimas rolagens</h3>
+      <Aviso erro={registro.error} />
+      {registro.data?.length === 0 && <p className="text-sm text-texto-suave">Ninguém rolou ainda.</p>}
+      <ul className="space-y-2">
+        {registro.data?.slice(0, 5).map((r) => (
+          <Registro key={r.id} r={r} cores={cores} personagemId={null} mesaId={mesaId} sessaoId={sessaoId} />
+        ))}
+      </ul>
+    </section>
+  )
+}
+
 export default function RolagemDeDados({ mesaId, sessaoId, personagemId, souMestre, emAndamento }: {
   mesaId: string; sessaoId: string; personagemId?: string | null; souMestre: boolean; emAndamento: boolean
 }) {
@@ -399,7 +425,7 @@ export default function RolagemDeDados({ mesaId, sessaoId, personagemId, souMest
           <Dados3D chave={ultima?.id ?? null} grupos={ultima ? gruposDaRolagem(ultima, cores) : []} />
         </Suspense>
         <section aria-label="Registro de rolagens" className="space-y-2">
-          <h3 className="text-sm text-esperanca">Registro da sessão</h3>
+          <h3 className="text-sm text-texto">Registro da sessão</h3>
           <Aviso erro={registro.error} />
           {registro.data?.length === 0 && <p className="text-sm text-texto-suave">Ninguém rolou ainda.</p>}
           <ul className="space-y-2">

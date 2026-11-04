@@ -34,10 +34,10 @@ function MesaDoPersonagem({ id, mesaId }: { id: string; mesaId: string | null | 
     <div className="space-y-2 text-sm">
       <p className="text-texto-suave">
         {mesaId
-          ? <>Mesa: <Link to={`/mesas/${mesaId}`} className="text-esperanca hover:underline">{atual?.nome ?? '…'}</Link></>
+          ? <>Mesa: <Link to={`/mesas/${mesaId}`} className="enlace">{atual?.nome ?? '…'}</Link></>
           : 'Sem mesa (sem limite de nível).'}
         {outras.length > 0 && !aberto && (
-          <button type="button" className="ml-2 text-esperanca hover:underline" onClick={() => setAberto(true)}>
+          <button type="button" className="ml-2 enlace" onClick={() => setAberto(true)}>
             Copiar para outra mesa
           </button>
         )}
@@ -98,7 +98,7 @@ export default function Personagem() {
             <EnviarFoto temFoto={!!resumo?.foto} desabilitado={foto.isPending} aoMudar={(imagem) => foto.mutate(imagem)} />
           </div>
           <div>
-            <h1 className="text-3xl">{f.nome || 'Sem nome'}</h1>
+            <h1 className="text-4xl leading-tight">{f.nome || 'Sem nome'}</h1>
             <p className="mt-1 text-texto-suave">
               Nível {f.nivel} · {nomes.classe(f.classe)} ({nomes.subclasse(f.subclasse)}, {NOME_ESTAGIO[f.estagio_subclasse]})
               {nomes.multiclasse && <> · Multiclasse {nomes.classe(nomes.multiclasse.classe)} ({dominio(nomes.multiclasse.dominio)})</>}
@@ -113,19 +113,18 @@ export default function Personagem() {
         <div className="flex gap-2">
           {f.nivel < 10 && (
             <Link to={`/personagens/${id}?visao=tempo`}
-              className="rounded-lg bg-esperanca px-4 py-2 text-sm font-semibold text-sobre-esperanca hover:bg-esperanca-forte">
+              className="botao-principal">
               Subir de nível
             </Link>
           )}
-          <Botao variante="perigo" onClick={excluir} disabled={apagar.isPending}>Excluir</Botao>
         </div>
       </header>
 
       {resumo?.em_jogo && resumo.mesa_id && (
-        <p className="rounded-xl border border-esperanca/50 bg-esperanca/10 px-3 py-2 text-sm">
+        <p className="rounded-xl border border-texto-suave bg-superficie-2 px-3 py-2 text-sm">
           Jogando agora: <b>{resumo.em_jogo.titulo}</b>.{' '}
           <Link to={`/mesas/${resumo.mesa_id}?aba=sessao&sessao=${resumo.em_jogo.sessao_id}`}
-            className="font-semibold text-esperanca hover:underline">Abrir a ficha de jogo</Link>
+            className="enlace font-semibold">Abrir a ficha de jogo</Link>
         </p>
       )}
       <Aviso erro={desfazer.error ?? apagar.error ?? foto.error} />
@@ -143,6 +142,10 @@ export default function Personagem() {
         <LinhaDoTempo eventos={tempo.data} personagemId={id} ficha={f}
           aoDesfazer={() => desfazer.mutate()} desfazendo={desfazer.isPending} />
       ))}
+      {/* longe de "Subir de nível": apagar não pode ser um toque errado */}
+      <div className="border-t border-borda pt-4">
+        <Botao variante="perigo" onClick={excluir} disabled={apagar.isPending}>Excluir</Botao>
+      </div>
     </div>
   )
 }

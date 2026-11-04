@@ -1,43 +1,58 @@
+@import "@fontsource/alegreya/400.css";
+@import "@fontsource/alegreya/500.css";
+@import "@fontsource/alegreya/700.css";
+@import "@fontsource/alegreya/400-italic.css";
+@import "@fontsource/alegreya-sans/400.css";
+@import "@fontsource/alegreya-sans/500.css";
+@import "@fontsource/alegreya-sans/700.css";
+@import "@fontsource/alegreya-sans/400-italic.css";
+@import "@fontsource/cinzel/700.css";
 @import "tailwindcss";
 
 /*
-  Identidade visual: azul-escuro (Medo) como base e laranja (Esperança) como
-  destaque. As cores são variáveis CSS; o Tailwind as expõe como classes
-  (bg-fundo, text-esperanca, border-borda...). Tema escuro é o padrão; o claro
-  é ativado por data-tema="claro" no <html>.
+  Identidade "Grimório": tinta noturna no escuro, pergaminho no claro. As cores
+  são variáveis CSS; o Tailwind as expõe como classes (bg-fundo, text-texto...).
+  Tema escuro é o padrão; o claro é ativado por data-tema="claro" no <html>.
+  Laranja é a Esperança e tudo o que anima o jogador: a ação principal, o que
+  está selecionado, os bônus e as conquistas de nível. Azul é só o Medo; PV e
+  Fadiga têm cor própria; títulos de seção e links são neutros.
 */
 :root {
-  --fundo: #0b1426;
-  --superficie: #12203b;
-  --superficie-2: #1a2c50;
-  --borda: #2a3f6b;
-  --texto: #e8edf7;
-  --texto-suave: #9fb0d0;
+  --fundo: #0a1120;
+  --superficie: #111c33;
+  --superficie-2: #1a2947;
+  --borda: #2e4168;
+  --borda-campo: #5f749f;
+  --texto: #ede6d6;
+  --texto-suave: #a9b4ca;
   --esperanca: #f39237;
   --esperanca-forte: #ffad5c;
   --sobre-esperanca: #1a0f04;
-  --medo: #5b7fd6;
+  --medo: #7395e8;
+  --pv: #e5648f;
+  --fadiga: #4cc2b8;
   --perigo: #ef6461;
   --sucesso: #4fbf8b;
   color-scheme: dark;
 }
 
-/* Claro, mas sem ofuscar: fundo cinza-azulado para os cartões se destacarem,
-   bordas visíveis e laranja/vermelho/verde escuros o bastante para texto
-   pequeno (contraste AA, 4,5:1, sobre os cartões). */
+/* Pergaminho: contraste AA (4,5:1) para texto pequeno sobre o papel. */
 :root[data-tema="claro"] {
-  --fundo: #dde3ee;
-  --superficie: #f8f9fc;
-  --superficie-2: #e6ebf4;
-  --borda: #9aa9c5;
-  --texto: #0c1730;
-  --texto-suave: #38476a;
-  --esperanca: #b0520a;
-  --esperanca-forte: #8f4207;
-  --sobre-esperanca: #ffffff;
+  --fundo: #e9dfc9;
+  --superficie: #f6f0e1;
+  --superficie-2: #e4d8bf;
+  --borda: #bfae8a;
+  --borda-campo: #7e6c4a;
+  --texto: #16213b;
+  --texto-suave: #4a5268;
+  --esperanca: #9f4706;
+  --esperanca-forte: #843a05;
+  --sobre-esperanca: #fff8ec;
   --medo: #2b4c9b;
-  --perigo: #b3302d;
-  --sucesso: #1d7650;
+  --pv: #9c1f55;
+  --fadiga: #0f6e69;
+  --perigo: #a82c29;
+  --sucesso: #196a47;
   color-scheme: light;
 }
 
@@ -46,16 +61,34 @@
   --color-superficie: var(--superficie);
   --color-superficie-2: var(--superficie-2);
   --color-borda: var(--borda);
+  --color-borda-campo: var(--borda-campo);
   --color-texto: var(--texto);
   --color-texto-suave: var(--texto-suave);
   --color-esperanca: var(--esperanca);
   --color-esperanca-forte: var(--esperanca-forte);
   --color-sobre-esperanca: var(--sobre-esperanca);
   --color-medo: var(--medo);
+  --color-pv: var(--pv);
+  --color-fadiga: var(--fadiga);
   --color-perigo: var(--perigo);
   --color-sucesso: var(--sucesso);
-  --font-titulo: "Cinzel", Georgia, serif;
-  --font-sans: "Inter", system-ui, sans-serif;
+  --font-titulo: "Alegreya", Georgia, serif;
+  --font-marca: "Cinzel", Georgia, serif;
+  --font-sans: "Alegreya Sans", system-ui, sans-serif;
+}
+
+/* A Alegreya Sans desenha minúsculas baixas: a escala sobe um degrau. Cantos de
+   papel cortado, não de cartão arredondado. */
+@theme {
+  --text-xs: 0.8125rem;
+  --text-xs--line-height: 1.3;
+  --text-sm: 0.9375rem;
+  --text-sm--line-height: 1.35;
+  --text-base: 1.0625rem;
+  --text-base--line-height: 1.4;
+  --radius-lg: 3px;
+  --radius-xl: 3px;
+  --radius-2xl: 4px;
 }
 
 @layer base {
@@ -65,13 +98,42 @@
   }
   body {
     @apply min-h-screen font-sans antialiased;
+    /* os algarismos antigos da Alegreya fazem "11" parecer "II" */
+    font-variant-numeric: lining-nums;
+    scrollbar-color: var(--borda-campo) var(--fundo);
   }
   h1, h2, h3 {
-    @apply font-titulo tracking-wide;
+    @apply font-titulo font-bold;
+    text-wrap: balance;
+  }
+  ::selection {
+    background: var(--texto);
+    color: var(--fundo);
   }
   :focus-visible {
-    outline: 2px solid var(--esperanca);
+    outline: 2px solid var(--texto);
     outline-offset: 2px;
+  }
+}
+
+@layer components {
+  /* título de seção de livro: pequeno, em Cinzel, seguido de um filete */
+  .rubrica {
+    @apply font-marca text-xs font-bold uppercase text-texto-suave;
+    letter-spacing: 0.1em;
+  }
+  .enlace {
+    @apply text-texto underline decoration-borda-campo underline-offset-2 hover:decoration-texto;
+  }
+  /* ação principal da tela, quando é um link */
+  .botao-principal {
+    @apply inline-flex items-center justify-center rounded-lg bg-esperanca px-4 py-2 text-sm font-semibold text-sobre-esperanca hover:bg-esperanca-forte max-sm:min-h-11;
+  }
+  /* moldura dupla, como a de uma carta de baralho: só em personagens e cartas */
+  .carta {
+    @apply rounded-2xl border border-borda-campo bg-superficie;
+    outline: 1px solid var(--borda);
+    outline-offset: -6px;
   }
 }
 

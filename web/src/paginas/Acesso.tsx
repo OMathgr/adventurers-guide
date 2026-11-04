@@ -6,6 +6,7 @@ import { Link, Navigate, useLocation, useNavigate, useSearchParams } from 'react
 import { chamar } from '../api/cliente'
 import { useAutenticacao } from '../auth/Autenticacao'
 import { motivoDaSaida } from '../auth/sessao'
+import DadosDuais from '../componentes/DadosDuais'
 import { Logo } from '../componentes/Layout'
 import Rodape from '../componentes/Rodape'
 import { Aviso, Botao, Campo } from '../componentes/ui'
@@ -55,19 +56,32 @@ function Moldura({ titulo, children }: { titulo: string; children: React.ReactNo
   const instalar = useInstalar()
   return (
     <div className="flex min-h-screen flex-col">
+      <div className="flex flex-1 flex-col lg:grid lg:grid-cols-[minmax(0,1fr)_38rem]">
+      <aside className="flex flex-col gap-5 border-b border-borda bg-superficie px-4 py-5 lg:border-b-0 lg:border-r lg:px-16 lg:py-12">
+        <Logo />
+        <div className="space-y-5 lg:my-auto">
+          <DadosDuais className="h-32 w-auto lg:h-72" />
+          <p className="max-w-xl font-titulo text-2xl font-bold leading-tight lg:text-5xl">
+            Cada rolagem decide entre a Esperança e o Medo.
+          </p>
+          <p className="hidden max-w-lg text-base text-texto-suave lg:block">
+            Fichas, mesas e sessões de Daggerheart, com o grupo inteiro na mesma página.
+          </p>
+        </div>
+      </aside>
       <div className="flex flex-1 items-center justify-center px-4 py-6">
       <div className="w-full max-w-sm space-y-6">
-        <div className="flex justify-center"><Logo /></div>
         {instalar && (
           <button type="button" onClick={instalar}
-            className="mx-auto block rounded-full border border-esperanca/60 px-4 py-1.5 text-sm text-esperanca hover:bg-esperanca/10">
+            className="mx-auto block rounded-full border border-borda-campo px-4 py-1.5 text-sm text-texto hover:bg-superficie-2">
             Instalar o app no celular
           </button>
         )}
-        <div className="rounded-2xl border border-borda bg-superficie p-6">
-          <h1 className="mb-4 text-xl">{titulo}</h1>
+        <div>
+          <h1 className="mb-4 text-3xl">{titulo}</h1>
           {children}
         </div>
+      </div>
       </div>
       </div>
       <Rodape />
@@ -110,7 +124,7 @@ export function Entrar() {
         <Campo rotulo="E-mail" name="email" type="email" autoComplete="email" required />
         <Campo rotulo="Senha" name="senha" type="password" autoComplete="current-password" required />
         <p className="-mt-2 text-right text-xs">
-          <Link to="/recuperar-senha" className="text-texto-suave hover:text-esperanca">Esqueci minha senha</Link>
+          <Link to="/recuperar-senha" className="text-texto-suave hover:text-texto">Esqueci minha senha</Link>
         </p>
         {motivo && !erro && !erroDoGoogle && (
           <p role="status" className="rounded-lg border border-borda bg-fundo px-3 py-2 text-sm text-texto-suave">{motivo}</p>
@@ -121,7 +135,7 @@ export function Entrar() {
       </form>
       <BotaoGoogle destino={destino} />
       <p className="mt-4 text-center text-sm text-texto-suave">
-        Novo por aqui? <Link to="/cadastro" state={{ de: destino }} className="text-esperanca hover:underline">Crie sua conta</Link>
+        Novo por aqui? <Link to="/cadastro" state={{ de: destino }} className="enlace">Crie sua conta</Link>
       </p>
     </Moldura>
   )
@@ -164,14 +178,14 @@ export function Cadastro() {
         <Campo rotulo="Senha" name="senha" type="password" autoComplete="new-password" required
           minLength={8} dica="Pelo menos 8 caracteres." />
         <p className="text-xs text-texto-suave">
-          Veja o que guardamos e por quê no <Link to="/privacidade" className="text-esperanca hover:underline">Aviso de privacidade</Link>.
+          Veja o que guardamos e por quê no <Link to="/privacidade" className="enlace">Aviso de privacidade</Link>.
         </p>
         <Aviso erro={erro} />
         <Botao type="submit" disabled={enviando} className="w-full">{enviando ? 'Criando…' : 'Criar conta'}</Botao>
       </form>
       <BotaoGoogle destino={destino} />
       <p className="mt-4 text-center text-sm text-texto-suave">
-        Já tem conta? <Link to="/entrar" state={{ de: destino }} className="text-esperanca hover:underline">Entrar</Link>
+        Já tem conta? <Link to="/entrar" state={{ de: destino }} className="enlace">Entrar</Link>
       </p>
     </Moldura>
   )
@@ -216,7 +230,7 @@ export function RecuperarSenha() {
         </form>
       )}
       <p className="mt-4 text-center text-sm">
-        <Link to="/entrar" className="text-esperanca hover:underline">Voltar para entrar</Link>
+        <Link to="/entrar" className="enlace">Voltar para entrar</Link>
       </p>
     </Moldura>
   )
@@ -253,7 +267,7 @@ export function RedefinirSenha() {
     return (
       <Moldura titulo="Nova senha">
         <Aviso>Link incompleto. Abra o link do e-mail de novo ou peça outro.</Aviso>
-        <p className="mt-4 text-center text-sm"><Link to="/recuperar-senha" className="text-esperanca hover:underline">Pedir outro link</Link></p>
+        <p className="mt-4 text-center text-sm"><Link to="/recuperar-senha" className="enlace">Pedir outro link</Link></p>
       </Moldura>
     )
   }
@@ -271,7 +285,7 @@ export function RedefinirSenha() {
         </Botao>
       </form>
       <p className="mt-3 text-xs text-texto-suave">Quem estava logado com a senha antiga vai precisar entrar de novo.</p>
-      <p className="mt-4 text-center text-sm"><Link to="/recuperar-senha" className="text-esperanca hover:underline">Pedir outro link</Link></p>
+      <p className="mt-4 text-center text-sm"><Link to="/recuperar-senha" className="enlace">Pedir outro link</Link></p>
     </Moldura>
   )
 }

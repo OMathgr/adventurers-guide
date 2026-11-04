@@ -24,8 +24,8 @@ function custo(d: DefesaDeCarta) {
     .filter(Boolean).join(', ')
 }
 
-function CartaoPersonagem({ mesa, pid, nome, jogador, foto }:
-  { mesa: Mesa; pid: string; nome: string; jogador: string; foto?: string | null }) {
+function CartaoPersonagem({ mesa, pid, nome, jogador, foto, compacto }:
+  { mesa: Mesa; pid: string; nome: string; jogador: string; foto?: string | null; compacto?: boolean }) {
   const ficha = useFichaNaMesa(mesa.id, pid)
   const acao = useAcaoNoPersonagem(mesa.id, pid)
   const curar = useCurarCicatriz(mesa.id, pid)
@@ -51,10 +51,10 @@ function CartaoPersonagem({ mesa, pid, nome, jogador, foto }:
       <p className="text-xs text-texto-suave">PV restantes: {f.pv_max - f.pv_marcados}/{f.pv_max}</p>
       <Espacos total={f.pv_max} marcados={f.pv_marcados} rotulo={`PV de ${nome}`} restantes />
       <p className="text-xs text-texto-suave">PF restantes: {f.estresse_max - f.estresse_marcado}/{f.estresse_max}</p>
-      <Espacos total={f.estresse_max} marcados={f.estresse_marcado} rotulo={`PF de ${nome}`} cor="medo" restantes />
+      <Espacos total={f.estresse_max} marcados={f.estresse_marcado} rotulo={`PF de ${nome}`} cor="fadiga" restantes />
       {f.pontuacao_armadura > 0 && <>
         <p className="text-xs text-texto-suave">Armadura livre: {f.pontuacao_armadura - f.armadura_marcada}/{f.pontuacao_armadura}</p>
-        <Espacos total={f.pontuacao_armadura} marcados={f.armadura_marcada} rotulo={`Armadura de ${nome}`} cor="medo" restantes />
+        <Espacos total={f.pontuacao_armadura} marcados={f.armadura_marcada} rotulo={`Armadura de ${nome}`} cor="armadura" restantes />
       </>}
       <Esperanca atual={f.esperanca} maximo={f.esperanca_max} />
       {f.morto && <p className="text-sm font-medium text-perigo">Atravessou o véu da morte.</p>}
@@ -101,18 +101,23 @@ function CartaoPersonagem({ mesa, pid, nome, jogador, foto }:
           )}
         </form>
       )}
-      {acao.data?.resultado && <p className="text-sm text-esperanca" aria-live="polite">{descrever(acao.data.resultado)}</p>}
+      {acao.data?.resultado && <p className="text-sm text-texto" aria-live="polite">{descrever(acao.data.resultado)}</p>}
 
       <Condicoes rotulo={nome} condicoes={f.condicoes} desabilitado={acao.isPending}
         aoAplicar={pode('aplicar_condicoes') ? (condicao) => acao.mutate({ tipo: 'condicao', condicao }) : undefined}
         aoTirar={pode('aplicar_condicoes') ? (condicao) => acao.mutate({ tipo: 'tirar_condicao', condicao }) : undefined} />
       <Aviso erro={acao.error} />
-      <InventarioNaMesa mesaId={mesa.id} pid={pid} nome={nome} podeDar={pode('dar_itens')} />
+      {compacto ? (
+        <details className="text-sm">
+          <summary className="cursor-pointer text-texto-suave">Itens e ouro</summary>
+          <div className="mt-2"><InventarioNaMesa mesaId={mesa.id} pid={pid} nome={nome} podeDar={pode('dar_itens')} /></div>
+        </details>
+      ) : <InventarioNaMesa mesaId={mesa.id} pid={pid} nome={nome} podeDar={pode('dar_itens')} />}
     </article>
   )
 }
 
-export default function PersonagensNaSessao({ mesa, sessao }: { mesa: Mesa; sessao: Sessao }) {
+export default function PersonagensNaSessao({ mesa, sessao, compacto }: { mesa: Mesa; sessao: Sessao; compacto?: boolean }) {
   const podeVer = (mesa.minhas_permissoes as string[]).includes('ver_fichas')
   const jogo = useJogo(mesa.id, sessao.id)
   const tirar = useParticipar(mesa.id, sessao.id)
@@ -120,7 +125,7 @@ export default function PersonagensNaSessao({ mesa, sessao }: { mesa: Mesa; sess
   const emJogo = sessao.status === 'em_andamento'
   return (
     <section className="space-y-3">
-      <h2 className="text-lg text-esperanca">Personagens na sessão</h2>
+      <h2 className="rubrica">Personagens na sessão</h2>
       {jogo.isPending && <Carregando />}
       {!jogo.isPending && participantes.length === 0 && (
         <p className="text-sm text-texto-suave">
@@ -132,12 +137,12 @@ export default function PersonagensNaSessao({ mesa, sessao }: { mesa: Mesa; sess
         <p className="text-sm text-texto-suave">Quem criou a mesa não liberou ver as fichas para os mestres.</p>
       )}
       {podeVer && (
-        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid gap-3 md:grid-cols-2">
           {participantes.map((p) => (
             <div key={p.personagem_id} className="space-y-1">
               {emJogo ? (
                 <CartaoPersonagem mesa={mesa} pid={p.personagem_id} nome={p.resumo.nome} jogador={p.resumo.jogador}
-                  foto={p.resumo.foto} />
+                  foto={p.resumo.foto} compacto={compacto} />
               ) : <MiniFicha f={p.resumo} />}
               {emJogo && sessao.sou_responsavel && (
                 <Botao variante="fantasma" disabled={tirar.isPending}

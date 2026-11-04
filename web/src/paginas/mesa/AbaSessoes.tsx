@@ -15,12 +15,12 @@ import { useAutenticacao } from '../../auth/Autenticacao'
 import { AvisoDeConflito } from '../../componentes/Conflito'
 import MedoDoMestre from '../../componentes/MedoDoMestre'
 import PainelDeRepouso from '../../componentes/Repouso'
-import { Abas, Area, Aviso, Botao, Campo, Cartao, Carregando, Escolhivel, Selecao, Selo } from '../../componentes/ui'
+import { Abas, Area, Aviso, Botao, Campo, Cartao, Carregando, Escolhivel, Selo } from '../../componentes/ui'
 import Encontros from './Encontros'
 import Lojas from './Lojas'
 import PersonagensNaSessao from './PersonagensNaSessao'
 import SessaoDeJogo from './SessaoDeJogo'
-import RolagemDeDados from '../../componentes/RolagemDeDados'
+import RolagemDeDados, { RegistroRecente } from '../../componentes/RolagemDeDados'
 import { semConflito } from '../../lib/conflito'
 
 
@@ -46,7 +46,7 @@ function Destaques({ titulo, opcoes, escolhidos, aoMudar, desabilitado, dica }: 
             <button key={o.id} type="button" aria-pressed={marcado} disabled={desabilitado}
               onClick={() => aoMudar(marcado ? escolhidos.filter((x) => x !== o.id) : [...escolhidos, o.id])}
               className={`rounded-full border px-2.5 py-0.5 text-xs transition ${
-                marcado ? 'border-esperanca bg-esperanca/15 text-esperanca' : 'border-borda text-texto-suave hover:text-texto'}`}>
+                marcado ? 'border-esperanca bg-esperanca/15 text-esperanca-forte' : 'border-borda text-texto-suave hover:text-texto'}`}>
               {o.nome}
             </button>
           )
@@ -148,28 +148,50 @@ function SessaoAberta({ mesa, sid, aoApagar }: { mesa: Mesa; sid: string; aoApag
   const status = useStatusDaSessao(mesa.id, sid)
   const medo = useMedo(mesa.id, sid)
   const apagar = useApagarSessao(mesa.id)
-  const [parte, setParte] = useState<ParteDaSessao>('planejamento')
+  const [escolhida, setParte] = useState<ParteDaSessao | null>(null)
 
   if (sessao.isPending) return <Carregando />
   if (sessao.isError) return <Aviso erro={sessao.error} />
   const s = sessao.data
   const minha = s.sou_responsavel
+  const emJogo = s.status === 'em_andamento'
+  // em andamento, a sessão abre na mesa ao vivo; fora disso, essa parte não existe
+  const parte: ParteDaSessao = escolhida && (escolhida !== 'ao_vivo' || emJogo) ? escolhida : emJogo ? 'ao_vivo' : 'planejamento'
+  const mudarStatus = (novo: string, aviso?: string) => {
+    if (aviso && !confirm(aviso)) return
+    status.mutate(novo, { onSuccess: () => setParte(null) })
+  }
 
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="text-xl">{s.titulo}</h2>
+          <h2 className="flex flex-wrap items-center gap-2 text-2xl">{s.titulo} <Selo destaque={emJogo}>{NOME_STATUS[s.status] ?? s.status}</Selo></h2>
           <p className="text-sm text-texto-suave">
             {dataCurta(s.data)} · {minha ? 'Você é o mestre responsável' : `Sessão de ${s.responsavel} (só leitura)`}
           </p>
         </div>
         <div className="flex flex-wrap items-end gap-2">
-          <Selecao rotulo="Situação" value={s.status} disabled={!minha || status.isPending}
-            onChange={(e) => status.mutate(e.target.value)}
-            opcoes={Object.entries(NOME_STATUS)} />
+          {minha && s.status === 'planejada' && (
+            <Botao disabled={status.isPending} onClick={() => mudarStatus('em_andamento')}>Iniciar sessão</Botao>
+          )}
+          {minha && emJogo && (
+            <>
+              <Botao variante="secundario" disabled={status.isPending}
+                onClick={() => mudarStatus('encerrada', `Encerrar "${s.titulo}"? As marcas ficam guardadas para consulta.`)}>
+                Encerrar sessão
+              </Botao>
+              <Botao variante="fantasma" disabled={status.isPending}
+                onClick={() => mudarStatus('planejada', 'Voltar a planejar? Os jogadores deixam de ver a sessão.')}>
+                Voltar a planejar
+              </Botao>
+            </>
+          )}
+          {minha && s.status === 'encerrada' && (
+            <Botao variante="secundario" disabled={status.isPending} onClick={() => mudarStatus('em_andamento')}>Reabrir sessão</Botao>
+          )}
           {minha && (
-            <Botao variante="perigo" disabled={apagar.isPending}
+            <Botao variante="fantasma" className="!text-perigo" disabled={apagar.isPending}
               onClick={() => confirm(`Apagar a sessão "${s.titulo}" e os encontros dela?`)
                 && apagar.mutate(s.id, { onSuccess: aoApagar })}>
               Apagar sessão
@@ -184,19 +206,33 @@ function SessaoAberta({ mesa, sid, aoApagar }: { mesa: Mesa; sid: string; aoApag
         </p>
       )}
       {s.status === 'planejada' && (
-        <p className="text-xs text-texto-suave">Planejada: só você vê. Mude para "Em andamento" para os jogadores entrarem.</p>
+        <p className="text-xs text-texto-suave">Planejada: só você vê. Inicie a sessão para os jogadores entrarem.</p>
       )}
 
-      <MedoDoMestre medo={s.medo} titulo="Medo da sessão" ocupado={medo.isPending} erro={medo.error}
-        aoMudar={minha ? (m) => medo.mutate(m) : undefined} />
-      <PainelDeRepouso mesa={mesa} sessao={s} />
-
+      {/* o painel do mestre fica sempre à vista, em qualquer parte da sessão */}
+      <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">
+      <aside className="min-w-0 space-y-4 lg:sticky lg:top-4 lg:order-2 lg:max-h-[calc(100vh-2rem)] lg:overflow-y-auto">
+        <MedoDoMestre medo={s.medo} titulo="Medo da sessão" ocupado={medo.isPending} erro={medo.error}
+          aoMudar={minha ? (m) => medo.mutate(m) : undefined} />
+        <PainelDeRepouso mesa={mesa} sessao={s} />
+        {emJogo && <div className="max-lg:hidden"><RegistroRecente mesaId={mesa.id} sessaoId={s.id} /></div>}
+      </aside>
+      <div className="min-w-0 space-y-4 lg:order-1">
       <Abas<ParteDaSessao> atual={parte} aoTrocar={setParte}
-        abas={[['planejamento', 'Planejamento'], ['quadro', 'Quadro'], ['encontros', 'Encontros'], ['lojas', 'Lojas'],
+        abas={[...(emJogo ? [['ao_vivo', 'Ao vivo'] as [ParteDaSessao, string]] : []),
+          ['planejamento', 'Planejamento'], ['quadro', 'Quadro'], ['encontros', 'Encontros'], ['lojas', 'Lojas'],
           ['personagens', 'Personagens'], ['dados', 'Dados']]} />
 
+      {/* numa rodada de combate, o grupo e os inimigos ficam na mesma tela */}
+      {parte === 'ao_vivo' && (
+        <div className="space-y-6">
+          <PersonagensNaSessao mesa={mesa} sessao={s} compacto />
+          <Encontros mesaId={mesa.id} sessao={s} />
+        </div>
+      )}
+
       {parte === 'planejamento' && (
-        <div className="grid gap-4 lg:grid-cols-[1fr_20rem]">
+        <div className="space-y-4">
           <Planejamento key={s.id} mesaId={mesa.id} sessao={s} />
           {minha && <Compartilhar mesa={mesa} sessao={s} />}
         </div>
@@ -208,11 +244,13 @@ function SessaoAberta({ mesa, sid, aoApagar }: { mesa: Mesa; sid: string; aoApag
       {parte === 'dados' && (
         <RolagemDeDados mesaId={mesa.id} sessaoId={s.id} souMestre={minha} emAndamento={s.status === 'em_andamento'} />
       )}
+      </div>
+      </div>
     </div>
   )
 }
 
-type ParteDaSessao = 'planejamento' | 'quadro' | 'encontros' | 'lojas' | 'personagens' | 'dados'
+type ParteDaSessao = 'ao_vivo' | 'planejamento' | 'quadro' | 'encontros' | 'lojas' | 'personagens' | 'dados'
 
 // o quadro usa o React Flow (pesado): só carrega quando alguém abre a aba
 const QuadroDaSessao = lazy(() => import('./QuadroDaSessao'))
@@ -238,7 +276,7 @@ export default function AbaSessoes({ mesa, podePreparar, inicial }: {
     <div className="space-y-5">
       <section className="space-y-3">
         <div className="flex flex-wrap items-end justify-between gap-3">
-          <h2 className="text-lg text-esperanca">Sessões</h2>
+          <h2 className="rubrica">Sessões</h2>
           {podePreparar && (
             <form className="flex flex-wrap items-end gap-2" onSubmit={(e) => {
               e.preventDefault()

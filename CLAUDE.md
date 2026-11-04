@@ -67,8 +67,14 @@ personagem é guardado como criação + histórico de subidas de nível; a ficha
 - Front (`web/`): textos em português, regras só no motor (a tela guia e
   mostra o erro da API). Mudou a API? `npm run api:tipos` regenera
   `web/src/api/esquema.d.ts`. Antes de concluir: `npm test` e `npm run build`
-  dentro de `web/`. Cores: azul-escuro (Medo) e laranja (Esperança), via
-  variáveis em `web/src/index.css`.
+  dentro de `web/`. Tema "Grimório" em `web/src/index.css` (noite e pergaminho). Laranja é a Esperança e
+  o que anima o jogador (ação principal, seleção, bônus, subida de nível); azul é só
+  Medo; PV e Fadiga têm cor própria; títulos de seção em geral e links são neutros (Habilidades, Herança e Cartas ganham
+  título laranja). Penalidade é vermelha. A rolagem acompanha o resultado: Esperança
+  laranja, Medo azul. Losango só em
+  Esperança, Medo e na marca; moldura dupla (`.carta`) só em personagens e cartas.
+  Fontes no próprio site (`@fontsource`): Alegreya, Alegreya Sans e Cinzel na marca
+  e nas rubricas.
 - Conteúdo de jogo só do SRD (licença DPCGL). Nada do livro completo.
 - Tradução pt-BR em `data/traducoes/pt-BR/` (não oficial, só exibição; as
   regras leem o inglês). Siga o glossário do `docs/ARQUITETURA.md` (Fadiga/PF,

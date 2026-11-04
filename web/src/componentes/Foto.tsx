@@ -6,7 +6,7 @@ import { urlDaImagem } from '../api/cliente'
 import { useEnviarImagem } from '../api/consultas'
 import { Aviso, Botao } from './ui'
 
-const TAMANHOS = { p: 'h-10 w-10 text-sm', m: 'h-16 w-16 text-lg', g: 'h-24 w-24 text-2xl' }
+const TAMANHOS = { p: 'h-10 w-10 text-sm', m: 'h-16 w-16 text-lg', g: 'h-28 w-28 text-3xl' }
 
 function iniciais(nome: string) {
   const partes = nome.trim().split(/\s+/).filter(Boolean)

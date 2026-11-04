@@ -12,7 +12,7 @@ function Marcas({ total, marcados, rotulo }: { total: number; marcados: number; 
   return (
     <span className="flex gap-1" role="img" aria-label={`${rotulo}: ${marcados} de ${total}`}>
       {Array.from({ length: total }, (_, i) => (
-        <span key={i} className={`h-4 w-4 rounded-sm border border-borda ${i < marcados ? 'bg-esperanca' : ''}`} />
+        <span key={i} className={`h-4 w-4 rounded-sm border border-borda ${i < marcados ? 'bg-texto-suave' : ''}`} />
       ))}
     </span>
   )

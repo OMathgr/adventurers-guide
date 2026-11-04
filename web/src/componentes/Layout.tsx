@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, NavLink, Outlet } from 'react-router'
 
 import { useAoVivo } from '../api/aoVivo'
+import { usePersonagens } from '../api/consultas'
 import { useAutenticacao } from '../auth/Autenticacao'
 import { useInstalar, useOnline } from '../lib/pwa'
 import Rodape from './Rodape'
@@ -21,13 +22,36 @@ function useTema() {
 
 export function Logo() {
   return (
-    <span className="flex items-center gap-2 font-titulo text-lg text-texto">
+    <span className="flex items-center gap-2 font-marca text-base font-bold text-texto">
       <svg viewBox="0 0 64 64" className="h-7 w-7" aria-hidden>
         <path d="M32 6 L52 32 L32 58 L12 32 Z" fill="none" stroke="var(--esperanca)" strokeWidth="5" strokeLinejoin="round" />
         <path d="M32 20 L41 32 L32 44 L23 32 Z" fill="var(--esperanca)" />
       </svg>
       Adventurer's Guide
     </span>
+  )
+}
+
+const ICONE_DE_NAVEGACAO = {
+  personagens: <><circle cx="12" cy="8" r="4" /><path d="M4.5 20c.8-4 3.8-6 7.5-6s6.7 2 7.5 6" strokeLinecap="round" /></>,
+  mesas: <><path d="M12 2.5l8.5 5v9L12 21.5l-8.5-5v-9L12 2.5z" strokeLinejoin="round" /><path d="M12 7.5l4.5 7h-9l4.5-7z" strokeLinejoin="round" /></>,
+  sessao: <path d="M5 3.5h14v17l-7-4-7 4v-17z" strokeLinejoin="round" />,
+  conta: <><path d="M4 5h16v14H4V5z" strokeLinejoin="round" /><path d="M8 10h8M8 14h5" strokeLinecap="round" /></>,
+}
+
+/** Um único menu: no alto no computador; no celular, fixo embaixo, ao alcance do polegar. */
+function ItemDoMenu({ para, icone, children, rotulo }: {
+  para: string; icone: keyof typeof ICONE_DE_NAVEGACAO; children: React.ReactNode; rotulo?: string
+}) {
+  return (
+    <NavLink to={para} aria-label={rotulo}
+      className={({ isActive }) => `flex items-center gap-1 max-sm:min-h-14 max-sm:flex-1 max-sm:flex-col max-sm:justify-center max-sm:gap-0.5 max-sm:text-xs ${
+        isActive ? 'font-semibold text-esperanca-forte' : 'text-texto-suave hover:text-texto'}`}>
+      <svg viewBox="0 0 24 24" aria-hidden fill="none" stroke="currentColor" strokeWidth="1.6" className="h-6 w-6 sm:hidden">
+        {ICONE_DE_NAVEGACAO[icone]}
+      </svg>
+      {children}
+    </NavLink>
   )
 }
 
@@ -38,36 +62,42 @@ export default function Layout() {
   const [tema, alternarTema] = useTema()
   const instalar = useInstalar()
   const online = useOnline()
+  const personagens = usePersonagens()
+  // a sessão em andamento fica a um toque, de qualquer tela
+  const emJogo = Array.isArray(personagens.data) ? personagens.data.find((p) => p.em_jogo && p.mesa_id) : undefined
 
   return (
-    <div className="min-h-screen">
-      <header className="border-b border-borda bg-superficie/80 backdrop-blur">
-        <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-3 px-4 py-3">
+    <div className="flex min-h-screen flex-col max-sm:pb-14 max-sm:has-[[data-marcas-fixas]]:pb-36">
+      <header className="border-b border-borda bg-superficie">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-2 sm:py-3">
           <Link to="/personagens"><Logo /></Link>
-          <nav className="flex items-center gap-4 text-sm">
-            <NavLink to="/personagens"
-              className={({ isActive }) => (isActive ? 'text-esperanca' : 'text-texto-suave hover:text-texto')}>
-              Personagens
-            </NavLink>
-            <NavLink to="/mesas"
-              className={({ isActive }) => (isActive ? 'text-esperanca' : 'text-texto-suave hover:text-texto')}>
-              Mesas
-            </NavLink>
-            <button onClick={alternarTema} className="text-texto-suave hover:text-texto"
+          <div className="flex items-center gap-4 text-sm">
+            <nav aria-label="Principal" className="flex items-center gap-4 max-sm:fixed max-sm:inset-x-0 max-sm:bottom-0 max-sm:z-30 max-sm:gap-0 max-sm:border-t max-sm:border-borda max-sm:bg-superficie">
+              <ItemDoMenu para="/personagens" icone="personagens">Personagens</ItemDoMenu>
+              <ItemDoMenu para="/mesas" icone="mesas">Mesas</ItemDoMenu>
+              {emJogo?.em_jogo && (
+                <ItemDoMenu para={`/mesas/${emJogo.mesa_id}?aba=sessao&sessao=${emJogo.em_jogo.sessao_id}`} icone="sessao">Sessão</ItemDoMenu>
+              )}
+              {usuario && (
+                <ItemDoMenu para="/conta" icone="conta" rotulo="Conta">
+                  <span className="hidden sm:inline">{usuario.nome}</span><span className="sm:hidden">Conta</span>
+                </ItemDoMenu>
+              )}
+            </nav>
+            <button onClick={alternarTema} className="flex h-8 w-8 items-center justify-center text-texto-suave hover:text-texto max-sm:h-11 max-sm:w-11"
               aria-label={tema === 'escuro' ? 'Usar tema claro' : 'Usar tema escuro'}>
-              {tema === 'escuro' ? '☀' : '☾'}
+              <svg viewBox="0 0 20 20" aria-hidden fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" className="h-5 w-5">
+                {tema === 'escuro'
+                  ? <><circle cx="10" cy="10" r="3.5" /><path d="M10 2v2.5M10 15.5V18M2 10h2.5M15.5 10H18M4.3 4.3l1.8 1.8M13.9 13.9l1.8 1.8M4.3 15.7l1.8-1.8M13.9 6.1l1.8-1.8" /></>
+                  : <path d="M16.5 12.5A7 7 0 0 1 7.5 3.5a7 7 0 1 0 9 9z" strokeLinejoin="round" />}
+              </svg>
             </button>
             {instalar && (
-              <button onClick={instalar} className="text-esperanca hover:text-esperanca-forte">Instalar<span className="hidden sm:inline"> app</span></button>
+              <button onClick={instalar} className="enlace">Instalar<span className="hidden sm:inline"> app</span></button>
             )}
-            {usuario && (
-              <NavLink to="/conta" aria-label="Conta"
-                className={({ isActive }) => (isActive ? 'text-esperanca' : 'text-texto-suave hover:text-texto')}>
-                <span className="hidden sm:inline">{usuario.nome}</span><span className="sm:hidden">Conta</span>
-              </NavLink>
-            )}
-            <button onClick={sair} className="text-texto-suave hover:text-perigo">Sair</button>
-          </nav>
+            {/* no celular, sair fica na tela de Conta */}
+            <button onClick={sair} className="text-texto-suave hover:text-perigo max-sm:hidden">Sair</button>
+          </div>
         </div>
       </header>
       {!online && (
@@ -75,7 +105,7 @@ export default function Layout() {
           Sem conexão: dá para ver o que já estava aberto, mas nada é salvo até a rede voltar.
         </p>
       )}
-      <main className="mx-auto max-w-5xl px-4 py-6">
+      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6">
         <Outlet />
       </main>
       <Rodape />

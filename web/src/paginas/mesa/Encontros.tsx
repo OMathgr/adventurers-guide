@@ -67,7 +67,7 @@ function CartaoCombatente({ mesaId, sid, encontroId, podeEditar, c, aMostra }: A
         {a.pf > 0 && <>
           <p className="text-xs text-texto-suave">PF restantes: {a.pf - c.pf_marcados}/{a.pf}</p>
           <EspacosClicaveis total={a.pf} marcados={a.pf - c.pf_marcados} rotulo={`PF restantes de ${c.rotulo}`}
-            cor="medo" sufixo="" desabilitado={ocupado || !podeEditar}
+            cor="fadiga" sufixo="" desabilitado={ocupado || !podeEditar}
             aoMudar={(restam) => acao.mutate({
               tipo: 'marcas', combatente: c.id, pv_marcados: c.pv_marcados, pf_marcados: a.pf - restam })} />
         </>}
@@ -87,7 +87,7 @@ function CartaoCombatente({ mesaId, sid, encontroId, podeEditar, c, aMostra }: A
           <Botao type="submit" variante="secundario" className="mb-0.5" disabled={ocupado || valor === ''}>Aplicar dano</Botao>
         </form>
       )}
-      {dano.data && <p className="text-sm text-esperanca" aria-live="polite">{descreverDano(dano.data.resultado)}</p>}
+      {dano.data && <p className="text-sm text-texto" aria-live="polite">{descreverDano(dano.data.resultado)}</p>}
 
       <Condicoes rotulo={c.rotulo} condicoes={c.condicoes} desabilitado={ocupado}
         aoAplicar={podeEditar ? (condicao) => acao.mutate({ tipo: 'condicao', combatente: c.id, condicao }) : undefined}
@@ -105,7 +105,7 @@ function CartaoCombatente({ mesaId, sid, encontroId, podeEditar, c, aMostra }: A
           </Botao>
         )}
         {podeEditar && (
-          <Botao variante="fantasma" className="!px-2 text-perigo" disabled={ocupado}
+          <Botao variante="fantasma" className="!px-2 !text-perigo" disabled={ocupado}
             onClick={() => confirm(`Tirar ${c.rotulo} do encontro?`) && acao.mutate({ tipo: 'remover', combatente: c.id })}>
             Tirar do encontro
           </Botao>
@@ -162,7 +162,7 @@ function AdicionarCombatentes({ mesaId, sid, encontroId, guia }: Alvo & { guia: 
       e.preventDefault()
       acao.mutate({ tipo: 'adicionar', origem, id, quantidade }, { onSuccess: () => setQuantidade(1) })
     }}>
-      <h3 className="text-sm text-esperanca">Pôr inimigos no encontro</h3>
+      <h3 className="text-sm text-texto">Pôr inimigos no encontro</h3>
       <div className="grid gap-2 sm:grid-cols-[10rem_1fr_6rem_auto] sm:items-end">
         <Selecao rotulo="De onde" value={origem} onChange={(e) => { setOrigem(e.target.value as Origem); setId('') }}
           opcoes={[['inimigo', 'Inimigos da mesa'], ['npc', 'NPCs com ficha'], ['srd', 'Catálogo do SRD']]} />
@@ -216,7 +216,7 @@ function EncontroAtual({ emAndamento, ...alvo }: Alvo & { emAndamento: boolean }
         <p className="text-xs text-texto-suave">Os jogadores só veem quando a sessão estiver em andamento.</p>
       )}
       <Aviso erro={mostrar.error} />
-      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+      <div className="grid gap-3 md:grid-cols-2">
         {e.combatentes.map((c) => <CartaoCombatente key={c.id} {...alvo} c={c} aMostra={e.visivel} />)}
       </div>
       {/* montar o encontro: o guia ao lado de onde se põem os inimigos (é só auxílio) */}
@@ -239,7 +239,7 @@ export default function Encontros({ mesaId, sessao }: { mesaId: string; sessao: 
     <section className="space-y-3">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h3 className="text-lg text-esperanca">Encontros</h3>
+          <h3 className="rubrica">Encontros</h3>
           <p className="text-xs text-texto-suave">Sem ordem: alguns podem não acontecer, conforme o caminho dos jogadores.</p>
         </div>
         {podeEditar && (
@@ -270,7 +270,7 @@ export default function Encontros({ mesaId, sessao }: { mesaId: string; sessao: 
       {atual && (
         <>
           {podeEditar && (
-            <Botao variante="fantasma" className="!px-0 text-perigo" disabled={apagar.isPending}
+            <Botao variante="fantasma" className="!px-0 !text-perigo" disabled={apagar.isPending}
               onClick={() => confirm('Apagar este encontro?') && apagar.mutate(atual, { onSuccess: () => setEscolhido(null) })}>
               Apagar este encontro
             </Botao>

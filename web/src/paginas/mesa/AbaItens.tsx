@@ -106,7 +106,7 @@ export default function AbaItens({ mesaId, podeEditar }: { mesaId: string; podeE
 
         {painel.modo === 'srd' && (
           <div className="space-y-3 rounded-2xl border border-borda bg-superficie p-4">
-            <h2 className="text-lg text-esperanca">Começar de um item do SRD</h2>
+            <h2 className="text-lg text-texto">Começar de um item do SRD</h2>
             <p className="text-sm text-texto-suave">Os números e as características vêm junto; depois é só ajustar.</p>
             <BuscarNoCatalogo tipos={['ARMA', 'ARMADURA', 'CONSUMIVEL', 'SAQUE']} aoEscolher={doSrd} />
           </div>
@@ -137,7 +137,7 @@ export default function AbaItens({ mesaId, podeEditar }: { mesaId: string; podeE
         {painel.modo === 'editar' && (
           <form className="space-y-4 rounded-2xl border border-borda bg-superficie p-4 sm:p-5"
             onSubmit={(e) => { e.preventDefault(); salvarEdicao(painel.item) }}>
-            <h2 className="text-lg text-esperanca">{painel.item.id ? `Editar ${painel.item.nome}` : 'Novo item'}</h2>
+            <h2 className="text-lg text-texto">{painel.item.id ? `Editar ${painel.item.nome}` : 'Novo item'}</h2>
             <EditorItemProprio valor={painel.item} aoMudar={(item) => setPainel({ modo: 'editar', item: { ...item, versao: painel.item.versao } })} />
             <AvisoDeConflito erro={salvar.error} ocupado={salvar.isPending}
               aoVerAtual={() => { salvar.reset(); setPainel({ modo: 'ver', id: painel.item.id }); void atual.refetch() }}

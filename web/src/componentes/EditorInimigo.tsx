@@ -70,7 +70,7 @@ export default function EditorInimigo({ valor, aoMudar, nomeOpcional }:
       </fieldset>
 
       <fieldset className="grid grid-cols-2 gap-3 sm:grid-cols-6">
-        <legend className="mb-2 text-sm text-esperanca">Números</legend>
+        <legend className="mb-2 text-sm text-texto">Números</legend>
         <Campo rotulo="Dificuldade" type="number" min={1} value={valor.dificuldade}
           onChange={(e) => mudar({ dificuldade: numero(e.target.value) })} />
         <Campo rotulo="PV" type="number" min={1} value={valor.pv} onChange={(e) => mudar({ pv: numero(e.target.value) })} />
@@ -89,7 +89,7 @@ export default function EditorInimigo({ valor, aoMudar, nomeOpcional }:
       </fieldset>
 
       <fieldset className="grid grid-cols-2 gap-3 sm:grid-cols-5">
-        <legend className="mb-2 text-sm text-esperanca">Ataque padrão</legend>
+        <legend className="mb-2 text-sm text-texto">Ataque padrão</legend>
         <Campo rotulo="Modificador" value={valor.ataque} placeholder="+2" dica="Ex.: +3 ou +1d4"
           onChange={(e) => mudar({ ataque: e.target.value })} />
         <Campo rotulo="Arma" className="col-span-2 sm:col-span-1" value={valor.arma}
@@ -102,7 +102,7 @@ export default function EditorInimigo({ valor, aoMudar, nomeOpcional }:
       </fieldset>
 
       <fieldset className="space-y-2">
-        <legend className="mb-2 text-sm text-esperanca">Experiências</legend>
+        <legend className="mb-2 text-sm text-texto">Experiências</legend>
         {exps.map(([nome, bonus], i) => (
           <div key={i} className="flex items-end gap-2">
             <Campo rotulo="Experiência" className="flex-1" value={nome}
@@ -119,7 +119,7 @@ export default function EditorInimigo({ valor, aoMudar, nomeOpcional }:
       </fieldset>
 
       <fieldset className="space-y-3">
-        <legend className="mb-2 text-sm text-esperanca">Características</legend>
+        <legend className="mb-2 text-sm text-texto">Características</legend>
         {habilidades.map((h, i) => (
           <div key={i} className="space-y-2 rounded-xl border border-borda p-3">
             <div className="grid gap-2 sm:grid-cols-4">

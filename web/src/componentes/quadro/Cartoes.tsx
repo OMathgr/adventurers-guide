@@ -28,7 +28,7 @@ function Moldura({ cor, selecionado, revelado, children }:
         <Handle key={id} id={id} type="source" position={lado} className="!h-2.5 !w-2.5 !bg-texto-suave" />
       ))}
       {revelado && (
-        <span className="absolute -top-2.5 right-2 rounded-full bg-esperanca px-2 text-[10px] font-semibold text-sobre-esperanca"
+        <span className="absolute -top-2.5 right-2 rounded-sm bg-texto px-2 text-xs font-semibold text-fundo"
           title="Os jogadores veem este cartão">revelado</span>
       )}
       {children}
@@ -79,6 +79,6 @@ export function CartaoImagem({ data, selected }: NodeProps<NoDoQuadro>) {
 
 export function TituloDeRegiao({ data }: NodeProps) {
   return (
-    <p className="whitespace-nowrap font-titulo text-lg text-esperanca">{(data as { titulo: string }).titulo}</p>
+    <p className="whitespace-nowrap font-titulo text-lg text-texto">{(data as { titulo: string }).titulo}</p>
   )
 }

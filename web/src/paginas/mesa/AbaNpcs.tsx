@@ -31,7 +31,7 @@ function Editor({ inicial, aoSalvar, aoCancelar, aoVerAtual, salvando, erro }: {
   return (
     <form className="space-y-4 rounded-2xl border border-borda bg-superficie p-4 sm:p-5"
       onSubmit={(e) => { e.preventDefault(); aoSalvar(r) }}>
-      <h2 className="text-lg text-esperanca">{r.id ? `Editar ${inicial.nome}` : 'Novo NPC'}</h2>
+      <h2 className="text-lg text-texto">{r.id ? `Editar ${inicial.nome}` : 'Novo NPC'}</h2>
       <div className="flex items-center gap-3">
         <Foto id={r.foto} nome={r.nome || '?'} />
         <EnviarFoto temFoto={!!r.foto} aoMudar={(foto) => mudar({ foto })} />
@@ -80,7 +80,7 @@ function Visibilidade({ mesaId, npc }: { mesaId: string; npc: Npc }) {
           <button key={valor} type="button" aria-pressed={atual === valor} disabled={mudar.isPending}
             onClick={() => atual !== valor && mudar.mutate({ npcId: npc.id, visibilidade: valor as Npc['visibilidade'] })}
             className={`rounded-full border px-3 py-1 text-sm transition ${atual === valor
-              ? 'border-esperanca bg-esperanca/15 text-esperanca' : 'border-borda text-texto-suave hover:text-texto'}`}>
+              ? 'border-esperanca bg-esperanca/15 text-esperanca-forte' : 'border-borda text-texto-suave hover:text-texto'}`}>
             {nome}
           </button>
         ))}
@@ -105,7 +105,7 @@ function Detalhe({ npc, acoes, revelar }: { npc: Npc; acoes?: React.ReactNode; r
         <header className="flex flex-wrap items-start justify-between gap-2">
           <div className="flex items-center gap-3">
             <Foto id={npc.foto} nome={npc.nome} />
-            <h2 className="text-xl text-esperanca">{npc.nome}</h2>
+            <h2 className="text-xl text-texto">{npc.nome}</h2>
             <SeloVisibilidade npc={npc} />
           </div>
           {acoes && <div className="flex gap-2">{acoes}</div>}
@@ -114,7 +114,7 @@ function Detalhe({ npc, acoes, revelar }: { npc: Npc; acoes?: React.ReactNode; r
         {npc.descricao && <TextoRico texto={npc.descricao} className="text-sm" />}
         {npc.motivacoes && <p className="text-sm"><span className="font-semibold">Motivações:</span> {npc.motivacoes}</p>}
         {npc.notas && (
-          <div className="rounded-xl border border-medo/50 bg-medo/10 p-3 text-sm">
+          <div className="rounded-xl border border-borda-campo bg-superficie-2 p-3 text-sm">
             <p className="mb-1 text-xs uppercase tracking-wider text-texto-suave">Notas do mestre</p>
             <TextoRico texto={npc.notas} />
           </div>

@@ -142,7 +142,7 @@ export default function AbaInventario({ personagemId, ficha }: { personagemId: s
                 <Selo destaque>×{i.quantidade}</Selo>
               </p>
               <p className="mt-1 text-xs text-texto-suave">{i.texto}</p>
-              {i.efeito_automatico && <p className="mt-1 text-xs text-medo">Usar já aplica na ficha.</p>}
+              {i.efeito_automatico && <p className="mt-1 text-xs text-texto-suave">Usar já aplica na ficha.</p>}
               {usando === i.id
                 ? <UsarConsumivel item={i} personagemId={personagemId} aoUsar={(n) => { setNotas(n); setUsando(null) }} />
                 : (
