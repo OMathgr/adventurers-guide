@@ -61,7 +61,10 @@ function Personagens({ mesa }: { mesa: Mesa }) {
               <span className="min-w-0 flex-1">
                 <span className="font-titulo text-xl font-bold leading-tight">{x.nome || 'Sem nome'}</span>
                 {x.morto && <span className="ml-2 text-xs text-perigo">atravessou o véu</span>}
-                <span className="block text-sm text-texto-suave">Nível {x.nivel} · {nomeClasse(x.classe)} · {x.jogador}</span>
+                {/* sem a classe (a lista ainda carregando), não sobra um " · · " */}
+                <span className="block text-sm text-texto-suave">
+                  {[`Nível ${x.nivel}`, nomeClasse(x.classe), x.jogador].filter(Boolean).join(' · ')}
+                </span>
               </span>
               {podeTirar(x.id) && (
                 <Botao variante="fantasma" className="shrink-0 px-3 py-1 !text-perigo" disabled={remover.isPending}

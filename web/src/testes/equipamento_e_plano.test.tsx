@@ -192,6 +192,12 @@ describe('Tirar personagem da mesa', () => {
     expect(fetch).toHaveBeenCalledWith('/api/mesas/m1/personagens/p1', expect.objectContaining({ method: 'DELETE' }))
   })
 
+  it('sem o nome da classe, a linha do personagem não fica com separador sobrando', async () => {
+    vi.stubGlobal('fetch', api({ '/personagens': [] }))   // a classe 'x' não está na lista
+    montar(<AbaGeral mesa={mesa(true)} />)
+    expect(await screen.findByText('Nível 1 · Bia')).toBeInTheDocument()
+  })
+
   it('quem criou a mesa tira qualquer um', async () => {
     vi.stubGlobal('fetch', api({ '/personagens': [] }))
     montar(<AbaGeral mesa={mesa(true)} />)

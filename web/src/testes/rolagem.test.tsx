@@ -98,6 +98,39 @@ describe('Rolagem de dados', () => {
   })
 })
 
+describe('Cores no registro de rolagens', () => {
+  const VERDE = { esperanca: '#00ff00', medo: '#ff00ff', outros: '#123456' }
+
+  it('seguem o tema mesmo com outras cores escolhidas, que valem só para os dados 3D', async () => {
+    localStorage.setItem('ag.dados.cores', JSON.stringify(VERDE))
+    montar()
+    const registro = await screen.findByRole('region', { name: 'Registro de rolagens' })
+    const esperanca = await within(registro).findByText('9')
+    expect(esperanca).toHaveClass('text-esperanca-forte')
+    expect(esperanca).not.toHaveAttribute('style')
+    expect(esperanca.parentElement).toHaveClass('border-esperanca')
+    expect(esperanca.parentElement).not.toHaveAttribute('style')
+    expect(within(registro).getByText('4')).toHaveClass('text-medo')
+    expect(gruposDaRolagem(ROLAGEM, VERDE)[0].cor).toBe('#00ff00')
+  })
+
+  it('o crítico é laranja, com borda grossa e fundo próprio', async () => {
+    montar({ ...ROLAGEM, resultado: { ...ROLAGEM.resultado, dualidade: 'critico' } } as unknown as Rolagem)
+    const registro = await screen.findByRole('region', { name: 'Registro de rolagens' })
+    const item = (await within(registro).findByText('Crítico!')).closest('li')
+    expect(item).toHaveClass('border-2', 'border-esperanca', 'bg-esperanca/10')
+    expect(item).not.toHaveClass('bg-fundo/60')
+  })
+
+  it('a Esperança comum fica sem o fundo do crítico', async () => {
+    montar()
+    const registro = await screen.findByRole('region', { name: 'Registro de rolagens' })
+    const item = (await within(registro).findByText('com Esperança')).closest('li')
+    expect(item).toHaveClass('bg-fundo/60')
+    expect(item).not.toHaveClass('bg-esperanca/10')
+  })
+})
+
 describe('Carta disparada pela rolagem', () => {
   it('o registro oferece a carta e usa ligada àquela rolagem', async () => {
     const FEROCIDADE = {

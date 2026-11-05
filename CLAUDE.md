@@ -71,7 +71,8 @@ personagem é guardado como criação + histórico de subidas de nível; a ficha
   o que anima o jogador (ação principal, seleção, bônus, subida de nível); azul é só
   Medo; PV e Fadiga têm cor própria; títulos de seção em geral e links são neutros (Habilidades, Herança e Cartas ganham
   título laranja). Penalidade é vermelha. A rolagem acompanha o resultado: Esperança
-  laranja, Medo azul. Losango só em
+  laranja, Medo azul, crítico laranja com fundo próprio; o registro fica sempre no tema
+  (as cores que a pessoa escolhe valem só para os dados 3D). Losango só em
   Esperança, Medo e na marca; moldura dupla (`.carta`) só em personagens e cartas.
   Tema inicial: o escolhido ou, sem escolha, o do sistema (script no `index.html`).
   Fontes no próprio site (`@fontsource`): Alegreya, Alegreya Sans e Cinzel na marca

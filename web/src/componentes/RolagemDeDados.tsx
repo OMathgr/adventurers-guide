@@ -32,8 +32,12 @@ function custo(o: OpcaoDeRolagem): string {
 }
 
 /** Cor de cada dado no registro e na mesa 3D. */
-function corDoDado(d: DadoRolado, cores: CoresDosDados) {
-  return d.papel === 'esperanca' ? cores.esperanca : d.papel === 'medo' ? cores.medo : cores.outros
+// no registro, as cores são sempre as do tema, para todos lerem o resultado do
+// mesmo jeito; as cores que a pessoa escolhe valem só para os dados 3D
+function corDoDado(d: DadoRolado) {
+  if (d.papel === 'esperanca') return { borda: 'border-esperanca', valor: 'text-esperanca-forte' }
+  if (d.papel === 'medo') return { borda: 'border-medo', valor: 'text-medo' }
+  return { borda: 'border-borda-campo', valor: 'text-texto' }
 }
 
 export function gruposDaRolagem(r: Rolagem, cores: CoresDosDados): GrupoDeDados[] {
@@ -46,15 +50,14 @@ export function gruposDaRolagem(r: Rolagem, cores: CoresDosDados): GrupoDeDados[
   ].filter((g) => g.dados.length > 0)
 }
 
-function Dado({ d, cores }: { d: DadoRolado; cores: CoresDosDados }) {
-  const cor = corDoDado(d, cores)
+function Dado({ d }: { d: DadoRolado }) {
+  const cor = corDoDado(d)
   const rotulo = d.papel === 'esperanca' ? 'Esperança' : d.papel === 'medo' ? 'Medo'
     : d.papel === 'vantagem' ? 'vantagem' : d.papel === 'desvantagem' ? 'desvantagem' : d.fonte || ''
   return (
     <span title={`d${d.faces}${rotulo ? ` · ${rotulo}` : ''}${d.original !== null && d.original !== undefined ? ` (era ${d.original})` : ''}`}
-      className={`inline-flex min-w-9 flex-col items-center rounded-lg border px-1.5 py-0.5 text-xs ${d.descartado ? 'opacity-40 line-through' : ''}`}
-      style={{ borderColor: cor }}>
-      <b className="text-base leading-tight" style={{ color: cor }}>
+      className={`inline-flex min-w-9 flex-col items-center rounded-lg border ${cor.borda} px-1.5 py-0.5 text-xs ${d.descartado ? 'opacity-40 line-through' : ''}`}>
+      <b className={`text-base leading-tight ${cor.valor}`}>
         {d.papel === 'desvantagem' ? '−' : ''}{Math.abs(d.valor)}
       </b>
       <span className="text-[10px] text-texto-suave">d{d.faces}</span>
@@ -84,10 +87,11 @@ function CartasDaRolagem({ r, personagemId }: { r: Rolagem; personagemId: string
   )
 }
 
-// a rolagem acompanha o resultado: Esperança em laranja, Medo em azul; o crítico vale como Esperança
-const TOM_DA_DUALIDADE: Record<string, { tom: 'esperanca' | 'medo'; total: string; borda: string }> = {
+// a rolagem acompanha o resultado: Esperança em laranja, Medo em azul; o crítico
+// é a Esperança com mais destaque, para ser achado de longe no registro
+const TOM_DA_DUALIDADE: Record<string, { tom: 'esperanca' | 'medo'; total: string; borda: string; fundo?: string }> = {
   esperanca: { tom: 'esperanca', total: 'text-esperanca-forte', borda: 'border-esperanca' },
-  critico: { tom: 'esperanca', total: 'text-esperanca-forte', borda: 'border-2 border-esperanca' },
+  critico: { tom: 'esperanca', total: 'text-esperanca-forte', borda: 'border-2 border-esperanca', fundo: 'bg-esperanca/10' },
   medo: { tom: 'medo', total: 'text-medo', borda: 'border-medo' },
 }
 
@@ -110,8 +114,8 @@ function useRolagensNovas(rolagens: Rolagem[] | undefined) {
   return recentes
 }
 
-function Registro({ r, cores, personagemId, mesaId, sessaoId, novo }: {
-  r: Rolagem; cores: CoresDosDados; personagemId?: string | null; mesaId: string; sessaoId: string; novo?: boolean
+function Registro({ r, personagemId, mesaId, sessaoId, novo }: {
+  r: Rolagem; personagemId?: string | null; mesaId: string; sessaoId: string; novo?: boolean
 }) {
   const rolar = useRolar(mesaId, sessaoId)
   const [escolha, setEscolha] = useState<Record<string, string>>({})
@@ -121,7 +125,7 @@ function Registro({ r, cores, personagemId, mesaId, sessaoId, novo }: {
   return (
     <li data-resultado={dual ?? undefined}
       style={tom ? { '--brilho': `var(--${tom.tom})` } as React.CSSProperties : undefined}
-      className={`space-y-2 rounded-xl border ${tom?.borda ?? 'border-borda'} bg-fundo/60 p-3 text-sm ${r.substituida ? 'opacity-50' : ''} ${novo ? 'chegada-rolagem' : ''}`}>
+      className={`space-y-2 rounded-xl border ${tom?.borda ?? 'border-borda'} ${tom?.fundo ?? 'bg-fundo/60'} p-3 text-sm ${r.substituida ? 'opacity-50' : ''} ${novo ? 'chegada-rolagem' : ''}`}>
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <p><b>{r.personagem ?? r.autor}</b> <span className="text-texto-suave">· {res.titulo}</span>
           {r.oculta && <span className="ml-2"><Selo>oculta</Selo></span>}
@@ -133,7 +137,7 @@ function Registro({ r, cores, personagemId, mesaId, sessaoId, novo }: {
         </p>
       </div>
       <div className="flex flex-wrap items-center gap-1.5">
-        {res.dados.map((d, i) => <Dado key={i} d={d} cores={cores} />)}
+        {res.dados.map((d, i) => <Dado key={i} d={d} />)}
         {res.bonus.map((b, i) => (
           <span key={`b${i}`} className="text-xs text-texto-suave">{b.valor >= 0 ? '+' : '−'}{Math.abs(b.valor)} {b.fonte}</span>
         ))}
@@ -394,7 +398,7 @@ function Cores({ cores, mudar }: { cores: CoresDosDados; mudar: (p: Partial<Core
   )
   return (
     <details className="rounded-xl border border-borda p-3">
-      <summary className="cursor-pointer text-sm text-texto-suave">Cores dos dados</summary>
+      <summary className="cursor-pointer text-sm text-texto-suave">Cores dos dados 3D</summary>
       <div className="mt-2 flex flex-wrap gap-4">
         {campo('esperanca', 'Esperança')}
         {campo('medo', 'Medo')}
@@ -407,7 +411,6 @@ function Cores({ cores, mudar }: { cores: CoresDosDados; mudar: (p: Partial<Core
 /** As últimas rolagens, para acompanhar a mesa sem sair da tela de jogo. */
 export function RegistroRecente({ mesaId, sessaoId }: { mesaId: string; sessaoId: string }) {
   const registro = useRolagens(mesaId, sessaoId, null)
-  const [cores] = useCoresDosDados()
   const novas = useRolagensNovas(registro.data)
   return (
     <section aria-label="Últimas rolagens" className="space-y-2">
@@ -416,7 +419,7 @@ export function RegistroRecente({ mesaId, sessaoId }: { mesaId: string; sessaoId
       {registro.data?.length === 0 && <p className="text-sm text-texto-suave">Ninguém rolou ainda.</p>}
       <ul className="space-y-2">
         {registro.data?.slice(0, 5).map((r) => (
-          <Registro key={r.id} r={r} cores={cores} personagemId={null} mesaId={mesaId} sessaoId={sessaoId} novo={novas.includes(r.id)} />
+          <Registro key={r.id} r={r} personagemId={null} mesaId={mesaId} sessaoId={sessaoId} novo={novas.includes(r.id)} />
         ))}
       </ul>
     </section>
@@ -453,7 +456,7 @@ export default function RolagemDeDados({ mesaId, sessaoId, personagemId, souMest
           {registro.data?.length === 0 && <p className="text-sm text-texto-suave">Ninguém rolou ainda.</p>}
           <ul className="space-y-2">
             {registro.data?.map((r) => (
-              <Registro key={r.id} r={r} cores={cores} personagemId={emAndamento ? personagemId : null}
+              <Registro key={r.id} r={r} personagemId={emAndamento ? personagemId : null}
                 mesaId={mesaId} sessaoId={sessaoId} novo={novas.includes(r.id)} />
             ))}
           </ul>
