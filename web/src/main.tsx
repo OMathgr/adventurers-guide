@@ -9,6 +9,7 @@ import { ErroApi } from './api/cliente'
 import { ProvedorAutenticacao, useAutenticacao } from './auth/Autenticacao'
 import Layout from './componentes/Layout'
 import { capturarConviteDeInstalacao, registrarServiceWorker } from './lib/pwa'
+import { seguirOSistema } from './lib/tema'
 import { Cadastro, Entrar, EntrarComGoogle, RecuperarSenha, RedefinirSenha } from './paginas/Acesso'
 import Conta from './paginas/Conta'
 import Convite from './paginas/Convite'
@@ -38,6 +39,7 @@ function SoLogado() {
 
 capturarConviteDeInstalacao()   // antes das telas: o convite do Chrome vem uma vez só
 registrarServiceWorker()
+seguirOSistema()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

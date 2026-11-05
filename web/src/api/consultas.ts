@@ -12,6 +12,7 @@ import type {
 } from './tipos'
 
 const UMA_HORA = 60 * 60 * 1000
+const MEIA_HORA = UMA_HORA / 2
 
 /** Formulários mandam a versão do que carregaram; sem ela (null), salvam por cima
     (o "salvar a minha mesmo assim" do aviso de conflito). Ver api/concorrencia.py. */
@@ -187,6 +188,17 @@ export function useCopiarParaMesa() {
     ]),
   })
 }
+
+/** Passe que abre as fotos. Vale ao menos 1 hora: renovado a cada 30 minutos e ao voltar para a aba. */
+export const usePasseDeImagens = () =>
+  useQuery({
+    queryKey: ['imagens', 'passe'],
+    queryFn: () => chamar<{ passe: string }>('/imagens/passe', { metodo: 'POST' }),
+    select: (dados) => dados.passe,
+    staleTime: MEIA_HORA,
+    refetchInterval: MEIA_HORA,
+    refetchOnWindowFocus: true,
+  })
 
 /** Envia uma foto e devolve o id para guardar no personagem, NPC ou inimigo. */
 export const useEnviarImagem = () =>

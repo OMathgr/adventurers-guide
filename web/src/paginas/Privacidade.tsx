@@ -47,12 +47,14 @@ export default function Privacidade() {
             <li>
               <b>O que você cria:</b> personagens, mesas, sessões, anotações, quadros e as fotos que você enviar.
               Lembre que o que você coloca numa mesa fica visível para os outros membros dela, conforme as
-              permissões de jogador e mestre.
+              permissões de jogador e mestre. As fotos só abrem para quem está conectado, por links que expiram em
+              até 2 horas.
             </li>
             <li>
               <b>No seu navegador:</b> o site guarda no armazenamento local o seu acesso e a hora da sua última
-              atividade, para manter você conectado e encerrar a sessão depois de 2 horas sem uso. Não usamos
-              cookies de propaganda nem ferramentas de rastreamento.
+              atividade, para manter você conectado e encerrar a sessão depois de 2 horas sem uso, além do tema e das
+              cores dos dados que você escolher. Essas preferências ficam só no seu navegador. Não usamos cookies de
+              propaganda nem ferramentas de rastreamento.
             </li>
           </ul>
         </Secao>
@@ -83,7 +85,7 @@ export default function Privacidade() {
           <p>Fale comigo pelo mesmo e-mail.</p>
         </Secao>
 
-        <p className="text-xs text-texto-suave">Última atualização: outubro de 2026.</p>
+        <p className="text-xs text-texto-suave">Última atualização: novembro de 2026.</p>
       </main>
       <Rodape />
     </div>

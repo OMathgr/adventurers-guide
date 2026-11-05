@@ -1,33 +1,11 @@
-import { useState } from 'react'
-import { flushSync } from 'react-dom'
 import { Link, NavLink, Outlet, useLocation } from 'react-router'
 
 import { useAoVivo } from '../api/aoVivo'
 import { usePersonagens } from '../api/consultas'
 import { useAutenticacao } from '../auth/Autenticacao'
 import { useInstalar, useOnline } from '../lib/pwa'
+import { useTema } from '../lib/tema'
 import Rodape from './Rodape'
-
-const CHAVE_TEMA = 'ag.tema'
-
-function useTema() {
-  // o index.html já decidiu o tema ao abrir (o escolhido ou o do sistema)
-  const [tema, setTema] = useState<'escuro' | 'claro'>(() =>
-    (document.documentElement.dataset.tema === 'claro' ? 'claro' : 'escuro'))
-  const alternar = () => {
-    const novo = tema === 'escuro' ? 'claro' : 'escuro'
-    // só guarda quando a pessoa escolhe: até lá, continua seguindo o sistema
-    try { localStorage.setItem(CHAVE_TEMA, novo) } catch { /* modo privado */ }
-    const trocar = () => {
-      flushSync(() => setTema(novo))
-      document.documentElement.dataset.tema = novo
-    }
-    // onde o navegador sabe misturar as duas telas, a troca é suave
-    if (document.startViewTransition) document.startViewTransition(trocar)
-    else trocar()
-  }
-  return [tema, alternar] as const
-}
 
 export function Logo() {
   return (

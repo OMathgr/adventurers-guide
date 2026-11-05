@@ -4,7 +4,7 @@
 import { type QueryClient, useQueryClient } from '@tanstack/react-query'
 import { useEffect } from 'react'
 
-import { token } from './cliente'
+import { chamar, token } from './cliente'
 
 export type Aviso =
   | { tipo: 'conectado' }
@@ -30,9 +30,11 @@ export function aplicarAviso(cliente: QueryClient, aviso: Aviso) {
   }
 }
 
-/** Conexão ao vivo enquanto `ativo`. O token é lido na hora de conectar: como
-    ele se renova durante o uso, a conexão não precisa reabrir a cada renovação.
-    Se o servidor recusar o token antigo (numa reconexão), reabre com o atual. */
+const ESPERA_PARA_REABRIR_MS = 5000
+
+/** Conexão ao vivo enquanto `ativo`. A URL leva um passe curto, nunca o login.
+    Numa reconexão o navegador repete o passe vencido: o servidor recusa, a
+    conexão fecha de vez e aqui se pede outro passe. */
 export function useAoVivo(ativo: boolean) {
   const cliente = useQueryClient()
   useEffect(() => {
@@ -42,10 +44,18 @@ export function useAoVivo(ativo: boolean) {
     let primeira = true
     let fechado = false
 
-    function abrir() {
-      const atual = token.ler()
-      if (fechado || !atual) return
-      fonte = new EventSource(`/api/eventos?token=${encodeURIComponent(atual)}`)
+    async function abrir() {
+      if (fechado || !token.ler()) return
+      let passe: string
+      try {
+        ({ passe } = await chamar<{ passe: string }>('/eventos/passe', { metodo: 'POST' }))
+      } catch {
+        // sem rede ou servidor fora do ar (login vencido desliga o `ativo`)
+        espera = window.setTimeout(abrir, ESPERA_PARA_REABRIR_MS)
+        return
+      }
+      if (fechado) return
+      fonte = new EventSource(`/api/eventos?passe=${encodeURIComponent(passe)}`)
       fonte.onmessage = (e) => {
         const aviso = JSON.parse(e.data) as Aviso
         if (aviso.tipo === 'conectado') {
@@ -57,9 +67,7 @@ export function useAoVivo(ativo: boolean) {
         aplicarAviso(cliente, aviso)
       }
       fonte.onerror = () => {
-        // o navegador reconecta sozinho, mas com a URL (e o token) de antes; se o
-        // servidor recusou, a conexão fecha de vez: abre outra com o token atual
-        if (fonte?.readyState === EventSource.CLOSED) espera = window.setTimeout(abrir, 5000)
+        if (fonte?.readyState === EventSource.CLOSED) espera = window.setTimeout(abrir, ESPERA_PARA_REABRIR_MS)
       }
     }
     abrir()

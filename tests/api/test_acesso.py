@@ -27,7 +27,7 @@ PROPRIAS = {
     ("GET", "/auth/google"), ("POST", "/auth/google/ligar"), ("GET", "/auth/google/retorno"), ("DELETE", "/auth/google"),
     ("POST", "/personagens"), ("GET", "/personagens"), ("GET", "/mesas"), ("POST", "/mesas"),
     ("POST", "/mesas/entrar/{codigo}"), ("POST", "/imagens"),
-    ("GET", "/imagens/{imagem_id}"),   # pública pelo id (aleatório): o navegador carrega por <img>, sem login
+    ("POST", "/imagens/passe"), ("POST", "/eventos/passe"),
 }
 
 # o que qualquer membro da mesa pode (a jogadora não é testada nestas)

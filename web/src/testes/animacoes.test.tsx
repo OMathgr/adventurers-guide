@@ -8,6 +8,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { EventoLinhaDoTempo, Ficha } from '../api/tipos'
 import LinhaDoTempo from '../componentes/LinhaDoTempo'
 import MedoDoMestre from '../componentes/MedoDoMestre'
+import { MiniFicha } from '../componentes/FichaResumida'
 import { Abas, Esperanca } from '../componentes/ui'
 import { ganhosDeNivel } from '../lib/ganhosDeNivel'
 
@@ -109,6 +110,14 @@ describe('Respostas às mudanças', () => {
     const { container } = render(<Esperanca atual={2} maximo={6} />)
     expect(container.querySelector('[role=img]')).toHaveClass('flex-wrap')
     for (const losango of container.querySelectorAll('[role=img] > span')) expect(losango).toHaveClass('shrink-0')
+  })
+
+  it('a ficha resumida só põe as marcas lado a lado quando ela mesma é larga', () => {
+    const f = { nome: 'Lira', jogador: 'Bia', pv_max: 6, pv_marcados: 0, estresse_max: 6, estresse_marcado: 0, esperanca: 2, esperanca_max: 6 }
+    const { container } = render(<MiniFicha f={f as never} />)
+    const marcas = container.querySelector('.\\@container > div')
+    expect(marcas).toHaveClass('@xl:grid-cols-3')
+    expect(marcas).not.toHaveClass('sm:grid-cols-3')
   })
 
   it('quando o Medo muda, o losango e o número reagem', () => {

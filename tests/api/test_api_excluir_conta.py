@@ -70,7 +70,8 @@ def test_sessao_mestrada_na_mesa_de_outra_pessoa_fica_com_o_criador(cliente):
     # o NPC da Ana passa para a Bia, com a foto
     npcs = cliente.get(f"/mesas/{mesa['id']}/npcs", headers=bia).json()
     assert [(n["id"], n["foto"], n["sou_dono"]) for n in npcs] == [(npc["id"], foto, True)]
-    assert cliente.get(f"/imagens/{foto}", headers=bia).status_code == 200
+    passe = cliente.post("/imagens/passe", headers=bia).json()["passe"]
+    assert cliente.get(f"/imagens/{foto}", params={"passe": passe}, headers=bia).status_code == 200
 
 
 # PNG 1x1 válido

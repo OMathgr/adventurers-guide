@@ -36,6 +36,11 @@ if not _SEGREDO:
     _log.warning("JWT_SECRET não definido: usando chave temporária (tokens caem ao reiniciar).")
 
 
+# Passe das fotos: vale de 1 a 2 horas e é o mesmo durante a hora cheia, para
+# recarregar a página não baixar todas as fotos de novo (a URL não muda).
+_HORA = 3600
+
+
 class TokenInvalido(Exception):
     pass
 
@@ -80,6 +85,21 @@ def assinar(tipo: str, dados: dict, minutos: int) -> str:
     """Token assinado de uso interno (não serve como acesso), com prazo curto."""
     agora = datetime.now(timezone.utc)
     return jwt.encode({**dados, "typ": tipo, "exp": agora + timedelta(minutes=minutos)}, _SEGREDO, algorithm=ALGORITMO)
+
+
+def criar_passe_de_imagens(usuario_id: str, agora: datetime | None = None) -> str:
+    """Só abre fotos (`typ`: não serve como acesso), e é o que entra no link delas."""
+    instante = int((agora or datetime.now(timezone.utc)).timestamp())
+    expira = (instante // _HORA + 2) * _HORA
+    return jwt.encode({"sub": usuario_id, "typ": "imagens", "exp": expira}, _SEGREDO, algorithm=ALGORITMO)
+
+
+def criar_passe_ao_vivo(usuario_id: str, agora: datetime | None = None) -> str:
+    """Só abre o fluxo de avisos, e vale 1 minuto: é o que entra na URL dele. Leva
+    `iat` para a troca de senha valer aqui como vale no login."""
+    agora = agora or datetime.now(timezone.utc)
+    dados = {"sub": usuario_id, "typ": "eventos", "iat": agora.timestamp(), "exp": agora + timedelta(minutes=1)}
+    return jwt.encode(dados, _SEGREDO, algorithm=ALGORITMO)
 
 
 def ler_assinado(tipo: str, token: str) -> dict:

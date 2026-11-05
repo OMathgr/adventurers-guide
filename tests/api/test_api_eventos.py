@@ -1,10 +1,16 @@
 """Avisos ao vivo: quem recebe o quê quando algo muda (e quem não recebe)."""
 
+from datetime import datetime, timedelta, timezone
+from types import SimpleNamespace
+
 import pytest
 from dados_api import BARDO, colocar_em_jogo, entrar
+from fastapi import HTTPException
 
+from api.autenticacao import usuario_do_passe_ao_vivo
 from api.eventos import central
 from api.rotas import eventos as rota_eventos
+from api.seguranca import criar_passe_ao_vivo
 
 
 def _id(cliente, h):
@@ -79,15 +85,46 @@ def test_presenca_na_lista_de_membros(cliente, cena):
     assert membros == {"Ana": True, "Bia": True}   # as duas estão "conectadas" (assinaram a central)
 
 
-def test_fluxo_exige_token(anonimo):
-    assert anonimo.get("/eventos", params={"token": "invalido"}).status_code == 401
+def test_fluxo_exige_passe_valido(anonimo):
+    assert anonimo.get("/eventos", params={"passe": "invalido"}).status_code == 401
+    assert anonimo.post("/eventos/passe").status_code == 401
+
+
+def test_o_login_nao_abre_o_fluxo_e_o_passe_nao_serve_de_login(cliente):
+    login = cliente.headers["Authorization"].split()[1]
+    assert cliente.get("/eventos", params={"passe": login}).status_code == 401
+    assert cliente.get("/eventos", params={"token": login}).status_code == 422   # o jeito antigo acabou
+    passe = cliente.post("/eventos/passe").json()["passe"]
+    assert cliente.get("/auth/eu", headers={"Authorization": f"Bearer {passe}"}).status_code == 401
+
+
+def test_passe_das_fotos_nao_abre_o_fluxo(cliente):
+    passe = cliente.post("/imagens/passe").json()["passe"]
+    assert cliente.get("/eventos", params={"passe": passe}).status_code == 401
+
+
+def test_passe_vale_um_minuto(cliente):
+    uid = cliente.get("/auth/eu").json()["id"]
+    vencido = criar_passe_ao_vivo(uid, datetime.now(timezone.utc) - timedelta(seconds=61))
+    assert cliente.get("/eventos", params={"passe": vencido}).status_code == 401
+
+
+def test_troca_de_senha_derruba_o_passe_ja_emitido():
+    agora = datetime.now(timezone.utc)
+    passe = criar_passe_ao_vivo("u1", agora)
+    def banco(desde):
+        return SimpleNamespace(get=lambda _tabela, _id: SimpleNamespace(tokens_validos_desde=desde))
+    assert usuario_do_passe_ao_vivo(banco(agora - timedelta(seconds=1)), passe)
+    with pytest.raises(HTTPException) as erro:
+        usuario_do_passe_ao_vivo(banco(agora + timedelta(seconds=1)), passe)
+    assert erro.value.status_code == 401
 
 
 def test_fluxo_abre_com_conectado(cliente, monkeypatch):
     monkeypatch.setattr(rota_eventos, "INTERVALO_PING", 0.05)
     monkeypatch.setattr(rota_eventos, "DURACAO_MAXIMA", 0.3)   # o cliente de teste espera o fluxo acabar
-    token = cliente.headers["Authorization"].split()[1]
-    with cliente.stream("GET", "/eventos", params={"token": token}) as r:
+    passe = cliente.post("/eventos/passe").json()["passe"]
+    with cliente.stream("GET", "/eventos", params={"passe": passe}) as r:
         assert r.status_code == 200 and r.headers["content-type"].startswith("text/event-stream")
         primeira = next(linha for linha in r.iter_lines() if linha)
     assert primeira == 'data: {"tipo": "conectado"}'

@@ -3,7 +3,7 @@
 import { useRef, useState } from 'react'
 
 import { urlDaImagem } from '../api/cliente'
-import { useEnviarImagem } from '../api/consultas'
+import { useEnviarImagem, usePasseDeImagens } from '../api/consultas'
 import { Aviso, Botao } from './ui'
 
 const TAMANHOS = { p: 'h-10 w-10 text-sm', m: 'h-16 w-16 text-lg', g: 'h-28 w-28 text-3xl' }
@@ -13,14 +13,24 @@ function iniciais(nome: string) {
   return ((partes[0]?.[0] ?? '?') + (partes.length > 1 ? partes[partes.length - 1][0] : '')).toUpperCase()
 }
 
-export function Foto({ id, nome, tamanho = 'm' }: { id?: string | null; nome: string; tamanho?: keyof typeof TAMANHOS }) {
-  const classe = `${TAMANHOS[tamanho]} shrink-0 rounded-xl border border-borda object-cover`
-  if (id) return <img src={urlDaImagem(id)} alt={`Foto de ${nome}`} className={classe} />
+function Iniciais({ nome, classe }: { nome: string; classe: string }) {
   return (
     <span aria-hidden className={`${classe} flex items-center justify-center bg-superficie-2 font-titulo text-texto-suave`}>
       {iniciais(nome)}
     </span>
   )
+}
+
+/** Separada para só pedir o passe quando há uma foto para abrir. */
+function FotoEnviada({ id, nome, classe }: { id: string; nome: string; classe: string }) {
+  const { data: passe } = usePasseDeImagens()
+  if (!passe) return <Iniciais nome={nome} classe={classe} />
+  return <img src={urlDaImagem(id, passe)} alt={`Foto de ${nome}`} className={classe} />
+}
+
+export function Foto({ id, nome, tamanho = 'm' }: { id?: string | null; nome: string; tamanho?: keyof typeof TAMANHOS }) {
+  const classe = `${TAMANHOS[tamanho]} shrink-0 rounded-xl border border-borda object-cover`
+  return id ? <FotoEnviada id={id} nome={nome} classe={classe} /> : <Iniciais nome={nome} classe={classe} />
 }
 
 const TIPOS = ['image/jpeg', 'image/png', 'image/webp']

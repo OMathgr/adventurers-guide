@@ -42,8 +42,8 @@ type Opcoes = {
   multipart?: FormData
 }
 
-/** Endereço de uma foto enviada (para <img src>; a leitura não precisa de token). */
-export const urlDaImagem = (id: string) => `${BASE}/imagens/${id}`
+/** Endereço de uma foto enviada (para <img src>, que não manda o token: leva um passe que expira). */
+export const urlDaImagem = (id: string, passe: string) => `${BASE}/imagens/${id}?passe=${encodeURIComponent(passe)}`
 
 export async function chamar<T>(caminho: string, opcoes: Opcoes = {}): Promise<T> {
   const cabecalhos: Record<string, string> = {}

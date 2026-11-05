@@ -18,7 +18,7 @@ describe('service worker', () => {
   const ORIGEM = 'https://app.exemplo'
 
   it('nunca intercepta a API (dados e fluxo ao vivo vêm sempre do servidor)', () => {
-    expect(estrategia(`${ORIGEM}/api/eventos?token=x`, 'cors', ORIGEM)).toBeNull()
+    expect(estrategia(`${ORIGEM}/api/eventos?passe=x`, 'cors', ORIGEM)).toBeNull()
     expect(estrategia(`${ORIGEM}/api/mesas`, 'cors', ORIGEM)).toBeNull()
     expect(estrategia(`${ORIGEM}/api/imagens/abc`, 'no-cors', ORIGEM)).toBeNull()
   })

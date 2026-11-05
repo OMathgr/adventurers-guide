@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { render, screen } from '@testing-library/react'
+import { act, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import type { ReactNode } from 'react'
 import { MemoryRouter, Route, Routes } from 'react-router'
@@ -7,6 +7,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { ProvedorAutenticacao } from '../auth/Autenticacao'
 import Layout from '../componentes/Layout'
+import { seguirOSistema } from '../lib/tema'
 import { Cadastro, Entrar } from '../paginas/Acesso'
 import Privacidade from '../paginas/Privacidade'
 import paginaInicial from '../../index.html?raw'
@@ -71,6 +72,43 @@ describe('Tema nas telas sem login', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Usar tema escuro' }))
     expect(localStorage.getItem('ag.tema')).toBe('escuro')
     expect(document.documentElement.dataset.tema).toBe('escuro')
+  })
+})
+
+describe('Tema com a página aberta', () => {
+  function sistema() {
+    let aoMudar: (e: { matches: boolean }) => void = () => {}
+    vi.stubGlobal('matchMedia', () => ({ matches: false, addEventListener: (_: string, f: typeof aoMudar) => { aoMudar = f } }))
+    seguirOSistema()
+    return (claro: boolean) => act(() => aoMudar({ matches: claro }))
+  }
+  afterEach(() => { delete document.documentElement.dataset.tema })
+
+  it('sem escolha, o tema e o botão acompanham o sistema', () => {
+    const mudarSistema = sistema()
+    montar(<Route element={<Layout />}><Route path="/mesas" element={<p>Mesas</p>} /></Route>, '/mesas')
+    mudarSistema(true)
+    expect(document.documentElement.dataset.tema).toBe('claro')
+    expect(screen.getByRole('button', { name: 'Usar tema escuro' })).toBeInTheDocument()
+    mudarSistema(false)
+    expect(document.documentElement.dataset.tema).toBe('escuro')
+    expect(localStorage.getItem('ag.tema')).toBeNull()
+  })
+
+  it('depois de escolher, o sistema não muda mais o tema', () => {
+    const mudarSistema = sistema()
+    localStorage.setItem('ag.tema', 'escuro')
+    document.documentElement.dataset.tema = 'escuro'
+    mudarSistema(true)
+    expect(document.documentElement.dataset.tema).toBe('escuro')
+  })
+})
+
+describe('Aviso de privacidade', () => {
+  it('conta o que fica no navegador e que os links das fotos expiram', () => {
+    montar(null, '/privacidade')
+    expect(screen.getByText(/do tema e das\s+cores dos dados/)).toBeInTheDocument()
+    expect(screen.getByText(/links que expiram/)).toBeInTheDocument()
   })
 })
 

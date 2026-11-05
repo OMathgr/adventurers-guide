@@ -756,9 +756,12 @@ manipulador, assistente, brutamonte.
 - `POST /imagens` (com login, multipart) guarda JPG, PNG ou WebP de até 2 MB
   na tabela `imagens` (no banco: funciona igual no SQLite e no PostgreSQL). O
   tipo é conferido pelos primeiros bytes, não pelo nome do arquivo.
-- `GET /imagens/{id}` é aberto (a tag `<img>` não manda token); o id é um
-  UUID aleatório, então só quem tem o link abre. Cache longo: trocar a foto
-  gera outro id.
+- `GET /imagens/{id}?passe=...`: a tag `<img>` não manda o token de acesso, então
+  o link leva um passe (`POST /imagens/passe`, com login) que só abre fotos e
+  vence em 1 a 2 horas. É o mesmo durante a hora cheia, para recarregar a página
+  não baixar tudo de novo; a tela pede outro a cada 30 minutos. O passe abre
+  qualquer foto cujo id a pessoa conheça: quem filtra são as respostas da API,
+  que só entregam o id a quem pode ver o personagem, NPC ou quadro.
 - Personagem (`personagens.foto`, `PUT /personagens/{id}/foto`), NPC
   (`npcs.foto`) e inimigo (`Adversario.foto`, vai junto na cópia para o
   encontro) guardam só o id. Imagens trocadas ficam no banco (sem limpeza
@@ -963,9 +966,11 @@ as sessões compartilhadas; com presença (bolinha verde em quem está online).
 
 - **Server-Sent Events**, não WebSocket: o servidor só precisa avisar; as
   mudanças continuam indo pelas rotas normais (com validação e permissões).
-  `GET /eventos?token=...` (o `EventSource` do navegador não manda cabeçalho,
-  então o token vem na URL). Comentário `: ping` a cada 15 s; o fluxo se renova
-  a cada hora e o navegador reconecta sozinho.
+  `GET /eventos?passe=...`: o `EventSource` do navegador não manda cabeçalho, e
+  URLs vão parar em logs, então vai na URL um passe de 1 minuto
+  (`POST /eventos/passe`, com login) que só abre o fluxo, nunca o login. Comentário
+  `: ping` a cada 15 s; o fluxo se renova a cada hora. Ao reconectar, o navegador
+  repete a URL com o passe vencido, o servidor recusa e a tela pede outro em 5 s.
 - **Avisos sem dados**: só `{"tipo": "mesa", "id"}` ou
   `{"tipo": "personagem", "id", "mesa_id"}`. A tela invalida o cache (React
   Query) e busca de novo com as próprias permissões, então um aviso nunca vaza
@@ -1000,8 +1005,8 @@ mestre responsável da sessão (`sessao_do_mestre`), personagem jogando a sessã
 (`_meu_personagem`). Respostas para jogadores já saem filtradas do servidor
 (revelado: vitalidade em categorias, nunca PV; NPCs sem notas; quadro só com o
 revelado; rolagens ocultas só para quem rolou; ficha dos outros só resumida).
-Exceção deliberada: `GET /imagens/{id}` é público pelo id (aleatório), porque o
-navegador carrega a foto por `<img>`, sem o login.
+`GET /imagens/{id}` não usa o login, porque o navegador carrega a foto por
+`<img>`: pede um passe curto no link, e a matriz o testa sem passe.
 
 `tests/api/test_acesso.py` (2026-10-27) garante isso: monta uma mesa com mestre,
 dois jogadores e alguém de fora, e chama TODAS as rotas do OpenAPI (as novas entram

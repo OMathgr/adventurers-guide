@@ -1832,6 +1832,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/imagens/passe": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Passe */
+        post: operations["passe_imagens_passe_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/imagens/{imagem_id}": {
         parameters: {
             query?: never;
@@ -1905,6 +1922,23 @@ export interface paths {
         get: operations["quadro_da_campanha_mesas__mesa_id__quadro_da_campanha_get"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/eventos/passe": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Passe */
+        post: operations["passe_eventos_passe_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -4988,6 +5022,16 @@ export interface components {
             /** Dono Id */
             dono_id: string;
             resumo: components["schemas"]["FichaResumida"];
+        };
+        /** PasseAoVivo */
+        PasseAoVivo: {
+            /** Passe */
+            passe: string;
+        };
+        /** PasseDeImagens */
+        PasseDeImagens: {
+            /** Passe */
+            passe: string;
         };
         /**
          * PassivoDeCarta
@@ -9915,9 +9959,31 @@ export interface operations {
             };
         };
     };
-    ver_imagens__imagem_id__get: {
+    passe_imagens_passe_post: {
         parameters: {
             query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PasseDeImagens"];
+                };
+            };
+        };
+    };
+    ver_imagens__imagem_id__get: {
+        parameters: {
+            query?: {
+                passe?: string | null;
+            };
             header?: never;
             path: {
                 imagem_id: string;
@@ -10078,10 +10144,30 @@ export interface operations {
             };
         };
     };
+    passe_eventos_passe_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PasseAoVivo"];
+                };
+            };
+        };
+    };
     eventos_eventos_get: {
         parameters: {
             query: {
-                token: string;
+                passe: string;
             };
             header?: never;
             path?: never;

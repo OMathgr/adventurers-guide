@@ -8,7 +8,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { Arma, Armadura, EventoLinhaDoTempo, Ficha, Mesa, ProximoNivel } from '../api/tipos'
 import { ProvedorAutenticacao } from '../auth/Autenticacao'
 import AbaEquipamento from '../componentes/AbaEquipamento'
-import { EnviarFoto } from '../componentes/Foto'
+import { EnviarFoto, Foto } from '../componentes/Foto'
 import LinhaDoTempo from '../componentes/LinhaDoTempo'
 import AbaGeral from '../paginas/mesa/AbaGeral'
 
@@ -97,6 +97,16 @@ describe('Linha do tempo com mesa e plano', () => {
 })
 
 describe('Foto', () => {
+  it('abre com o passe no link; sem foto, nem pede o passe', async () => {
+    const fetch = api({ '/imagens/passe': { passe: 'a b' } })
+    vi.stubGlobal('fetch', fetch)
+    const { unmount } = montar(<Foto nome="Lira" />)
+    expect(fetch).not.toHaveBeenCalled()
+    unmount()
+    montar(<Foto id="img1" nome="Lira" />)
+    expect(await screen.findByRole('img', { name: 'Foto de Lira' })).toHaveAttribute('src', '/api/imagens/img1?passe=a%20b')
+  })
+
   it('recusa tipo errado na hora e envia imagem válida', async () => {
     const fetch = api({ '/imagens': { id: 'img1', url: '/imagens/img1' } })
     vi.stubGlobal('fetch', fetch)

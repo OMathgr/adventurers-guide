@@ -12,7 +12,7 @@ from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 
 from .db import sessao_do_banco
-from .seguranca import TokenInvalido, dados_do_token
+from .seguranca import TokenInvalido, dados_do_token, ler_assinado
 from .tabelas import UsuarioTabela
 
 # tokenUrl faz o botão "Authorize" da página /docs funcionar
@@ -30,6 +30,19 @@ def usuario_do_acesso(banco: Session, token: str) -> UsuarioTabela:
         dados = dados_do_token(token)
     except TokenInvalido:
         raise _nao_autenticado("Token inválido ou expirado. Faça login de novo.")
+    return _usuario_valido(banco, dados)
+
+
+def usuario_do_passe_ao_vivo(banco: Session, passe: str) -> UsuarioTabela:
+    """Valida o passe da URL do fluxo de avisos; 401 se não valer mais."""
+    try:
+        dados = ler_assinado("eventos", passe)
+    except TokenInvalido:
+        raise _nao_autenticado("Este passe expirou. Peça outro.")
+    return _usuario_valido(banco, dados)
+
+
+def _usuario_valido(banco: Session, dados: dict) -> UsuarioTabela:
     usuario = banco.get(UsuarioTabela, dados["sub"])
     if usuario is None:   # conta apagada depois de o token ser emitido
         raise _nao_autenticado("Usuário não existe mais.")

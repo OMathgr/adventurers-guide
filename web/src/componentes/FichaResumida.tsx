@@ -26,7 +26,9 @@ export function MiniFicha({ f }: { f: Resumo }) {
       <p className="text-texto-suave">{f.ancestralidade} · {f.comunidade} · jogado por {f.jogador}</p>
       {f.morto && <p className="font-medium text-perigo">Atravessou o véu da morte.</p>}
       {!f.morto && f.inconsciente && <p className="font-medium text-perigo">Inconsciente.</p>}
-      <div className="grid gap-2 sm:grid-cols-3">
+      {/* lado a lado só quando a própria ficha é larga: ela também aparece em colunas estreitas */}
+      <div className="@container">
+      <div className="grid gap-2 @xl:grid-cols-3">
         <div>
           <p className="text-xs text-texto-suave">Vida: {f.pv_max - f.pv_marcados}/{f.pv_max} PV</p>
           <Espacos total={f.pv_max} marcados={f.pv_marcados} rotulo={`PV de ${nome}`} restantes />
@@ -39,6 +41,7 @@ export function MiniFicha({ f }: { f: Resumo }) {
           <p className="text-xs text-texto-suave">Esperança: {f.esperanca}/{f.esperanca_max}</p>
           <Esperanca atual={f.esperanca} maximo={f.esperanca_max} />
         </div>
+      </div>
       </div>
     </section>
   )

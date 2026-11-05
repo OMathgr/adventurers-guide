@@ -1,6 +1,11 @@
 """Fotos: envio (com login, tipo e tamanho conferidos) e uso em personagem, NPC e inimigo."""
 
+from datetime import datetime, timedelta, timezone
+
+from dados_api import entrar
 from test_api_conteudo import INIMIGO
+
+from api.seguranca import criar_passe_de_imagens
 
 PNG = b"\x89PNG\r\n\x1a\n" + b"\x00" * 64
 JPG = b"\xff\xd8\xff\xe0" + b"\x00" * 64
@@ -10,18 +15,58 @@ def enviar(cliente, dados, nome="foto.png", tipo="image/png"):
     return cliente.post("/imagens", files={"arquivo": (nome, dados, tipo)})
 
 
-def test_envia_e_le_a_imagem(cliente):
+def test_envia_e_le_a_imagem_com_o_passe(cliente):
     r = enviar(cliente, PNG)
     assert r.status_code == 201
     imagem = r.json()
     assert imagem["url"] == f"/imagens/{imagem['id']}"
-    cliente.headers.pop("Authorization")   # a tag <img> não manda token: leitura aberta pelo id
-    anonimo = cliente
-    lida = anonimo.get(imagem["url"])
+    passe = cliente.post("/imagens/passe").json()["passe"]
+    cliente.headers.pop("Authorization")   # a tag <img> não manda token: o passe vai no link
+    lida = cliente.get(imagem["url"], params={"passe": passe})
     assert lida.status_code == 200 and lida.content == PNG
     assert lida.headers["content-type"] == "image/png"
     assert lida.headers["x-content-type-options"] == "nosniff"
-    assert anonimo.get("/imagens/nao-existe").status_code == 404
+    assert lida.headers["cache-control"].startswith("private")
+    assert cliente.get("/imagens/nao-existe", params={"passe": passe}).status_code == 404
+
+
+def test_sem_passe_valido_a_imagem_nao_abre(cliente):
+    foto = enviar(cliente, PNG).json()["id"]
+    login = cliente.headers["Authorization"].removeprefix("Bearer ")
+    assert cliente.get(f"/imagens/{foto}").status_code == 401   # nem com o login no cabeçalho
+    assert cliente.get(f"/imagens/{foto}", params={"passe": "inventado"}).status_code == 401
+    assert cliente.get(f"/imagens/{foto}", params={"passe": login}).status_code == 401   # o login não entra em link
+
+
+def test_o_passe_expira_em_ate_duas_horas_e_e_estavel_durante_a_hora(cliente):
+    foto = enviar(cliente, PNG).json()["id"]
+    uid = cliente.get("/auth/eu").json()["id"]
+    agora = datetime.now(timezone.utc)
+    assert cliente.get(f"/imagens/{foto}", params={"passe": criar_passe_de_imagens(uid, agora)}).status_code == 200
+    vencido = criar_passe_de_imagens(uid, agora - timedelta(hours=2, seconds=1))
+    assert cliente.get(f"/imagens/{foto}", params={"passe": vencido}).status_code == 401
+    hora = datetime(2026, 11, 5, 10, tzinfo=timezone.utc)
+    assert criar_passe_de_imagens(uid, hora) == criar_passe_de_imagens(uid, hora + timedelta(minutes=59))
+    assert criar_passe_de_imagens(uid, hora) != criar_passe_de_imagens(uid, hora + timedelta(hours=1))
+
+
+def test_o_passe_nao_serve_como_login(cliente):
+    passe = cliente.post("/imagens/passe").json()["passe"]
+    cliente.headers.pop("Authorization")
+    assert cliente.get("/auth/eu", headers={"Authorization": f"Bearer {passe}"}).status_code == 401
+
+
+def test_passe_exige_login(anonimo):
+    assert anonimo.post("/imagens/passe").status_code == 401
+
+
+def test_passe_de_conta_excluida_nao_abre_mais(cliente):
+    bia = entrar(cliente, "bia@exemplo.com", nome="Bia")
+    foto = enviar(cliente, PNG).json()["id"]
+    passe = cliente.post("/imagens/passe", headers=bia).json()["passe"]
+    assert cliente.get(f"/imagens/{foto}", params={"passe": passe}).status_code == 200
+    cliente.request("DELETE", "/auth/eu", json={"email": "bia@exemplo.com"}, headers=bia)
+    assert cliente.get(f"/imagens/{foto}", params={"passe": passe}).status_code == 401
 
 
 def test_tipo_pelos_bytes_e_tamanho(cliente):

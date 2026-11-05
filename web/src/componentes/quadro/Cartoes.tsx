@@ -3,6 +3,7 @@
 import { Handle, type NodeProps, Position } from '@xyflow/react'
 
 import { urlDaImagem } from '../../api/cliente'
+import { usePasseDeImagens } from '../../api/consultas'
 import type { NoDoQuadro } from '../../lib/quadro'
 import { Foto } from '../Foto'
 import TextoRico from '../TextoRico'
@@ -68,9 +69,10 @@ export function CartaoItem({ data, selected }: NodeProps<NoDoQuadro>) {
 
 export function CartaoImagem({ data, selected }: NodeProps<NoDoQuadro>) {
   const c = data.cartao
+  const { data: passe } = usePasseDeImagens()
   return (
     <Moldura cor={c.cor} selecionado={selected} revelado={c.revelado}>
-      {c.imagem && <img src={urlDaImagem(c.imagem)} alt={c.titulo || 'Imagem do quadro'}
+      {c.imagem && passe && <img src={urlDaImagem(c.imagem, passe)} alt={c.titulo || 'Imagem do quadro'}
         className="max-h-48 w-full rounded-lg object-contain" draggable={false} />}
       {c.titulo && <p className="mt-1 text-center text-xs text-texto-suave">{c.titulo}</p>}
     </Moldura>
