@@ -73,6 +73,7 @@ personagem é guardado como criação + histórico de subidas de nível; a ficha
   título laranja). Penalidade é vermelha. A rolagem acompanha o resultado: Esperança
   laranja, Medo azul. Losango só em
   Esperança, Medo e na marca; moldura dupla (`.carta`) só em personagens e cartas.
+  Tema inicial: o escolhido ou, sem escolha, o do sistema (script no `index.html`).
   Fontes no próprio site (`@fontsource`): Alegreya, Alegreya Sans e Cinzel na marca
   e nas rubricas.
 - Conteúdo de jogo só do SRD (licença DPCGL). Nada do livro completo.

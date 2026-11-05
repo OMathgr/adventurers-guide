@@ -12,11 +12,13 @@
     <meta name="apple-mobile-web-app-title" content="Adventurer's" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black" />
     <title>Adventurer's Guide</title>
-    <!-- o tema escolhido vale em todas as telas, inclusive as sem login, e sem piscar o escuro ao abrir -->
+    <!-- vale em todas as telas, inclusive as sem login, e sem piscar o escuro ao abrir:
+         o tema que a pessoa escolheu; enquanto não escolher, o do sistema -->
     <script>
-      try {
-        if (localStorage.getItem('ag.tema') === 'claro') document.documentElement.dataset.tema = 'claro'
-      } catch { /* modo privado */ }
+      let salvo = null
+      try { salvo = localStorage.getItem('ag.tema') } catch { /* modo privado */ }
+      const sistemaClaro = window.matchMedia?.('(prefers-color-scheme: light)').matches
+      if (salvo === 'claro' || (!salvo && sistemaClaro)) document.documentElement.dataset.tema = 'claro'
     </script>
   </head>
   <body>

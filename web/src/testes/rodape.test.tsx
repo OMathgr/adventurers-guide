@@ -35,7 +35,11 @@ const LICENCA = /Darrington Press Community Gaming \(DPCGL\) License/
 describe('Tema nas telas sem login', () => {
   // o script do index.html roda antes do app; Layout (que também aplica o tema) só existe depois do login
   const script = paginaInicial.match(/<script>([\s\S]*?)<\/script>/)![1]
-  const abrirOSite = () => { delete document.documentElement.dataset.tema; new Function(script)() }
+  const abrirOSite = (sistema: 'claro' | 'escuro' = 'escuro') => {
+    delete document.documentElement.dataset.tema
+    vi.stubGlobal('matchMedia', (consulta: string) => ({ matches: consulta.includes('light') && sistema === 'claro' }))
+    new Function(script)()
+  }
   afterEach(() => { delete document.documentElement.dataset.tema })
 
   it('quem escolheu o tema claro já abre no claro', () => {
@@ -44,10 +48,29 @@ describe('Tema nas telas sem login', () => {
     expect(document.documentElement.dataset.tema).toBe('claro')
   })
 
-  it.each([['escuro'], [null]])('com o tema %s, fica no escuro, que é o padrão', (salvo) => {
-    if (salvo) localStorage.setItem('ag.tema', salvo)
-    abrirOSite()
+  it('quem escolheu o escuro fica no escuro, mesmo com o sistema claro', () => {
+    localStorage.setItem('ag.tema', 'escuro')
+    abrirOSite('claro')
     expect(document.documentElement.dataset.tema).toBeUndefined()
+  })
+
+  it('na primeira vez, segue o sistema: claro', () => {
+    abrirOSite('claro')
+    expect(document.documentElement.dataset.tema).toBe('claro')
+  })
+
+  it('na primeira vez, segue o sistema: escuro', () => {
+    abrirOSite('escuro')
+    expect(document.documentElement.dataset.tema).toBeUndefined()
+  })
+
+  it('o tema só é guardado quando a pessoa escolhe', async () => {
+    document.documentElement.dataset.tema = 'claro'   // veio do sistema
+    montar(<Route element={<Layout />}><Route path="/mesas" element={<p>Mesas</p>} /></Route>, '/mesas')
+    expect(localStorage.getItem('ag.tema')).toBeNull()
+    await userEvent.click(screen.getByRole('button', { name: 'Usar tema escuro' }))
+    expect(localStorage.getItem('ag.tema')).toBe('escuro')
+    expect(document.documentElement.dataset.tema).toBe('escuro')
   })
 })
 

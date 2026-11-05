@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { flushSync } from 'react-dom'
 import { Link, NavLink, Outlet, useLocation } from 'react-router'
 
@@ -11,15 +11,13 @@ import Rodape from './Rodape'
 const CHAVE_TEMA = 'ag.tema'
 
 function useTema() {
-  const [tema, setTema] = useState<'escuro' | 'claro'>(() => {
-    try { return localStorage.getItem(CHAVE_TEMA) === 'claro' ? 'claro' : 'escuro' } catch { return 'escuro' }
-  })
-  useEffect(() => {
-    document.documentElement.dataset.tema = tema
-    try { localStorage.setItem(CHAVE_TEMA, tema) } catch { /* modo privado */ }
-  }, [tema])
+  // o index.html já decidiu o tema ao abrir (o escolhido ou o do sistema)
+  const [tema, setTema] = useState<'escuro' | 'claro'>(() =>
+    (document.documentElement.dataset.tema === 'claro' ? 'claro' : 'escuro'))
   const alternar = () => {
     const novo = tema === 'escuro' ? 'claro' : 'escuro'
+    // só guarda quando a pessoa escolhe: até lá, continua seguindo o sistema
+    try { localStorage.setItem(CHAVE_TEMA, novo) } catch { /* modo privado */ }
     const trocar = () => {
       flushSync(() => setTema(novo))
       document.documentElement.dataset.tema = novo
