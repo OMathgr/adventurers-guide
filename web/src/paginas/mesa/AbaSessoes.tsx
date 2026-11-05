@@ -223,6 +223,7 @@ function SessaoAberta({ mesa, sid, aoApagar }: { mesa: Mesa; sid: string; aoApag
           ['planejamento', 'Planejamento'], ['quadro', 'Quadro'], ['encontros', 'Encontros'], ['lojas', 'Lojas'],
           ['personagens', 'Personagens'], ['dados', 'Dados']]} />
 
+      <div key={parte} className="entrada">
       {/* numa rodada de combate, o grupo e os inimigos ficam na mesma tela */}
       {parte === 'ao_vivo' && (
         <div className="space-y-6">
@@ -241,6 +242,7 @@ function SessaoAberta({ mesa, sid, aoApagar }: { mesa: Mesa; sid: string; aoApag
       {parte === 'dados' && (
         <RolagemDeDados mesaId={mesa.id} sessaoId={s.id} souMestre={minha} emAndamento={s.status === 'em_andamento'} />
       )}
+      </div>
       </div>
     </div>
   )
@@ -316,7 +318,7 @@ export default function AbaSessoes({ mesa, podePreparar, inicial }: {
         )}
       </div>
 
-      <div className="min-w-0">
+      <div key={atual} className="entrada min-w-0">
         {atual && (escolhidaNaLista?.posso_gerir
           ? <SessaoAberta key={atual} mesa={mesa} sid={atual} aoApagar={() => setEscolhida(null)} />
           : <SessaoDeJogo key={atual} mesa={mesa} sid={atual} />)}

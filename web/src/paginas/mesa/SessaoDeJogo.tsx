@@ -127,12 +127,12 @@ export default function SessaoDeJogo({ mesa, sid }: { mesa: Mesa; sid: string })
       <Abas<'jogo' | 'dados'> atual={parte} aoTrocar={setParte}
         abas={[['jogo', emJogo ? 'Jogo' : 'Como terminou'], ['dados', 'Rolagem de dados']]} />
       {parte === 'dados' && (
-        <>
+        <div className="entrada">
           <RolagemDeDados mesaId={mesa.id} sessaoId={s.id} personagemId={atual ?? null} souMestre={false} emAndamento={emJogo} />
           {emJogo && atual && <MarcasNaRolagem pid={atual} />}
-        </>
+        </div>
       )}
-      {parte === 'jogo' && <>
+      {parte === 'jogo' && <div className="entrada space-y-4">
       {emJogo && <PainelDeRepouso mesa={mesa} sessao={s} />}
 
       {s.meus.length > 1 && (
@@ -159,7 +159,7 @@ export default function SessaoDeJogo({ mesa, sid }: { mesa: Mesa; sid: string })
           ))}
         </ul>
       </Cartao>
-      </>}
+      </div>}
     </div>
     </ContextoDaSessao.Provider>
   )

@@ -135,6 +135,7 @@ export default function Personagem() {
         abas={[['ficha', 'Ficha'], ['equipamento', 'Equipamento'], ['inventario', 'Inventário'], ['tempo', 'Linha do tempo']]}
         aoTrocar={(nova) => setBusca(nova === 'ficha' ? {} : { visao: nova })} />
 
+      <div key={visao} className="entrada">
       {visao === 'ficha' && <FichaVisao ficha={f} />}
       {visao === 'equipamento' && <AbaEquipamento personagemId={id} ficha={f} />}
       {visao === 'inventario' && <AbaInventario personagemId={id} ficha={f} />}
@@ -142,6 +143,7 @@ export default function Personagem() {
         <LinhaDoTempo eventos={tempo.data} personagemId={id} ficha={f}
           aoDesfazer={() => desfazer.mutate()} desfazendo={desfazer.isPending} />
       ))}
+      </div>
       {/* longe de "Subir de nível": apagar não pode ser um toque errado */}
       <div className="border-t border-borda pt-4">
         <Botao variante="perigo" onClick={excluir} disabled={apagar.isPending}>Excluir</Botao>

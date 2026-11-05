@@ -50,6 +50,7 @@ export default function Mesa() {
           ...(mestre ? [['convite', 'Convite'], ['inimigos', 'Inimigos'], ['npcs', 'NPCs'], ['itens', 'Itens'], ['gerenciar', 'Gerenciar']] as [Aba, string][] : [])]}
         aoTrocar={(nova) => setBusca(nova === 'geral' ? {} : { aba: nova }, { replace: true })} />
 
+      <div key={aba} className="entrada">
       {aba === 'geral' && <AbaGeral mesa={m} />}
       {aba === 'campanha' && <Suspense fallback={<Carregando />}><QuadroDaCampanha mesaId={m.id} /></Suspense>}
       {aba === 'sessao' && <AbaSessoes mesa={m} podePreparar={mestre && podePreparar} inicial={busca.get('sessao')} />}
@@ -58,6 +59,7 @@ export default function Mesa() {
       {aba === 'inimigos' && <AbaInimigos mesaId={m.id} podeEditar={podePreparar} />}
       {aba === 'npcs' && <AbaNpcs mesaId={m.id} podeEditar={podePreparar} />}
       {aba === 'itens' && <AbaItens mesaId={m.id} podeEditar={podePreparar} />}
+      </div>
     </div>
   )
 }

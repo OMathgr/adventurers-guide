@@ -4,7 +4,7 @@
 // para escolher) e guarda no registro, que todos veem ao vivo. O mestre rola
 // livre (e pode rolar oculto). Reações (rerrolar, trocar os dados...) aparecem
 // em cada rolagem para quem pode usá-las.
-import { lazy, Suspense, useState } from 'react'
+import { lazy, Suspense, useEffect, useRef, useState } from 'react'
 
 import { useCartas, useFicha, useOpcoesDeRolagem, usePadroesEstranhos, useRolagens, useRolar } from '../api/consultas'
 import type { DadoRolado, Ficha, OpcaoDeRolagem, OpcaoEscolhida, PedidoDeRolagem, Rolagem, Traco } from '../api/tipos'
@@ -91,8 +91,27 @@ const TOM_DA_DUALIDADE: Record<string, { tom: 'esperanca' | 'medo'; total: strin
   medo: { tom: 'medo', total: 'text-medo', borda: 'border-medo' },
 }
 
-function Registro({ r, cores, personagemId, mesaId, sessaoId }: {
-  r: Rolagem; cores: CoresDosDados; personagemId?: string | null; mesaId: string; sessaoId: string
+/** As rolagens que chegaram depois de abrir a tela (as que já estavam lá não animam). */
+function useRolagensNovas(rolagens: Rolagem[] | undefined) {
+  const vistas = useRef<Set<string> | null>(null)
+  const novas = rolagens && vistas.current ? rolagens.filter((r) => !vistas.current!.has(r.id)).map((r) => r.id) : []
+  useEffect(() => {
+    if (!rolagens) return
+    vistas.current ??= new Set()
+    for (const r of rolagens) vistas.current.add(r.id)
+  }, [rolagens])
+  const [recentes, setRecentes] = useState<string[]>([])
+  useEffect(() => {
+    if (novas.length === 0) return
+    setRecentes(novas)
+    const espera = setTimeout(() => setRecentes([]), 700)
+    return () => clearTimeout(espera)
+  }, [novas.join()])   // eslint-disable-line react-hooks/exhaustive-deps
+  return recentes
+}
+
+function Registro({ r, cores, personagemId, mesaId, sessaoId, novo }: {
+  r: Rolagem; cores: CoresDosDados; personagemId?: string | null; mesaId: string; sessaoId: string; novo?: boolean
 }) {
   const rolar = useRolar(mesaId, sessaoId)
   const [escolha, setEscolha] = useState<Record<string, string>>({})
@@ -100,7 +119,9 @@ function Registro({ r, cores, personagemId, mesaId, sessaoId }: {
   const dual = res.dualidade
   const tom = dual ? TOM_DA_DUALIDADE[dual] : undefined
   return (
-    <li data-resultado={dual ?? undefined} className={`space-y-2 rounded-xl border ${tom?.borda ?? 'border-borda'} bg-fundo/60 p-3 text-sm ${r.substituida ? 'opacity-50' : ''}`}>
+    <li data-resultado={dual ?? undefined}
+      style={tom ? { '--brilho': `var(--${tom.tom})` } as React.CSSProperties : undefined}
+      className={`space-y-2 rounded-xl border ${tom?.borda ?? 'border-borda'} bg-fundo/60 p-3 text-sm ${r.substituida ? 'opacity-50' : ''} ${novo ? 'chegada-rolagem' : ''}`}>
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <p><b>{r.personagem ?? r.autor}</b> <span className="text-texto-suave">· {res.titulo}</span>
           {r.oculta && <span className="ml-2"><Selo>oculta</Selo></span>}
@@ -387,6 +408,7 @@ function Cores({ cores, mudar }: { cores: CoresDosDados; mudar: (p: Partial<Core
 export function RegistroRecente({ mesaId, sessaoId }: { mesaId: string; sessaoId: string }) {
   const registro = useRolagens(mesaId, sessaoId, null)
   const [cores] = useCoresDosDados()
+  const novas = useRolagensNovas(registro.data)
   return (
     <section aria-label="Últimas rolagens" className="space-y-2">
       <h3 className="rubrica">Últimas rolagens</h3>
@@ -394,7 +416,7 @@ export function RegistroRecente({ mesaId, sessaoId }: { mesaId: string; sessaoId
       {registro.data?.length === 0 && <p className="text-sm text-texto-suave">Ninguém rolou ainda.</p>}
       <ul className="space-y-2">
         {registro.data?.slice(0, 5).map((r) => (
-          <Registro key={r.id} r={r} cores={cores} personagemId={null} mesaId={mesaId} sessaoId={sessaoId} />
+          <Registro key={r.id} r={r} cores={cores} personagemId={null} mesaId={mesaId} sessaoId={sessaoId} novo={novas.includes(r.id)} />
         ))}
       </ul>
     </section>
@@ -406,6 +428,7 @@ export default function RolagemDeDados({ mesaId, sessaoId, personagemId, souMest
 }) {
   const ficha = useFicha(personagemId ?? '', !!personagemId)
   const registro = useRolagens(mesaId, sessaoId, emAndamento ? personagemId : null)
+  const novas = useRolagensNovas(registro.data)
   const [cores, mudarCores] = useCoresDosDados()
   const [ultima, setUltima] = useState<Rolagem | null>(null)
   const comFicha = personagemId ? ficha.data : undefined
@@ -431,7 +454,7 @@ export default function RolagemDeDados({ mesaId, sessaoId, personagemId, souMest
           <ul className="space-y-2">
             {registro.data?.map((r) => (
               <Registro key={r.id} r={r} cores={cores} personagemId={emAndamento ? personagemId : null}
-                mesaId={mesaId} sessaoId={sessaoId} />
+                mesaId={mesaId} sessaoId={sessaoId} novo={novas.includes(r.id)} />
             ))}
           </ul>
         </section>

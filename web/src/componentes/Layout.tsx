@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { flushSync } from 'react-dom'
 import { Link, NavLink, Outlet, useLocation } from 'react-router'
 
 import { useAoVivo } from '../api/aoVivo'
@@ -17,7 +18,17 @@ function useTema() {
     document.documentElement.dataset.tema = tema
     try { localStorage.setItem(CHAVE_TEMA, tema) } catch { /* modo privado */ }
   }, [tema])
-  return [tema, () => setTema((t) => (t === 'escuro' ? 'claro' : 'escuro'))] as const
+  const alternar = () => {
+    const novo = tema === 'escuro' ? 'claro' : 'escuro'
+    const trocar = () => {
+      flushSync(() => setTema(novo))
+      document.documentElement.dataset.tema = novo
+    }
+    // onde o navegador sabe misturar as duas telas, a troca é suave
+    if (document.startViewTransition) document.startViewTransition(trocar)
+    else trocar()
+  }
+  return [tema, alternar] as const
 }
 
 export function Logo() {
@@ -119,7 +130,7 @@ export default function Layout() {
       )}
       {/* a mesa precisa de mais espaço (a sessão tem três colunas); todas as abas iguais, para o título não pular */}
       <main className={`mx-auto w-full flex-1 px-4 py-6 ${/^\/mesas\/[^/]+/.test(local.pathname) ? 'max-w-[84rem]' : 'max-w-6xl'}`}>
-        <Outlet />
+        <div key={local.pathname} className="entrada"><Outlet /></div>
       </main>
       <Rodape />
     </div>

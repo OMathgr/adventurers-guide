@@ -1,7 +1,7 @@
 // Peças visuais reutilizadas em todas as telas.
 import {
-  type ButtonHTMLAttributes, type InputHTMLAttributes, type ReactNode, type SelectHTMLAttributes,
-  type TextareaHTMLAttributes, useEffect, useId, useRef,
+  type ButtonHTMLAttributes, type InputHTMLAttributes, type ReactNode, type Ref, type SelectHTMLAttributes,
+  type TextareaHTMLAttributes, useEffect, useId, useLayoutEffect, useRef, useState,
 } from 'react'
 
 import { ErroApi } from '../api/cliente'
@@ -17,13 +17,32 @@ const ESTILO_BOTAO: Record<VarianteBotao, string> = {
   fantasma: 'bg-transparent text-texto-suave hover:text-texto',
 }
 
+/** O valor que acabou de mudar (`de` e `para`), por um instante, para a tela reagir.
+    Ao abrir a tela nada muda, então nada anima. */
+export function useMudanca<T>(valor: T, duracao = 400) {
+  const anterior = useRef(valor)
+  const [mudanca, setMudanca] = useState<{ de: T; para: T } | null>(null)
+  useEffect(() => {
+    if (Object.is(anterior.current, valor)) return
+    setMudanca({ de: anterior.current, para: valor })
+    anterior.current = valor
+    const espera = setTimeout(() => setMudanca(null), duracao)
+    return () => clearTimeout(espera)
+  }, [valor, duracao])
+  return mudanca
+}
+
+/** A posição `i` está entre o valor antigo e o novo? (a marca que acabou de encher ou esvaziar) */
+export const mudouAqui = (m: { de: number; para: number } | null, i: number) =>
+  !!m && i >= Math.min(m.de, m.para) && i < Math.max(m.de, m.para)
+
 export function Botao({ variante = 'primario', className, ...props }:
-  ButtonHTMLAttributes<HTMLButtonElement> & { variante?: VarianteBotao }) {
+  ButtonHTMLAttributes<HTMLButtonElement> & { variante?: VarianteBotao; ref?: Ref<HTMLButtonElement> }) {
   return (
     <button
       {...props}
       className={juntar(
-        'inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm transition max-sm:min-h-11',
+        'inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm transition active:translate-y-px max-sm:min-h-11',
         // desabilitado é sempre neutro: o laranja apagado sobre o azul virava marrom
         'disabled:cursor-not-allowed disabled:border disabled:border-borda disabled:bg-superficie-2 disabled:font-normal disabled:text-texto-suave',
         ESTILO_BOTAO[variante], className,
@@ -116,6 +135,22 @@ export function Selecao({ rotulo, opcoes, className, ...props }:
 export function Abas<T extends string>({ abas, atual, aoTrocar }:
   { abas: [T, string][]; atual: T; aoTrocar: (aba: T) => void }) {
   const barra = useRef<HTMLDivElement>(null)
+  const marca = useRef<HTMLSpanElement>(null)
+  // a marca desliza até a aba escolhida; mede de novo se o tamanho mudar (fonte carregada, tela girada)
+  useLayoutEffect(() => {
+    const b = barra.current
+    const medir = () => {
+      const aba = b?.querySelector<HTMLElement>('[aria-selected="true"]')
+      if (!aba || !marca.current) return
+      marca.current.style.translate = `${aba.offsetLeft}px`
+      marca.current.style.width = `${aba.offsetWidth}px`
+    }
+    medir()
+    const observador = new ResizeObserver(medir)
+    if (b) observador.observe(b)
+    document.fonts?.ready.then(medir)
+    return () => observador.disconnect()
+  }, [atual, abas.length])
   useEffect(() => {
     // a aba escolhida não pode ficar cortada na borda (só rola a barra, nunca a página)
     const b = barra.current
@@ -131,12 +166,13 @@ export function Abas<T extends string>({ abas, atual, aoTrocar }:
       {abas.map(([id, nome]) => (
         <button key={id} role="tab" type="button" aria-selected={id === atual} onClick={() => aoTrocar(id)}
           className={juntar(
-            'shrink-0 whitespace-nowrap border-b-2 px-3 py-2 text-sm transition sm:px-4',
-            id === atual ? 'border-esperanca font-semibold text-esperanca-forte' : 'border-transparent text-texto-suave hover:text-texto',
+            'shrink-0 whitespace-nowrap px-3 py-2.5 text-sm transition sm:px-4',
+            id === atual ? 'font-semibold text-esperanca-forte' : 'text-texto-suave hover:text-texto',
           )}>
           {nome}
         </button>
       ))}
+      <span ref={marca} data-marca-da-aba aria-hidden className="pointer-events-none absolute bottom-0 left-0 h-0.5 bg-esperanca" />
     </div>
   )
 }
@@ -181,11 +217,12 @@ export function Espacos({ total, marcados, rotulo, cor = 'pv', restantes }:
   { total: number; marcados: number; rotulo: string; cor?: CorDeEspaco; restantes?: boolean }) {
   const fundo = FUNDO_DE_ESPACO[cor]
   const cheios = restantes ? total - marcados : marcados
+  const mudanca = useMudanca(cheios)
   const descricao = restantes ? `${rotulo} restantes: ${cheios} de ${total}` : `${rotulo}: ${marcados} de ${total} marcados`
   return (
     <div className="flex flex-wrap gap-1" role="img" aria-label={descricao}>
       {Array.from({ length: total }, (_, i) => (
-        <span key={i} className={juntar('h-4 w-6 rounded-sm border border-borda-campo', i < cheios && fundo)} />
+        <span key={i} className={juntar('h-4 w-6 rounded-sm border border-borda-campo transition-colors duration-200', i < cheios && fundo, mudouAqui(mudanca, i) && 'marca-muda')} />
       ))}
     </div>
   )
@@ -200,6 +237,7 @@ export function EspacosClicaveis({ total, marcados, rotulo, cor = 'pv', aoMudar,
   sufixo?: string
 }) {
   const fundo = FUNDO_DE_ESPACO[cor]
+  const mudanca = useMudanca(marcados)
   return (
     <div className="flex flex-wrap gap-1" role="group"
       aria-label={`${rotulo}: ${marcados} de ${total}${sufixo ? ` ${sufixo}` : ''}`}>
@@ -208,7 +246,7 @@ export function EspacosClicaveis({ total, marcados, rotulo, cor = 'pv', aoMudar,
           aria-label={`${rotulo} ${i + 1}`} aria-pressed={i < marcados}
           onClick={() => aoMudar(i + 1 === marcados ? i : i + 1)}
           className={juntar('h-5 w-6 rounded-sm border border-borda-campo transition hover:border-texto disabled:cursor-wait max-sm:h-8 max-sm:w-8',
-            i < marcados && fundo)} />
+            i < marcados && fundo, mudouAqui(mudanca, i) && 'marca-muda')} />
       ))}
     </div>
   )
@@ -216,12 +254,14 @@ export function EspacosClicaveis({ total, marcados, rotulo, cor = 'pv', aoMudar,
 
 /** Losangos de Esperança. */
 export function Esperanca({ atual, maximo }: { atual: number; maximo: number }) {
+  const mudanca = useMudanca(atual)
   return (
-    <div className="flex gap-1.5" role="img" aria-label={`Esperança: ${atual} de ${maximo}`}>
+    <div className="flex flex-wrap gap-x-1.5 gap-y-2" role="img" aria-label={`Esperança: ${atual} de ${maximo}`}>
       {Array.from({ length: maximo }, (_, i) => (
         <span key={i} className={juntar(
-          'h-4 w-4 rotate-45 rounded-[3px] border-2 border-esperanca',
-          i < atual && 'bg-esperanca',
+          // sem encolher: comprimido e girado, o losango viraria um retângulo na diagonal
+          'h-4 w-4 shrink-0 rotate-45 rounded-[3px] border-2 border-esperanca transition-colors duration-200',
+          i < atual && 'bg-esperanca', mudouAqui(mudanca, i) && 'marca-muda',
         )} />
       ))}
     </div>

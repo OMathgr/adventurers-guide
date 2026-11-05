@@ -12,7 +12,7 @@ import Condicoes from './Condicoes'
 import FichaVisao from './Ficha'
 import AbaInventario from './inventario/AbaInventario'
 import Morte from './Morte'
-import { Abas, Aviso, Cartao, Espacos, Esperanca } from './ui'
+import { Abas, Aviso, Cartao, Espacos, Esperanca, useMudanca } from './ui'
 
 /** Com `curto`, é um dos três fixos no celular: mostra só a sigla, o número e os botões. */
 function Contador({ rotulo, detalhe, menos, mais, ocupado, children, curto, contagem, corDaContagem }: {
@@ -22,6 +22,7 @@ function Contador({ rotulo, detalhe, menos, mais, ocupado, children, curto, cont
   mais?: { texto: string; acao: () => void; pode: boolean }
   children: React.ReactNode
 }) {
+  const mudanca = useMudanca(contagem)
   const botao = 'h-11 w-11 rounded-lg border border-borda-campo text-lg font-semibold hover:bg-superficie-2 disabled:border-borda disabled:text-texto-suave'
   // rótulo e espaços num bloco; os botões ao lado, no meio da altura dele (no
   // celular não ficam "soltos" acima da barra). Sem um dos botões, o lugar fica
@@ -32,7 +33,7 @@ function Contador({ rotulo, detalhe, menos, mais, ocupado, children, curto, cont
         <p className={`text-sm ${curto ? 'max-sm:hidden' : ''}`}>{rotulo} <span className="text-texto-suave">({detalhe})</span></p>
         {curto && (
           <p aria-hidden className="flex items-baseline justify-between px-0.5 text-sm font-semibold sm:hidden">
-            {curto} <span className={`font-titulo text-lg font-bold ${corDaContagem ?? ''}`}>{contagem}</span>
+            {curto} <span className={`font-titulo text-lg font-bold ${corDaContagem ?? ''} ${mudanca ? 'numero-muda' : ''}`}>{contagem}</span>
           </p>
         )}
         <div className={curto ? 'max-sm:hidden' : ''}>{children}</div>
@@ -60,7 +61,7 @@ export function MarcasPrincipais({ personagemId, ficha: f, soCelular }: { person
   const ocupado = marcar.isPending || f.morto
   return (
     <div aria-label="Marcas da sessão" role="group" data-marcas-fixas
-      className={`space-y-4 max-sm:fixed max-sm:inset-x-0 max-sm:bottom-14 max-sm:z-20 max-sm:grid max-sm:grid-cols-3 max-sm:gap-2 max-sm:space-y-0 max-sm:border-t max-sm:border-borda max-sm:bg-superficie max-sm:p-2 ${soCelular ? 'sm:hidden' : ''}`}>
+      className={`space-y-4 max-sm:!mb-0 max-sm:fixed max-sm:inset-x-0 max-sm:bottom-14 max-sm:z-20 max-sm:grid max-sm:grid-cols-3 max-sm:gap-2 max-sm:space-y-0 max-sm:border-t max-sm:border-borda max-sm:bg-superficie max-sm:p-2 ${soCelular ? 'sm:hidden' : ''}`}>
       <Contador rotulo="Pontos de Vida" detalhe={`restam ${f.pv_max - f.pv_marcados}/${f.pv_max}`} ocupado={ocupado}
         curto="PV" contagem={`${f.pv_max - f.pv_marcados}/${f.pv_max}`} corDaContagem="text-pv"
         menos={{ texto: 'Marcar 1 PV', acao: fazer({ tipo: 'pv', acao: 'marcar', quantidade: 1 }), pode: f.pv_marcados < f.pv_max }}

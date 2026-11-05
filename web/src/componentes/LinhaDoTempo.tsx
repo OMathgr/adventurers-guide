@@ -2,10 +2,11 @@
 // horizontal. Embaixo de cada nível fica a caixa de avanços do patamar
 // (como a página de Level Up do livro): marcada nos níveis feitos, para
 // marcar no próximo e só para consulta nos futuros.
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import { useAplicarPlano, useDescartarPlano, useProximoNivel } from '../api/consultas'
 import type { EventoLinhaDoTempo, Ficha, ProximoNivel } from '../api/tipos'
+import CelebracaoDeNivel from './CelebracaoDeNivel'
 import EscolhaDeNivel from './EscolhaDeNivel'
 import QuadroAvanco from './QuadroAvanco'
 import { Aviso, Botao, Carregando, Selo } from './ui'
@@ -71,6 +72,13 @@ export default function LinhaDoTempo({ eventos, personagemId, ficha, aoDesfazer,
   const trilho = useRef<HTMLOListElement>(null)
   const atual = useRef<HTMLLIElement>(null)
   const proximo = useProximoNivel(personagemId)
+  // subiu de nível (escolhendo ou aplicando um plano): a ficha nova chega por aqui
+  const fichaAnterior = useRef(ficha)
+  const [celebrar, setCelebrar] = useState<{ antes: Ficha; depois: Ficha } | null>(null)
+  useEffect(() => {
+    if (ficha.nivel > fichaAnterior.current.nivel) setCelebrar({ antes: fichaAnterior.current, depois: ficha })
+    fichaAnterior.current = ficha
+  }, [ficha])
 
   // começa mostrando o próximo nível (ou o último, no nível máximo)
   useEffect(() => {
@@ -88,6 +96,7 @@ export default function LinhaDoTempo({ eventos, personagemId, ficha, aoDesfazer,
 
   return (
     <div className="space-y-2">
+      {celebrar && <CelebracaoDeNivel {...celebrar} aoFechar={() => setCelebrar(null)} />}
       <div className="flex flex-wrap items-center justify-between gap-2">
         <p className="text-sm text-texto-suave">Role para os lados para ver todos os níveis.</p>
         <div className="flex flex-wrap gap-1">
