@@ -12,6 +12,12 @@
     <meta name="apple-mobile-web-app-title" content="Adventurer's" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black" />
     <title>Adventurer's Guide</title>
+    <!-- o tema escolhido vale em todas as telas, inclusive as sem login, e sem piscar o escuro ao abrir -->
+    <script>
+      try {
+        if (localStorage.getItem('ag.tema') === 'claro') document.documentElement.dataset.tema = 'claro'
+      } catch { /* modo privado */ }
+    </script>
   </head>
   <body>
     <div id="root"></div>

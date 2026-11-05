@@ -9,6 +9,7 @@ import { ProvedorAutenticacao } from '../auth/Autenticacao'
 import Layout from '../componentes/Layout'
 import { Cadastro, Entrar } from '../paginas/Acesso'
 import Privacidade from '../paginas/Privacidade'
+import paginaInicial from '../../index.html?raw'
 
 function montar(rotas: ReactNode, inicio: string) {
   vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({ google: false }), { status: 200 })))
@@ -30,6 +31,25 @@ function montar(rotas: ReactNode, inicio: string) {
 afterEach(() => { vi.unstubAllGlobals(); localStorage.clear() })
 
 const LICENCA = /Darrington Press Community Gaming \(DPCGL\) License/
+
+describe('Tema nas telas sem login', () => {
+  // o script do index.html roda antes do app; Layout (que também aplica o tema) só existe depois do login
+  const script = paginaInicial.match(/<script>([\s\S]*?)<\/script>/)![1]
+  const abrirOSite = () => { delete document.documentElement.dataset.tema; new Function(script)() }
+  afterEach(() => { delete document.documentElement.dataset.tema })
+
+  it('quem escolheu o tema claro já abre no claro', () => {
+    localStorage.setItem('ag.tema', 'claro')
+    abrirOSite()
+    expect(document.documentElement.dataset.tema).toBe('claro')
+  })
+
+  it.each([['escuro'], [null]])('com o tema %s, fica no escuro, que é o padrão', (salvo) => {
+    if (salvo) localStorage.setItem('ag.tema', salvo)
+    abrirOSite()
+    expect(document.documentElement.dataset.tema).toBeUndefined()
+  })
+})
 
 describe('Rodapé', () => {
   it('aparece nas telas de entrada e leva ao aviso de privacidade', async () => {
