@@ -81,7 +81,7 @@ export default function Layout() {
   return (
     <div className="flex min-h-screen flex-col max-sm:pb-14 max-sm:has-[[data-marcas-fixas]]:pb-36">
       <header className="border-b border-borda bg-superficie">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-2 sm:py-3">
+        <div className="mx-auto flex max-w-[84rem] items-center justify-between gap-3 px-4 py-2 sm:py-3">
           <Link to="/personagens"><Logo /></Link>
           <div className="flex items-center gap-4 text-sm">
             <nav aria-label="Principal" className="flex items-center gap-4 max-sm:fixed max-sm:inset-x-0 max-sm:bottom-0 max-sm:z-30 max-sm:gap-0 max-sm:border-t max-sm:border-borda max-sm:bg-superficie">
@@ -117,7 +117,8 @@ export default function Layout() {
           Sem conexão: dá para ver o que já estava aberto, mas nada é salvo até a rede voltar.
         </p>
       )}
-      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6">
+      {/* a mesa precisa de mais espaço (a sessão tem três colunas); todas as abas iguais, para o título não pular */}
+      <main className={`mx-auto w-full flex-1 px-4 py-6 ${/^\/mesas\/[^/]+/.test(local.pathname) ? 'max-w-[84rem]' : 'max-w-6xl'}`}>
         <Outlet />
       </main>
       <Rodape />

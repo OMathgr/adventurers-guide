@@ -49,6 +49,19 @@ export function Cartao({ titulo, acao, children, className, destaque }:
   )
 }
 
+/** Seção aberta, sem caixa: o título de livro e o filete. Para o conteúdo principal da tela. */
+export function Secao({ titulo, children, className }: { titulo: ReactNode; children: ReactNode; className?: string }) {
+  return (
+    <section className={juntar('space-y-3', className)}>
+      <header className="flex items-center gap-3">
+        <h2 className="rubrica">{titulo}</h2>
+        <span aria-hidden className="h-px min-w-4 flex-1 bg-borda" />
+      </header>
+      {children}
+    </section>
+  )
+}
+
 const ESTILO_ENTRADA =
   'rounded-lg border border-borda-campo bg-fundo px-3 py-2 text-texto placeholder:text-texto-suave focus:border-esperanca focus:outline-none max-sm:min-h-11'
 

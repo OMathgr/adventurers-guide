@@ -15,7 +15,7 @@ import { useAutenticacao } from '../../auth/Autenticacao'
 import { AvisoDeConflito } from '../../componentes/Conflito'
 import MedoDoMestre from '../../componentes/MedoDoMestre'
 import PainelDeRepouso from '../../componentes/Repouso'
-import { Abas, Area, Aviso, Botao, Campo, Cartao, Carregando, Escolhivel, Selo } from '../../componentes/ui'
+import { Abas, Area, Aviso, Botao, Campo, Cartao, Carregando, Escolhivel, Secao, Selo } from '../../componentes/ui'
 import Encontros from './Encontros'
 import Lojas from './Lojas'
 import PersonagensNaSessao from './PersonagensNaSessao'
@@ -121,7 +121,8 @@ function Compartilhar({ mesa, sessao }: { mesa: Mesa; sessao: Sessao }) {
   const salvar = useCompartilharSessao(mesa.id, sessao.id)
   const outros = mesa.membros.filter((m) => (m.papel === 'mestre' || m.criador) && m.usuario_id !== sessao.responsavel_id)
   return (
-    <Cartao titulo="Compartilhar com outros mestres">
+    <Cartao titulo="Compartilhar">
+      <h3 className="mb-1 text-sm font-semibold">Compartilhar com outros mestres</h3>
       {outros.length === 0 && <p className="text-sm text-texto-suave">A mesa não tem outros mestres.</p>}
       <p className="mb-2 text-xs text-texto-suave">Quem recebe só vê a sessão; conduzir continua sendo seu.</p>
       <div className="space-y-1">
@@ -163,7 +164,15 @@ function SessaoAberta({ mesa, sid, aoApagar }: { mesa: Mesa; sid: string; aoApag
   }
 
   return (
-    <div className="space-y-4">
+    <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_19rem] lg:items-start">
+      <aside className="min-w-0 space-y-4 lg:sticky lg:top-4 lg:order-2 lg:max-h-[calc(100vh-2rem)] lg:overflow-y-auto">
+        <MedoDoMestre medo={s.medo} titulo="Medo da sessão" ocupado={medo.isPending} erro={medo.error}
+          aoMudar={minha ? (m) => medo.mutate(m) : undefined} />
+        <PainelDeRepouso mesa={mesa} sessao={s} />
+        {emJogo && <div className="max-lg:hidden"><RegistroRecente mesaId={mesa.id} sessaoId={s.id} /></div>}
+        {minha && parte === 'planejamento' && <Compartilhar mesa={mesa} sessao={s} />}
+      </aside>
+      <div className="min-w-0 space-y-4 lg:order-1">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h2 className="flex flex-wrap items-center gap-2 text-2xl">{s.titulo} <Selo destaque={emJogo}>{NOME_STATUS[s.status] ?? s.status}</Selo></h2>
@@ -209,15 +218,6 @@ function SessaoAberta({ mesa, sid, aoApagar }: { mesa: Mesa; sid: string; aoApag
         <p className="text-xs text-texto-suave">Planejada: só você vê. Inicie a sessão para os jogadores entrarem.</p>
       )}
 
-      {/* o painel do mestre fica sempre à vista, em qualquer parte da sessão */}
-      <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">
-      <aside className="min-w-0 space-y-4 lg:sticky lg:top-4 lg:order-2 lg:max-h-[calc(100vh-2rem)] lg:overflow-y-auto">
-        <MedoDoMestre medo={s.medo} titulo="Medo da sessão" ocupado={medo.isPending} erro={medo.error}
-          aoMudar={minha ? (m) => medo.mutate(m) : undefined} />
-        <PainelDeRepouso mesa={mesa} sessao={s} />
-        {emJogo && <div className="max-lg:hidden"><RegistroRecente mesaId={mesa.id} sessaoId={s.id} /></div>}
-      </aside>
-      <div className="min-w-0 space-y-4 lg:order-1">
       <Abas<ParteDaSessao> atual={parte} aoTrocar={setParte}
         abas={[...(emJogo ? [['ao_vivo', 'Ao vivo'] as [ParteDaSessao, string]] : []),
           ['planejamento', 'Planejamento'], ['quadro', 'Quadro'], ['encontros', 'Encontros'], ['lojas', 'Lojas'],
@@ -232,10 +232,7 @@ function SessaoAberta({ mesa, sid, aoApagar }: { mesa: Mesa; sid: string; aoApag
       )}
 
       {parte === 'planejamento' && (
-        <div className="space-y-4">
-          <Planejamento key={s.id} mesaId={mesa.id} sessao={s} />
-          {minha && <Compartilhar mesa={mesa} sessao={s} />}
-        </div>
+        <Planejamento key={s.id} mesaId={mesa.id} sessao={s} />
       )}
       {parte === 'quadro' && <Suspense fallback={<Carregando />}><QuadroDaSessao mesa={mesa} sessao={s} /></Suspense>}
       {parte === 'encontros' && <Encontros mesaId={mesa.id} sessao={s} />}
@@ -244,7 +241,6 @@ function SessaoAberta({ mesa, sid, aoApagar }: { mesa: Mesa; sid: string; aoApag
       {parte === 'dados' && (
         <RolagemDeDados mesaId={mesa.id} sessaoId={s.id} souMestre={minha} emAndamento={s.status === 'em_andamento'} />
       )}
-      </div>
       </div>
     </div>
   )
@@ -273,57 +269,58 @@ export default function AbaSessoes({ mesa, podePreparar, inicial }: {
   const escolhidaNaLista = lista.find((s) => s.id === atual)
 
   return (
-    <div className="space-y-5">
-      <section className="space-y-3">
-        <div className="flex flex-wrap items-end justify-between gap-3">
-          <h2 className="rubrica">Sessões</h2>
-          {podePreparar && (
-            <form className="flex flex-wrap items-end gap-2" onSubmit={(e) => {
+    // três colunas no computador: as sessões, a sessão aberta e o painel do mestre
+    <div className="grid gap-6 xl:grid-cols-[16.5rem_minmax(0,1fr)] xl:items-start">
+      <div className="min-w-0 space-y-6">
+        <Secao titulo="Sessões">
+          <Aviso erro={sessoes.error} />
+          {sessoes.isPending && <Carregando />}
+          {sessoes.data?.length === 0 && (
+            <p className="text-sm text-texto-suave">
+              Nenhuma sessão em andamento ou encerrada ainda. Quando o mestre começar uma, ela aparece aqui para você entrar.
+            </p>
+          )}
+          <ul className="grid gap-2 sm:grid-cols-2 xl:grid-cols-1">
+            {lista.map((s) => (
+              <li key={s.id}>
+                <Escolhivel selecionado={s.id === atual} onClick={() => setEscolhida(s.id)}>
+                  <span className="block font-semibold">{s.titulo}</span>
+                  <span className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-texto-suave">
+                    {dataCurta(s.data)} · Medo {s.medo}{!s.sou_responsavel && ` · de ${s.responsavel}`}
+                    {(s.participantes ?? 0) > 0 && ` · ${s.participantes} jogando`}
+                    <Selo destaque={s.status === 'em_andamento'}>{NOME_STATUS[s.status] ?? s.status}</Selo>
+                  </span>
+                </Escolhivel>
+              </li>
+            ))}
+          </ul>
+        </Secao>
+        {podePreparar && (
+          <Secao titulo="Planejar sessão">
+            <form className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_12rem_auto] sm:items-end xl:grid-cols-1" onSubmit={(e) => {
               e.preventDefault()
               criar.mutate({ titulo: titulo.trim(), data: data || null },
                 { onSuccess: (s) => { setEscolhida(s.id); setTitulo(''); setData('') } })
             }}>
-              <Campo rotulo="Planejar sessão" value={titulo} maxLength={120} onChange={(e) => setTitulo(e.target.value)}
+              <Campo rotulo="Título da nova sessão" value={titulo} maxLength={120} onChange={(e) => setTitulo(e.target.value)}
                 placeholder="Ex.: Sessão 3 — A ponte" />
-              <Campo rotulo="Data" type="date" value={data} onChange={(e) => setData(e.target.value)} />
-              <Botao type="submit" variante="secundario" disabled={!titulo.trim() || criar.isPending}>Criar</Botao>
+              <Campo rotulo="Data da nova sessão" type="date" value={data} onChange={(e) => setData(e.target.value)} />
+              <Botao type="submit" variante="secundario" className="w-full" disabled={!titulo.trim() || criar.isPending}>Criar</Botao>
             </form>
-          )}
-        </div>
-        {podePreparar && (
-          <p className="text-xs text-texto-suave">
-            O Medo de uma sessão nova sua começa em {Math.min(12, emJogo)}: os personagens da mesa, sem contar
-            os seus (você mestra, não joga, nessa sessão).
-          </p>
+            <Aviso erro={criar.error} />
+            <p className="text-xs text-texto-suave">
+              O Medo de uma sessão nova sua começa em {Math.min(12, emJogo)}: os personagens da mesa, sem contar
+              os seus (você mestra, não joga, nessa sessão).
+            </p>
+          </Secao>
         )}
-        <Aviso erro={sessoes.error ?? criar.error} />
-        {sessoes.isPending && <Carregando />}
-        {sessoes.data?.length === 0 && (
-          <p className="text-sm text-texto-suave">
-            Nenhuma sessão em andamento ou encerrada ainda. Quando o mestre começar uma, ela aparece aqui para você entrar.
-          </p>
-        )}
-        <ul className="flex flex-wrap gap-2">
-          {lista.map((s) => (
-            <li key={s.id} className="w-60">
-              <Escolhivel selecionado={s.id === atual} onClick={() => setEscolhida(s.id)}>
-                <span className="flex items-center justify-between gap-2">
-                  <span className="font-medium">{s.titulo}</span>
-                  <Selo destaque={s.status === 'em_andamento'}>{NOME_STATUS[s.status] ?? s.status}</Selo>
-                </span>
-                <span className="text-xs text-texto-suave">
-                  {dataCurta(s.data)} · Medo {s.medo}{!s.sou_responsavel && ` · de ${s.responsavel}`}
-                  {(s.participantes ?? 0) > 0 && ` · ${s.participantes} jogando`}
-                </span>
-              </Escolhivel>
-            </li>
-          ))}
-        </ul>
-      </section>
+      </div>
 
-      {atual && (escolhidaNaLista?.posso_gerir
-        ? <SessaoAberta key={atual} mesa={mesa} sid={atual} aoApagar={() => setEscolhida(null)} />
-        : <SessaoDeJogo key={atual} mesa={mesa} sid={atual} />)}
+      <div className="min-w-0">
+        {atual && (escolhidaNaLista?.posso_gerir
+          ? <SessaoAberta key={atual} mesa={mesa} sid={atual} aoApagar={() => setEscolhida(null)} />
+          : <SessaoDeJogo key={atual} mesa={mesa} sid={atual} />)}
+      </div>
     </div>
   )
 }

@@ -10,7 +10,7 @@ import {
 } from '../../api/consultas'
 import type { Mesa } from '../../api/tipos'
 import { Foto } from '../../componentes/Foto'
-import { Aviso, Botao, Cartao, Selecao, Selo } from '../../componentes/ui'
+import { Aviso, Botao, Cartao, Secao, Selecao, Selo } from '../../componentes/ui'
 import { NOME_PAPEL } from '../../lib/rotulos'
 
 function Membros({ mesa }: { mesa: Mesa }) {
@@ -21,9 +21,9 @@ function Membros({ mesa }: { mesa: Mesa }) {
           <li key={m.usuario_id} className="flex flex-wrap items-center gap-2 py-2">
             {/* presença: verde = com o app aberto agora */}
             <span role="img" aria-label={m.online ? 'online' : 'offline'} title={m.online ? 'Online agora' : 'Offline'}
-              className={`inline-block h-2.5 w-2.5 rounded-full ${m.online ? 'bg-sucesso' : 'bg-borda'}`} />
+              className={`inline-block h-2.5 w-2.5 rounded-full border ${m.online ? 'border-sucesso bg-sucesso' : 'border-borda-campo'}`} />
             {m.nome}
-            <Selo destaque={m.papel === 'mestre'}>{NOME_PAPEL[m.papel] ?? m.papel}</Selo>
+            <Selo tom={m.papel === 'mestre' ? 'esperanca' : undefined}>{NOME_PAPEL[m.papel] ?? m.papel}</Selo>
             {m.criador && <span className="text-xs text-texto-suave">criou a mesa</span>}
           </li>
         ))}
@@ -50,18 +50,18 @@ function Personagens({ mesa }: { mesa: Mesa }) {
   const direto = !!p && !p.mesa_id && p.nivel <= mesa.nivel_maximo
 
   return (
-    <Cartao titulo="Personagens">
-      <p className="mb-2 text-sm text-texto-suave">Nível máximo da mesa: <b className="text-texto">{mesa.nivel_maximo}</b></p>
+    <Secao titulo="Personagens">
+      <p className="text-sm text-texto-suave">Nível máximo da mesa: <b className="font-titulo text-lg text-esperanca">{mesa.nivel_maximo}</b></p>
       {mesa.personagens.length === 0 && <p className="text-sm text-texto-suave">Nenhum personagem nesta mesa ainda.</p>}
-      <ul className="divide-y divide-borda">
+      <ul className="divide-y divide-borda border-b border-borda">
         {mesa.personagens.map((x) => (
-          <li key={x.id} className="py-2">
+          <li key={x.id} className="py-3">
             <div className="flex w-full items-center gap-3">
               <Foto id={x.foto} nome={x.nome || '?'} tamanho="p" />
               <span className="min-w-0 flex-1">
-                <span className="font-medium">{x.nome || 'Sem nome'}</span>
+                <span className="font-titulo text-xl font-bold leading-tight">{x.nome || 'Sem nome'}</span>
                 {x.morto && <span className="ml-2 text-xs text-perigo">atravessou o véu</span>}
-                <span className="ml-2 text-sm text-texto-suave">Nível {x.nivel} · {nomeClasse(x.classe)} · {x.jogador}</span>
+                <span className="block text-sm text-texto-suave">Nível {x.nivel} · {nomeClasse(x.classe)} · {x.jogador}</span>
               </span>
               {podeTirar(x.id) && (
                 <Botao variante="fantasma" className="shrink-0 px-3 py-1 !text-perigo" disabled={remover.isPending}
@@ -100,7 +100,7 @@ function Personagens({ mesa }: { mesa: Mesa }) {
         </form>
       )}
       <Aviso erro={vincular.error ?? copiar.error ?? remover.error} />
-    </Cartao>
+    </Secao>
   )
 }
 
@@ -109,15 +109,15 @@ export default function AbaGeral({ mesa }: { mesa: Mesa }) {
   const navegar = useNavigate()
 
   return (
-    <div className="grid gap-4 lg:grid-cols-2">
+    <div className="grid gap-x-10 gap-y-4 lg:grid-cols-[minmax(0,1fr)_26rem] lg:items-start">
       {/* Medo, repouso, revelado, lojas e as fichas de jogo ficam em cada sessão (aba Sessões) */}
       {mesa.medo_em_jogo.length > 0 && (
         <p className="rounded-xl border border-borda-campo bg-superficie-2 px-3 py-2 text-sm lg:col-span-2">
           Há sessão em andamento: entre pela aba <b>Sessões</b>.
         </p>
       )}
-      <Membros mesa={mesa} />
       <Personagens mesa={mesa} />
+      <Membros mesa={mesa} />
       {!mesa.sou_criador && (   // quem criou não sai: apaga a mesa (aba Gerenciar)
         <div className="lg:col-span-2">
           <Botao variante="perigo" disabled={sair.isPending}

@@ -5,7 +5,7 @@ import { Link } from 'react-router'
 export default function Rodape() {
   return (
     <footer className="border-t border-borda">
-      <div className="mx-auto w-full max-w-6xl space-y-2 px-4 py-5 text-xs text-texto-suave">
+      <div className="mx-auto w-full max-w-[84rem] space-y-2 px-4 py-5 text-xs text-texto-suave">
       <p>
         Adventurer’s Guide é um projeto independente de fã, sem afiliação com a Darrington Press ou a Critical Role.
       </p>

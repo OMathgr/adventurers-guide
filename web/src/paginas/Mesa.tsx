@@ -41,8 +41,8 @@ export default function Mesa() {
   return (
     <div className="space-y-5">
       <div className="flex flex-wrap items-center gap-3">
-        <h1 className="text-2xl">{m.nome}</h1>
-        <Selo destaque={mestre}>{NOME_PAPEL[m.meu_papel] ?? m.meu_papel}</Selo>
+        <h1 className="text-4xl leading-tight">{m.nome}</h1>
+        <Selo tom={mestre ? 'esperanca' : undefined}>{NOME_PAPEL[m.meu_papel] ?? m.meu_papel}</Selo>
       </div>
 
       <Abas<Aba> atual={aba}

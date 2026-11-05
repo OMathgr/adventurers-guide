@@ -25,24 +25,26 @@ export default function MedoDoMestre({ medo, titulo = 'Medo', aoMudar, ocupado, 
   return (
     <section aria-label={titulo} data-alto={alto || undefined}
       className={`rounded-2xl border p-4 ${alto ? 'border-2 border-medo bg-medo/25' : 'border-medo/60 bg-medo/10'}`}>
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 className="font-titulo text-base">
-          {titulo} <span className={`${alto ? 'text-4xl' : 'text-2xl'} font-bold text-medo`} aria-live="polite">{medo}</span>
-          <span className="text-sm text-texto-suave">/{MAXIMO}</span>
-        </h2>
-        {aoMudar && (
-          <div className="flex gap-1">
-            <Botao variante="secundario" className="!px-3 !py-1" disabled={ocupado || medo === 0}
-              onClick={() => aoMudar({ delta: -1 })}>Gastar 1</Botao>
-            <Botao variante="secundario" className="!px-3 !py-1" disabled={ocupado || medo === MAXIMO}
-              onClick={() => aoMudar({ delta: 1 })}>Ganhar 1</Botao>
-          </div>
-        )}
-      </div>
+      <header className="flex items-center gap-3">
+        <h2 className="rubrica text-medo">{titulo}</h2>
+        <span aria-hidden className="h-px min-w-4 flex-1 bg-medo/40" />
+      </header>
+      <p className="mt-2 font-titulo">
+        <span className={`${alto ? 'text-6xl' : 'text-5xl'} font-bold leading-none text-medo`} aria-live="polite">{medo}</span>
+        <span className="text-lg text-texto-suave">/{MAXIMO}</span>
+      </p>
       <div className="mt-3 grid w-fit grid-cols-6 gap-3 pl-1 max-sm:gap-4" role={podeMudar ? 'group' : 'img'}
         aria-label={`${titulo}: ${medo} de ${MAXIMO}`}>
         {Array.from({ length: MAXIMO }, (_, i) => pip(i))}
       </div>
+      {aoMudar && (
+        <div className="mt-4 flex gap-2">
+          <Botao variante="secundario" className="flex-1" disabled={ocupado || medo === 0}
+            onClick={() => aoMudar({ delta: -1 })}>Gastar 1</Botao>
+          <Botao variante="secundario" className="flex-1" disabled={ocupado || medo === MAXIMO}
+            onClick={() => aoMudar({ delta: 1 })}>Ganhar 1</Botao>
+        </div>
+      )}
       <Aviso erro={erro} />
     </section>
   )
