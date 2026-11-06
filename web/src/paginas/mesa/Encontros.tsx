@@ -80,7 +80,7 @@ function CartaoCombatente({ mesaId, sid, encontroId, podeEditar, c, aMostra }: A
         }}>
           <Campo rotulo="Dano" type="number" min={0} className="w-24" value={valor}
             onChange={(e) => setValor(e.target.value)} aria-label={`Dano em ${c.rotulo}`} />
-          <label className="mb-2 flex items-center gap-1.5 text-xs">
+          <label className="mb-2 flex items-center gap-1.5 text-xs max-sm:order-last max-sm:mb-0 max-sm:min-h-11 max-sm:w-full">
             <input type="checkbox" checked={resistente} onChange={(e) => setResistente(e.target.checked)} />
             Resistente (metade)
           </label>
@@ -206,7 +206,7 @@ function EncontroAtual({ emAndamento, ...alvo }: Alvo & { emAndamento: boolean }
           {e.combatentes.length === 0 ? 'Ninguém no encontro ainda.' : `${vivos} de ${e.combatentes.length} de pé.`}
         </p>
         {/* revelar aos jogadores: nome, foto, vitalidade e condições (nunca os números) */}
-        <label className="flex items-center gap-2 text-sm">
+        <label className="flex items-center gap-2 text-sm max-sm:min-h-11">
           <input type="checkbox" checked={e.visivel} disabled={!alvo.podeEditar || mostrar.isPending}
             onChange={(ev) => mostrar.mutate({ tipo: 'visivel', visivel: ev.target.checked })} />
           Mostrar aos jogadores
@@ -243,11 +243,11 @@ export default function Encontros({ mesaId, sessao }: { mesaId: string; sessao: 
           <p className="text-xs text-texto-suave">Sem ordem: alguns podem não acontecer, conforme o caminho dos jogadores.</p>
         </div>
         {podeEditar && (
-          <form className="flex items-end gap-2" onSubmit={(e) => {
+          <form className="flex items-end gap-2 max-sm:w-full" onSubmit={(e) => {
             e.preventDefault()
             criar.mutate(nome.trim(), { onSuccess: (novo) => { setEscolhido(novo.id); setNome('') } })
           }}>
-            <Campo rotulo="Novo encontro" value={nome} maxLength={120} onChange={(e) => setNome(e.target.value)}
+            <Campo className="max-sm:min-w-0 max-sm:flex-1" rotulo="Novo encontro" value={nome} maxLength={120} onChange={(e) => setNome(e.target.value)}
               placeholder="Ex.: Emboscada na ponte" />
             <Botao type="submit" variante="secundario" disabled={!nome.trim() || criar.isPending}>Criar</Botao>
           </form>
@@ -257,7 +257,7 @@ export default function Encontros({ mesaId, sessao }: { mesaId: string; sessao: 
       {encontros.length === 0 && <p className="text-sm text-texto-suave">Nenhum encontro nesta sessão ainda.</p>}
       <ul className="flex flex-wrap gap-2">
         {encontros.map((e) => (
-          <li key={e.id} className="w-56">
+          <li key={e.id} className="w-56 max-sm:w-full">
             <Escolhivel selecionado={e.id === atual} onClick={() => setEscolhido(e.id === atual ? null : e.id)}>
               <span className="block font-medium">{e.nome}</span>
               <span className="text-xs text-texto-suave">

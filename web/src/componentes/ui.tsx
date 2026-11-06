@@ -245,7 +245,7 @@ export function EspacosClicaveis({ total, marcados, rotulo, cor = 'pv', aoMudar,
         <button key={i} type="button" disabled={desabilitado}
           aria-label={`${rotulo} ${i + 1}`} aria-pressed={i < marcados}
           onClick={() => aoMudar(i + 1 === marcados ? i : i + 1)}
-          className={juntar('h-5 w-6 rounded-sm border border-borda-campo transition hover:border-texto disabled:cursor-wait max-sm:h-8 max-sm:w-8',
+          className={juntar('h-5 w-6 rounded-sm border border-borda-campo transition hover:border-texto disabled:cursor-wait max-sm:h-10 max-sm:w-10',
             i < marcados && fundo, mudouAqui(mudanca, i) && 'marca-muda')} />
       ))}
     </div>

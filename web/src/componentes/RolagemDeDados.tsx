@@ -398,7 +398,7 @@ function Cores({ cores, mudar }: { cores: CoresDosDados; mudar: (p: Partial<Core
   )
   return (
     <details className="rounded-xl border border-borda p-3">
-      <summary className="cursor-pointer text-sm text-texto-suave">Cores dos dados 3D</summary>
+      <summary className="cursor-pointer text-sm text-texto-suave max-sm:-my-3 max-sm:py-3">Cores dos dados 3D</summary>
       <div className="mt-2 flex flex-wrap gap-4">
         {campo('esperanca', 'Esperança')}
         {campo('medo', 'Medo')}

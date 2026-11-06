@@ -4,16 +4,16 @@
 // lado do mestre se o responsável compartilhar, e só para leitura. Em
 // andamento ou encerrada, todos veem o lado dos jogadores (SessaoDeJogo):
 // entrar, a ficha de jogo, o revelado, as lojas e os aliados.
-import { lazy, Suspense, useState } from 'react'
+import { lazy, Suspense, useRef, useState } from 'react'
 
 import {
   useApagarSessao, useCompartilharSessao, useCriarSessao, useEditarSessao, useInimigos, useMedo, useNpcs,
-  useSessao, useSessoes, useStatusDaSessao,
+  useRepouso, useSessao, useSessoes, useStatusDaSessao,
 } from '../../api/consultas'
 import type { Mesa, Sessao } from '../../api/tipos'
 import { useAutenticacao } from '../../auth/Autenticacao'
 import { AvisoDeConflito } from '../../componentes/Conflito'
-import MedoDoMestre from '../../componentes/MedoDoMestre'
+import MedoDoMestre, { MedoFixo } from '../../componentes/MedoDoMestre'
 import PainelDeRepouso from '../../componentes/Repouso'
 import { Abas, Area, Aviso, Botao, Campo, Cartao, Carregando, Escolhivel, Secao, Selo } from '../../componentes/ui'
 import Encontros from './Encontros'
@@ -22,6 +22,7 @@ import PersonagensNaSessao from './PersonagensNaSessao'
 import SessaoDeJogo from './SessaoDeJogo'
 import RolagemDeDados, { RegistroRecente } from '../../componentes/RolagemDeDados'
 import { semConflito } from '../../lib/conflito'
+import { useCelular } from '../../lib/useCelular'
 
 
 const NOME_STATUS: Record<string, string> = {
@@ -149,6 +150,9 @@ function SessaoAberta({ mesa, sid, aoApagar }: { mesa: Mesa; sid: string; aoApag
   const status = useStatusDaSessao(mesa.id, sid)
   const medo = useMedo(mesa.id, sid)
   const apagar = useApagarSessao(mesa.id)
+  const repouso = useRepouso(mesa.id, sid)
+  const celular = useCelular()
+  const conteudo = useRef<HTMLDivElement>(null)
   const [escolhida, setParte] = useState<ParteDaSessao | null>(null)
 
   if (sessao.isPending) return <Carregando />
@@ -162,17 +166,26 @@ function SessaoAberta({ mesa, sid, aoApagar }: { mesa: Mesa; sid: string; aoApag
     if (aviso && !confirm(aviso)) return
     status.mutate(novo, { onSuccess: () => setParte(null) })
   }
+  const trocarParte = (nova: ParteDaSessao) => {
+    setParte(nova)
+    // as abas ficam presas no alto do celular: a aba nova começa do início, não do meio da anterior
+    const inicio = conteudo.current
+    if (celular && inicio && inicio.getBoundingClientRect().top < 0) requestAnimationFrame(() => inicio.scrollIntoView())
+  }
+  // no celular o que vem primeiro é a sessão; o repouso só sobe quando está acontecendo
+  const repousoNoTopo = celular && repouso.data?.status === 'aberto'
+  const painelDeRepouso = <PainelDeRepouso mesa={mesa} sessao={s} />
+  const botaoApagar = minha && (
+    <Botao variante="fantasma" className="!text-perigo" disabled={apagar.isPending}
+      onClick={() => confirm(`Apagar a sessão "${s.titulo}" e os encontros dela?`)
+        && apagar.mutate(s.id, { onSuccess: aoApagar })}>
+      Apagar sessão
+    </Botao>
+  )
 
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_19rem] lg:items-start">
-      <aside className="min-w-0 space-y-4 lg:sticky lg:top-4 lg:order-2 lg:max-h-[calc(100vh-2rem)] lg:overflow-y-auto">
-        <MedoDoMestre medo={s.medo} titulo="Medo da sessão" ocupado={medo.isPending} erro={medo.error}
-          aoMudar={minha ? (m) => medo.mutate(m) : undefined} />
-        <PainelDeRepouso mesa={mesa} sessao={s} />
-        {emJogo && <div className="max-lg:hidden"><RegistroRecente mesaId={mesa.id} sessaoId={s.id} /></div>}
-        {minha && parte === 'planejamento' && <Compartilhar mesa={mesa} sessao={s} />}
-      </aside>
-      <div className="min-w-0 space-y-4 lg:order-1">
+      <div className="min-w-0 space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h2 className="flex flex-wrap items-center gap-2 text-2xl">{s.titulo} <Selo destaque={emJogo}>{NOME_STATUS[s.status] ?? s.status}</Selo></h2>
@@ -199,18 +212,12 @@ function SessaoAberta({ mesa, sid, aoApagar }: { mesa: Mesa; sid: string; aoApag
           {minha && s.status === 'encerrada' && (
             <Botao variante="secundario" disabled={status.isPending} onClick={() => mudarStatus('em_andamento')}>Reabrir sessão</Botao>
           )}
-          {minha && (
-            <Botao variante="fantasma" className="!text-perigo" disabled={apagar.isPending}
-              onClick={() => confirm(`Apagar a sessão "${s.titulo}" e os encontros dela?`)
-                && apagar.mutate(s.id, { onSuccess: aoApagar })}>
-              Apagar sessão
-            </Botao>
-          )}
+          {!celular && botaoApagar}
         </div>
       </div>
       <Aviso erro={status.error ?? apagar.error} />
       {s.status === 'em_andamento' && (
-        <p className="text-xs text-texto-suave">
+        <p className="text-xs text-texto-suave max-sm:hidden">
           Em andamento: os jogadores entram pela aba Sessões e veem o Medo, o que você revelar e as lojas à mostra.
         </p>
       )}
@@ -218,12 +225,17 @@ function SessaoAberta({ mesa, sid, aoApagar }: { mesa: Mesa; sid: string; aoApag
         <p className="text-xs text-texto-suave">Planejada: só você vê. Inicie a sessão para os jogadores entrarem.</p>
       )}
 
-      <Abas<ParteDaSessao> atual={parte} aoTrocar={setParte}
-        abas={[...(emJogo ? [['ao_vivo', 'Ao vivo'] as [ParteDaSessao, string]] : []),
-          ['planejamento', 'Planejamento'], ['quadro', 'Quadro'], ['encontros', 'Encontros'], ['lojas', 'Lojas'],
-          ['personagens', 'Personagens'], ['dados', 'Dados']]} />
+      {repousoNoTopo && painelDeRepouso}
 
-      <div key={parte} className="entrada">
+      <div ref={conteudo}>
+      <div className="max-sm:sticky max-sm:top-0 max-sm:z-10 max-sm:bg-fundo">
+        <Abas<ParteDaSessao> atual={parte} aoTrocar={trocarParte}
+          abas={[...(emJogo ? [['ao_vivo', 'Ao vivo'] as [ParteDaSessao, string]] : []),
+            ['planejamento', 'Planejamento'], ['quadro', 'Quadro'], ['encontros', 'Encontros'], ['lojas', 'Lojas'],
+            ['personagens', 'Personagens'], ['dados', 'Dados']]} />
+      </div>
+
+      <div key={parte} className="entrada mt-4">
       {/* numa rodada de combate, o grupo e os inimigos ficam na mesma tela */}
       {parte === 'ao_vivo' && (
         <div className="space-y-6">
@@ -244,6 +256,18 @@ function SessaoAberta({ mesa, sid, aoApagar }: { mesa: Mesa; sid: string; aoApag
       )}
       </div>
       </div>
+      </div>
+      <aside className="min-w-0 space-y-4 sm:max-lg:order-first lg:sticky lg:top-4 lg:max-h-[calc(100vh-2rem)] lg:overflow-y-auto">
+        {celular && emJogo
+          ? <MedoFixo medo={s.medo} titulo="Medo da sessão" ocupado={medo.isPending} erro={medo.error}
+              aoMudar={minha ? (m) => medo.mutate(m) : undefined} />
+          : <MedoDoMestre medo={s.medo} titulo="Medo da sessão" ocupado={medo.isPending} erro={medo.error}
+              aoMudar={minha ? (m) => medo.mutate(m) : undefined} />}
+        {!repousoNoTopo && painelDeRepouso}
+        {emJogo && <div className="max-lg:hidden"><RegistroRecente mesaId={mesa.id} sessaoId={s.id} /></div>}
+        {minha && parte === 'planejamento' && <Compartilhar mesa={mesa} sessao={s} />}
+        {celular && botaoApagar}
+      </aside>
     </div>
   )
 }
@@ -261,6 +285,8 @@ export default function AbaSessoes({ mesa, podePreparar, inicial }: {
   const [escolhida, setEscolhida] = useState<string | null>(inicial ?? null)
   const [titulo, setTitulo] = useState('')
   const [data, setData] = useState('')
+  const [listaAberta, setListaAberta] = useState(false)
+  const celular = useCelular()
   const { usuario } = useAutenticacao()
   const emJogo = mesa.personagens.filter((p) => p.dono_id !== usuario?.id).length
   const lista = sessoes.data ?? []
@@ -270,9 +296,7 @@ export default function AbaSessoes({ mesa, podePreparar, inicial }: {
     ?? lista.find((s) => s.status === 'em_andamento')?.id ?? lista.at(-1)?.id ?? null
   const escolhidaNaLista = lista.find((s) => s.id === atual)
 
-  return (
-    // três colunas no computador: as sessões, a sessão aberta e o painel do mestre
-    <div className="grid gap-6 xl:grid-cols-[16.5rem_minmax(0,1fr)] xl:items-start">
+  const listaESessaoNova = (
       <div className="min-w-0 space-y-6">
         <Secao titulo="Sessões">
           <Aviso erro={sessoes.error} />
@@ -285,7 +309,7 @@ export default function AbaSessoes({ mesa, podePreparar, inicial }: {
           <ul className="grid gap-2 sm:grid-cols-2 xl:grid-cols-1">
             {lista.map((s) => (
               <li key={s.id}>
-                <Escolhivel selecionado={s.id === atual} onClick={() => setEscolhida(s.id)}>
+                <Escolhivel selecionado={s.id === atual} onClick={() => { setEscolhida(s.id); setListaAberta(false) }}>
                   <span className="block font-semibold">{s.titulo}</span>
                   <span className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-texto-suave">
                     {dataCurta(s.data)} · Medo {s.medo}{!s.sou_responsavel && ` · de ${s.responsavel}`}
@@ -317,6 +341,22 @@ export default function AbaSessoes({ mesa, podePreparar, inicial }: {
           </Secao>
         )}
       </div>
+  )
+
+  return (
+    // três colunas no computador: as sessões, a sessão aberta e o painel do mestre
+    <div className="grid gap-6 xl:grid-cols-[16.5rem_minmax(0,1fr)] xl:items-start">
+      {/* no celular, quem conduz uma sessão vai direto a ela; a lista fica a um toque */}
+      {celular && escolhidaNaLista?.posso_gerir ? (
+        <details open={listaAberta} onToggle={(e) => setListaAberta(e.currentTarget.open)}
+          className="group min-w-0 rounded-xl border border-borda">
+          <summary className="flex min-h-11 cursor-pointer items-center px-3 text-sm text-texto-suave">
+            <span aria-hidden className="mr-2 text-xs transition-transform group-open:rotate-90">▶</span>
+            Outras sessões ({lista.length}) ou nova sessão
+          </summary>
+          <div className="px-3 pb-3 pt-1">{listaESessaoNova}</div>
+        </details>
+      ) : listaESessaoNova}
 
       <div key={atual} className="entrada min-w-0">
         {atual && (escolhidaNaLista?.posso_gerir

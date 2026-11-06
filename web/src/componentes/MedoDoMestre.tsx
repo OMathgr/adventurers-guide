@@ -6,6 +6,42 @@ const MAXIMO = 12
 
 type Mudanca = { delta: number } | { valor: number }
 
+/** No celular, com a sessão em andamento: o Medo fica sempre à mão, acima do
+    menu, como as marcas do jogador. Os botões são a forma de mudar (losangos tão
+    pequenos não dão para tocar). */
+export function MedoFixo({ medo, titulo, aoMudar, ocupado, erro }: {
+  medo: number; titulo: string; aoMudar?: (m: Mudanca) => void; ocupado?: boolean; erro?: unknown
+}) {
+  const mudanca = useMudanca(medo)
+  const alto = medo >= 9
+  return (
+    <div role="group" aria-label={titulo} data-marcas-fixas data-alto={alto || undefined}
+      className={`fixed inset-x-0 bottom-14 z-20 !m-0 border-t px-4 py-2 ${alto ? 'border-t-2 border-medo bg-[color-mix(in_srgb,var(--medo)_25%,var(--superficie))]' : 'border-medo/60 bg-[color-mix(in_srgb,var(--medo)_10%,var(--superficie))]'}`}>
+      <Aviso erro={erro} />
+      <div className="flex items-center gap-3">
+        <span className="rubrica text-medo">Medo</span>
+        <p className="font-titulo leading-none">
+          <span className={`text-3xl font-bold text-medo ${mudanca ? 'numero-muda' : ''}`} aria-live="polite">{medo}</span>
+          <span className="text-sm text-texto-suave">/{MAXIMO}</span>
+        </p>
+        <div aria-hidden className="grid grid-cols-6 gap-1.5">
+          {Array.from({ length: MAXIMO }, (_, i) => (
+            <span key={i} className={`h-2 w-2 rotate-45 rounded-[1px] border border-medo ${i < medo ? 'bg-medo' : ''} ${mudouAqui(mudanca, i) ? 'marca-muda' : ''}`} />
+          ))}
+        </div>
+        {aoMudar && (
+          <div className="ml-auto flex gap-2">
+            <Botao variante="secundario" className="!min-h-11 !w-11 !px-0 !text-2xl !leading-none" aria-label="Gastar 1 de Medo"
+              disabled={ocupado || medo === 0} onClick={() => aoMudar({ delta: -1 })}>−</Botao>
+            <Botao variante="secundario" className="!min-h-11 !w-11 !px-0 !text-2xl !leading-none" aria-label="Ganhar 1 de Medo"
+              disabled={ocupado || medo === MAXIMO} onClick={() => aoMudar({ delta: 1 })}>+</Botao>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
 export default function MedoDoMestre({ medo, titulo = 'Medo', aoMudar, ocupado, erro }: {
   medo: number; titulo?: string; aoMudar?: (m: Mudanca) => void; ocupado?: boolean; erro?: unknown
 }) {
